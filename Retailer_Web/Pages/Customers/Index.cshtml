@@ -1,0 +1,11 @@
+@page
+@model Retailer.POS.Web.Pages.Customers.IndexModel
+<h2>Customers</h2>
+<table>
+<thead><tr><th>Name</th><th>Mobile</th></tr></thead>
+<tbody>
+@foreach(var it in Model.Items) {
+<tr><td>@it.Name</td><td>@it.Mobile</td></tr>
+}
+</tbody>
+</table>

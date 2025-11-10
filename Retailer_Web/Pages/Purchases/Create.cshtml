@@ -1,0 +1,14 @@
+@page
+@model Retailer.POS.Web.Pages.Purchases.CreateModel
+<h2>Create Purchase</h2>
+<form method="post">
+  <div>
+    <label>SupplierID</label>
+    <input asp-for="Input.SupplierID" />
+  </div>
+  <div>
+    <label>SubTotal</label>
+    <input asp-for="Input.SubTotal" />
+  </div>
+  <button type="submit">Create</button>
+</form>

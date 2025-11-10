@@ -1,0 +1,15 @@
+@page
+@model IndexModel
+@{
+    ViewData["Title"] = "Home";
+}
+<h2>Retailer.POS Dashboard</h2>
+<ul>
+  <li><a asp-page="/Items/Index">Items</a></li>
+  <li><a asp-page="/Customers/Index">Customers</a></li>
+  <li><a asp-page="/Vendors/Index">Vendors</a></li>
+  <li><a asp-page="/Branches/Index">Branches</a></li>
+  <li><a asp-page="/Employees/Index">Employees</a></li>
+  <li><a asp-page="/Purchases/Create">Create Purchase</a></li>
+  <li><a asp-page="/Auth/Login">Login (API JWT demo)</a></li>
+</ul>
