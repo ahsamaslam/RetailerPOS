@@ -1,0 +1,14 @@
+@page "{id:int}"
+@model Retailer.POS.Web.Pages.Customers.DetailsModel
+@inject Retailer.POS.Web.Services.IApiClient ApiClient
+
+<h2>Customer Details</h2>
+
+<div>
+    <p><strong>Name:</strong> @Model.Customer.Name</p>
+    <p><strong>Mobile:</strong> @Model.Customer.Mobile</p>
+    <p><strong>City:</strong> @Model.Customer.City</p>
+    <p><strong>Province:</strong> @Model.Customer.Province</p>
+</div>
+
+<a asp-page="Index" class="btn btn-secondary">Back</a>

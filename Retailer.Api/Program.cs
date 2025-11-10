@@ -6,6 +6,7 @@ using Retailer.POS.Api.Data;
 using Retailer.POS.Api.Mappings;
 using Retailer.POS.Api.Repositories;
 using Retailer.POS.Api.Services;
+using Retailer.POS.API.UnitOfWork;
 
 var builder = WebApplication.CreateBuilder(args);
 

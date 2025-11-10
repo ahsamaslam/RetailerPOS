@@ -1,0 +1,46 @@
+@page
+@model Retailer.POS.Web.Pages.Sales.CreateModel
+@inject Retailer.POS.Web.Services.IApiClient ApiClient
+
+<h2>Create Sale</h2>
+
+<form method="post">
+    <div class="mb-3">
+        <label>Customer</label>
+        <input asp-for="Sale.Master.CustomerName" class="form-control" />
+    </div>
+    <div class="mb-3">
+        <label>Date</label>
+        <input asp-for="Sale.Master.Date" type="date" class="form-control" />
+    </div>
+
+    <h4>Sale Items</h4>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Item Name</th>
+                <th>Rate</th>
+                <th>Qty</th>
+                <th>Discount</th>
+                <th>Tax %</th>
+                <th>Amount</th>
+            </tr>
+        </thead>
+        <tbody>
+            @for (int i = 0; i < Model.Sale.Details.Count; i++)
+            {
+                <tr>
+                    <td><input asp-for="@Model.Sale.Details[i].ItemName" class="form-control" /></td>
+                    <td><input asp-for="@Model.Sale.Details[i].Rate" class="form-control" /></td>
+                    <td><input asp-for="@Model.Sale.Details[i].Qty" class="form-control" /></td>
+                    <td><input asp-for="@Model.Sale.Details[i].Discount" class="form-control" /></td>
+                    <td><input asp-for="@Model.Sale.Details[i].TaxPercentage" class="form-control" /></td>
+                    <td>@Model.Sale.Details[i].Amount</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <button type="submit" class="btn btn-success">Save</button>
+    <a asp-page="Index" class="btn btn-secondary">Cancel</a>
+</form>

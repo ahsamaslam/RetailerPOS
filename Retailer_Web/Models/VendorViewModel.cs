@@ -1,5 +1,5 @@
 namespace Retailer.POS.Web.Models;
-public class Customer
+public class VendorViewModel
 {
     public int Id { get; set; }
     public string Name { get; set; } = string.Empty;

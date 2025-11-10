@@ -1,0 +1,27 @@
+@page "{id:int}"
+@model Retailer.POS.Web.Pages.Vendors.EditModel
+@inject Retailer.POS.Web.Services.IApiClient ApiClient
+
+<h2>Edit Vendor</h2>
+
+<form method="post">
+    <input type="hidden" asp-for="Vendor.Id" />
+    <div class="mb-3">
+        <label>Name</label>
+        <input asp-for="Vendor.Name" class="form-control" />
+    </div>
+    <div class="mb-3">
+        <label>Mobile</label>
+        <input asp-for="Vendor.Mobile" class="form-control" />
+    </div>
+    <div class="mb-3">
+        <label>City</label>
+        <input asp-for="Vendor.City" class="form-control" />
+    </div>
+    <div class="mb-3">
+        <label>Province</label>
+        <input asp-for="Vendor.Province" class="form-control" />
+    </div>
+    <button type="submit" class="btn btn-success">Update</button>
+    <a asp-page="Index" class="btn btn-secondary">Cancel</a>
+</form>

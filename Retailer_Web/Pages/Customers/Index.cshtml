@@ -1,11 +1,33 @@
 @page
 @model Retailer.POS.Web.Pages.Customers.IndexModel
+@inject Retailer.POS.Web.Services.IApiClient ApiClient
+
 <h2>Customers</h2>
-<table>
-<thead><tr><th>Name</th><th>Mobile</th></tr></thead>
-<tbody>
-@foreach(var it in Model.Items) {
-<tr><td>@it.Name</td><td>@it.Mobile</td></tr>
-}
-</tbody>
+<a asp-page="Create" class="btn btn-primary">Create New Customer</a>
+
+<table class="table table-striped mt-2">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Mobile</th>
+            <th>City</th>
+            <th>Province</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var customer in Model.Customers)
+        {
+            <tr>
+                <td>@customer.Name</td>
+                <td>@customer.Mobile</td>
+                <td>@customer.City</td>
+                <td>@customer.Province</td>
+                <td>
+                    <a asp-page="Edit" asp-route-id="@customer.Id" class="btn btn-sm btn-warning">Edit</a>
+                    <a asp-page="Details" asp-route-id="@customer.Id" class="btn btn-sm btn-info">Details</a>
+                </td>
+            </tr>
+        }
+    </tbody>
 </table>

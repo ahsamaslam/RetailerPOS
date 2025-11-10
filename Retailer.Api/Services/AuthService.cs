@@ -2,10 +2,9 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
-using Retailer.POS.Api.Entities;
 using Retailer.POS.Api.Repositories;
+using Retailer.POS.API.UnitOfWork;
 
 namespace Retailer.POS.Api.Services;
 public class AuthService : IAuthService

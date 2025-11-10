@@ -5,6 +5,14 @@ public interface IUnitOfWork : IDisposable
     IGenericRepository<Item> Items { get; }
     IGenericRepository<PurchaseMaster> PurchaseMasters { get; }
     IGenericRepository<PurchaseDetail> PurchaseDetails { get; }
-    // add others as needed
+    IGenericRepository<Customer> Customers { get; }
+    IGenericRepository<Vendor> Vendors { get; }
+    IGenericRepository<Branch> Branches { get; }
+    IGenericRepository<Employee> Employees { get; }
+    IGenericRepository<SalesMaster> SalesMasters { get; }
+    IGenericRepository<SalesDetail> SalesDetails { get; }
+    IGenericRepository<StockTransfer> StockTransfers { get; }
+    IGenericRepository<StockTransferDetail> StockTransferDetails { get; }
+    IGenericRepository<Login> Logins { get; }
     Task<int> SaveChangesAsync();
 }

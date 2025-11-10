@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Retailer.POS.Api.DTOs;
 using Retailer.POS.Api.Entities;
 using Retailer.POS.Api.Repositories;
+using Retailer.POS.API.UnitOfWork;
 
 namespace Retailer.POS.Api.Services;
 public class PurchaseService : IPurchaseService

@@ -1,0 +1,31 @@
+@page "{id:int}"
+@model Retailer.POS.Web.Pages.Employees.EditModel
+@inject Retailer.POS.Web.Services.IApiClient ApiClient
+
+<h2>Edit Employee</h2>
+
+<form method="post">
+    <input type="hidden" asp-for="Employee.Id" />
+    <div class="mb-3">
+        <label>First Name</label>
+        <input asp-for="Employee.FirstName" class="form-control" />
+    </div>
+    <div class="mb-3">
+        <label>Last Name</label>
+        <input asp-for="Employee.LastName" class="form-control" />
+    </div>
+    <div class="mb-3">
+        <label>City</label>
+        <input asp-for="Employee.City" class="form-control" />
+    </div>
+    <div class="mb-3">
+        <label>Province</label>
+        <input asp-for="Employee.Province" class="form-control" />
+    </div>
+    <div class="mb-3">
+        <label>Mobile</label>
+        <input asp-for="Employee.Mobile1" class="form-control" />
+    </div>
+    <button type="submit" class="btn btn-success">Update</button>
+    <a asp-page="Index" class="btn btn-secondary">Cancel</a>
+</form>

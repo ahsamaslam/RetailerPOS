@@ -1,0 +1,43 @@
+@page "{id:int}"
+@model Retailer.POS.Web.Pages.Sales.DetailsModel
+@inject Retailer.POS.Web.Services.IApiClient ApiClient
+
+<h2>Sale Details</h2>
+
+<div>
+    <p><strong>Customer:</strong> @Model.Sale.Master.CustomerName</p>
+    <p><strong>Date:</strong> @Model.Sale.Master.Date.ToShortDateString()</p>
+    <p><strong>Subtotal:</strong> @Model.Sale.Master.SubTotal</p>
+    <p><strong>Total Discount:</strong> @Model.Sale.Master.TotalDiscount</p>
+    <p><strong>Tax Amount:</strong> @Model.Sale.Master.TaxAmount</p>
+    <p><strong>Balance Amount:</strong> @Model.Sale.Master.BalanceAmount</p>
+</div>
+
+<h4>Items</h4>
+<table class="table">
+    <thead>
+        <tr>
+            <th>Item Name</th>
+            <th>Rate</th>
+            <th>Qty</th>
+            <th>Discount</th>
+            <th>Tax %</th>
+            <th>Amount</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var detail in Model.Sale.Details)
+        {
+            <tr>
+                <td>@detail.ItemName</td>
+                <td>@detail.Rate</td>
+                <td>@detail.Qty</td>
+                <td>@detail.Discount</td>
+                <td>@detail.TaxPercentage</td>
+                <td>@detail.Amount</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<a asp-page="Index" class="btn btn-secondary">Back</a>
