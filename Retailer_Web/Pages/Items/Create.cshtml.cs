@@ -4,7 +4,8 @@ using Microsoft.AspNetCore.Mvc;
 using Retailer.POS.Web.Services;
 using Retailer.POS.Web.DTOs;
 
-namespace Retailer.POS.Web.Pages.Items.CreateModel;
+namespace Retailer.POS.Web.Pages.Items;
+
 public class CreateModel : PageModel
 {
     private readonly IApiClient _api;

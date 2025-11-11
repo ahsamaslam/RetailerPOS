@@ -1,9 +1,8 @@
-using System.Net.Http.Json;
 using Retailer.POS.Web.Models;
-using Retailer.POS.Api.DTOs;
 using System.Text.Json;
 using System.Net.Http.Headers;
 using Retailer.Web.Models;
+using Retailer.POS.Web.DTOs;
 
 namespace Retailer.POS.Web.Services;
 public class ApiClient : IApiClient
@@ -207,6 +206,12 @@ public class ApiClient : IApiClient
         resp.EnsureSuccessStatusCode();
 
         // Return whether the request succeeded.
+        return resp.IsSuccessStatusCode;
+    }
+    public async Task<bool> UpdateItemAsync(ItemDto dto)
+    {
+        if (dto == null) throw new ArgumentNullException(nameof(dto));
+        var resp = await _http.PutAsJsonAsync($"api/items/{dto.Id}", dto);
         return resp.IsSuccessStatusCode;
     }
 

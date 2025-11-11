@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Retailer.POS.Api.DTOs;
+using Retailer.POS.Web.DTOs;
 using Retailer.POS.Web.Services;
 namespace Retailer.POS.Web.Pages.Purchases;
 public class CreateModel : PageModel

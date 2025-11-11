@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Retailer.POS.Web.DTOs;
 using Retailer.POS.Web.Services;
 
-namespace Retailer.POS.Web.Pages.Items.IndexModel;
+namespace Retailer.POS.Web.Pages.Items;
 public class IndexModel : PageModel
 {
     private readonly IApiClient _api;

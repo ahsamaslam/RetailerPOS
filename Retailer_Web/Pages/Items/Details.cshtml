@@ -1,0 +1,18 @@
+﻿@page "{id:int}"
+@model Retailer.POS.Web.Pages.Items.DetailsModel
+@{
+    ViewData["Title"] = "Item Details";
+}
+
+<h2>Item Details</h2>
+
+<table class="table">
+    <tr><th>Name</th><td>@Model.Item.Name</td></tr>
+    <tr><th>Barcode</th><td>@Model.Item.Barcode</td></tr>
+    <tr><th>Rate</th><td>@Model.Item.Rate</td></tr>
+    <tr><th>Cost</th><td>@Model.Item.Cost</td></tr>
+    <tr><th>Category</th><td>@Model.Item.CategoryName</td></tr>
+    <tr><th>Group</th><td>@Model.Item.GroupName</td></tr>
+    <tr><th>SubGroup</th><td>@Model.Item.SubGroupName</td></tr>
+</table>
+<a asp-page="Index" class="btn btn-secondary">Back to List</a>
