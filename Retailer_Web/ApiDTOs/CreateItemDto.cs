@@ -1,4 +1,4 @@
-namespace Retailer.POS.Api.DTOs;
+namespace Retailer.POS.Web.DTOs;
 public class CreateItemDto
 {
     public string Name { get; set; } = string.Empty;

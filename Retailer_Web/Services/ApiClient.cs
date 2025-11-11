@@ -12,11 +12,11 @@ public class ApiClient : IApiClient
     private readonly HttpClient _http;
     public ApiClient(HttpClient http) => _http = http;
 
-    public async Task<IEnumerable<ItemDto>> GetItemsAsync()
+    public async Task<List<ItemDto>> GetItemsAsync()
     {
         var r = await _http.GetAsync("api/items");
         r.EnsureSuccessStatusCode();
-        return await r.Content.ReadFromJsonAsync<IEnumerable<ItemDto>>() ?? Enumerable.Empty<ItemDto>();
+        return await r.Content.ReadFromJsonAsync<List<ItemDto>>() ?? new List<ItemDto>();
     }
 
     public async Task<ItemDto?> GetItemAsync(int id)
@@ -49,17 +49,11 @@ public class ApiClient : IApiClient
         return null;
     }
 
-    public async Task<IEnumerable<Branch>> GetBranchesAsync()
+    public async Task<List<Branch>> GetBranchesAsync()
     {
         var r = await _http.GetAsync("api/branches");
         r.EnsureSuccessStatusCode();
-        return await r.Content.ReadFromJsonAsync<IEnumerable<Branch>>() ?? Enumerable.Empty<Branch>();
-    }
-
-    private void SetJwtToken(string? token)
-    {
-        _http.DefaultRequestHeaders.Authorization =
-            string.IsNullOrEmpty(token) ? null : new AuthenticationHeaderValue("Bearer", token);
+        return await r.Content.ReadFromJsonAsync<List<Branch>>() ?? new List<Branch>();
     }
 
     // Example Employee API calls
@@ -128,4 +122,95 @@ public class ApiClient : IApiClient
     {
         return await _http.GetFromJsonAsync<List<SalesViewModel>>("api/Sales");
     }
+    // -------- Category --------
+    public async Task<List<ItemCategoryViewModel>> GetCategoriesAsync()
+        => await _http.GetFromJsonAsync<List<ItemCategoryViewModel>>("api/Categories");
+
+    public async Task<ItemCategoryViewModel?> GetCategoryAsync(int id)
+        => await _http.GetFromJsonAsync<ItemCategoryViewModel>($"api/Categories/{id}");
+
+    public async Task<bool> CreateCategoryAsync(ItemCategoryViewModel dto)
+    {
+        var resp = await _http.PostAsJsonAsync("api/Categories", dto);
+        return resp.IsSuccessStatusCode;
+    }
+
+    public async Task UpdateCategoryAsync(ItemCategoryViewModel dto)
+    {
+
+        if (dto == null) throw new ArgumentNullException(nameof(dto));
+        if (dto.Id <= 0) throw new ArgumentException("category Id must be set on DTO when updating.");
+        var resp = await _http.PutAsJsonAsync($"api/Categories/{dto.Id}", dto);
+        resp.EnsureSuccessStatusCode();
+    }
+
+    public async Task DeleteCategoryAsync(int id)
+        => await _http.DeleteAsync($"api/Categories/{id}");
+
+    // -------- Group --------
+    public async Task<List<ItemGroupViewModel>> GetGroupsAsync()
+        => await _http.GetFromJsonAsync<List<ItemGroupViewModel>>("api/groups");
+
+    public async Task<ItemGroupViewModel?> GetGroupAsync(int id)
+        => await _http.GetFromJsonAsync<ItemGroupViewModel>($"api/groups/{id}");
+
+    public async Task<bool> CreateGroupAsync(ItemGroupViewModel dto)
+    {
+        var resp = await _http.PostAsJsonAsync("api/groups", dto);
+        return resp.IsSuccessStatusCode;
+    }
+
+    public async Task<bool> UpdateGroupAsync(ItemGroupViewModel dto)
+    {
+        if (dto == null)
+            throw new ArgumentNullException(nameof(dto));
+
+        if (dto.Id <= 0)
+            throw new ArgumentException("Group Id must be set on DTO when updating.");
+
+        var resp = await _http.PutAsJsonAsync($"api/groups/{dto.Id}", dto);
+
+        // Optional: this throws an exception if not successful.
+        resp.EnsureSuccessStatusCode();
+
+        // Return whether the request succeeded.
+        return resp.IsSuccessStatusCode;
+    }
+
+    public async Task DeleteGroupAsync(int id)
+        => await _http.DeleteAsync($"api/groups/{id}");
+
+    // -------- SubGroup --------
+    public async Task<List<ItemSubGroupViewModel>> GetSubGroupsAsync()
+        => await _http.GetFromJsonAsync<List<ItemSubGroupViewModel>>("api/subgroups");
+
+    public async Task<ItemSubGroupViewModel?> GetSubGroupAsync(int id)
+        => await _http.GetFromJsonAsync<ItemSubGroupViewModel>($"api/subgroups/{id}");
+
+    public async Task<bool> CreateSubGroupAsync(ItemSubGroupViewModel dto)
+    {
+        var resp = await _http.PostAsJsonAsync("api/subgroups", dto);
+        return resp.IsSuccessStatusCode;
+    }
+
+    public async Task<bool> UpdateSubGroupAsync(ItemSubGroupViewModel dto)
+    {
+        if (dto == null)
+            throw new ArgumentNullException(nameof(dto));
+
+        if (dto.Id <= 0)
+            throw new ArgumentException("SubGroup Id must be set on DTO when updating.");
+
+        var resp = await _http.PutAsJsonAsync($"api/subgroups/{dto.Id}", dto);
+
+        // Optional: this throws an exception if not successful.
+        resp.EnsureSuccessStatusCode();
+
+        // Return whether the request succeeded.
+        return resp.IsSuccessStatusCode;
+    }
+
+    public async Task DeleteSubGroupAsync(int id)
+        => await _http.DeleteAsync($"api/subgroups/{id}");
+
 }

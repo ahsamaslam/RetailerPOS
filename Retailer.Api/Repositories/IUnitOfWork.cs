@@ -1,3 +1,4 @@
+using Retailer.Api.DTOs;
 using Retailer.POS.Api.Entities;
 namespace Retailer.POS.Api.Repositories;
 public interface IUnitOfWork : IDisposable
@@ -14,5 +15,10 @@ public interface IUnitOfWork : IDisposable
     IGenericRepository<StockTransfer> StockTransfers { get; }
     IGenericRepository<StockTransferDetail> StockTransferDetails { get; }
     IGenericRepository<Login> Logins { get; }
+    IGenericRepository<ItemCategory> ItemCategories { get; }
+    IGenericRepository<ItemGroup> ItemGroups { get; }
+    IGenericRepository<ItemSubGroup> ItemSubGroups { get; }
+    Task<List<ItemSubGroupDto>> GetSubGroupsWithGroupAsync();
+    Task<ItemSubGroupDto?> GetSubGroupByIdWithGroupAsync(int id);
     Task<int> SaveChangesAsync();
 }

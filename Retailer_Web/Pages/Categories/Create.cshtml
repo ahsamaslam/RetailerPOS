@@ -1,0 +1,13 @@
+﻿@page
+@model Retailer.POS.Web.Pages.Categories.CreateModel
+
+<h2>Create Category</h2>
+
+<form method="post">
+    <div class="mb-3">
+        <label>Name</label>
+        <input asp-for="Category.Name" class="form-control" />
+    </div>
+    <button type="submit" class="btn btn-primary">Create</button>
+    <a asp-page="Index" class="btn btn-secondary">Cancel</a>
+</form>

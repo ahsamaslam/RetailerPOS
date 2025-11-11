@@ -1,0 +1,33 @@
+﻿@page
+@model Retailer.POS.Web.Pages.SubGroups.IndexModel
+@{
+    ViewData["Title"] = "Item SubGroups";
+}
+<h2>Item SubGroups</h2>
+
+<a asp-page="Create" class="btn btn-primary mb-2">Create New SubGroup</a>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Id</th>
+            <th>Name</th>
+            <th>Group</th>
+            <th style="width:200px">Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var s in Model.SubGroups)
+        {
+            <tr>
+                <td>@s.Id</td>
+                <td>@s.Name</td>
+                <td>@s.GroupName</td>
+                <td>
+                    <a asp-page="Edit" asp-route-id="@s.Id" class="btn btn-sm btn-warning">Edit</a>
+                    <a asp-page="Details" asp-route-id="@s.Id" class="btn btn-sm btn-info">Details</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

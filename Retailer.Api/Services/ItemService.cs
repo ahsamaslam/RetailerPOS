@@ -34,23 +34,50 @@ public class ItemService : IItemService
 
     public async Task<IEnumerable<ItemDto>> GetAllAsync()
     {
-        var list = await _uow.Items.Query()
-            .Include(i => i.Category)
-            .Include(i => i.Group)
-            .Include(i => i.SubGroup)
-            .Include(i => i.ItemType)
-            .Include(i => i.UnitOfMeasure)
-            .ToListAsync();
 
-        return _mapper.Map<IEnumerable<ItemDto>>(list);
+
+        var items = await _uow.Items.Query() // IQueryable<Item>
+         .Include(i => i.Category)
+         .Include(i => i.Group)
+         .Include(i => i.SubGroup)
+         .Select(i => new ItemDto
+         {
+             Id = i.Id,
+             Name = i.Name,
+             Barcode = i.Barcode,
+             Rate = i.Rate,
+             Cost = i.Cost,
+             CategoryName = i.Category != null ? i.Category.Name : null,
+             GroupName = i.Group != null ? i.Group.Name : null,
+             SubGroupName = i.SubGroup != null ? i.SubGroup.Name : null
+         })
+         .ToListAsync();
+
+        return _mapper.Map<IEnumerable<ItemDto>>(items);
     }
 
     public async Task<ItemDto?> GetByIdAsync(int id)
     {
-        var e = await _uow.Items.Query()
-            .Include(i => i.Category)
-            .FirstOrDefaultAsync(i => i.Id == id);
-        return e is null ? null : _mapper.Map<ItemDto>(e);
+        var item = await _uow.Items.Query()
+        .Include(i => i.Category)
+        .Include(i => i.Group)
+        .Include(i => i.SubGroup)
+        .Where(i => i.Id == id)
+        .Select(i => new ItemDto
+        {
+            Id = i.Id,
+            Name = i.Name,
+            Barcode = i.Barcode,
+            Rate = i.Rate,
+            Cost = i.Cost,
+            CategoryName = i.Category != null ? i.Category.Name : null,
+            GroupName = i.Group != null ? i.Group.Name : null,
+            SubGroupName = i.SubGroup != null ? i.SubGroup.Name : null
+        })
+        .FirstOrDefaultAsync();
+
+
+        return item is null ? new ItemDto() : _mapper.Map<ItemDto>(item);
     }
 
     public async Task UpdateAsync(int id, CreateItemDto dto)

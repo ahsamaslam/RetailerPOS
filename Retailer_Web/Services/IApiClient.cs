@@ -1,16 +1,17 @@
 using Retailer.POS.Web.Models;
-using Retailer.POS.Api.DTOs;
 using Retailer.Web.Models;
+using Retailer.POS.Web.DTOs;
 
 namespace Retailer.POS.Web.Services;
 public interface IApiClient
 {
-    Task<IEnumerable<ItemDto>> GetItemsAsync();
+    Task<List<ItemDto>> GetItemsAsync();
     Task<ItemDto?> GetItemAsync(int id);
     Task<ItemDto> CreateItemAsync(CreateItemDto dto);
+    Task<bool> UpdateItemAsync(ItemDto dto);
     Task<PurchaseMasterDto> CreatePurchaseAsync(CreatePurchaseDto dto);
     Task<string?> LoginAsync(string username, string password);
-    Task<IEnumerable<Branch>> GetBranchesAsync();
+    Task<List<Branch>> GetBranchesAsync();
     Task<List<EmployeeViewModel>> GetEmployeesAsync();
     Task<EmployeeViewModel?> GetEmployeeByIdAsync(int id);
     Task<bool> CreateEmployeeAsync(EmployeeViewModel employee);
@@ -31,5 +32,25 @@ public interface IApiClient
     Task UpdateSaleAsync(SalesViewModel sale);
     Task DeleteSaleAsync(int id);
     Task<List<SalesViewModel>> GetSalesAsync();
+    // Category
+    Task<List<ItemCategoryViewModel>> GetCategoriesAsync();
+    Task<ItemCategoryViewModel?> GetCategoryAsync(int id);
+    Task<bool> CreateCategoryAsync(ItemCategoryViewModel dto);
+    Task UpdateCategoryAsync(ItemCategoryViewModel dto);
+    Task DeleteCategoryAsync(int id);
+
+    // Group
+    Task<List<ItemGroupViewModel>> GetGroupsAsync();
+    Task<ItemGroupViewModel?> GetGroupAsync(int id);
+    Task<bool> CreateGroupAsync(ItemGroupViewModel dto);
+    Task<bool> UpdateGroupAsync(ItemGroupViewModel dto);
+    Task DeleteGroupAsync(int id);
+
+    // SubGroup
+    Task<List<ItemSubGroupViewModel>> GetSubGroupsAsync();
+    Task<ItemSubGroupViewModel?> GetSubGroupAsync(int id);
+    Task<bool> CreateSubGroupAsync(ItemSubGroupViewModel dto);
+    Task<bool> UpdateSubGroupAsync(ItemSubGroupViewModel dto);
+    Task DeleteSubGroupAsync(int id);
 
 }

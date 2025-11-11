@@ -1,3 +1,5 @@
+using Retailer.Api.DTOs;
+using Retailer.Api.Repositories;
 using Retailer.POS.Api.Data;
 using Retailer.POS.Api.Entities;
 using Retailer.POS.Api.Repositories;
@@ -10,6 +12,8 @@ namespace Retailer.POS.API.UnitOfWork
         public UnitOfWork(RetailerDbContext context)
         {
             _context = context;
+            _itemSubGroups = new ItemSubGroupRepository(_context); // use custom repository
+
         }
 
         private IGenericRepository<Item> _items;
@@ -24,6 +28,9 @@ namespace Retailer.POS.API.UnitOfWork
         private IGenericRepository<StockTransfer> _stockTransfers;
         private IGenericRepository<StockTransferDetail> _stockTransferDetails;
         private IGenericRepository<Login> _logins;
+        private IGenericRepository<ItemCategory>? _itemCategories;
+        private IGenericRepository<ItemGroup>? _itemGroups;
+        private IGenericRepository<ItemSubGroup>? _itemSubGroups;
 
         public IGenericRepository<Item> Items => _items ??= new GenericRepository<Item>(_context);
         public IGenericRepository<PurchaseMaster> PurchaseMasters => _purchaseMasters ??= new GenericRepository<PurchaseMaster>(_context);
@@ -37,6 +44,17 @@ namespace Retailer.POS.API.UnitOfWork
         public IGenericRepository<StockTransfer> StockTransfers => _stockTransfers ??= new GenericRepository<StockTransfer>(_context);
         public IGenericRepository<StockTransferDetail> StockTransferDetails => _stockTransferDetails ??= new GenericRepository<StockTransferDetail>(_context);
         public IGenericRepository<Login> Logins => _logins ??= new GenericRepository<Login>(_context);
+        public IGenericRepository<ItemCategory> ItemCategories => _itemCategories ??= new GenericRepository<ItemCategory>(_context);
+        public IGenericRepository<ItemGroup> ItemGroups => _itemGroups ??= new GenericRepository<ItemGroup>(_context);
+        public IGenericRepository<ItemSubGroup> ItemSubGroups => _itemSubGroups ??= new GenericRepository<ItemSubGroup>(_context);
+        public async Task<List<ItemSubGroupDto>> GetSubGroupsWithGroupAsync()
+        {
+            return await ((ItemSubGroupRepository)_itemSubGroups).GetAllWithGroupAsync();
+        }
+        public async Task<ItemSubGroupDto?> GetSubGroupByIdWithGroupAsync(int id)
+        {
+            return await ((ItemSubGroupRepository)_itemSubGroups).GetByIdWithGroupAsync(id);
+        }
         public RetailerDbContext GetDbContext()
         {
             return _context;

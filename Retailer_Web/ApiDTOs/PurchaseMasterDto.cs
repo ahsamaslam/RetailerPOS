@@ -1,4 +1,4 @@
-namespace Retailer.POS.Api.DTOs;
+namespace Retailer.POS.Web.DTOs;
 public class PurchaseMasterDto
 {
     public int Id { get; set; }

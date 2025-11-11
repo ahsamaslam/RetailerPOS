@@ -1,0 +1,14 @@
+﻿@page "{id:int}"
+@model Retailer.POS.Web.Pages.Categories.EditModel
+
+<h2>Edit Category</h2>
+
+<form method="post">
+    <input type="hidden" asp-for="Category.Id" />
+    <div class="mb-3">
+        <label>Name</label>
+        <input asp-for="Category.Name" class="form-control" />
+    </div>
+    <button type="submit" class="btn btn-success">Update</button>
+    <a asp-page="Index" class="btn btn-secondary">Cancel</a>
+</form>

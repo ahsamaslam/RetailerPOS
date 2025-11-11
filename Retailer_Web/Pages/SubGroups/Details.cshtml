@@ -1,0 +1,17 @@
+﻿@page "{id:int}"
+@model Retailer.POS.Web.Pages.SubGroups.DetailsModel
+@{
+    ViewData["Title"] = "SubGroup Details";
+}
+
+<h2>SubGroup Details</h2>
+
+<div class="card w-50">
+    <div class="card-body">
+        <p><strong>Id:</strong> @Model.SubGroup.Id</p>
+        <p><strong>Name:</strong> @Model.SubGroup.Name</p>
+        <p><strong>Group:</strong> @Model.SubGroup.GroupName</p>
+    </div>
+</div>
+
+<a asp-page="Index" class="btn btn-secondary mt-2">Back</a>

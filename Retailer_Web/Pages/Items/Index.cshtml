@@ -3,18 +3,33 @@
 @{
     ViewData["Title"] = "Items";
 }
+
 <h2>Items</h2>
 <a asp-page="Create">Create New</a>
 <table>
-  <thead><tr><th>Name</th><th>Rate</th><th>Category</th></tr></thead>
-  <tbody>
-    @foreach(var it in Model.Items)
-    {
-      <tr>
-        <td>@it.Name</td>
-        <td>@it.Rate</td>
-        <td>@it.CategoryName</td>
-      </tr>
-    }
-  </tbody>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Barcode</th>
+            <th>Rate</th>
+            <th>Cost</th>
+            <th>Category</th>
+            <th>Group</th>
+            <th>SubGroup</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var it in Model.Items)
+        {
+            <tr>
+                <td>@it.Name</td>
+                <td>@it.Barcode</td>
+                <td>@it.Rate</td>
+                <td>@it.Cost</td>
+                <td>@it.CategoryName</td>
+                <td>@it.GroupName</td>
+                <td>@it.SubGroupName</td>
+            </tr>
+        }
+    </tbody>
 </table>

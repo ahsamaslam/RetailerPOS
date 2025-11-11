@@ -1,12 +1,14 @@
-@page
-@model Retailer.POS.Web.Pages.Items.CreateModel
+﻿@page "{id:int}"
+@model Retailer.POS.Web.Pages.Items.EditModel
 @{
-    ViewData["Title"] = "Create Item";
+    ViewData["Title"] = "Edit Item";
 }
 
-<h2>Create Item</h2>
+<h2>Edit Item</h2>
 
 <form method="post">
+    <input type="hidden" asp-for="Input.Id" />
+
     <div>
         <label>Name</label>
         <input asp-for="Input.Name" class="form-control" />
@@ -35,5 +37,5 @@
         <label>SubGroup</label>
         <select asp-for="Input.SubGroupId" asp-items="Model.SubGroups" class="form-control"></select>
     </div>
-    <button type="submit" class="btn btn-primary">Create</button>
+    <button type="submit" class="btn btn-primary">Save</button>
 </form>

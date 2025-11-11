@@ -1,0 +1,32 @@
+﻿@page
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+@model Retailer.POS.Web.Pages.SubGroups.CreateModel
+@using Microsoft.AspNetCore.Mvc.Rendering
+@{
+    ViewData["Title"] = "Create SubGroup";
+}
+
+<h2>Create SubGroup</h2>
+
+<form method="post" class="w-50">
+    <div class="mb-3">
+        <label asp-for="SubGroup.Name" class="form-label">Name</label>
+        <input asp-for="SubGroup.Name" class="form-control" />
+        <span asp-validation-for="SubGroup.Name" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="SubGroup.GroupId" class="form-label">Group</label>
+        <select asp-for="SubGroup.GroupId" class="form-control" asp-items="Model.GroupSelectList">
+            <option value="">-- select group --</option>
+        </select>
+        <span asp-validation-for="SubGroup.GroupId" class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Create</button>
+    <a asp-page="Index" class="btn btn-secondary">Cancel</a>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

@@ -1,0 +1,24 @@
+﻿@page "{id:int}"
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+@model Retailer.POS.Web.Pages.Groups.EditModel
+@{
+    ViewData["Title"] = "Edit Group";
+}
+
+<h2>Edit Group</h2>
+
+<form method="post" class="w-50">
+    <input type="hidden" asp-for="Group.Id" />
+    <div class="mb-3">
+        <label asp-for="Group.Name" class="form-label">Name</label>
+        <input asp-for="Group.Name" class="form-control" />
+        <span asp-validation-for="Group.Name" class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-success">Update</button>
+    <a asp-page="Index" class="btn btn-secondary">Cancel</a>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
