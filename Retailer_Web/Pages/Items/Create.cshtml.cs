@@ -18,6 +18,7 @@ public class CreateModel : PageModel
     public IEnumerable<SelectListItem> Categories { get; set; } = new List<SelectListItem>();
     public IEnumerable<SelectListItem> Groups { get; set; } = new List<SelectListItem>();
     public IEnumerable<SelectListItem> SubGroups { get; set; } = new List<SelectListItem>();
+    public IEnumerable<SelectListItem> ItemType { get; set; } = new List<SelectListItem>();
 
     public async Task OnGetAsync()
     {
@@ -28,6 +29,8 @@ public class CreateModel : PageModel
             .Select(g => new SelectListItem(g.Name, g.Id.ToString()));
 
         SubGroups = (await _api.GetSubGroupsAsync())
+            .Select(sg => new SelectListItem(sg.Name, sg.Id.ToString()));
+        ItemType = (await _api.GetItemTypeAsync())
             .Select(sg => new SelectListItem(sg.Name, sg.Id.ToString()));
     }
 

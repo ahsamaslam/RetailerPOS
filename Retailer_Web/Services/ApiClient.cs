@@ -3,6 +3,7 @@ using System.Text.Json;
 using System.Net.Http.Headers;
 using Retailer.Web.Models;
 using Retailer.POS.Web.DTOs;
+using static System.Net.WebRequestMethods;
 
 namespace Retailer.POS.Web.Services;
 public class ApiClient : IApiClient
@@ -218,4 +219,23 @@ public class ApiClient : IApiClient
     public async Task DeleteSubGroupAsync(int id)
         => await _http.DeleteAsync($"api/subgroups/{id}");
 
+    public async Task<List<ItemTypeViewModel>> GetItemTypeAsync() => await _http.GetFromJsonAsync<List<ItemTypeViewModel>>("api/ItemType");
+
+    public async Task<bool> CreateItemTypeAsync(ItemTypeViewModel dto)
+    {
+        var resp = await _http.PostAsJsonAsync("api/ItemType", dto);
+        return resp.IsSuccessStatusCode;
+    }
+
+    public async Task<ItemTypeViewModel?> GetItemTypeAsync(int id)  => await _http.GetFromJsonAsync<ItemTypeViewModel>($"api/ItemType/{id}");
+    
+
+    public async Task<bool> UpdateItemTypeAsync(ItemTypeViewModel ItemType)
+    {
+        var resp = await _http.PutAsJsonAsync($"api/ItemType/{ItemType.Id}", ItemType);
+        return resp.IsSuccessStatusCode;
+    }
+
+    public async Task<List<PurchaseViewModel>> GetPurchasesAsync() => await _http.GetFromJsonAsync<List<PurchaseViewModel>>("api/Purchases");
+    
 }

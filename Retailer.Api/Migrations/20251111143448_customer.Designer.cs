@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Retailer.POS.Api.Data;
 
@@ -11,9 +12,11 @@ using Retailer.POS.Api.Data;
 namespace Retailer.Api.Migrations
 {
     [DbContext(typeof(RetailerDbContext))]
-    partial class RetailerDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251111143448_customer")]
+    partial class customer
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -306,6 +309,10 @@ namespace Retailer.Api.Migrations
                     b.Property<int>("ItemId")
                         .HasColumnType("int");
 
+                    b.Property<string>("ItemName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<int>("PurchaseId")
                         .HasColumnType("int");
 
@@ -319,8 +326,6 @@ namespace Retailer.Api.Migrations
                         .HasColumnType("decimal(18,2)");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("ItemId");
 
                     b.HasIndex("PurchaseId");
 
@@ -353,22 +358,16 @@ namespace Retailer.Api.Migrations
                     b.Property<decimal>("SubTotal")
                         .HasColumnType("decimal(18,2)");
 
+                    b.Property<int>("SupplierID")
+                        .HasColumnType("int");
+
                     b.Property<decimal>("TaxAmount")
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<decimal>("Total")
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<int>("VendorID")
-                        .HasColumnType("int");
-
                     b.HasKey("Id");
-
-                    b.HasIndex("BranchId");
-
-                    b.HasIndex("LoginId");
-
-                    b.HasIndex("VendorID");
 
                     b.ToTable("PurchaseMasters");
                 });
@@ -630,48 +629,13 @@ namespace Retailer.Api.Migrations
 
             modelBuilder.Entity("Retailer.POS.Api.Entities.PurchaseDetail", b =>
                 {
-                    b.HasOne("Retailer.POS.Api.Entities.Item", "Item")
-                        .WithMany()
-                        .HasForeignKey("ItemId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("Retailer.POS.Api.Entities.PurchaseMaster", "Purchase")
                         .WithMany("Details")
                         .HasForeignKey("PurchaseId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Item");
-
                     b.Navigation("Purchase");
-                });
-
-            modelBuilder.Entity("Retailer.POS.Api.Entities.PurchaseMaster", b =>
-                {
-                    b.HasOne("Retailer.POS.Api.Entities.Branch", "Branch")
-                        .WithMany()
-                        .HasForeignKey("BranchId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Retailer.POS.Api.Entities.Login", "Login")
-                        .WithMany()
-                        .HasForeignKey("LoginId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Retailer.POS.Api.Entities.Vendor", "Vendor")
-                        .WithMany()
-                        .HasForeignKey("VendorID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Branch");
-
-                    b.Navigation("Login");
-
-                    b.Navigation("Vendor");
                 });
 
             modelBuilder.Entity("Retailer.POS.Api.Entities.SalesDetail", b =>

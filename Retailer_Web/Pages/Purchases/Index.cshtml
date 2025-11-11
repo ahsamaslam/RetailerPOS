@@ -1,0 +1,32 @@
+﻿@page
+@model Retailer.POS.Web.Pages.Purchases.IndexModel
+@inject Retailer.POS.Web.Services.IApiClient ApiClient
+
+<h2>Item Type</h2>
+<a asp-page="Create" class="btn btn-primary">Create New Purchases</a>
+
+<table class="table mt-2">
+    <thead>
+        <tr>
+            <th>Date</th>
+            <th>SubTotal</th>
+            <th>Total</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.Purchase    )
+        {
+            <tr>
+                <td>@item.Date.ToShortDateString()</td>
+                <td>@item.SubTotal</td>
+                <td>@item.Total</td>
+                <td>
+                    <a asp-page="Details" asp-route-id="@item.Id">Views</a> 
+                    <a asp-page="Edit" asp-route-id="@item.Id">Edit</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+    
+</table>

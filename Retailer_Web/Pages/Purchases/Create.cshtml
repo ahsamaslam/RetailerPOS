@@ -1,14 +1,122 @@
 @page
 @model Retailer.POS.Web.Pages.Purchases.CreateModel
 <h2>Create Purchase</h2>
+<h2>New Purchase</h2>
+
 <form method="post">
-  <div>
-    <label>SupplierID</label>
-    <input asp-for="Input.SupplierID" />
-  </div>
-  <div>
-    <label>SubTotal</label>
-    <input asp-for="Input.SubTotal" />
-  </div>
-  <button type="submit">Create</button>
+    <div class="mb-3">
+        <label asp-for="Purchase.Date" class="form-label"></label>
+        <input asp-for="Purchase.Date" class="form-control" type="date" />
+            <select asp-for="Purchase.VendorID" class="form-select">
+        @foreach (var item in Model.vendor)
+                            {
+                                <option value="@item.Value">@item.Text</option>
+                            }
+                        </select>
+    </div>
+
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Item</th>
+                <th>Rate</th>
+                <th>Qty</th>
+                <th>Amount</th>
+            </tr>
+        </thead>
+        <tbody id="detailsBody">
+            @for (int i = 0; i < Model.Purchase.Details.Count; i++)
+            {
+                <tr>
+                    <td>
+                        <select asp-for="Purchase.Details[@i].ItemId" class="form-select">
+                            @foreach (var item in Model.Items)
+                            {
+                                <option value="@item.Value">@item.Text</option>
+                            }
+                        </select>
+                    </td>
+                    <td><input asp-for="Purchase.Details[@i].Rate" class="form-control" /></td>
+                    <td><input asp-for="Purchase.Details[@i].Qty" class="form-control" /></td>
+                    <td>@(Model.Purchase.Details[@i].Qty * Model.Purchase.Details[@i].Rate)</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <button type="button" class="btn btn-secondary" id="addRow">Add Item</button>
+
+    <div class="mt-3">
+        <label>Subtotal:</label>
+        <input asp-for="Purchase.SubTotal" class="form-control" readonly />
+    </div>
+
+    <div class="mt-3">
+        <label>Total:</label>
+        <input asp-for="Purchase.Total" class="form-control" readonly />
+    </div>
+
+    <button type="submit" class="btn btn-primary mt-3">Save</button>
 </form>
+
+@section Scripts {
+         <script>
+                 let indexxx = 0;
+            // Serialize the item options safely from C# to JS
+            const items = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Items));
+        console.log(items);
+            document.getElementById('addRow').addEventListener('click', () => {
+                const tbody = document.getElementById('detailsBody');
+                const index = tbody.children.length;
+
+                // Build the <option> list in JS
+                const options = items.map(i => `<option value="${i.Value}">${i.Text}</option>`).join('');
+
+                const row = `
+                    <tr>
+                        <td>
+                            <select name="Purchase.Details[${index}].ItemId" class="form-select">
+                                ${options}
+                            </select>
+                        </td>
+                       
+                         <td><input name="Purchase.Details[${index}].Rate" class="form-control rate" value="0" /></td>
+                        <td><input name="Purchase.Details[${index}].Qty" class="form-control qty" value="1" /></td>
+                            <td><input name="Purchase.Details[${index}].Amount" readonly class="form-control amount" value="1" /></td>
+                    </tr>`;
+                tbody.insertAdjacentHTML('beforeend', row);
+
+        indexxx++;
+        updateCalculations();
+            });
+
+
+
+                  // Attach event listeners to dynamically recalculate totals
+        document.addEventListener("input", function (e) {
+            if (e.target.classList.contains("rate") || e.target.classList.contains("qty")) {
+                updateCalculations();
+            }
+        });
+
+           function updateCalculations() {
+            let subtotal = 0;
+
+            document.querySelectorAll("#detailsBody tr").forEach(row => {
+                console.log(row);
+                 const rate = parseFloat(row.querySelector(".rate").value) || 0;
+                  const qty = parseFloat(row.querySelector(".qty").value) || 0;
+                  const amount = rate * qty;
+
+                  row.querySelector(".amount").value = amount.toFixed(2);
+                subtotal += amount;
+            });
+
+            // Optionally update subtotal/total fields on the page:
+            const subtotalInput = document.querySelector("#Purchase_SubTotal");
+            const totalInput = document.querySelector("#Purchase_Total");
+            if (subtotalInput) subtotalInput.value = subtotal.toFixed(2);
+            if (totalInput) totalInput.value = subtotal.toFixed(2); // or add taxes if needed
+        }
+        </script>
+    }

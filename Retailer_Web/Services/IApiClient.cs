@@ -35,8 +35,11 @@ public interface IApiClient
     // Category
     Task<List<ItemCategoryViewModel>> GetCategoriesAsync();
     Task<ItemCategoryViewModel?> GetCategoryAsync(int id);
+    Task<ItemTypeViewModel?> GetItemTypeAsync(int id);
     Task<bool> CreateCategoryAsync(ItemCategoryViewModel dto);
+    Task<bool> CreateItemTypeAsync(ItemTypeViewModel dto);
     Task UpdateCategoryAsync(ItemCategoryViewModel dto);
+    Task<bool> UpdateItemTypeAsync(ItemTypeViewModel dto);
     Task DeleteCategoryAsync(int id);
 
     // Group
@@ -47,6 +50,8 @@ public interface IApiClient
     Task DeleteGroupAsync(int id);
 
     // SubGroup
+    Task<List<ItemTypeViewModel>> GetItemTypeAsync();
+    Task<List<PurchaseViewModel>> GetPurchasesAsync();
     Task<List<ItemSubGroupViewModel>> GetSubGroupsAsync();
     Task<ItemSubGroupViewModel?> GetSubGroupAsync(int id);
     Task<bool> CreateSubGroupAsync(ItemSubGroupViewModel dto);

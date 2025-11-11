@@ -12,7 +12,7 @@ public class PurchaseDetailDto
 {
     public int Id { get; set; }
     public int ItemId { get; set; }
-    public string ItemName { get; set; } = string.Empty;
+    public ItemDto Item { get; set; } 
     public decimal Rate { get; set; }
     public decimal Qty { get; set; }
 }

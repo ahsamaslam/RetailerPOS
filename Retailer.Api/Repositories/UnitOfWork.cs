@@ -31,6 +31,7 @@ namespace Retailer.POS.API.UnitOfWork
         private IGenericRepository<ItemCategory>? _itemCategories;
         private IGenericRepository<ItemGroup>? _itemGroups;
         private IGenericRepository<ItemSubGroup>? _itemSubGroups;
+        private IGenericRepository<ItemType>? _ItemTypes;
 
         public IGenericRepository<Item> Items => _items ??= new GenericRepository<Item>(_context);
         public IGenericRepository<PurchaseMaster> PurchaseMasters => _purchaseMasters ??= new GenericRepository<PurchaseMaster>(_context);
@@ -47,6 +48,9 @@ namespace Retailer.POS.API.UnitOfWork
         public IGenericRepository<ItemCategory> ItemCategories => _itemCategories ??= new GenericRepository<ItemCategory>(_context);
         public IGenericRepository<ItemGroup> ItemGroups => _itemGroups ??= new GenericRepository<ItemGroup>(_context);
         public IGenericRepository<ItemSubGroup> ItemSubGroups => _itemSubGroups ??= new GenericRepository<ItemSubGroup>(_context);
+
+        public IGenericRepository<ItemType> ItemTypes => _ItemTypes ??= new GenericRepository<ItemType>(_context);
+
         public async Task<List<ItemSubGroupDto>> GetSubGroupsWithGroupAsync()
         {
             return await ((ItemSubGroupRepository)_itemSubGroups).GetAllWithGroupAsync();

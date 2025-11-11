@@ -2,7 +2,7 @@ namespace Retailer.POS.Web.DTOs;
 public class CreatePurchaseDto
 {
     public DateTime Date { get; set; } = DateTime.UtcNow;
-    public int SupplierID { get; set; }
+    public int VendorID { get; set; }
     public decimal SubTotal { get; set; }
     public decimal Discount { get; set; }
     public decimal TaxAmount { get; set; }

@@ -1,5 +1,8 @@
+﻿using Retailer.POS.Api.Entities;
+
 namespace Retailer.POS.Api.Entities;
-public class Vendor : BaseEntity
+
+public class Customer : BaseEntity
 {
     public string Name { get; set; } = string.Empty;
     public string? CNIC { get; set; }
@@ -9,4 +12,3 @@ public class Vendor : BaseEntity
     public string? City { get; set; }
     public string? Province { get; set; }
 }
- 

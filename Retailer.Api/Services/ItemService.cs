@@ -40,6 +40,7 @@ public class ItemService : IItemService
          .Include(i => i.Category)
          .Include(i => i.Group)
          .Include(i => i.SubGroup)
+         .Include(i => i.ItemType)
          .Select(i => new ItemDto
          {
              Id = i.Id,
@@ -49,7 +50,8 @@ public class ItemService : IItemService
              Cost = i.Cost,
              CategoryName = i.Category != null ? i.Category.Name : null,
              GroupName = i.Group != null ? i.Group.Name : null,
-             SubGroupName = i.SubGroup != null ? i.SubGroup.Name : null
+             SubGroupName = i.SubGroup != null ? i.SubGroup.Name : null,
+             ItemTypeName = i.ItemType != null ? i.ItemType.Name : null
          })
          .ToListAsync();
 
@@ -62,6 +64,7 @@ public class ItemService : IItemService
         .Include(i => i.Category)
         .Include(i => i.Group)
         .Include(i => i.SubGroup)
+        .Include(i => i.ItemType)
         .Where(i => i.Id == id)
         .Select(i => new ItemDto
         {
@@ -72,7 +75,8 @@ public class ItemService : IItemService
             Cost = i.Cost,
             CategoryName = i.Category != null ? i.Category.Name : null,
             GroupName = i.Group != null ? i.Group.Name : null,
-            SubGroupName = i.SubGroup != null ? i.SubGroup.Name : null
+            SubGroupName = i.SubGroup != null ? i.SubGroup.Name : null,
+            ItemTypeName = i.ItemType != null ? i.ItemType.Name : null
         })
         .FirstOrDefaultAsync();
 

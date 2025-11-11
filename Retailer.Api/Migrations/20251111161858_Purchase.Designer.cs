@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Retailer.POS.Api.Data;
 
@@ -11,9 +12,11 @@ using Retailer.POS.Api.Data;
 namespace Retailer.Api.Migrations
 {
     [DbContext(typeof(RetailerDbContext))]
-    partial class RetailerDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251111161858_Purchase")]
+    partial class Purchase
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

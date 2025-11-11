@@ -9,4 +9,5 @@ public class ItemDto
     public string? CategoryName { get; set; }
     public string? GroupName { get; set; }
     public string? SubGroupName { get; set; }
+    public string? ItemTypeName { get; set; }
 }

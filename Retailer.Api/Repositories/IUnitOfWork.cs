@@ -16,6 +16,7 @@ public interface IUnitOfWork : IDisposable
     IGenericRepository<StockTransferDetail> StockTransferDetails { get; }
     IGenericRepository<Login> Logins { get; }
     IGenericRepository<ItemCategory> ItemCategories { get; }
+    IGenericRepository<ItemType> ItemTypes { get; }
     IGenericRepository<ItemGroup> ItemGroups { get; }
     IGenericRepository<ItemSubGroup> ItemSubGroups { get; }
     Task<List<ItemSubGroupDto>> GetSubGroupsWithGroupAsync();

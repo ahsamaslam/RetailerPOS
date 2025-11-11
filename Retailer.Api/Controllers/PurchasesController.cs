@@ -14,8 +14,16 @@ namespace Retailer.POS.Api.Controllers
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] CreatePurchaseDto dto)
         {
-            var created = await _svc.CreatePurchaseAsync(dto);
-            return CreatedAtAction(nameof(Get), new { id = created.Id }, created);
+            try
+            {
+                var created = await _svc.CreatePurchaseAsync(dto);
+                return CreatedAtAction(nameof(Get), new { id = created.Id }, created);
+            }
+            catch (Exception exx)
+            { 
+            
+            return BadRequest(exx); 
+            }
         }
 
         [HttpGet("{id}")]

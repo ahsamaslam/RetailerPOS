@@ -1,1 +1,43 @@
-<h2>Create Employee</h2>
+@page
+@model Retailer.POS.Web.Pages.Employees.CreateModel
+@{
+    ViewData["Title"] = "Create Item";
+}
+
+<h2>Create EMployee</h2>
+
+<form method="post">
+    <div>
+        <label>First Name</label>
+        <input asp-for="Employee.FirstName" class="form-control" />
+    </div>
+    <div>
+        <label>Last Name</label>
+        <input asp-for="Employee.LastName" class="form-control" />
+    </div>
+    <div>
+        <label>City</label>
+        <input asp-for="Employee.City" class="form-control" />
+    </div>
+    <div>
+        <label>Province </label>
+        <input asp-for="Employee.Province" class="form-control" />
+    </div>
+    <div>
+        <label>Address </label>
+        <input asp-for="Employee.Address" class="form-control" />
+    </div> 
+    <div>
+        <label>Mobile1 </label>
+        <input asp-for="Employee.Mobile1" class="form-control" />
+    </div>
+    <div>
+        <label>Mobile2 </label>
+        <input asp-for="Employee.Mobile2" class="form-control" />
+    </div>
+    <div>
+        <label>CNIC </label>
+        <input asp-for="Employee.CNIC" class="form-control" />
+    </div>
+    <button type="submit" class="btn btn-primary">Create</button>
+</form>

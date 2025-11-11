@@ -18,6 +18,7 @@ public class EditModel : PageModel
     public IEnumerable<SelectListItem> Categories { get; set; } = new List<SelectListItem>();
     public IEnumerable<SelectListItem> Groups { get; set; } = new List<SelectListItem>();
     public IEnumerable<SelectListItem> SubGroups { get; set; } = new List<SelectListItem>();
+    public IEnumerable<SelectListItem> ItemType { get; set; } = new List<SelectListItem>();
 
     public async Task<IActionResult> OnGetAsync(int id)
     {
@@ -31,8 +32,9 @@ public class EditModel : PageModel
 
         SubGroups = (await _api.GetSubGroupsAsync())
             .Select(sg => new SelectListItem(sg.Name, sg.Id.ToString()));
-
-        return Page();
+        ItemType = (await _api.GetItemTypeAsync())
+            .Select(sg => new SelectListItem(sg.Name, sg.Id.ToString()));
+        return Page(); 
     }
 
     public async Task<IActionResult> OnPostAsync()

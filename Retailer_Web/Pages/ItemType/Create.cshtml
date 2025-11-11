@@ -1,0 +1,13 @@
+﻿@page
+@model Retailer.POS.Web.Pages.ItemType.CreateModel
+
+<h2>Create ItemType</h2>
+
+<form method="post">
+    <div class="mb-3">
+        <label>Name</label>
+        <input asp-for="ItemType.Name" class="form-control" />
+    </div>
+    <button type="submit" class="btn btn-primary">Create</button>
+    <a asp-page="Index" class="btn btn-secondary">Cancel</a>
+</form>
