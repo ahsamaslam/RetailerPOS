@@ -1,0 +1,36 @@
+﻿@page "{id:int}"
+@model Retailer.POS.Web.Pages.Roles.EditModel
+@{
+    ViewData["Title"] = "Edit Role";
+}
+
+<h2>Edit Role</h2>
+
+<form method="post">
+    <input type="hidden" asp-for="Role.Id" />
+    <div class="mb-3">
+        <label>Role Name</label>
+        <input asp-for="Role.RoleName" class="form-control" />
+    </div>
+
+    <div class="mb-3">
+        <label>Scopes</label>
+        <div>
+            @foreach (var s in Model.AllScopes)
+            {
+                var isChecked = Model.SelectedScopeIds.Contains(s.Id);
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" value="@s.Id" id="scope_@s.Id" name="SelectedScopeIds" @(isChecked ? "checked" : "") />
+                    <label class="form-check-label" for="scope_@s.Id">@s.ScopeName</label>
+                </div>
+            }
+        </div>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Update</button>
+    <a asp-page="Index" class="btn btn-secondary">Cancel</a>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

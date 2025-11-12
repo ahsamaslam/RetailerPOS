@@ -1,5 +1,5 @@
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Retailer.POS.Web.DTOs;
+using Retailer.POS.Web.ApiDTOs;
 using Retailer.POS.Web.Services;
 
 namespace Retailer.POS.Web.Pages.Items;

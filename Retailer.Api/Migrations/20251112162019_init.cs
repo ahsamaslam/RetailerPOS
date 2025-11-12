@@ -31,6 +31,25 @@ namespace Retailer.Api.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Customers",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    CNIC = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    NTN = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Mobile = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Address = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    City = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Province = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Customers", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Employees",
                 columns: table => new
                 {
@@ -90,24 +109,16 @@ namespace Retailer.Api.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "PurchaseMasters",
+                name: "Roles",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Date = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    CreateDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    SupplierID = table.Column<int>(type: "int", nullable: false),
-                    SubTotal = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    Discount = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    TaxAmount = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    Total = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    LoginId = table.Column<int>(type: "int", nullable: false),
-                    BranchId = table.Column<int>(type: "int", nullable: false)
+                    RoleName = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_PurchaseMasters", x => x.Id);
+                    table.PrimaryKey("PK_Roles", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -130,6 +141,19 @@ namespace Retailer.Api.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_SalesMasters", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Scopes",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    ScopeName = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Scopes", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -175,34 +199,11 @@ namespace Retailer.Api.Migrations
                     Mobile = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Address = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     City = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Province = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Discriminator = table.Column<string>(type: "nvarchar(8)", maxLength: 8, nullable: false)
+                    Province = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Vendors", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Logins",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Username = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    PasswordHash = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    BranchCode = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    EmployeeId = table.Column<int>(type: "int", nullable: true),
-                    IsActive = table.Column<bool>(type: "bit", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Logins", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_Logins_Employees_EmployeeId",
-                        column: x => x.EmployeeId,
-                        principalTable: "Employees",
-                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -226,26 +227,29 @@ namespace Retailer.Api.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "PurchaseDetails",
+                name: "Logins",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    PurchaseId = table.Column<int>(type: "int", nullable: false),
-                    ItemId = table.Column<int>(type: "int", nullable: false),
-                    ItemName = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Rate = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    Qty = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    Discount = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    TaxPercentage = table.Column<decimal>(type: "decimal(18,2)", nullable: false)
+                    UserName = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Password = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    EmployeeId = table.Column<int>(type: "int", nullable: false),
+                    RoleId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_PurchaseDetails", x => x.Id);
+                    table.PrimaryKey("PK_Logins", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_PurchaseDetails_PurchaseMasters_PurchaseId",
-                        column: x => x.PurchaseId,
-                        principalTable: "PurchaseMasters",
+                        name: "FK_Logins_Employees_EmployeeId",
+                        column: x => x.EmployeeId,
+                        principalTable: "Employees",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Logins_Roles_RoleId",
+                        column: x => x.RoleId,
+                        principalTable: "Roles",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -273,6 +277,32 @@ namespace Retailer.Api.Migrations
                         name: "FK_SalesDetails_SalesMasters_SalesMasterId",
                         column: x => x.SalesMasterId,
                         principalTable: "SalesMasters",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "RoleScopes",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    RoleId = table.Column<int>(type: "int", nullable: false),
+                    ScopeId = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_RoleScopes", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_RoleScopes_Roles_RoleId",
+                        column: x => x.RoleId,
+                        principalTable: "Roles",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_RoleScopes_Scopes_ScopeId",
+                        column: x => x.ScopeId,
+                        principalTable: "Scopes",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -350,6 +380,75 @@ namespace Retailer.Api.Migrations
                         principalColumn: "Id");
                 });
 
+            migrationBuilder.CreateTable(
+                name: "PurchaseMasters",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Date = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    CreateDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    VendorID = table.Column<int>(type: "int", nullable: false),
+                    SubTotal = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    Discount = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    TaxAmount = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    Total = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    LoginId = table.Column<int>(type: "int", nullable: false),
+                    BranchId = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_PurchaseMasters", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_PurchaseMasters_Branches_BranchId",
+                        column: x => x.BranchId,
+                        principalTable: "Branches",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_PurchaseMasters_Logins_LoginId",
+                        column: x => x.LoginId,
+                        principalTable: "Logins",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_PurchaseMasters_Vendors_VendorID",
+                        column: x => x.VendorID,
+                        principalTable: "Vendors",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "PurchaseDetails",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    PurchaseId = table.Column<int>(type: "int", nullable: false),
+                    ItemId = table.Column<int>(type: "int", nullable: false),
+                    Rate = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    Qty = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    Discount = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    TaxPercentage = table.Column<decimal>(type: "decimal(18,2)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_PurchaseDetails", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_PurchaseDetails_Items_ItemId",
+                        column: x => x.ItemId,
+                        principalTable: "Items",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_PurchaseDetails_PurchaseMasters_PurchaseId",
+                        column: x => x.PurchaseId,
+                        principalTable: "PurchaseMasters",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
             migrationBuilder.CreateIndex(
                 name: "IX_Items_CategoryId",
                 table: "Items",
@@ -386,9 +485,44 @@ namespace Retailer.Api.Migrations
                 column: "EmployeeId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Logins_RoleId",
+                table: "Logins",
+                column: "RoleId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_PurchaseDetails_ItemId",
+                table: "PurchaseDetails",
+                column: "ItemId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_PurchaseDetails_PurchaseId",
                 table: "PurchaseDetails",
                 column: "PurchaseId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_PurchaseMasters_BranchId",
+                table: "PurchaseMasters",
+                column: "BranchId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_PurchaseMasters_LoginId",
+                table: "PurchaseMasters",
+                column: "LoginId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_PurchaseMasters_VendorID",
+                table: "PurchaseMasters",
+                column: "VendorID");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_RoleScopes_RoleId",
+                table: "RoleScopes",
+                column: "RoleId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_RoleScopes_ScopeId",
+                table: "RoleScopes",
+                column: "ScopeId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_SalesDetails_SalesMasterId",
@@ -405,16 +539,13 @@ namespace Retailer.Api.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "Branches");
-
-            migrationBuilder.DropTable(
-                name: "Items");
-
-            migrationBuilder.DropTable(
-                name: "Logins");
+                name: "Customers");
 
             migrationBuilder.DropTable(
                 name: "PurchaseDetails");
+
+            migrationBuilder.DropTable(
+                name: "RoleScopes");
 
             migrationBuilder.DropTable(
                 name: "SalesDetails");
@@ -423,7 +554,19 @@ namespace Retailer.Api.Migrations
                 name: "StockTransferDetails");
 
             migrationBuilder.DropTable(
-                name: "Vendors");
+                name: "Items");
+
+            migrationBuilder.DropTable(
+                name: "PurchaseMasters");
+
+            migrationBuilder.DropTable(
+                name: "Scopes");
+
+            migrationBuilder.DropTable(
+                name: "SalesMasters");
+
+            migrationBuilder.DropTable(
+                name: "StockTransfers");
 
             migrationBuilder.DropTable(
                 name: "ItemCategories");
@@ -438,19 +581,22 @@ namespace Retailer.Api.Migrations
                 name: "UnitOfMeasures");
 
             migrationBuilder.DropTable(
-                name: "Employees");
+                name: "Branches");
 
             migrationBuilder.DropTable(
-                name: "PurchaseMasters");
+                name: "Logins");
 
             migrationBuilder.DropTable(
-                name: "SalesMasters");
-
-            migrationBuilder.DropTable(
-                name: "StockTransfers");
+                name: "Vendors");
 
             migrationBuilder.DropTable(
                 name: "ItemGroups");
+
+            migrationBuilder.DropTable(
+                name: "Employees");
+
+            migrationBuilder.DropTable(
+                name: "Roles");
         }
     }
 }

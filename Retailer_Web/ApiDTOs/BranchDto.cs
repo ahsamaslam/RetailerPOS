@@ -1,4 +1,4 @@
-﻿namespace Retailer.Web.ApiDTOs
+﻿namespace Retailer.POS.Web.ApiDTOs
 {
     public class BranchDto
     {

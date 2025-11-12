@@ -22,6 +22,63 @@ namespace Retailer.Api.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
+            modelBuilder.Entity("Retailer.Api.Entities.Role", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("RoleName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Roles");
+                });
+
+            modelBuilder.Entity("Retailer.Api.Entities.RoleScope", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("RoleId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ScopeId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("RoleId");
+
+                    b.HasIndex("ScopeId");
+
+                    b.ToTable("RoleScopes");
+                });
+
+            modelBuilder.Entity("Retailer.Api.Entities.Scope", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("ScopeName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Scopes");
+                });
+
             modelBuilder.Entity("Retailer.POS.Api.Entities.Branch", b =>
                 {
                     b.Property<int>("Id")
@@ -268,26 +325,25 @@ namespace Retailer.Api.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("BranchCode")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int?>("EmployeeId")
+                    b.Property<int>("EmployeeId")
                         .HasColumnType("int");
 
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("PasswordHash")
+                    b.Property<string>("Password")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Username")
+                    b.Property<int>("RoleId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("UserName")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
                     b.HasIndex("EmployeeId");
+
+                    b.HasIndex("RoleId");
 
                     b.ToTable("Logins");
                 });
@@ -568,6 +624,25 @@ namespace Retailer.Api.Migrations
                     b.ToTable("Vendors");
                 });
 
+            modelBuilder.Entity("Retailer.Api.Entities.RoleScope", b =>
+                {
+                    b.HasOne("Retailer.Api.Entities.Role", "Role")
+                        .WithMany("RoleScopes")
+                        .HasForeignKey("RoleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Retailer.Api.Entities.Scope", "Scope")
+                        .WithMany("RoleScopes")
+                        .HasForeignKey("ScopeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Role");
+
+                    b.Navigation("Scope");
+                });
+
             modelBuilder.Entity("Retailer.POS.Api.Entities.Item", b =>
                 {
                     b.HasOne("Retailer.POS.Api.Entities.ItemCategory", "Category")
@@ -622,10 +697,20 @@ namespace Retailer.Api.Migrations
             modelBuilder.Entity("Retailer.POS.Api.Entities.Login", b =>
                 {
                     b.HasOne("Retailer.POS.Api.Entities.Employee", "Employee")
-                        .WithMany()
-                        .HasForeignKey("EmployeeId");
+                        .WithMany("Logins")
+                        .HasForeignKey("EmployeeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Retailer.Api.Entities.Role", "Role")
+                        .WithMany("Logins")
+                        .HasForeignKey("RoleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Employee");
+
+                    b.Navigation("Role");
                 });
 
             modelBuilder.Entity("Retailer.POS.Api.Entities.PurchaseDetail", b =>
@@ -694,6 +779,23 @@ namespace Retailer.Api.Migrations
                         .IsRequired();
 
                     b.Navigation("StockTransfer");
+                });
+
+            modelBuilder.Entity("Retailer.Api.Entities.Role", b =>
+                {
+                    b.Navigation("Logins");
+
+                    b.Navigation("RoleScopes");
+                });
+
+            modelBuilder.Entity("Retailer.Api.Entities.Scope", b =>
+                {
+                    b.Navigation("RoleScopes");
+                });
+
+            modelBuilder.Entity("Retailer.POS.Api.Entities.Employee", b =>
+                {
+                    b.Navigation("Logins");
                 });
 
             modelBuilder.Entity("Retailer.POS.Api.Entities.ItemCategory", b =>
