@@ -1,11 +1,14 @@
 @page
 @model Retailer.POS.Web.Pages.Employees.IndexModel
-@inject Retailer.POS.Web.Services.IApiClient ApiClient
+@{
+    ViewData["Title"] = "Employees";
+}
 
 <h2>Employees</h2>
-<a asp-page="Create" class="btn btn-primary">Create New Employee</a>
 
-<table class="table table-striped mt-2">
+<a asp-page="Create" class="btn btn-primary mb-2">Add New Employee</a>
+
+<table class="table table-bordered">
     <thead>
         <tr>
             <th>First Name</th>
@@ -13,7 +16,8 @@
             <th>City</th>
             <th>Province</th>
             <th>Mobile</th>
-            <th>Actions</th>
+            <th>CNIC</th>
+            <th></th>
         </tr>
     </thead>
     <tbody>
@@ -25,9 +29,9 @@
                 <td>@emp.City</td>
                 <td>@emp.Province</td>
                 <td>@emp.Mobile1</td>
+                <td>@emp.CNIC</td>
                 <td>
                     <a asp-page="Edit" asp-route-id="@emp.Id" class="btn btn-sm btn-warning">Edit</a>
-                    <a asp-page="Details" asp-route-id="@emp.Id" class="btn btn-sm btn-info">Details</a>
                 </td>
             </tr>
         }

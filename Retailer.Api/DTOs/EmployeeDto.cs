@@ -1,9 +1,9 @@
-﻿namespace Retailer.Web.Models
+﻿namespace Retailer.Api.DTOs
 {
-    public class EmployeeViewModel
+    public class EmployeeDto
     {
         public int Id { get; set; }
-        public string? FirstName { get; set; }
+        public string FirstName { get; set; } = string.Empty;
         public string? LastName { get; set; }
         public string? City { get; set; }
         public string? Province { get; set; }

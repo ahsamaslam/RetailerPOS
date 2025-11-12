@@ -1,53 +1,54 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
+using Retailer.Api.DTOs;
 using Retailer.POS.Api.Entities;
 using Retailer.POS.Api.Repositories;
 
-namespace Retailer.Api.Controllers
+[Route("api/[controller]")]
+[ApiController]
+public class EmployeeController : ControllerBase
 {
-    [ApiController]
-    [Route("api/[controller]")]
-    public class EmployeesController : ControllerBase
+    private readonly IUnitOfWork _uow;
+    public EmployeeController(IUnitOfWork uow) => _uow = uow;
+
+    [HttpGet]
+    public async Task<IActionResult> GetAll() => Ok(await _uow.Employees.GetAllAsync());
+
+    [HttpGet("{id:int}")]
+    public async Task<IActionResult> Get(int id) => Ok(await _uow.Employees.GetByIdAsync(id));
+
+    [HttpPost]
+    public async Task<IActionResult> Create([FromBody] EmployeeDto dto)
     {
-        private readonly IUnitOfWork _uow;
-        public EmployeesController(IUnitOfWork uow) => _uow = uow;
-
-        [HttpGet]
-        public async Task<IActionResult> GetAll() =>
-            Ok(await _uow.Employees.GetAllAsync());
-
-        [HttpGet("{id}")]
-        public async Task<IActionResult> Get(int id)
+        var emp = new Employee
         {
-            var e = await _uow.Employees.GetByIdAsync(id);
-            if (e == null) return NotFound();
-            return Ok(e);
-        }
+            FirstName = dto.FirstName,
+            LastName = dto.LastName,
+            City = dto.City,
+            Province = dto.Province,
+            Address = dto.Address,
+            Mobile1 = dto.Mobile1,
+            Mobile2 = dto.Mobile2,
+            CNIC = dto.CNIC
+        };
+        await _uow.Employees.AddAsync(emp);
+        await _uow.SaveChangesAsync();
+        return Ok(emp);
+    }
 
-        [HttpPost]
-        public async Task<IActionResult> Create([FromBody] Employee model)
-        {
-            await _uow.Employees.AddAsync(model);
-            await _uow.SaveChangesAsync();
-            return CreatedAtAction(nameof(Get), new { id = model.Id }, model);
-        }
-        [HttpPut("{id:int}")]
-        public async Task<IActionResult> Update(int id, [FromBody] Employee model)
-        {
-            var existing = await _uow.Employees.GetByIdAsync(id);
-            if (existing == null) return NotFound();
-            existing.FirstName = model.FirstName;
-            existing.LastName = model.FirstName;
-            existing.Address = model.Address;
-            existing.CNIC = model.CNIC;
-            existing.City = model.City;
-            existing.Mobile1 = model.Mobile1;
-            existing.Mobile2 = model.Mobile2;
-            existing.Province = model.Province;
-            _uow.Employees.Update(existing);
-            await _uow.SaveChangesAsync();
-            return NoContent();
-        }
-
+    [HttpPut("{id:int}")]
+    public async Task<IActionResult> Update(int id, [FromBody] EmployeeDto dto)
+    {
+        var emp = await _uow.Employees.GetByIdAsync(id);
+        if (emp == null) return NotFound();
+        emp.FirstName = dto.FirstName;
+        emp.LastName = dto.LastName;
+        emp.City = dto.City;
+        emp.Province = dto.Province;
+        emp.Address = dto.Address;
+        emp.Mobile1 = dto.Mobile1;
+        emp.Mobile2 = dto.Mobile2;
+        emp.CNIC = dto.CNIC;
+        await _uow.SaveChangesAsync();
+        return Ok(emp);
     }
 }

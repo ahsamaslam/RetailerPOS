@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Retailer.POS.Web.Services;
-using Retailer.Web.Models;
+using Retailer.Web.ApiDTOs;
 
 namespace Retailer.POS.Web.Pages.Employees
 {
@@ -11,7 +11,7 @@ namespace Retailer.POS.Web.Pages.Employees
         public EditModel(IApiClient api) => _api = api;
 
         [BindProperty]
-        public EmployeeViewModel Employee { get; set; } = new();
+        public EmployeeDto Employee { get; set; } = new();
 
         public async Task<IActionResult> OnGetAsync(int id)
         {
@@ -24,7 +24,13 @@ namespace Retailer.POS.Web.Pages.Employees
         public async Task<IActionResult> OnPostAsync()
         {
             if (!ModelState.IsValid) return Page();
-            await _api.UpdateEmployeeAsync(Employee);
+
+            var success = await _api.UpdateEmployeeAsync(Employee);
+            if (!success)
+            {
+                ModelState.AddModelError("", "Unable to update employee");
+                return Page();
+            }
             return RedirectToPage("Index");
         }
     }

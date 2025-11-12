@@ -1,8 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Retailer.POS.Web.Models;
+using Retailer.POS.Web.ApiDTOs;
 using Retailer.POS.Web.Services;
-using Retailer.Web.ApiDTOs;
 
 namespace Retailer.POS.Web.Pages.Branches
 {

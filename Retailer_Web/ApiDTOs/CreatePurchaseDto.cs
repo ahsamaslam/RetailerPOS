@@ -1,4 +1,4 @@
-namespace Retailer.POS.Web.DTOs;
+namespace Retailer.POS.Web.ApiDTOs;
 public class CreatePurchaseDto
 {
     public DateTime Date { get; set; } = DateTime.UtcNow;

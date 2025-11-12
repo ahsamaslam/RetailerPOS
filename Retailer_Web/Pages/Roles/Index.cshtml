@@ -1,0 +1,23 @@
+﻿@page
+@model Retailer.POS.Web.Pages.Roles.IndexModel
+@{
+    ViewData["Title"] = "Roles";
+}
+
+<h2>Roles</h2>
+
+<a asp-page="Create" class="btn btn-primary mb-2">Add Role</a>
+
+<table class="table table-striped">
+    <thead><tr><th>Role</th><th>Scopes</th><th></th></tr></thead>
+    <tbody>
+        @foreach (var r in Model.Roles)
+        {
+            <tr>
+                <td>@r.RoleName</td>
+                <td>@(r.ScopeNames ?? "")</td>
+                <td><a asp-page="Edit" asp-route-id="@r.Id" class="btn btn-sm btn-warning">Edit</a></td>
+            </tr>
+        }
+    </tbody>
+</table>

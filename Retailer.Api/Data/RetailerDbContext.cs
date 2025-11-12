@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Retailer.Api.Entities;
 using Retailer.POS.Api.Entities;
 
 namespace Retailer.POS.Api.Data;
@@ -15,6 +16,9 @@ public class RetailerDbContext : DbContext
     public DbSet<Item> Items => Set<Item>();
     public DbSet<Branch> Branches => Set<Branch>();
     public DbSet<Employee> Employees => Set<Employee>();
+    public DbSet<Role> Roles => Set<Role>();
+    public DbSet<Scope> Scopes => Set<Scope>();
+    public DbSet<RoleScope> RoleScopes => Set<RoleScope>();
     public DbSet<Login> Logins => Set<Login>();
     public DbSet<Vendor> Vendors => Set<Vendor>();
     public DbSet<Customer> Customers => Set<Customer>();

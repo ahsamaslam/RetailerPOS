@@ -1,43 +1,42 @@
 @page
 @model Retailer.POS.Web.Pages.Employees.CreateModel
 @{
-    ViewData["Title"] = "Create Item";
+    ViewData["Title"] = "Create Employee";
 }
 
-<h2>Create EMployee</h2>
+<h2>Create Employee</h2>
 
 <form method="post">
-    <div>
-        <label>First Name</label>
-        <input asp-for="Employee.FirstName" class="form-control" />
+    <div class="row">
+        <div class="col-md-4">
+            <label>First Name</label>
+            <input asp-for="Employee.FirstName" class="form-control" />
+        </div>
+        <div class="col-md-4">
+            <label>Last Name</label>
+            <input asp-for="Employee.LastName" class="form-control" />
+        </div>
+        <div class="col-md-4">
+            <label>City</label>
+            <input asp-for="Employee.City" class="form-control" />
+        </div>
     </div>
-    <div>
-        <label>Last Name</label>
-        <input asp-for="Employee.LastName" class="form-control" />
+
+    <div class="row mt-2">
+        <div class="col-md-4">
+            <label>Province</label>
+            <input asp-for="Employee.Province" class="form-control" />
+        </div>
+        <div class="col-md-4">
+            <label>Mobile 1</label>
+            <input asp-for="Employee.Mobile1" class="form-control" />
+        </div>
+        <div class="col-md-4">
+            <label>CNIC</label>
+            <input asp-for="Employee.CNIC" class="form-control" />
+        </div>
     </div>
-    <div>
-        <label>City</label>
-        <input asp-for="Employee.City" class="form-control" />
-    </div>
-    <div>
-        <label>Province </label>
-        <input asp-for="Employee.Province" class="form-control" />
-    </div>
-    <div>
-        <label>Address </label>
-        <input asp-for="Employee.Address" class="form-control" />
-    </div> 
-    <div>
-        <label>Mobile1 </label>
-        <input asp-for="Employee.Mobile1" class="form-control" />
-    </div>
-    <div>
-        <label>Mobile2 </label>
-        <input asp-for="Employee.Mobile2" class="form-control" />
-    </div>
-    <div>
-        <label>CNIC </label>
-        <input asp-for="Employee.CNIC" class="form-control" />
-    </div>
-    <button type="submit" class="btn btn-primary">Create</button>
+
+    <button type="submit" class="btn btn-success mt-3">Save</button>
+    <a asp-page="Index" class="btn btn-secondary mt-3">Cancel</a>
 </form>
