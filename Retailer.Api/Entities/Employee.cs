@@ -1,3 +1,5 @@
+using Retailer.Api.Entities;
+
 namespace Retailer.POS.Api.Entities;
 public class Employee : BaseEntity
 {
@@ -9,4 +11,6 @@ public class Employee : BaseEntity
     public string? Mobile1 { get; set; }
     public string? Mobile2 { get; set; }
     public string? CNIC { get; set; }
+
+    public ICollection<Login> Logins { get; set; } = new List<Login>();
 }

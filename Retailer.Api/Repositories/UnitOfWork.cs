@@ -1,4 +1,5 @@
 using Retailer.Api.DTOs;
+using Retailer.Api.Entities;
 using Retailer.Api.Repositories;
 using Retailer.POS.Api.Data;
 using Retailer.POS.Api.Entities;
@@ -32,6 +33,9 @@ namespace Retailer.POS.API.UnitOfWork
         private IGenericRepository<ItemGroup>? _itemGroups;
         private IGenericRepository<ItemSubGroup>? _itemSubGroups;
         private IGenericRepository<ItemType>? _ItemTypes;
+        private IGenericRepository<Scope>? _Scopes;
+        private IGenericRepository<Role>? _Role;
+        private IGenericRepository<RoleScope>? _RoleScopes;
 
         public IGenericRepository<Item> Items => _items ??= new GenericRepository<Item>(_context);
         public IGenericRepository<PurchaseMaster> PurchaseMasters => _purchaseMasters ??= new GenericRepository<PurchaseMaster>(_context);
@@ -50,6 +54,10 @@ namespace Retailer.POS.API.UnitOfWork
         public IGenericRepository<ItemSubGroup> ItemSubGroups => _itemSubGroups ??= new GenericRepository<ItemSubGroup>(_context);
 
         public IGenericRepository<ItemType> ItemTypes => _ItemTypes ??= new GenericRepository<ItemType>(_context);
+        public IGenericRepository<Scope> Scopes => _Scopes ??= new GenericRepository<Scope>(_context);
+        public IGenericRepository<Role> Roles => _Role ??= new GenericRepository<Role>(_context);
+        public IGenericRepository<RoleScope> RoleScopes => _RoleScopes ??= new GenericRepository<RoleScope>(_context);
+
 
         public async Task<List<ItemSubGroupDto>> GetSubGroupsWithGroupAsync()
         {

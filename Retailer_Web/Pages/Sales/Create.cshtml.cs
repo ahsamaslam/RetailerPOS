@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Retailer.POS.Web.Models;
+using Retailer.POS.Web.ApiDTOs;
 using Retailer.POS.Web.Services;
 
 namespace Retailer.POS.Web.Pages.Sales

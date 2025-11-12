@@ -1,0 +1,22 @@
+﻿@page
+@model Retailer.POS.Web.Pages.Scopes.CreateModel
+@{
+    ViewData["Title"] = "Create Scope";
+}
+
+<h2>Create Scope</h2>
+
+<form method="post">
+    <div class="mb-3">
+        <label>Scope Name</label>
+        <input asp-for="Scope.ScopeName" class="form-control" />
+        <span asp-validation-for="Scope.ScopeName" class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-success">Save</button>
+    <a asp-page="Index" class="btn btn-secondary">Cancel</a>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

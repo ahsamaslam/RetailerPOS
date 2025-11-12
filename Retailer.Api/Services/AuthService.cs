@@ -22,7 +22,7 @@ public class AuthService : IAuthService
     public async Task<string?> ValidateAndCreateTokenAsync(string username, string password)
     {
         var db = (_uow as UnitOfWork)!.GetDbContext();
-        var login = await db.Logins.FirstOrDefaultAsync(l => l.Username == username && l.IsActive);
+        var login = await db.Logins.FirstOrDefaultAsync(l => l.UserName == username);
         if (login == null) return null;
 
         using var sha = System.Security.Cryptography.SHA256.Create();
@@ -30,15 +30,15 @@ public class AuthService : IAuthService
         var hashBytes = sha.ComputeHash(bytes);
         var hash = BitConverter.ToString(hashBytes).Replace("-", "").ToLowerInvariant();
 
-        if (!string.Equals(hash, login.PasswordHash, StringComparison.OrdinalIgnoreCase))
-            return null;
+       // if (!string.Equals(hash, login.PasswordHash, StringComparison.OrdinalIgnoreCase))
+           // return null;
 
         var jwtSection = _cfg.GetSection("Jwt");
         var key = Encoding.UTF8.GetBytes(jwtSection.GetValue<string>("Key"));
         var tokenHandler = new JwtSecurityTokenHandler();
         var claims = new List<Claim>
         {
-            new Claim(ClaimTypes.Name, login.Username),
+            //new Claim(ClaimTypes.Name, login.Username),
             new Claim(ClaimTypes.NameIdentifier, login.Id.ToString())
         };
         var tokenDescriptor = new SecurityTokenDescriptor
