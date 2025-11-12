@@ -3,6 +3,8 @@ using Retailer.POS.Web.Services;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddRazorPages().AddRazorRuntimeCompilation();
+builder.Services.AddRazorPages().AddNToastNotifyNoty();
+
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddTransient<TokenDelegatingHandler>();
 
@@ -17,6 +19,7 @@ if (!app.Environment.IsDevelopment())
     app.UseExceptionHandler("/Error");
     app.UseHsts();
 }
+app.UseNToastNotify();
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseRouting();
