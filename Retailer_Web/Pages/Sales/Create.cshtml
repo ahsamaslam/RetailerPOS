@@ -24,15 +24,16 @@
 
     <div class="mb-2">
         <label>Customer</label>
-        <input asp-for="Sale.CustomerName" class="form-control" />
+        <select asp-for="Sale.CustomerCode" asp-items="Model.CustomersList" class="form-control">
+            <option value="">-- Select Customer --</option>
+        </select>
     </div>
 
     <h4>Items</h4>
     <table class="table" id="detailsTable">
         <thead>
             <tr>
-                <th>Item Code</th>
-                <th>Item Name</th>
+                <th>Item</th>
                 <th>Rate</th>
                 <th>Qty</th>
                 <th>Discount</th>
@@ -45,8 +46,11 @@
             @for (int i = 0; i < Model.Sale.Details.Count; i++)
             {
                 <tr data-index="@i">
-                    <td><input asp-for="Sale.Details[i].ItemCode" type="text" class="form-control" /></td>
-                    <td><input asp-for="Sale.Details[i].ItemName" type="text" class="form-control" /></td>
+                    <td>
+                        <select asp-for="Sale.Details[i].ItemCode" asp-items="Model.ItemsList" class="form-control">
+                            <option value="">-- Select Item --</option>
+                        </select>
+                    </td>
                     <td><input asp-for="Sale.Details[i].Rate" type="number" step="0.01" class="form-control" /></td>
                     <td><input asp-for="Sale.Details[i].Qty" type="number" step="0.01" class="form-control" /></td>
                     <td><input asp-for="Sale.Details[i].Discount" type="number" step="0.01" class="form-control" /></td>
@@ -66,12 +70,19 @@
     </div>
 </form>
 
-<!-- hidden template row: use __index__ placeholder that we replace -->
+<!-- hidden template row -->
 <table style="display:none;">
     <tbody>
         <tr id="templateRow">
-            <td><input name="Sale.Details[__index__].ItemCode" type="text" class="form-control" /></td>
-            <td><input name="Sale.Details[__index__].ItemName" type="text" class="form-control" /></td>
+            <td>
+                <select name="Sale.Details[__index__].ItemId" class="form-control">
+                    <option value="">-- Select Item --</option>
+                    @foreach (var item in Model.ItemsList)
+                    {
+                        <option value="@item.Value">@item.Text</option>
+                    }
+                </select>
+            </td>
             <td><input name="Sale.Details[__index__].Rate" type="number" step="0.01" class="form-control" /></td>
             <td><input name="Sale.Details[__index__].Qty" type="number" step="0.01" class="form-control" /></td>
             <td><input name="Sale.Details[__index__].Discount" type="number" step="0.01" class="form-control" /></td>
@@ -87,29 +98,20 @@
         (function () {
             const detailsTbody = document.querySelector('#detailsTable tbody');
             const templateRow = document.getElementById('templateRow');
-            // capture innerHTML so we don't duplicate the id when inserting
             const templateInnerHtml = templateRow.innerHTML;
 
             function reindexRows() {
                 const rows = detailsTbody.querySelectorAll('tr');
                 rows.forEach((row, idx) => {
                     row.setAttribute('data-index', idx);
-
-                    // update name attributes for inputs/selects/textareas
                     row.querySelectorAll('input, select, textarea').forEach(inp => {
-                        // Only operate on elements that have a name (template rows have proper names).
                         const nameAttr = inp.getAttribute('name');
                         if (nameAttr) {
-                            // replace any existing index in Sale.Details[...]
                             const newName = nameAttr.replace(/Sale\.Details\[\d+\]/, `Sale.Details[${idx}]`);
                             inp.setAttribute('name', newName);
-                        } else {
-                            // some server-generated inputs may not have name attr accessible here (rare),
-                            // attempt to fix id-based ones by replacing numeric index pattern in id
-                            const id = inp.id;
-                            if (id) {
-                                inp.id = id.replace(/_Details_\d+_/, `_Details_${idx}_`);
-                            }
+                        }
+                        if (inp.id) {
+                            inp.id = inp.id.replace(/_Details_\d+_/, `_Details_${idx}_`);
                         }
                     });
                 });
@@ -117,7 +119,6 @@
 
             document.getElementById('addRow').addEventListener('click', function () {
                 const index = detailsTbody.children.length;
-                // create a tr element and set its innerHTML from template (with replaced indices)
                 const tr = document.createElement('tr');
                 tr.setAttribute('data-index', index);
                 tr.innerHTML = templateInnerHtml.replace(/__index__/g, index);
@@ -128,18 +129,15 @@
                 if (e.target && e.target.classList.contains('remove-row')) {
                     const row = e.target.closest('tr');
                     if (row) row.remove();
-                    // reindex to ensure indices are contiguous
                     reindexRows();
                 }
             });
 
-            // ensure names are correct before submit (safety)
             const form = document.getElementById('saleForm');
             form?.addEventListener('submit', function () {
                 reindexRows();
             });
 
-            // initial reindex (in case server-side rows need normalization)
             reindexRows();
         })();
     </script>
