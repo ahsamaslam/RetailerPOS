@@ -1,9 +1,9 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Retailer.POS.Web.ApiDTOs;
 using Retailer.POS.Web.Services;
-using Retailer.Web.ApiDTOs;
 
-namespace Retailer.POS.Web.Pages.Employees
+namespace Retailer.POS.Web.Pages.Scopes
 {
     public class CreateModel : PageModel
     {
@@ -11,15 +11,16 @@ namespace Retailer.POS.Web.Pages.Employees
         public CreateModel(IApiClient api) => _api = api;
 
         [BindProperty]
-        public EmployeeDto Employee { get; set; } = new();
+        public ScopeDto Scope { get; set; } = new();
 
         public async Task<IActionResult> OnPostAsync()
         {
             if (!ModelState.IsValid) return Page();
-            var success = await _api.CreateEmployeeAsync(Employee);
-            if (!success)
+
+            var ok = await _api.CreateScopeAsync(Scope);
+            if (!ok)
             {
-                ModelState.AddModelError("", "Unable to create employee");
+                ModelState.AddModelError("", "Unable to create scope.");
                 return Page();
             }
             return RedirectToPage("Index");

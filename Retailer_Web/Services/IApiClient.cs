@@ -1,6 +1,6 @@
 using Retailer.POS.Web.Models;
 using Retailer.Web.Models;
-using Retailer.POS.Web.DTOs;
+using Retailer.POS.Web.ApiDTOs;
 using Retailer.Web.ApiDTOs;
 
 namespace Retailer.POS.Web.Services;
@@ -12,10 +12,10 @@ public interface IApiClient
     Task<bool> UpdateItemAsync(ItemDto dto);
     Task<PurchaseMasterDto> CreatePurchaseAsync(CreatePurchaseDto dto);
     Task<string?> LoginAsync(string username, string password);
-    Task<List<EmployeeViewModel>> GetEmployeesAsync();
-    Task<EmployeeViewModel?> GetEmployeeByIdAsync(int id);
-    Task<bool> CreateEmployeeAsync(EmployeeViewModel employee);
-    Task<bool> UpdateEmployeeAsync(EmployeeViewModel employee);
+    Task<List<EmployeeDto>> GetEmployeesAsync();
+    Task<EmployeeDto?> GetEmployeeByIdAsync(int id);
+    Task<bool> CreateEmployeeAsync(EmployeeDto employee);
+    Task<bool> UpdateEmployeeAsync(EmployeeDto employee);
 
     Task<List<CustomerViewModel>> GetCustomersAsync();
     Task<CustomerViewModel?> GetCustomerByIdAsync(int id);
@@ -65,5 +65,18 @@ public interface IApiClient
     Task<bool> CreateBranchAsync(BranchDto dto);
     Task<bool> UpdateBranchAsync(BranchDto dto);
     Task<bool> DeleteBranchAsync(int id);
+
+    Task<IEnumerable<ScopeDto>> GetAllScopesAsync();
+    Task<ScopeDto?> GetScopeByIdAsync(int id);
+    Task<bool> CreateScopeAsync(ScopeDto dto);
+    Task<bool> UpdateScopeAsync(ScopeDto dto);
+    Task<bool> DeleteScopeAsync(int id);
+
+
+    Task<IEnumerable<RoleDto>> GetAllRolesAsync();
+    Task<RoleDto?> GetRoleByIdAsync(int id);
+    Task<bool> CreateRoleAsync(RoleDto dto);
+    Task<bool> UpdateRoleAsync(RoleDto dto);
+
 
 }

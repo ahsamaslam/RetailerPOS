@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Mvc;
 using Retailer.POS.Web.Services;
-using Retailer.POS.Web.DTOs;
+using Retailer.POS.Web.ApiDTOs;
 
 namespace Retailer.POS.Web.Pages.Items;
 

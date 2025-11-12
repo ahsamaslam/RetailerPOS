@@ -1,4 +1,4 @@
-using Retailer.POS.Web.DTOs;
+using Retailer.POS.Web.ApiDTOs;
 using Retailer.POS.Web.Models;
 using Retailer.Web.ApiDTOs;
 using Retailer.Web.Models;
@@ -49,19 +49,19 @@ public class ApiClient : IApiClient
         if (obj.TryGetProperty("token", out var t)) return t.GetString();
         return null;
     }
-    public async Task<List<EmployeeViewModel>> GetEmployeesAsync() =>
-        await _http.GetFromJsonAsync<List<EmployeeViewModel>>("api/employees") ?? new();
+    public async Task<List<EmployeeDto>> GetEmployeesAsync() =>
+        await _http.GetFromJsonAsync<List<EmployeeDto>>("api/employees") ?? new();
 
-    public async Task<EmployeeViewModel?> GetEmployeeByIdAsync(int id) =>
-        await _http.GetFromJsonAsync<EmployeeViewModel>($"api/employees/{id}");
+    public async Task<EmployeeDto?> GetEmployeeByIdAsync(int id) =>
+        await _http.GetFromJsonAsync<EmployeeDto>($"api/employees/{id}");
 
-    public async Task<bool> CreateEmployeeAsync(EmployeeViewModel employee)
+    public async Task<bool> CreateEmployeeAsync(EmployeeDto employee)
     {
         var resp = await _http.PostAsJsonAsync("api/employees", employee);
         return resp.IsSuccessStatusCode;
     }
 
-    public async Task<bool> UpdateEmployeeAsync(EmployeeViewModel employee)
+    public async Task<bool> UpdateEmployeeAsync(EmployeeDto employee)
     {
         var resp = await _http.PutAsJsonAsync($"api/employees/{employee.Id}", employee);
         return resp.IsSuccessStatusCode;
@@ -269,5 +269,59 @@ public class ApiClient : IApiClient
         return resp.IsSuccessStatusCode;
     }
 
+    public async Task<IEnumerable<ScopeDto>> GetAllScopesAsync()
+    => await _http.GetFromJsonAsync<IEnumerable<ScopeDto>>("api/scopes") ?? Enumerable.Empty<ScopeDto>();
 
+    public async Task<ScopeDto?> GetScopeByIdAsync(int id)
+        => await _http.GetFromJsonAsync<ScopeDto>($"api/scopes/{id}");
+
+    public async Task<bool> CreateScopeAsync(ScopeDto dto)
+    {
+        var resp = await _http.PostAsJsonAsync("api/scopes", dto);
+        return resp.IsSuccessStatusCode;
+    }
+
+    public async Task<bool> UpdateScopeAsync(ScopeDto dto)
+    {
+        var resp = await _http.PutAsJsonAsync($"api/scopes/{dto.Id}", dto);
+        return resp.IsSuccessStatusCode;
+    }
+
+    public async Task<bool> DeleteScopeAsync(int id)
+    {
+        var resp = await _http.DeleteAsync($"api/scopes/{id}");
+        return resp.IsSuccessStatusCode;
+    }
+    public async Task<IEnumerable<RoleDto>> GetAllRolesAsync()
+    {
+        var result = await _http.GetFromJsonAsync<IEnumerable<RoleDto>>("api/roles");
+        return result ?? Enumerable.Empty<RoleDto>();
+    }
+
+    public async Task<RoleDto?> GetRoleByIdAsync(int id)
+    {
+        if (id <= 0) return null;
+        var resp = await _http.GetAsync($"api/roles/{id}");
+        if (!resp.IsSuccessStatusCode) return null;
+        return await resp.Content.ReadFromJsonAsync<RoleDto>();
+    }
+
+    public async Task<bool> CreateRoleAsync(RoleDto dto)
+    {
+        if (dto == null) throw new ArgumentNullException(nameof(dto));
+        var resp = await _http.PostAsJsonAsync("api/roles", dto);
+        return resp.IsSuccessStatusCode;
+    }
+
+    public async Task<bool> UpdateRoleAsync(RoleDto dto)
+    {
+        if (dto == null) throw new ArgumentNullException(nameof(dto));
+        if (dto.Id <= 0) throw new ArgumentException("Role Id must be set for update.", nameof(dto));
+
+        var resp = await _http.PutAsJsonAsync($"api/roles/{dto.Id}", dto);
+        return resp.IsSuccessStatusCode;
+    }
+
+
+    // TODO: other methods implemented elsewhere in ApiClient...
 }

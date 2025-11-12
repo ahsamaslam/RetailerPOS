@@ -1,4 +1,4 @@
-namespace Retailer.POS.Web.DTOs;
+namespace Retailer.POS.Web.ApiDTOs;
 public class ItemDto
 {
     public int Id { get; set; }

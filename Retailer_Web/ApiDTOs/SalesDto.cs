@@ -1,4 +1,4 @@
-﻿namespace Retailer.POS.Web.Models
+﻿namespace Retailer.POS.Web.ApiDTOs
 {
     public class SalesMasterDto
     {
