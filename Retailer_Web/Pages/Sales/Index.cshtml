@@ -1,35 +1,34 @@
 @page
 @model Retailer.POS.Web.Pages.Sales.IndexModel
-@inject Retailer.POS.Web.Services.IApiClient ApiClient
-
+@{
+    ViewData["Title"] = "Sales";
+}
 <h2>Sales</h2>
-<a asp-page="Create" class="btn btn-primary">Create New Sale</a>
+<a asp-page="Create" class="btn btn-primary mb-2">Create New Sale</a>
 
-<table class="table table-striped mt-2">
+<table class="table table-striped">
     <thead>
         <tr>
             <th>Date</th>
             <th>Customer</th>
-            <th>Subtotal</th>
-            <th>Total Discount</th>
-            <th>Tax Amount</th>
-            <th>Balance Amount</th>
+            <th>SubTotal</th>
+            <th>Tax</th>
+            <th>Balance</th>
             <th>Actions</th>
         </tr>
     </thead>
     <tbody>
-        @foreach (var sale in Model.Sales)
+        @foreach (var s in Model.Sales)
         {
             <tr>
-                <td>@sale.Master.Date.ToShortDateString()</td>
-                <td>@sale.Master.CustomerName</td>
-                <td>@sale.Master.SubTotal</td>
-                <td>@sale.Master.TotalDiscount</td>
-                <td>@sale.Master.TaxAmount</td>
-                <td>@sale.Master.BalanceAmount</td>
+                <td>@s.Date.ToShortDateString()</td>
+                <td>@s.CustomerName</td>
+                <td>@s.SubTotal</td>
+                <td>@s.TaxAmount</td>
+                <td>@s.BalanceAmount</td>
                 <td>
-                    <a asp-page="Edit" asp-route-id="@sale.Id" class="btn btn-sm btn-warning">Edit</a>
-                    <a asp-page="Details" asp-route-id="@sale.Id" class="btn btn-sm btn-info">Details</a>
+                    <a asp-page="Edit" asp-route-id="@s.Id" class="btn btn-sm btn-warning">Edit</a>
+                    <a asp-page="Details" asp-route-id="@s.Id" class="btn btn-sm btn-info">Details</a>
                 </td>
             </tr>
         }

@@ -1,8 +1,9 @@
-﻿namespace Retailer.Web.Models
+﻿namespace Retailer.Api.DTOs
 {
-    public class CreateSalesViewModel
+    public class SalesMasterDto
     {
-        public DateTime Date { get; set; } = DateTime.UtcNow;
+        public int Id { get; set; }
+        public DateTime Date { get; set; }
         public int LoginId { get; set; }
         public int BranchId { get; set; }
         public string? CustomerName { get; set; }
@@ -11,11 +12,12 @@
         public decimal TaxAmount { get; set; }
         public decimal BalanceAmount { get; set; }
         public string? CustomerCode { get; set; }
-        public List<SalesDetailViewModel> Details { get; set; } = new();
+        public List<SalesDetailDto> Details { get; set; } = new List<SalesDetailDto>();
     }
 
-    public class SalesDetailViewModel
+    public class SalesDetailDto
     {
+        public int Id { get; set; }
         public string ItemCode { get; set; } = string.Empty;
         public string ItemName { get; set; } = string.Empty;
         public decimal Rate { get; set; }
@@ -25,12 +27,4 @@
         public decimal TaxAmount { get; set; }
         public decimal Amount { get; set; }
     }
-
-    public class SalesViewModel
-    {
-        public int Id { get; set; }
-        public CreateSalesViewModel? Master { get; set; }
-        public List<SalesDetailViewModel> Details { get; set; } = new();
-    }
-
 }

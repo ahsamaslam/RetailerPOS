@@ -6,7 +6,7 @@
         public DateTime Date { get; set; }
         public decimal SubTotal { get; set; }
         public decimal Total { get; set; }
-        public List<SalesDetailViewModel> Details { get; set; } = new();
+        public List<PurchaseDetailViewModel> Details { get; set; } = new();
     }
 
     public class PurchaseDetailViewModel

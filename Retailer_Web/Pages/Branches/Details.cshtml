@@ -1,0 +1,19 @@
+﻿@page "{id:int}"
+@model Retailer.POS.Web.Pages.Branches.DetailsModel
+@{
+    ViewData["Title"] = "Branch Details";
+}
+
+<h2>Branch Details</h2>
+
+<table class="table">
+    <tr><th>Name</th><td>@Model.Branch.Name</td></tr>
+    <tr><th>Address</th><td>@Model.Branch.Address</td></tr>
+    <tr><th>Contact Person</th><td>@Model.Branch.ContactPerson</td></tr>
+    <tr><th>Mobile</th><td>@Model.Branch.MobileNo</td></tr>
+    <tr><th>Bill Heading 1</th><td>@Model.Branch.BillHeading1</td></tr>
+    <tr><th>Bill Heading 2</th><td>@Model.Branch.BillHeading2</td></tr>
+    <tr><th>Bill Mobile</th><td>@Model.Branch.BillMobileNo</td></tr>
+</table>
+
+<a asp-page="Index" class="btn btn-secondary">Back</a>

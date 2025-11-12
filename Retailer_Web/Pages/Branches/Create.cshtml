@@ -1,0 +1,52 @@
+﻿@page
+@model Retailer.POS.Web.Pages.Branches.CreateModel
+@{
+    ViewData["Title"] = "Create Branch";
+}
+
+<h2>Create Branch</h2>
+
+<form method="post" class="w-50">
+    <div class="mb-3">
+        <label asp-for="Branch.Name" class="form-label">Name</label>
+        <input asp-for="Branch.Name" class="form-control" />
+        <span asp-validation-for="Branch.Name" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Branch.Address" class="form-label">Address</label>
+        <input asp-for="Branch.Address" class="form-control" />
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Branch.ContactPerson" class="form-label">Contact Person</label>
+        <input asp-for="Branch.ContactPerson" class="form-control" />
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Branch.MobileNo" class="form-label">Mobile No</label>
+        <input asp-for="Branch.MobileNo" class="form-control" />
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Branch.BillHeading1" class="form-label">Bill Heading 1</label>
+        <input asp-for="Branch.BillHeading1" class="form-control" />
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Branch.BillHeading2" class="form-label">Bill Heading 2</label>
+        <input asp-for="Branch.BillHeading2" class="form-control" />
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Branch.BillMobileNo" class="form-label">Bill Mobile No</label>
+        <input asp-for="Branch.BillMobileNo" class="form-control" />
+    </div>
+
+    <button type="submit" class="btn btn-primary">Create</button>
+    <a asp-page="Index" class="btn btn-secondary">Cancel</a>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

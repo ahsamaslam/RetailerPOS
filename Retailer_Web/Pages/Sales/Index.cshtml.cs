@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc.RazorPages;
 using Retailer.POS.Web.Models;
 using Retailer.POS.Web.Services;
-using Retailer.Web.Models;
 
 namespace Retailer.POS.Web.Pages.Sales
 {
@@ -10,11 +9,11 @@ namespace Retailer.POS.Web.Pages.Sales
         private readonly IApiClient _api;
         public IndexModel(IApiClient api) => _api = api;
 
-        public List<SalesViewModel> Sales { get; set; } = new();
+        public List<SalesMasterDto> Sales { get; set; } = new();
 
         public async Task OnGetAsync()
         {
-            Sales = await _api.GetSalesAsync();
+            Sales = (await _api.GetSalesAsync()).ToList();
         }
     }
 }

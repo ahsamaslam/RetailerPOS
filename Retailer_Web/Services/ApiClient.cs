@@ -1,8 +1,9 @@
-using Retailer.POS.Web.Models;
-using System.Text.Json;
-using System.Net.Http.Headers;
-using Retailer.Web.Models;
 using Retailer.POS.Web.DTOs;
+using Retailer.POS.Web.Models;
+using Retailer.Web.ApiDTOs;
+using Retailer.Web.Models;
+using System.Net.Http.Headers;
+using System.Text.Json;
 using static System.Net.WebRequestMethods;
 
 namespace Retailer.POS.Web.Services;
@@ -48,15 +49,6 @@ public class ApiClient : IApiClient
         if (obj.TryGetProperty("token", out var t)) return t.GetString();
         return null;
     }
-
-    public async Task<List<Branch>> GetBranchesAsync()
-    {
-        var r = await _http.GetAsync("api/branches");
-        r.EnsureSuccessStatusCode();
-        return await r.Content.ReadFromJsonAsync<List<Branch>>() ?? new List<Branch>();
-    }
-
-    // Example Employee API calls
     public async Task<List<EmployeeViewModel>> GetEmployeesAsync() =>
         await _http.GetFromJsonAsync<List<EmployeeViewModel>>("api/employees") ?? new();
 
@@ -100,28 +92,6 @@ public class ApiClient : IApiClient
 
     public async Task<bool> UpdateVendorAsync(VendorViewModel vendor) =>
         (await _http.PutAsJsonAsync($"api/vendors/{vendor.Id}", vendor)).IsSuccessStatusCode;
-
-    // Sales
-    public async Task<bool> CreateSalesAsync(SalesViewModel sale) =>
-        (await _http.PostAsJsonAsync("api/sales", sale)).IsSuccessStatusCode;
-
-    public async Task<SalesViewModel?> GetSaleByIdAsync(int id) =>
-        await _http.GetFromJsonAsync<SalesViewModel>($"api/sales/{id}");
-    public async Task UpdateSaleAsync(SalesViewModel sale)
-    {
-        var response = await _http.PutAsJsonAsync($"api/Sales/{sale.Id}", sale);
-        response.EnsureSuccessStatusCode();
-    }
-
-    public async Task DeleteSaleAsync(int id)
-    {
-        var response = await _http.DeleteAsync($"api/Sales/{id}");
-        response.EnsureSuccessStatusCode();
-    }
-    public async Task<List<SalesViewModel>> GetSalesAsync()
-    {
-        return await _http.GetFromJsonAsync<List<SalesViewModel>>("api/Sales");
-    }
     // -------- Category --------
     public async Task<List<ItemCategoryViewModel>> GetCategoriesAsync()
         => await _http.GetFromJsonAsync<List<ItemCategoryViewModel>>("api/Categories");
@@ -237,5 +207,67 @@ public class ApiClient : IApiClient
     }
 
     public async Task<List<PurchaseViewModel>> GetPurchasesAsync() => await _http.GetFromJsonAsync<List<PurchaseViewModel>>("api/Purchases");
-    
+
+    // Branch
+    public async Task<IEnumerable<BranchDto>> GetAllBranchesAsync()
+    {
+        return await _http.GetFromJsonAsync<IEnumerable<BranchDto>>("api/branch") ?? Enumerable.Empty<BranchDto>();
+    }
+
+    public async Task<BranchDto?> GetBranchByIdAsync(int id)
+    {
+        return await _http.GetFromJsonAsync<BranchDto>($"api/branch/{id}");
+    }
+
+    public async Task<bool> CreateBranchAsync(BranchDto dto)
+    {
+        if (dto == null) return false;
+        var resp = await _http.PostAsJsonAsync("api/branch", dto);
+        return resp.IsSuccessStatusCode;
+    }
+
+    public async Task<bool> UpdateBranchAsync(BranchDto dto)
+    {
+        if (dto == null) return false;
+        var resp = await _http.PutAsJsonAsync($"api/branch/{dto.Id}", dto);
+        return resp.IsSuccessStatusCode;
+    }
+
+    public async Task<bool> DeleteBranchAsync(int id)
+    {
+        var resp = await _http.DeleteAsync($"api/branch/{id}");
+        return resp.IsSuccessStatusCode;
+    }
+    // Sales
+    public async Task<IEnumerable<SalesMasterDto>> GetSalesAsync()
+    {
+        return await _http.GetFromJsonAsync<IEnumerable<SalesMasterDto>>("api/sales") ?? Enumerable.Empty<SalesMasterDto>();
+    }
+
+    public async Task<SalesMasterDto?> GetSaleByIdAsync(int id)
+    {
+        return await _http.GetFromJsonAsync<SalesMasterDto>($"api/sales/{id}");
+    }
+
+    public async Task<bool> CreateSaleAsync(SalesMasterDto dto)
+    {
+        if (dto == null) return false;
+        var resp = await _http.PostAsJsonAsync("api/sales", dto);
+        return resp.IsSuccessStatusCode;
+    }
+
+    public async Task<bool> UpdateSaleAsync(SalesMasterDto dto)
+    {
+        if (dto == null) return false;
+        var resp = await _http.PutAsJsonAsync($"api/sales/{dto.Id}", dto);
+        return resp.IsSuccessStatusCode;
+    }
+
+    public async Task<bool> DeleteSaleAsync(int id)
+    {
+        var resp = await _http.DeleteAsync($"api/sales/{id}");
+        return resp.IsSuccessStatusCode;
+    }
+
+
 }
