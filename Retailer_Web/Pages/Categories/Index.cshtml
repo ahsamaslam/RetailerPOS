@@ -56,18 +56,13 @@
 @section Scripts {
     <script>
         $(document).ready(function () {
-            $('#myTable').DataTable({
-                "processing": true,
-                "serverSide": true,
-                "ajax": {
-                    "url": "@Url.Action("Index", "Categories")",
-                    "type": "POST"
-                },
-                "columns": [
-                    { "data": "id" },
-                    { "data": "name" }, 
-                ]
-            });
+             $('#myTable').DataTable({
+                 "paging": true,
+                 "searching": true,
+                 "ordering": true,
+                 "info": true
+             });
+         
         });
     </script>
 }
