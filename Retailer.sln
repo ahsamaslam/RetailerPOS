@@ -6,6 +6,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Retailer.Api", "Retailer.Ap
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Retailer.Web", "Retailer_Web\Retailer.Web.csproj", "{2CFC5E73-14C0-4814-9B49-72F1AF3E50BD}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AuthModule.API", "AuthModule.API\AuthModule.API.csproj", "{929F0D72-BFEF-4C2D-BC51-C8F483DD4018}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -20,6 +22,10 @@ Global
 		{2CFC5E73-14C0-4814-9B49-72F1AF3E50BD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2CFC5E73-14C0-4814-9B49-72F1AF3E50BD}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2CFC5E73-14C0-4814-9B49-72F1AF3E50BD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{929F0D72-BFEF-4C2D-BC51-C8F483DD4018}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{929F0D72-BFEF-4C2D-BC51-C8F483DD4018}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{929F0D72-BFEF-4C2D-BC51-C8F483DD4018}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{929F0D72-BFEF-4C2D-BC51-C8F483DD4018}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
