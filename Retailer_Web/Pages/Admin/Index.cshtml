@@ -1,0 +1,27 @@
+﻿@page
+@model Retailer.Web.Pages.Admin.IndexModel
+@{
+    ViewData["Title"] = "Admin Dashboard";
+}
+
+<h1>Admin Dashboard</h1>
+
+<div style="display:flex; gap: 20px; margin-top: 20px;">
+    <div style="border: 1px solid #ccc; padding: 20px; width: 200px; text-align:center;">
+        <h3>Users</h3>
+        <p>Manage all users and assign roles.</p>
+        <a class="btn btn-primary" asp-page="./User">Go to Users</a>
+    </div>
+
+    <div style="border: 1px solid #ccc; padding: 20px; width: 200px; text-align:center;">
+        <h3>Roles</h3>
+        <p>Create roles and assign permissions.</p>
+        <a class="btn btn-primary" asp-page="./Roles">Go to Roles</a>
+    </div>
+
+    <div style="border: 1px solid #ccc; padding: 20px; width: 200px; text-align:center;">
+        <h3>Permissions</h3>
+        <p>Create and view permissions.</p>
+        <a class="btn btn-primary" asp-page="./Permissions">Go to Permissions</a>
+    </div>
+</div>

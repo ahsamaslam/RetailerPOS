@@ -1,70 +1,83 @@
 ﻿using AuthModule.API.Services;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using System.Text;
 
 namespace AuthModule.API.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api/auth")]
     public class AuthController : ControllerBase
     {
-        private readonly SignInManager<IdentityUser> _signInManager;
         private readonly UserManager<IdentityUser> _userManager;
-        private readonly ITokenService _tokenService;
+        private readonly RoleManager<IdentityRole> _roleManager;
         private readonly IPermissionService _permissionService;
+        private readonly IConfiguration _config;
 
-
-        public AuthController(SignInManager<IdentityUser> signInManager, UserManager<IdentityUser> userManager, ITokenService tokenService, IPermissionService permissionService)
+        public AuthController(
+            UserManager<IdentityUser> userManager,
+            RoleManager<IdentityRole> roleManager,
+            IPermissionService permissionService,
+            IConfiguration config)
         {
-            _signInManager = signInManager;
             _userManager = userManager;
-            _tokenService = tokenService;
+            _roleManager = roleManager;
             _permissionService = permissionService;
+            _config = config;
         }
-
 
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginDto dto)
         {
-            var user = await _userManager.FindByEmailAsync(dto.Email);
-            if (user == null) return Unauthorized();
+            var user = await _userManager.FindByNameAsync(dto.UserName);
+            if (user == null || !await _userManager.CheckPasswordAsync(user, dto.Password))
+                return Unauthorized("Invalid username or password");
 
+            // Basic claims
+            var claims = new List<Claim>
+            {
+                new Claim(ClaimTypes.NameIdentifier, user.Id),
+                new Claim(ClaimTypes.Name, user.UserName ?? string.Empty),
+                new Claim("sub", user.Id) // optional
+            };
 
-            var res = await _signInManager.CheckPasswordSignInAsync(user, dto.Password, lockoutOnFailure: true);
-            if (!res.Succeeded) return Unauthorized();
+            // Roles
+            var roles = await _userManager.GetRolesAsync(user);
+            foreach (var role in roles)
+                claims.Add(new Claim(ClaimTypes.Role, role));
 
+            // Permissions (via IPermissionService) -> add as "permission" claim
+            var permissions = await _permissionService.GetPermissionsForUserAsync(user.Id);
+            // Avoid duplicate claims
+            foreach (var p in permissions.Distinct())
+            {
+                // Use a custom claim type for permissions
+                claims.Add(new Claim("permission", p));
+            }
 
-            var claims = new[] { new Claim(ClaimTypes.NameIdentifier, user.Id), new Claim(ClaimTypes.Email, user.Email ?? "") };
-            var perms = await _permissionService.GetPermissionsForUserAsync(user.Id);
-            var permClaims = perms.Select(p => new Claim("permission", p));
-
-
-            var allClaims = claims.Concat(permClaims);
-
-
-            var tokens = await _tokenService.IssueTokensAsync(user.Id, allClaims);
-            return Ok(new { tokens.AccessToken, tokens.RefreshToken, expiresAt = tokens.AccessTokenExpiresAt });
+            var token = GenerateJwtToken(claims);
+            return Ok(new { token, expiresIn = _config["Jwt:ExpiresInMinutes"] });
         }
 
-
-        [HttpPost("refresh")]
-        public async Task<IActionResult> Refresh([FromBody] RefreshRequest dto)
+        private string GenerateJwtToken(IEnumerable<Claim> claims)
         {
-            try
-            {
-                var ip = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown";
-                var (access, refresh) = await _tokenService.RefreshAsync(dto.AccessToken, dto.RefreshToken, ip);
-                return Ok(new { access, refresh });
-            }
-            catch (Microsoft.IdentityModel.Tokens.SecurityTokenException ex)
-            {
-                return Unauthorized(new { error = ex.Message });
-            }
+            var key = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(_config["Jwt:Key"]));
+            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+
+            var token = new JwtSecurityToken(
+                issuer: _config["Jwt:Issuer"],
+                audience: _config["Jwt:Audience"],
+                claims: claims,
+                expires: DateTime.UtcNow.AddMinutes(double.Parse(_config["Jwt:ExpiresInMinutes"] ?? "60")),
+                signingCredentials: creds
+            );
+
+            return new JwtSecurityTokenHandler().WriteToken(token);
         }
     }
-    public record LoginDto(string Email, string Password);
-    public record RefreshRequest(string AccessToken, string RefreshToken);
+
+    public record LoginDto(string UserName, string Password);
 }

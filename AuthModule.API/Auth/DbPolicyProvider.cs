@@ -1,4 +1,4 @@
-﻿using AuthModule.API.Services;
+﻿// Auth/DbPolicyProvider.cs
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Options;
 
@@ -7,37 +7,31 @@ namespace AuthModule.API.Auth
     public class DbPolicyProvider : IAuthorizationPolicyProvider
     {
         private readonly DefaultAuthorizationPolicyProvider _fallback;
-        private readonly IPermissionService _permissionService;
 
-
-        public DbPolicyProvider(IOptions<AuthorizationOptions> options, IPermissionService permissionService)
+        public DbPolicyProvider(IOptions<AuthorizationOptions> options)
         {
             _fallback = new DefaultAuthorizationPolicyProvider(options);
-            _permissionService = permissionService;
         }
 
+        public Task<AuthorizationPolicy?> GetDefaultPolicyAsync() =>
+            _fallback.GetDefaultPolicyAsync();
 
-        public Task<AuthorizationPolicy?> GetDefaultPolicyAsync() => _fallback.GetDefaultPolicyAsync();
-        public Task<AuthorizationPolicy?> GetFallbackPolicyAsync() => _fallback.GetFallbackPolicyAsync();
+        public Task<AuthorizationPolicy?> GetFallbackPolicyAsync() =>
+            _fallback.GetFallbackPolicyAsync();
 
-
-        public async Task<AuthorizationPolicy?> GetPolicyAsync(string policyName)
+        public Task<AuthorizationPolicy?> GetPolicyAsync(string policyName)
         {
-            if (policyName.StartsWith("perm:", System.StringComparison.OrdinalIgnoreCase))
+            // convention: "perm:PermissionName"
+            if (policyName.StartsWith("perm:", StringComparison.OrdinalIgnoreCase))
             {
-                var perm = policyName.Substring("perm:".Length);
-                var exists = (await _permissionService.GetAllPermissionsAsync()).Any(p => p.Name == perm);
-                if (!exists) return null;
-
-
+                var permission = policyName.Substring("perm:".Length);
                 var policy = new AuthorizationPolicyBuilder()
-                .AddRequirements(new PermissionRequirement(perm))
-                .Build();
-                return policy;
+                    .AddRequirements(new PermissionRequirement(permission))
+                    .Build();
+                return Task.FromResult<AuthorizationPolicy?>(policy);
             }
 
-
-            return await _fallback.GetPolicyAsync(policyName);
+            return _fallback.GetPolicyAsync(policyName);
         }
     }
 }

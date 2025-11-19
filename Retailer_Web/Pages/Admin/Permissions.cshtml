@@ -1,0 +1,31 @@
+﻿@page
+@model Admin.Pages.Admin.PermissionsModel
+@{
+    ViewData["Title"] = "Manage Permissions";
+}
+
+<h2>Permissions</h2>
+
+<h3>Create Permission</h3>
+<form method="post">
+    <input asp-for="NewPermission.Name" placeholder="Permission Name" required />
+    <input asp-for="NewPermission.Description" placeholder="Description" />
+    <button type="submit">Create Permission</button>
+</form>
+
+<hr />
+
+<h3>All Permissions</h3>
+<table border="1">
+    <tr>
+        <th>Name</th>
+        <th>Description</th>
+    </tr>
+    @foreach (var p in Model.Permissions)
+    {
+        <tr>
+            <td>@p.Name</td>
+            <td>@p.Description</td>
+        </tr>
+    }
+</table>

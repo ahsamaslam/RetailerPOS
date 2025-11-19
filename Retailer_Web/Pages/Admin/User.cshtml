@@ -1,0 +1,44 @@
+﻿@page
+@model Retailer.Web.Pages.Admin.UsersModel
+@{
+    ViewData["Title"] = "Manage Users";
+}
+
+<h2>Users</h2>
+
+<h3>Create User</h3>
+<form method="post">
+    <input asp-for="NewUser.UserName" placeholder="Username" required />
+    <input asp-for="NewUser.Email" type="email" placeholder="Email" required />
+    <input asp-for="NewUser.Password" type="password" placeholder="Password" required />
+    <button type="submit">Create User</button>
+</form>
+
+<hr />
+
+<h3>All Users</h3>
+<table border="1">
+    <tr>
+        <th>Username</th>
+        <th>Email</th>
+        <th>Roles</th>
+        <th>Assign Role</th>
+    </tr>
+    @foreach (var user in Model.Users)
+    {
+        <tr>
+            <td>@user.UserName</td>
+            <td>@user.Email</td>
+            <td>@string.Join(", ", user.Roles)</td>
+            <td>
+                <select onchange="(async e => await Model.AssignRole(user.Id, e.Value.ToString()))">
+                    <option value="">Select Role</option>
+                    @foreach (var role in Model.AllRoles)
+                    {
+                        <option value="@role">@role</option>
+                    }
+                </select>
+            </td>
+        </tr>
+    }
+</table>

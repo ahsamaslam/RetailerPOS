@@ -1,0 +1,38 @@
+﻿@page
+@model Retailer.Web.Pages.Admin.RolesModel
+@{
+    ViewData["Title"] = "Manage Roles";
+}
+
+<h2>Roles</h2>
+
+<h3>Create Role</h3>
+<form method="post">
+    <input asp-for="NewRole.Name" placeholder="Role Name" required />
+    <button type="submit">Create Role</button>
+</form>
+
+<hr />
+
+<h3>All Roles</h3>
+<table border="1">
+    <tr>
+        <th>Name</th>
+        <th>Assign Permission</th>
+    </tr>
+    @foreach (var role in Model.Roles)
+    {
+        <tr>
+            <td>@role.Name</td>
+            <td>
+                <select onchange="(async e => await Model.AssignPermission(role.Id, int.Parse(e.Value.ToString())))">
+                    <option value="">Select Permission</option>
+                    @foreach (var p in Model.AllPermissions)
+                    {
+                        <option value="@p.Id">@p.Name</option>
+                    }
+                </select>
+            </td>
+        </tr>
+    }
+</table>

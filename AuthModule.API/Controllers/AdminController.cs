@@ -7,7 +7,7 @@ namespace AuthModule.API.Controllers
 {
     [ApiController]
     [Route("api/admin")]
-    [Authorize(Roles = "Admin")]
+    //[Authorize(Roles = "Admin")]
     public class AdminController : ControllerBase
     {
         private readonly IPermissionService _perm;
@@ -104,10 +104,55 @@ namespace AuthModule.API.Controllers
             var roles = await _userManager.GetRolesAsync(user);
             return Ok(roles);
         }
+        [HttpPost("users")]
+        public async Task<IActionResult> CreateUser([FromBody] CreateUserDto dto)
+        {
+            // Check if user already exists by username or email
+            var existingUser = await _userManager.FindByNameAsync(dto.UserName);
+            if (existingUser != null)
+                return Conflict("Username already exists");
 
+            existingUser = await _userManager.FindByEmailAsync(dto.Email);
+            if (existingUser != null)
+                return Conflict("Email already exists");
+
+            // Create the new user
+            var user = new IdentityUser
+            {
+                UserName = dto.UserName,
+                Email = dto.Email,
+                EmailConfirmed = true // Optional: set to false if email confirmation is required
+            };
+
+            var result = await _userManager.CreateAsync(user, dto.Password);
+            if (!result.Succeeded)
+                return BadRequest(result.Errors);
+
+            return Ok(new { user.Id, user.UserName, user.Email });
+        }
+        [HttpGet("roles/names")]
+        public IActionResult GetAllRoleNames() =>
+        Ok(_roleManager.Roles.Select(r => r.Name).ToList());
+
+        [HttpGet("roles")]
+        public IActionResult GetAllRoles()
+        {
+            var roles = _roleManager.Roles
+                .Select(r => new { r.Id, r.Name })
+                .ToList();
+            return Ok(roles);
+        }
+        [HttpGet("permissions")]
+        public async Task<IActionResult> GetAllPermissions()
+        {
+            var perms = await _perm.GetAllPermissionsAsync(); // Implement this in IPermissionService
+            return Ok(perms.Select(p => new { p.Id, p.Name, p.Description }));
+        }
     }
 
 
+    // DTO for creating a user
+    public record CreateUserDto(string UserName, string Email, string Password);
     public record CreatePermissionDto(string Name, string? Description);
     public record CreateRoleDto(string Name);
 

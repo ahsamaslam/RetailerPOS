@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using AuthModule.API.Data;
 using AuthModule.API.Models;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 
@@ -44,6 +45,7 @@ namespace AuthModule.API.Services
             _db.RolePermissions.Add(new RolePermission { RoleId = roleId, PermissionId = permissionId });
             await _db.SaveChangesAsync();
             _cache.Remove($"permissions:role:{roleId}");
+            _cache.Remove("permissions:all");
         }
 
         public async Task RemovePermissionFromRoleAsync(string roleId, int permissionId)
@@ -53,6 +55,7 @@ namespace AuthModule.API.Services
             _db.RolePermissions.Remove(existing);
             await _db.SaveChangesAsync();
             _cache.Remove($"permissions:role:{roleId}");
+            _cache.Remove("permissions:all");
         }
 
         public async Task<IEnumerable<string>> GetPermissionsForRoleAsync(string roleId)
@@ -70,34 +73,63 @@ namespace AuthModule.API.Services
 
         public async Task<IEnumerable<string>> GetPermissionsForUserAsync(string userId)
         {
+            if (string.IsNullOrWhiteSpace(userId)) return Enumerable.Empty<string>();
+
             var key = $"permissions:user:{userId}";
             return await _cache.GetOrCreateAsync(key, async entry =>
             {
                 entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(5);
 
-                var roleIds = await (from ur in _db.UserRoles
+                // Get role ids for this user (Identity stores in AspNetUserRoles)
+                var userRolesSet = _db.Set<Microsoft.AspNetCore.Identity.IdentityUserRole<string>>();
+
+                var roleIds = await (from ur in userRolesSet
                                      where ur.UserId == userId
                                      select ur.RoleId).ToListAsync();
 
-                var rolePerms = await _db.RolePermissions
-                    .Where(rp => roleIds.Contains(rp.RoleId))
-                    .Select(rp => rp.Permission!.Name)
-                    .ToListAsync();
+                // permissions from roles
+                var rolePerms = new List<string>();
+                if (roleIds.Count > 0)
+                {
+                    rolePerms = await _db.RolePermissions
+                        .Where(rp => roleIds.Contains(rp.RoleId))
+                        .Select(rp => rp.Permission!.Name)
+                        .ToListAsync();
+                }
 
+                // direct user permissions (with IsAllowed flag)
                 var userPerms = await _db.UserPermissions
                     .Where(up => up.UserId == userId)
                     .Select(up => new { up.Permission!.Name, up.IsAllowed })
                     .ToListAsync();
 
-                var result = new HashSet<string>(rolePerms);
+                var result = new HashSet<string>(rolePerms, StringComparer.OrdinalIgnoreCase);
+
                 foreach (var up in userPerms)
                 {
                     if (up.IsAllowed) result.Add(up.Name);
-                    else result.Remove(up.Name);
+                    else result.RemoveWhere(n => string.Equals(n, up.Name, StringComparison.OrdinalIgnoreCase));
                 }
 
                 return result.ToList();
             });
+        }
+
+        /// <summary>
+        /// Check if user has the permission (via role or direct assignment).
+        /// userId is string (Identity user id).
+        /// </summary>
+        public async Task<bool> UserHasPermissionAsync(string userId, string permission)
+        {
+            if (string.IsNullOrWhiteSpace(userId) || string.IsNullOrWhiteSpace(permission))
+                return false;
+
+            permission = permission.Trim();
+
+            // First, check cached computed permissions for user
+            var perms = await GetPermissionsForUserAsync(userId);
+            var found = perms.Any(p => string.Equals(p, permission, StringComparison.OrdinalIgnoreCase));
+            return found;
         }
     }
 }
