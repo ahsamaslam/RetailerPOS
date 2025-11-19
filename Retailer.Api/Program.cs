@@ -2,6 +2,7 @@ using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Retailer.Api.Services;
 using Retailer.POS.Api.Data;
 using Retailer.POS.Api.Mappings;
 using Retailer.POS.Api.Repositories;
@@ -28,6 +29,7 @@ builder.Services.AddScoped<IItemService, ItemService>();
 builder.Services.AddScoped<IPurchaseService, PurchaseService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 
+
 // JWT Authentication
 var jwtSection = builder.Configuration.GetSection("Jwt");
 var key = Encoding.UTF8.GetBytes(jwtSection.GetValue<string>("Key"));
@@ -51,7 +53,12 @@ builder.Services.AddAuthentication(options =>
         ValidateLifetime = true
     };
 });
-
+builder.Services.AddMemoryCache(); // add this
+builder.Services.AddHttpClient<IMenuService, MenuService>(client =>
+{
+    client.BaseAddress = new Uri(builder.Configuration["AuthModule:Authority"]);
+});
+builder.Services.AddScoped<IMenuService, MenuService>();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 

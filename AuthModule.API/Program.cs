@@ -2,10 +2,12 @@ using AuthModule.API.Auth;
 using AuthModule.API.Data;
 using AuthModule.API.Repositories;
 using AuthModule.API.Services;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Serilog;
@@ -64,6 +66,11 @@ builder.Services.AddAuthorization(options =>
 {
     // Optionally add static policies here, e.g.:
     // options.AddPolicy("AdminOnly", p => p.RequireRole("Admin"));
+    // register a single policy that uses the PermissionRequirement.
+    options.AddPolicy(RequiresPermissionAttribute.PermissionPolicyName, policy =>
+    {
+        policy.Requirements.Add(new PermissionRequirement());
+    });
 });
 
 // DI registrations
@@ -78,9 +85,9 @@ builder.Services.AddScoped<IPermissionService, PermissionService>();
 // Authorization infrastructure:
 // Keep IAuthorizationPolicyProvider as singleton, but DO NOT inject scoped services into it.
 // The provider should only create policies; PermissionHandler (scoped) will use IPermissionService.
-builder.Services.AddSingleton<IAuthorizationPolicyProvider, DbPolicyProvider>();
+builder.Services.AddSingleton<IAuthorizationPolicyProvider, DefaultAuthorizationPolicyProvider>();
 builder.Services.AddScoped<IAuthorizationHandler, PermissionHandler>();
-
+builder.Services.AddScoped<IClaimsTransformation, PermissionClaimsTransformer>();
 // MVC / Controllers
 builder.Services.AddControllers();
 
@@ -145,6 +152,7 @@ if (app.Environment.IsDevelopment())
         c.RoutePrefix = "swagger"; // UI at /swagger
     });
 }
+
 
 app.UseHttpsRedirection();
 

@@ -1,0 +1,11 @@
+@page
+@model Retailer.Web.Pages.LoginModel
+@{
+    Layout = null;
+}
+<h2>Login (API JWT Demo)</h2>
+<form method="post">
+  <div><label>Username</label><input asp-for="UserName" /></div>
+  <div><label>Password</label><input asp-for="Password" type="password" /></div>
+  <button type="submit">Login</button>
+</form>

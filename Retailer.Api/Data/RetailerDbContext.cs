@@ -28,6 +28,9 @@ public class RetailerDbContext : DbContext
     public DbSet<StockTransferDetail> StockTransferDetails => Set<StockTransferDetail>();
     public DbSet<SalesMaster> SalesMasters => Set<SalesMaster>();
     public DbSet<SalesDetail> SalesDetails => Set<SalesDetail>();
+    public DbSet<Menu> Menus { get; set; } = default!;
+    public DbSet<SubMenu> SubMenus { get; set; } = default!;
+    public DbSet<SubMenuPermission> SubMenuPermissions { get; set; } = default!;
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -39,5 +42,34 @@ public class RetailerDbContext : DbContext
 
         modelBuilder.Entity<Item>().Property(i => i.Rate).HasColumnType("decimal(18,2)");
         modelBuilder.Entity<Item>().Property(i => i.Cost).HasColumnType("decimal(18,2)");
+        modelBuilder.Entity<Menu>(b =>
+        {
+            b.HasKey(m => m.Id);
+            b.Property(m => m.Title).IsRequired().HasMaxLength(200);
+            b.Property(m => m.Icon).HasMaxLength(200);
+            b.HasMany(m => m.SubMenus).WithOne(s => s.Menu).HasForeignKey(s => s.MenuId).OnDelete(DeleteBehavior.Cascade);
+        });
+
+        // SubMenu
+        modelBuilder.Entity<SubMenu>(b =>
+        {
+            b.HasKey(s => s.Id);
+            b.Property(s => s.Title).IsRequired().HasMaxLength(200);
+            b.Property(s => s.Route).HasMaxLength(500);
+            b.Property(s => s.Icon).HasMaxLength(200);
+        });
+
+        // SubMenuPermission (many-to-many)
+        modelBuilder.Entity<SubMenuPermission>(b =>
+        {
+            b.HasKey(sp => new { sp.SubMenuId });
+
+            b.HasOne(sp => sp.SubMenu)
+             .WithMany(s => s.SubMenuPermissions)
+             .HasForeignKey(sp => sp.SubMenuId)
+             .OnDelete(DeleteBehavior.Cascade);
+
+            // no b.HasOne(...Permission...) since Permission type is not in this DbContext
+        });
     }
 }

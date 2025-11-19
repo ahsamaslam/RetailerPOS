@@ -71,9 +71,9 @@ namespace AuthModule.API.Services
             });
         }
 
-        public async Task<IEnumerable<string>> GetPermissionsForUserAsync(string userId)
+        public async Task<List<string>> GetPermissionsForUserAsync(string userId)
         {
-            if (string.IsNullOrWhiteSpace(userId)) return Enumerable.Empty<string>();
+            if (string.IsNullOrWhiteSpace(userId)) return new List<string>();
 
             var key = $"permissions:user:{userId}";
             return await _cache.GetOrCreateAsync(key, async entry =>
@@ -81,7 +81,7 @@ namespace AuthModule.API.Services
                 entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(5);
 
                 // Get role ids for this user (Identity stores in AspNetUserRoles)
-                var userRolesSet = _db.Set<Microsoft.AspNetCore.Identity.IdentityUserRole<string>>();
+                var userRolesSet = _db.Set<IdentityUserRole<string>>();
 
                 var roleIds = await (from ur in userRolesSet
                                      where ur.UserId == userId
