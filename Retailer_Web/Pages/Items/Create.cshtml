@@ -3,41 +3,64 @@
 @{
     ViewData["Title"] = "Create Item";
 }
+<main class="app-main">
+    <!--begin::App Content Header-->
+    <div class="app-content-header">
+        <!--begin::Container-->
+        <div class="container-fluid">
+            <!--begin::Row-->
+            <div class="row">
+                <div class="col-sm-6"><h3 class="mb-0">Create Item</h3></div>
+                <div class="col-sm-6">
+                    <ol class="breadcrumb float-sm-end">
+                        <li class="breadcrumb-item"><a href="#">Home</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">Dashboard</li>
+                    </ol>
+                </div>
+            </div>
+            <!--end::Row-->
+        </div>
+        <!--end::Container-->
+    </div>
+    <div class="app-content">
+        <form method="post">
+            <div>
+                <label>Name</label>
+                <input asp-for="Input.Name" required class="form-control" />
+            </div>
+            <div>
+                <label>Barcode</label>
+                <input asp-for="Input.Barcode" class="form-control" />
+            </div>
+            <div>
+                <label>Rate</label>
+                <input asp-for="Input.Rate" required class="form-control" />
+            </div>
+            <div>
+                <label>Cost</label>
+                <input asp-for="Input.Cost" required class="form-control" />
+            </div>
+            <div>
+                <label>Category</label>
+                <select asp-for="Input.CategoryId" asp-items="Model.Categories" class="form-control"></select>
+            </div>
+            <div>
+                <label>Type</label>
+                <select asp-for="Input.ItemTypeId" asp-items="Model.ItemType" class="form-control"></select>
+            </div>
+            <div>
+                <label>Group</label>
+                <select asp-for="Input.GroupId" asp-items="Model.Groups" class="form-control"></select>
+            </div>
+            <div>
+                <label>SubGroup</label>
+                <select asp-for="Input.SubGroupId" asp-items="Model.SubGroups" class="form-control"></select>
+            </div>
+            <button type="submit" class="btn btn-primary">Create</button>
+        </form>
+    </div>
+    <!--end::App Content-->
+</main>
+<!--end::App Main--> 
 
-<h2>Create Item</h2>
 
-<form method="post">
-    <div>
-        <label>Name</label>
-        <input asp-for="Input.Name" class="form-control" />
-    </div>
-    <div>
-        <label>Barcode</label>
-        <input asp-for="Input.Barcode" class="form-control" />
-    </div>
-    <div>
-        <label>Rate</label>
-        <input asp-for="Input.Rate" class="form-control" />
-    </div>
-    <div>
-        <label>Cost</label>
-        <input asp-for="Input.Cost" class="form-control" />
-    </div>
-    <div>
-        <label>Category</label>
-        <select asp-for="Input.CategoryId" asp-items="Model.Categories" class="form-control"></select>
-    </div>
-      <div>
-        <label>Type</label>
-        <select asp-for="Input.ItemTypeId" asp-items="Model.ItemType" class="form-control"></select>
-    </div>
-    <div>
-        <label>Group</label>
-        <select asp-for="Input.GroupId" asp-items="Model.Groups" class="form-control"></select>
-    </div>
-    <div>
-        <label>SubGroup</label>
-        <select asp-for="Input.SubGroupId" asp-items="Model.SubGroups" class="form-control"></select>
-    </div>
-    <button type="submit" class="btn btn-primary">Create</button>
-</form>

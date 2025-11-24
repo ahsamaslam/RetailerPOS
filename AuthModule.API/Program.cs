@@ -20,10 +20,10 @@ var builder = WebApplication.CreateBuilder(args);
 // Logging
 Log.Logger = new LoggerConfiguration().ReadFrom.Configuration(builder.Configuration).CreateLogger();
 builder.Host.UseSerilog();
-
+var val = builder.Configuration.GetConnectionString("DefaultConnection");
 // Db
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseSqlServer(val));
 
 // Identity
 builder.Services.AddIdentity<IdentityUser, IdentityRole>(options =>

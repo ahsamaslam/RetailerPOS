@@ -56,7 +56,7 @@
   
     <div class="app-wrapper">
         <partial name="_TopBar.cshtml" />
-        <partial name="_SideBar.cshtml" />
+        @await Component.InvokeAsync("sideBarVc")
         <main role="main" class="pb-3"> 
             @RenderBody()
  
