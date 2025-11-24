@@ -78,5 +78,6 @@ public interface IApiClient
     Task<bool> CreateRoleAsync(RoleDto dto);
     Task<bool> UpdateRoleAsync(RoleDto dto);
 
+    Task<IEnumerable<MenuDto>> GetMenusForCurrentUserAsync();
 
 }

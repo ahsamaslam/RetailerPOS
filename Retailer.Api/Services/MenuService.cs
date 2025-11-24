@@ -9,15 +9,20 @@ namespace Retailer.Api.Services
 {
     public class MenuService : IMenuService
     {
-        private readonly RetailerDbContext _db;
         private readonly HttpClient _httpClient;
+        private readonly RetailerDbContext _db;
         private readonly IMemoryCache _cache;
 
-        public MenuService(RetailerDbContext db, HttpClient httpClient, IMemoryCache cache)
+        public MenuService(
+            RetailerDbContext db,
+            IMemoryCache cache,
+            IHttpClientFactory httpClientFactory)
         {
             _db = db;
-            _httpClient = httpClient;
             _cache = cache;
+
+            // get the named client
+            _httpClient = httpClientFactory.CreateClient("AuthModule");
         }
         // Admin: full list
         public async Task<IEnumerable<MenuDto>> GetAllMenusAsync()
@@ -158,7 +163,7 @@ namespace Retailer.Api.Services
             // 1. Fetch user's effective permissions from AuthModule
             if (!_cache.TryGetValue<HashSet<string>>(userId, out var effectivePermissions))
             {
-                var response = await _httpClient.GetAsync($"api/auth/users/{userId}/permissions");
+                var response = await _httpClient.GetAsync($"api/user/permissions");
                 if (!response.IsSuccessStatusCode)
                     throw new InvalidOperationException("Failed to fetch user permissions from AuthModule");
 

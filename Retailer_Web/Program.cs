@@ -40,7 +40,7 @@ builder.Services.AddAuthentication(options =>
 .AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, options =>
 {
     options.Authority = builder.Configuration["AuthModule:Authority"];
-    options.Audience = "RetailerWebAPI";
+    options.Audience = builder.Configuration["AuthModule:Audience"];
     options.RequireHttpsMetadata = false;
     // optional: events etc.
 });

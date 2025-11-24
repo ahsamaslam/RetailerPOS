@@ -11,7 +11,9 @@ using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Serilog;
+using System.IdentityModel.Tokens.Jwt;
 using System.Reflection;
+using System.Security.Claims;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -40,6 +42,12 @@ builder.Services.AddIdentity<IdentityUser, IdentityRole>(options =>
 // Token config (base64 key)
 var signingBase64 = builder.Configuration["Jwt:SigningKeyBase64"]!;
 var keyBytes = Convert.FromBase64String(signingBase64);
+var myKey = new SymmetricSecurityKey(keyBytes) { KeyId = builder.Configuration["Jwt:KeyId"] };
+
+var jwtSection = builder.Configuration.GetSection("Jwt");
+
+// read audiences: allow either single Audience or Audiences array in config
+var audiences = jwtSection.GetSection("Audiences").Get<string[]>();
 
 // Authentication - JWT Bearer
 builder.Services.AddAuthentication(options =>
@@ -48,14 +56,23 @@ builder.Services.AddAuthentication(options =>
     options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
 }).AddJwtBearer(options =>
 {
+    options.MapInboundClaims = false; // do not map to Microsoft-specific claim types
     options.TokenValidationParameters = new TokenValidationParameters
     {
         ValidateIssuer = true,
-        ValidIssuer = builder.Configuration["Jwt:Issuer"],
+        ValidIssuer = jwtSection["Issuer"],
         ValidateAudience = true,
-        ValidAudience = builder.Configuration["Jwt:Audience"],
+        ValidAudiences = audiences,
         ValidateIssuerSigningKey = true,
+        NameClaimType = JwtRegisteredClaimNames.Sub,    // optional: set which claim maps to Name
+        RoleClaimType = ClaimTypes.Role,
         IssuerSigningKey = new SymmetricSecurityKey(keyBytes),
+        // Fallback resolver: give middleware the keys to try (useful when kid missing)
+        IssuerSigningKeyResolver = (token, securityToken, kid, validationParameters) =>
+        {
+            // return all known keys (here a single symmetric key)
+            return new List<SecurityKey> { myKey };
+        },
         ValidateLifetime = true,
         ClockSkew = TimeSpan.FromSeconds(30)
     };

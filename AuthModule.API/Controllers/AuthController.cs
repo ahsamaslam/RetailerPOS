@@ -78,18 +78,86 @@ namespace AuthModule.API.Controllers
         }
         private string GenerateJwtToken(IEnumerable<Claim> claims)
         {
-            var key = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(_config["Jwt:SigningKeyBase64"]));
-            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+            // read signing key: prefer base64 entry, otherwise use plain text key
+            var base64Key = _config["Jwt:SigningKeyBase64"];
+            byte[] keyBytes;
+            if (!string.IsNullOrWhiteSpace(base64Key))
+            {
+                try
+                {
+                    keyBytes = Convert.FromBase64String(base64Key);
+                }
+                catch (FormatException ex)
+                {
+                    throw new InvalidOperationException("Jwt:SigningKeyBase64 must be a valid base64 string.", ex);
+                }
+            }
+            else
+            {
+                var plainKey = _config["Jwt:Key"];
+                if (string.IsNullOrEmpty(plainKey))
+                    throw new InvalidOperationException("No signing key found. Set Jwt:SigningKeyBase64 or Jwt:Key in configuration.");
 
-            var token = new JwtSecurityToken(
-                issuer: _config["Jwt:Issuer"],
-                audience: _config["Jwt:Audience"],
-                claims: claims,
-                expires: DateTime.UtcNow.AddMinutes(double.Parse(_config["Jwt:ExpiresInMinutes"] ?? "60")),
-                signingCredentials: creds
-            );
+                keyBytes = Encoding.UTF8.GetBytes(plainKey);
+            }
 
-            return new JwtSecurityTokenHandler().WriteToken(token);
+            var signingKey = new SymmetricSecurityKey(keyBytes);
+            var creds = new SigningCredentials(signingKey, SecurityAlgorithms.HmacSha256);
+
+            var issuer = _config["Jwt:Issuer"] ?? throw new InvalidOperationException("Jwt:Issuer missing in configuration.");
+
+            // read audiences: support either an array (Audiences) or single (Audience)
+            var audiences = _config.GetSection("Jwt:Audiences").Get<string[]>();
+           
+            // expiry
+            var expiresMinutesText = _config["Jwt:ExpiresInMinutes"];
+            if (!double.TryParse(expiresMinutesText, out var expiresMinutes))
+                expiresMinutes = 60; // default
+
+            var expires = DateTime.UtcNow.AddMinutes(expiresMinutes);
+
+            JwtSecurityToken jwt;
+            if (audiences == null || audiences.Length == 0)
+            {
+                // single/no audience case: use null audience (no 'aud') or you can set single audience via constructor
+                jwt = new JwtSecurityToken(
+                    issuer: issuer,
+                    audience: null,
+                    claims: claims,
+                    notBefore: DateTime.UtcNow,
+                    expires: expires,
+                    signingCredentials: creds
+                );
+            }
+            else if (audiences.Length == 1)
+            {
+                // single audience: use constructor audience param for simplicity
+                jwt = new JwtSecurityToken(
+                    issuer: issuer,
+                    audience: audiences[0],
+                    claims: claims,
+                    notBefore: DateTime.UtcNow,
+                    expires: expires,
+                    signingCredentials: creds
+                );
+            }
+            else
+            {
+                // multiple audiences: create token without audience then inject aud array into payload
+                jwt = new JwtSecurityToken(
+                    issuer: issuer,
+                    audience: null,
+                    claims: claims,
+                    notBefore: DateTime.UtcNow,
+                    expires: expires,
+                    signingCredentials: creds
+                );
+
+                // set aud as array in payload
+                jwt.Payload["aud"] = audiences;
+            }
+
+            return new JwtSecurityTokenHandler().WriteToken(jwt);
         }
     }
 

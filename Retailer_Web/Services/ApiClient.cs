@@ -11,8 +11,10 @@ public class ApiClient : IApiClient
 {
 
     private readonly HttpClient _http;
-    public ApiClient(HttpClient http) => _http = http;
-
+    public ApiClient(HttpClient http)
+    {
+        _http = http;
+    }
     public async Task<List<ItemDto>> GetItemsAsync()
     {
         var r = await _http.GetAsync("api/items");
@@ -321,7 +323,20 @@ public class ApiClient : IApiClient
         var resp = await _http.PutAsJsonAsync($"api/roles/{dto.Id}", dto);
         return resp.IsSuccessStatusCode;
     }
+    public async Task<IEnumerable<MenuDto>> GetMenusForCurrentUserAsync()
+    {
+        // call your POS API endpoint that returns menus for current user:
+        var resp = await _http.GetAsync("api/menus/me");
+        if (resp.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+        {
+            // let caller handle redirect / sign out
+            throw new UnauthorizedAccessException();
+        }
 
+        resp.EnsureSuccessStatusCode();
+        var menus = await resp.Content.ReadFromJsonAsync<IEnumerable<MenuDto>>();
+        return menus ?? Enumerable.Empty<MenuDto>();
+    }
 
     // TODO: other methods implemented elsewhere in ApiClient...
 }
