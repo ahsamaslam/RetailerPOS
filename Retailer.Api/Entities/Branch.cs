@@ -9,3 +9,4 @@ public class Branch : BaseEntity
     public string? BillHeading2 { get; set; }
     public string? BillMobileNo { get; set; }
 }
+    

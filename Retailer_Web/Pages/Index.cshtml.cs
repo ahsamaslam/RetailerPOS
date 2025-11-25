@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -12,6 +13,16 @@ public class IndexModel : PageModel
     public IndexModel(IApiClient api) => _api = api;
 
     public IEnumerable<MenuDto> Menus { get; set; } = Enumerable.Empty<MenuDto>();
+    public async Task<IActionResult> OnPostLogoutAsync()
+    {
+        await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+
+        // Optional: clear any session data if you used Session
+   //     HttpContext.Session.Clear();
+
+        // Redirect to login page
+        return RedirectToPage("/Login");
+    }
 
     public async Task<IActionResult> OnGetAsync()
     {

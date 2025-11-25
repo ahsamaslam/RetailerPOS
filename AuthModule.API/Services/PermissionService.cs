@@ -47,7 +47,14 @@ namespace AuthModule.API.Services
             _cache.Remove($"permissions:role:{roleId}");
             _cache.Remove("permissions:all");
         }
-
+        public async Task AssignPermissionToUserAsync(string UserId, int permissionId)
+        {
+            if (await _db.UserPermissions.AnyAsync(rp => rp.UserId == UserId && rp.PermissionId == permissionId)) return;
+            _db.UserPermissions.Add(new UserPermission { UserId = UserId, PermissionId = permissionId });
+            await _db.SaveChangesAsync();
+            _cache.Remove($"permissions:role:{UserId}");
+            _cache.Remove("permissions:all");
+        }
         public async Task RemovePermissionFromRoleAsync(string roleId, int permissionId)
         {
             var existing = await _db.RolePermissions.FirstOrDefaultAsync(rp => rp.RoleId == roleId && rp.PermissionId == permissionId);
@@ -70,7 +77,14 @@ namespace AuthModule.API.Services
                     .ToListAsync();
             });
         }
+        public async Task<List<Permission>> GetPermissionsForDefaultUserAsync() {
 
+
+            List<string> roles = new List<string> { "Purchase", "Sales",  };
+          return  await _db.Permissions.Where(i => roles.Any(r => i.Name.Contains(r))).ToListAsync();
+
+
+        }
         public async Task<List<string>> GetPermissionsForUserAsync(string userId)
         {
             if (string.IsNullOrWhiteSpace(userId)) return new List<string>();
@@ -100,7 +114,8 @@ namespace AuthModule.API.Services
                 // direct user permissions (with IsAllowed flag)
                 var userPerms = await _db.UserPermissions
                     .Where(up => up.UserId == userId)
-                    .Select(up => new { up.Permission!.Name, up.IsAllowed })
+                    .Include(x=>x.Permission)
+                    .Select(up => new { up.Permission!.Name, up.IsAllowed , link =  up.Permission.link })
                     .ToListAsync();
 
                 var result = new HashSet<string>(rolePerms, StringComparer.OrdinalIgnoreCase);

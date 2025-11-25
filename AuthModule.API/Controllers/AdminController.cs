@@ -171,25 +171,18 @@ namespace AuthModule.API.Controllers
                     return StatusCode(StatusCodes.Status500InternalServerError, "Unable to assign default role to user.");
                 }
 
-               
-                var permissions = await _perm.GetPermissionsForUserAsync(user.Id);
+                  // _perm.gete
 
 
-                // 6) Add permission claims to user (avoid duplicates)
-                var existingClaims = await _userManager.GetClaimsAsync(user);
-                var existingPermissionClaims = existingClaims.Where(c => c.Type == "permission").Select(c => c.Value).ToHashSet(StringComparer.OrdinalIgnoreCase);
+               var permissions = await _perm.GetPermissionsForDefaultUserAsync();
 
+
+              
                 foreach (var perm in permissions)
                 {
-                    if (!existingPermissionClaims.Contains(perm))
-                    {
-                        var claimRes = await _userManager.AddClaimAsync(user, new Claim("permission", perm));
-                        if (!claimRes.Succeeded)
-                        {
-                            // claim add failed — log and continue (do not treat as fatal)
-                            _logger.LogWarning("Failed to add permission claim '{Permission}' to user {UserId}", perm, user.Id);
-                        }
-                    }
+
+                    await _perm.AssignPermissionToUserAsync(user.Id, perm.Id);
+                     
                 }
 
                 // Build response

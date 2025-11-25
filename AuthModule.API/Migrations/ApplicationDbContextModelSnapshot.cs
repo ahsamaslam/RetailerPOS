@@ -41,6 +41,15 @@ namespace AuthModule.API.Migrations
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
 
+                    b.Property<string>("RoleName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("isDefault")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("link")
+                        .HasColumnType("nvarchar(max)");
+
                     b.HasKey("Id");
 
                     b.HasIndex("Name")

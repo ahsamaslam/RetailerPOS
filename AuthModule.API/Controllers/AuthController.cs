@@ -72,8 +72,7 @@ namespace AuthModule.API.Controllers
             {
                 token,
                 expiresIn = _config["Jwt:ExpiresInMinutes"],
-                roles,
-                permissions
+                roles 
             });
         }
         private string GenerateJwtToken(IEnumerable<Claim> claims)

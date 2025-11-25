@@ -5,6 +5,9 @@
         public int Id { get; set; }
         public string Name { get; set; } = default!;
         public string? Description { get; set; }
+        public string? link { get; set; }
+        public string? RoleName { get; set; }
+        public bool isDefault { get; set; } = true;
         public bool IsActive { get; set; } = true;
 
 

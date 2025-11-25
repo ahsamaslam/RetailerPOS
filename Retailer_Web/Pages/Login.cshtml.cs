@@ -70,6 +70,8 @@ public class LoginModel : PageModel
         return LocalRedirect(returnUrl);
     }
 
+
+
     public class LoginResponseDto
     {
         public string Token { get; set; } = string.Empty;     // JWT from AuthModule
