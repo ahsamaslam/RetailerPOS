@@ -9,8 +9,7 @@
       },
       {
         "Path": "Retailer_Web\\Retailer.Web.csproj",
-        "Action": "Start",
-        "DebugTarget": "Retailer.Web"
+        "Action": "Start"
       },
       {
         "Path": "AuthModule.API\\AuthModule.API.csproj",

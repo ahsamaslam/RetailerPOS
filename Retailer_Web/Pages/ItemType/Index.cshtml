@@ -1,23 +1,70 @@
 ﻿@page
 @model Retailer.POS.Web.Pages.ItemType.IndexModel
 @inject Retailer.POS.Web.Services.IApiClient ApiClient
+<main class="app-main">
+    <!--begin::App Content Header-->
+    <div class="app-content-header">
+        <!--begin::Container-->
+        <div class="container-fluid">
+            <!--begin::Row-->
+            <div class="row">
+                <div class="col-sm-6">
+                    <h3 class="mb-0">Item Types</h3>
+                    <a asp-page="Create" class="btn btn-primary">Create New Types</a>
+                </div>
+                <div class="col-sm-6">
+                    <ol class="breadcrumb float-sm-end">
+                        <li class="breadcrumb-item"><a href="#">Home</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">Dashboard</li>
+                    </ol>
+                </div>
+            </div>
+            <!--end::Row-->
+        </div>
+        <!--end::Container-->
+    </div>
+    <div class="app-content">
 
-<h2>Item Type</h2>
-<a asp-page="Create" class="btn btn-primary">Create New ItemType</a>
 
-<table class="table mt-2">
-    <thead><tr><th>Id</th><th>Name</th><th>Actions</th></tr></thead>
-    <tbody>
-        @foreach (var c in Model.ItemType)
-        {
-            <tr>
-                <td>@c.Id</td>
-                <td>@c.Name</td>
-                <td>
-                    <a asp-page="Edit" asp-route-id="@c.Id" class="btn btn-sm btn-warning">Edit</a>
-                    <a asp-page="Details" asp-route-id="@c.Id" class="btn btn-sm btn-info">Details</a>
-                </td>
-            </tr>
-        }
-    </tbody>
-</table>
+        <div id="spinner" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background-color:rgba(255,255,255,0.7);z-index:9999; text-align:center;">
+            <div style="position:absolute;top:50%;left:50%;transform:translate(-50%, -50%);">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+            </div>
+        </div>
+        <table id="myTable" class="table mt-2">
+            <thead><tr><th>Id</th><th>Name</th><th>Actions</th></tr></thead>
+            <tbody>
+                @foreach (var c in Model.ItemType)
+                {
+                    <tr>
+                        <td>@c.Id</td>
+                        <td>@c.Name</td>
+                        <td>
+                            <a asp-page="Edit" asp-route-id="@c.Id" class="btn btn-sm btn-warning">Edit</a>
+                            <a asp-page="Details" asp-route-id="@c.Id" class="btn btn-sm btn-info">Details</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+
+
+
+    </div>
+    <!--end::App Content-->
+</main>
+<!--end::App Main-->
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            $('#myTable').DataTable({
+                "paging": true,
+                "searching": true,
+                "ordering": true,
+                "info": true
+            });
+        });
+    </script>
+}

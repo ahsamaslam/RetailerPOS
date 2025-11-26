@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Mvc;
 using Retailer.POS.Web.Services;
 using Retailer.POS.Web.ApiDTOs;
+using System.Text.RegularExpressions;
 
 namespace Retailer.POS.Web.Pages.Items;
 
@@ -36,9 +37,16 @@ public class CreateModel : PageModel
 
     public async Task<IActionResult> OnPostAsync()
     {
-        if (!ModelState.IsValid) return Page();
+        if (!ModelState.IsValid) return Page();  
+        (bool Success, string Message) = await _api.CreateItemAsync(Input);
 
-        await _api.CreateItemAsync(Input);
+        if (!Success)
+        {
+            ModelState.AddModelError(string.Empty, Message);
+            return Page();
+        }
+
+
         return RedirectToPage("Index");
     }
 }

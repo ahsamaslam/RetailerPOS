@@ -28,6 +28,13 @@ namespace Retailer.POS.Api.Controllers
         {
             try
             {
+                var exists = await _svc.GetAllAsync()
+             .ContinueWith(t => t.Result
+             .Any(c => c.Name.Equals(dto.Name, StringComparison.OrdinalIgnoreCase)));
+
+                if (exists)
+                    return Conflict(new { message = "Item Name already exists." });
+
                 var created = await _svc.CreateAsync(dto);
                 return CreatedAtAction(nameof(Get), new { id = created.Id }, created);
             }

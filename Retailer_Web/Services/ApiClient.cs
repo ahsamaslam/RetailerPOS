@@ -29,11 +29,24 @@ public class ApiClient : IApiClient
         return await r.Content.ReadFromJsonAsync<ItemDto>();
     }
 
-    public async Task<ItemDto> CreateItemAsync(CreateItemDto dto)
+    public async Task<(bool Success, string Message)> CreateItemAsync(CreateItemDto dto)
     {
         var r = await _http.PostAsJsonAsync("api/items", dto);
         r.EnsureSuccessStatusCode();
-        return await r.Content.ReadFromJsonAsync<ItemDto>() ?? throw new Exception("No item returned");
+        if (r.IsSuccessStatusCode)
+        {
+            return (true, "Item Type created successfully");
+        }
+        else
+        {
+            var content = await r.Content.ReadFromJsonAsync<Dictionary<string, string>>();
+            string message = content != null && content.ContainsKey("message")
+                ? content["message"]
+                : "Unknown error";
+
+            return (false, message);
+        }
+
     }
 
     public async Task<PurchaseMasterDto> CreatePurchaseAsync(CreatePurchaseDto dto)
@@ -101,10 +114,23 @@ public class ApiClient : IApiClient
     public async Task<ItemCategoryViewModel?> GetCategoryAsync(int id)
         => await _http.GetFromJsonAsync<ItemCategoryViewModel>($"api/Categories/{id}");
 
-    public async Task<bool> CreateCategoryAsync(ItemCategoryViewModel dto)
+    public async Task<(bool Success, string Message)> CreateCategoryAsync(ItemCategoryViewModel dto)
     {
         var resp = await _http.PostAsJsonAsync("api/Categories", dto);
-        return resp.IsSuccessStatusCode;
+         if (resp.IsSuccessStatusCode)
+        {
+            return (true, "Category created successfully");
+        }
+        else
+        {
+            var content = await resp.Content.ReadFromJsonAsync<Dictionary<string, string>>();
+            string message = content != null && content.ContainsKey("message")
+                ? content["message"]
+                : "Unknown error";
+
+            return (false, message);
+        }
+          
     }
 
     public async Task UpdateCategoryAsync(ItemCategoryViewModel dto)
@@ -126,10 +152,23 @@ public class ApiClient : IApiClient
     public async Task<ItemGroupViewModel?> GetGroupAsync(int id)
         => await _http.GetFromJsonAsync<ItemGroupViewModel>($"api/groups/{id}");
 
-    public async Task<bool> CreateGroupAsync(ItemGroupViewModel dto)
+    public async Task<(bool Success, string Message)> CreateGroupAsync(ItemGroupViewModel dto)
     {
         var resp = await _http.PostAsJsonAsync("api/groups", dto);
-        return resp.IsSuccessStatusCode;
+        if (resp.IsSuccessStatusCode)
+        {
+            return (true, "Item Type created successfully");
+        }
+        else
+        {
+            var content = await resp.Content.ReadFromJsonAsync<Dictionary<string, string>>();
+            string message = content != null && content.ContainsKey("message")
+                ? content["message"]
+                : "Unknown error";
+
+            return (false, message);
+        }
+
     }
 
     public async Task<bool> UpdateGroupAsync(ItemGroupViewModel dto)
@@ -193,10 +232,22 @@ public class ApiClient : IApiClient
 
     public async Task<List<ItemTypeViewModel>> GetItemTypeAsync() => await _http.GetFromJsonAsync<List<ItemTypeViewModel>>("api/ItemType");
 
-    public async Task<bool> CreateItemTypeAsync(ItemTypeViewModel dto)
+    public async Task<(bool Success, string Message)> CreateItemTypeAsync(ItemTypeViewModel dto)
     {
         var resp = await _http.PostAsJsonAsync("api/ItemType", dto);
-        return resp.IsSuccessStatusCode;
+        if (resp.IsSuccessStatusCode)
+        {
+            return (true, "Item Type created successfully");
+        }
+        else
+        {
+            var content = await resp.Content.ReadFromJsonAsync<Dictionary<string, string>>();
+            string message = content != null && content.ContainsKey("message")
+                ? content["message"]
+                : "Unknown error";
+
+            return (false, message);
+        }
     }
 
     public async Task<ItemTypeViewModel?> GetItemTypeAsync(int id)  => await _http.GetFromJsonAsync<ItemTypeViewModel>($"api/ItemType/{id}");

@@ -8,7 +8,7 @@ public interface IApiClient
 {
     Task<List<ItemDto>> GetItemsAsync();
     Task<ItemDto?> GetItemAsync(int id);
-    Task<ItemDto> CreateItemAsync(CreateItemDto dto);
+    Task<(bool Success, string Message)> CreateItemAsync(CreateItemDto dto);
     Task<bool> UpdateItemAsync(ItemDto dto);
     Task<PurchaseMasterDto> CreatePurchaseAsync(CreatePurchaseDto dto);
     Task<string?> LoginAsync(string username, string password);
@@ -38,8 +38,8 @@ public interface IApiClient
     Task<List<ItemCategoryViewModel>> GetCategoriesAsync();
     Task<ItemCategoryViewModel?> GetCategoryAsync(int id);
     Task<ItemTypeViewModel?> GetItemTypeAsync(int id);
-    Task<bool> CreateCategoryAsync(ItemCategoryViewModel dto);
-    Task<bool> CreateItemTypeAsync(ItemTypeViewModel dto);
+    Task<(bool Success, string Message)> CreateCategoryAsync(ItemCategoryViewModel dto);
+    Task<(bool Success, string Message)> CreateItemTypeAsync(ItemTypeViewModel dto);
     Task UpdateCategoryAsync(ItemCategoryViewModel dto);
     Task<bool> UpdateItemTypeAsync(ItemTypeViewModel dto);
     Task DeleteCategoryAsync(int id);
@@ -47,7 +47,7 @@ public interface IApiClient
     // Group
     Task<List<ItemGroupViewModel>> GetGroupsAsync();
     Task<ItemGroupViewModel?> GetGroupAsync(int id);
-    Task<bool> CreateGroupAsync(ItemGroupViewModel dto);
+    Task<(bool Success, string Message)> CreateGroupAsync(ItemGroupViewModel dto);
     Task<bool> UpdateGroupAsync(ItemGroupViewModel dto);
     Task DeleteGroupAsync(int id);
 

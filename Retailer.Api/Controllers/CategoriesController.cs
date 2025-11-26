@@ -30,8 +30,20 @@ namespace Retailer.Api.Controllers
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] ItemCategory model)
         {
+            if (string.IsNullOrWhiteSpace(model.Name))
+                return BadRequest(new { message = "Name is required." });
+
+            // 🔍 Check if name already exists (case-insensitive)
+            var exists = await _uow.ItemCategories.GetAllAsync()
+                .ContinueWith(t => t.Result
+                .Any(c => c.Name.Equals(model.Name, StringComparison.OrdinalIgnoreCase)));
+            
+            if (exists)
+                return Conflict(new { message = "Category name already exists." });
+
             await _uow.ItemCategories.AddAsync(model);
             await _uow.SaveChangesAsync();
+
             return CreatedAtAction(nameof(Get), new { id = model.Id }, model);
         }
 

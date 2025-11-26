@@ -17,7 +17,13 @@ public class CreateModel : PageModel
     public async Task<IActionResult> OnPostAsync()
     {
         if (!ModelState.IsValid) return Page();
-        await _api.CreateCategoryAsync(Category);
+       (bool Success, string Message) =  await _api.CreateCategoryAsync(Category);
+
+        if (!Success)
+        {
+            ModelState.AddModelError(string.Empty, Message);
+            return Page();
+        }
         return RedirectToPage("Index");
     }
 }

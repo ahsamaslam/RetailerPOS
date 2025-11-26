@@ -24,37 +24,40 @@
     </div>
     <div class="app-content">
         <form method="post">
-            <div>
+            <div asp-validation-summary="All" class="text-danger mb-3"></div>
+            <div class="row mb-2">
+                <div class="col-md-6">
                 <label>Name</label>
                 <input asp-for="Input.Name" required class="form-control" />
             </div>
-            <div>
+                <div class="col-md-6">
                 <label>Barcode</label>
                 <input asp-for="Input.Barcode" class="form-control" />
             </div>
-            <div>
+                <div class="col-md-6">
                 <label>Rate</label>
-                <input asp-for="Input.Rate" required class="form-control" />
+                    <input asp-for="Input.Rate" type="number" required class="form-control" />
             </div>
-            <div>
+                <div class="col-md-6">
                 <label>Cost</label>
-                <input asp-for="Input.Cost" required class="form-control" />
+                <input asp-for="Input.Cost"type="number" required class="form-control" />
             </div>
-            <div>
+                <div class="col-md-6">
                 <label>Category</label>
                 <select asp-for="Input.CategoryId" asp-items="Model.Categories" class="form-control"></select>
             </div>
-            <div>
+                <div class="col-md-6">
                 <label>Type</label>
                 <select asp-for="Input.ItemTypeId" asp-items="Model.ItemType" class="form-control"></select>
             </div>
-            <div>
+                <div class="col-md-6">
                 <label>Group</label>
                 <select asp-for="Input.GroupId" asp-items="Model.Groups" class="form-control"></select>
             </div>
-            <div>
+                <div class="col-md-6">
                 <label>SubGroup</label>
                 <select asp-for="Input.SubGroupId" asp-items="Model.SubGroups" class="form-control"></select>
+            </div>
             </div>
             <button type="submit" class="btn btn-primary">Create</button>
         </form>

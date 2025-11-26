@@ -25,6 +25,13 @@ public class GroupsController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] ItemGroup model)
     {
+        var exists = await _uow.ItemGroups.GetAllAsync()
+             .ContinueWith(t => t.Result
+             .Any(c => c.Name.Equals(model.Name, StringComparison.OrdinalIgnoreCase)));
+
+        if (exists)
+            return Conflict(new { message = "Item Group already exists." });
+
         await _uow.ItemGroups.AddAsync(model);
         await _uow.SaveChangesAsync();
         return CreatedAtAction(nameof(Get), new { id = model.Id }, model);

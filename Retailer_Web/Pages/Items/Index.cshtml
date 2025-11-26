@@ -24,8 +24,8 @@
         </div>
         <!--end::Container-->
     </div>
-    <div class="app-content">
-        <table>
+    <div class="app-content" >
+        <table id="myTable" class="table mt-2">
             <thead>
                 <tr>
                     <th>Name</th>
@@ -64,4 +64,16 @@
     <!--end::App Content-->
 </main>
 <!--end::App Main--> 
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            $('#myTable').DataTable({
+                "paging": true,
+                "searching": true,
+                "ordering": true,
+                "info": true
+            });
+        });
+    </script>
+}
 

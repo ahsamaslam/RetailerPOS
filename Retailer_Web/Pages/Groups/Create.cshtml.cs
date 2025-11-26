@@ -16,15 +16,16 @@ public class CreateModel : PageModel
     public void OnGet() { }
 
     public async Task<IActionResult> OnPostAsync()
-    {
+    { 
         if (!ModelState.IsValid) return Page();
+        (bool Success, string Message) = await _api.CreateGroupAsync(Group);
 
-        var success = await _api.CreateGroupAsync(Group);
-        if (!success)
+        if (!Success)
         {
-            ModelState.AddModelError(string.Empty, "Unable to create group. Please try again.");
+            ModelState.AddModelError(string.Empty, Message);
             return Page();
         }
+       
 
         return RedirectToPage("Index");
     }

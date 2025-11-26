@@ -15,9 +15,17 @@ public class CreateModel : PageModel
     public void OnGet() { }
 
     public async Task<IActionResult> OnPostAsync()
-    {
+    { 
         if (!ModelState.IsValid) return Page();
-        await _api.CreateItemTypeAsync(ItemType);
+        (bool Success, string Message) =await _api.CreateItemTypeAsync(ItemType);
+
+        if (!Success)
+        {
+            ModelState.AddModelError(string.Empty, Message);
+            return Page();
+        }
+
+
         return RedirectToPage("Index");
     }
 }

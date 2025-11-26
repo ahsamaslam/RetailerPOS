@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Retailer.POS.Api.Data;
 using Retailer.POS.Api.Entities;
+using System.Linq.Expressions;
 
 namespace Retailer.POS.Api.Repositories;
 public class GenericRepository<T> : IGenericRepository<T> where T : BaseEntity
@@ -14,6 +15,7 @@ public class GenericRepository<T> : IGenericRepository<T> where T : BaseEntity
     }
 
     public async Task AddAsync(T entity) => await _set.AddAsync(entity);
+    public async Task AnyAsync(Expression<Func<T, bool>> predicate) => await _set.AnyAsync(predicate);
     public async Task<IEnumerable<T>> GetAllAsync() => await _set.ToListAsync();
     public async Task<T?> GetByIdAsync(int id) => await _set.FindAsync(id);
     public void Remove(T entity) => _set.Remove(entity);

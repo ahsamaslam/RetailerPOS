@@ -30,6 +30,13 @@ namespace Retailer.Api.Controllers
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] ItemType model)
         {
+            var exists = await _uow.ItemTypes.GetAllAsync()
+               .ContinueWith(t => t.Result
+               .Any(c => c.Name.Equals(model.Name, StringComparison.OrdinalIgnoreCase)));
+
+            if (exists)
+                return Conflict(new { message = "Item Type already exists." });
+
             await _uow.ItemTypes.AddAsync(model);
             await _uow.SaveChangesAsync();
             return CreatedAtAction(nameof(Get), new { id = model.Id }, model);

@@ -39,6 +39,13 @@ public class SubGroupsController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] ItemSubGroup model)
     {
+        var exists = await _uow.ItemSubGroups.GetAllAsync()
+          .ContinueWith(t => t.Result
+          .Any(c => c.Name.Equals(model.Name, StringComparison.OrdinalIgnoreCase)));
+
+        if (exists)
+            return Conflict(new { message = "Sub Groups already exists." });
+
         await _uow.ItemSubGroups.AddAsync(model);
         await _uow.SaveChangesAsync();
         return CreatedAtAction(nameof(Get), new { id = model.Id }, model);
