@@ -7,6 +7,7 @@
         public DateTime CreateDate { get; set; } = DateTime.UtcNow;
         public int LoginId { get; set; }
         public int BranchId { get; set; }
+        public string? SaleType { get; set; }
         public string? CustomerName { get; set; }
         public decimal SubTotal { get; set; }
         public decimal TotalDiscount { get; set; }
@@ -24,6 +25,7 @@
         public string ItemName { get; set; } = string.Empty;   // <- must be string
         public decimal Rate { get; set; }
         public decimal Qty { get; set; }
+        public decimal subTotal { get; set; }
         public decimal Discount { get; set; }
         public decimal TaxPercentage { get; set; }
         public decimal TaxAmount { get; set; }

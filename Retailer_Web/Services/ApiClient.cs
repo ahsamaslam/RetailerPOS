@@ -2,6 +2,7 @@ using Retailer.POS.Web.ApiDTOs;
 using Retailer.POS.Web.Models;
 using Retailer.Web.ApiDTOs;
 using Retailer.Web.Models;
+using System;
 using System.Net.Http.Headers;
 using System.Text.Json;
 using static System.Net.WebRequestMethods;
@@ -117,7 +118,7 @@ public class ApiClient : IApiClient
     public async Task<(bool Success, string Message)> CreateCategoryAsync(ItemCategoryViewModel dto)
     {
         var resp = await _http.PostAsJsonAsync("api/Categories", dto);
-         if (resp.IsSuccessStatusCode)
+        if (resp.IsSuccessStatusCode)
         {
             return (true, "Category created successfully");
         }
@@ -130,7 +131,7 @@ public class ApiClient : IApiClient
 
             return (false, message);
         }
-          
+
     }
 
     public async Task UpdateCategoryAsync(ItemCategoryViewModel dto)
@@ -250,8 +251,8 @@ public class ApiClient : IApiClient
         }
     }
 
-    public async Task<ItemTypeViewModel?> GetItemTypeAsync(int id)  => await _http.GetFromJsonAsync<ItemTypeViewModel>($"api/ItemType/{id}");
-    
+    public async Task<ItemTypeViewModel?> GetItemTypeAsync(int id) => await _http.GetFromJsonAsync<ItemTypeViewModel>($"api/ItemType/{id}");
+
 
     public async Task<bool> UpdateItemTypeAsync(ItemTypeViewModel ItemType)
     {
@@ -302,11 +303,18 @@ public class ApiClient : IApiClient
         return await _http.GetFromJsonAsync<SalesMasterDto>($"api/sales/{id}");
     }
 
-    public async Task<bool> CreateSaleAsync(SalesMasterDto dto)
+    public async Task<SalesMasterDto?> CreateSaleAsync(SalesMasterDto dto)
     {
-        if (dto == null) return false;
+        if (dto == null) return null;
         var resp = await _http.PostAsJsonAsync("api/sales", dto);
-        return resp.IsSuccessStatusCode;
+        var jsonString = await resp.Content.ReadAsStringAsync();
+        return  JsonSerializer.Deserialize<SalesMasterDto>(jsonString);
+    }
+
+    public async Task<IEnumerable<SalesMasterDto>> GetAllSaleDateWise(DateTime sdate, DateTime edate)
+    { 
+        var resp = await _http.GetAsync("api/sales/GetAllDateWise/" + sdate.ToString("dd-MM-yyyy") + '/'+edate.ToString("dd-MM-yyyy"));
+        return await  resp.Content.ReadFromJsonAsync< IEnumerable<SalesMasterDto>>();
     }
 
     public async Task<bool> UpdateSaleAsync(SalesMasterDto dto)

@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc.RazorPages;
+﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.RazorPages;
 using Retailer.POS.Web.ApiDTOs;
 using Retailer.POS.Web.Services;
 
@@ -8,12 +9,18 @@ namespace Retailer.POS.Web.Pages.Sales
     {
         private readonly IApiClient _api;
         public IndexModel(IApiClient api) => _api = api;
+        [BindProperty(SupportsGet = true)]
+        public DateTime sdate { get; set; } = DateTime.Now; 
 
+        [BindProperty(SupportsGet = true)]
+        public DateTime edate { get; set; } = DateTime.Now;
         public List<SalesMasterDto> Sales { get; set; } = new();
 
         public async Task OnGetAsync()
         {
+
             Sales = (await _api.GetSalesAsync()).ToList();
+           // Sales = (await _api.GetAllSaleDateWise(sdate,edate)).ToList();
         }
     }
 }

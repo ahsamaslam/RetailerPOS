@@ -28,9 +28,10 @@ public interface IApiClient
     Task<bool> UpdateVendorAsync(VendorViewModel vendor);
 
     // Sales
+    Task<IEnumerable<SalesMasterDto>> GetAllSaleDateWise(DateTime sdate, DateTime edate);
     Task<IEnumerable<SalesMasterDto>> GetSalesAsync();
     Task<SalesMasterDto?> GetSaleByIdAsync(int id);
-    Task<bool> CreateSaleAsync(SalesMasterDto dto);
+    Task<SalesMasterDto?> CreateSaleAsync(SalesMasterDto dto);
     Task<bool> UpdateSaleAsync(SalesMasterDto dto);
     Task<bool> DeleteSaleAsync(int id);
 

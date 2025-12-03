@@ -32,6 +32,21 @@ namespace Retailer.POS.Api.Controllers
 
             return Ok(list);
         }
+        //[HttpGet]
+        //[HttpGet("GetAllDateWise/{sdate}/{edate}")]
+        //public async Task<IActionResult> GetAllDateWise(DateTime sdate , DateTime edate )
+        //{
+        //    // Use repository Query() if available; otherwise GetAllAsync and include details via DB context.
+        //    var list = await _uow.SalesMasters
+                 
+        //        .Query()
+        //        .Where(r=>r.Date.Date>=sdate.Date.Date && r.Date.Date <= edate.Date)
+        //        //.Include(s => s.Details)
+        //        .OrderByDescending(s => s.Date)
+        //        .ToListAsync();
+
+        //    return Ok(list);
+        //}
 
         // GET api/sales/5
         [HttpGet("{id:int}")]

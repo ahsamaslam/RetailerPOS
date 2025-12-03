@@ -1,8 +1,10 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.Extensions.Hosting;
 using Retailer.POS.Web.ApiDTOs;
 using Retailer.POS.Web.Services;
+using Retailer.Web.Dtos;
 
 namespace Retailer.POS.Web.Pages.Sales
 {
@@ -17,14 +19,16 @@ namespace Retailer.POS.Web.Pages.Sales
             Details = new List<SalesDetailDto> { new SalesDetailDto() }
         };
 
-        public List<SelectListItem> ItemsList { get; set; } = new();
+        public List<ItemSelectListItem> ItemsList { get; set; } = new();
+        public List<SelectListItem> SaleType { get; set; } = new List<SelectListItem>() { new SelectListItem {  Value="1", Text="Cash"}
+        , new SelectListItem { Value = "1", Text = "Credit" } };
         public List<SelectListItem> CustomersList { get; set; } = new();
 
         public async Task<IActionResult> OnGetAsync(int? id)
         {
             // Load dropdown data
             var items = await _api.GetItemsAsync();
-            ItemsList = items.Select(i => new SelectListItem { Value = i.Id.ToString(), Text = i.Name }).ToList();
+            ItemsList = items.Select(i => new ItemSelectListItem { Value = i.Id.ToString(), Text = i.Name , rate = i.Rate, cost=i.Cost }).ToList();
 
             var customers = await _api.GetCustomersAsync();
             CustomersList = customers.Select(c => new SelectListItem { Value = c.Id.ToString(), Text = c.Name }).ToList();
@@ -48,19 +52,20 @@ namespace Retailer.POS.Web.Pages.Sales
             Sale.TotalDiscount = Sale.Details.Sum(d => d.Discount);
             Sale.BalanceAmount = Sale.SubTotal - Sale.TotalDiscount + Sale.TaxAmount;
 
-            bool success;
+            bool success=false;
+            SalesMasterDto data = new SalesMasterDto() ;
             if (Sale.Id > 0)
-                success = await _api.UpdateSaleAsync(Sale);
+                  success = await _api.UpdateSaleAsync(Sale);
             else
-                success = await _api.CreateSaleAsync(Sale);
+                data = await _api.CreateSaleAsync(Sale);
 
             if (!success)
             {
                 ModelState.AddModelError("", "Unable to save sale.");
                 return Page();
             }
-
-            return RedirectToPage("Index");
+            return Redirect($"~/Sales/Print/{data.Id}");
+         //   return RedirectToPage("Index");
         }
     }
 }
