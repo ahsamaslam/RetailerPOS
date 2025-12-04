@@ -36,8 +36,10 @@ namespace Retailer.POS.Web.Services
         Task<IEnumerable<SalesMasterDto>> GetAllSaleDateWise(DateTime sdate, DateTime edate);
         Task<IEnumerable<SalesMasterDto>> GetSalesAsync();
         Task<SalesMasterDto?> GetSaleByIdAsync(int id);
+        Task<PurchaseMasterDto?> GetPurchaseByIdAsync(int id);
         Task<SalesMasterDto?> CreateSaleAsync(SalesMasterDto dto);
         Task<bool> UpdateSaleAsync(SalesMasterDto dto);
+        Task<bool> UpdatePurchaseAsync(PurchaseMasterDto dto);
         Task<bool> DeleteSaleAsync(int id);
 
         // Category
@@ -59,6 +61,7 @@ namespace Retailer.POS.Web.Services
 
         // SubGroup
         Task<List<ItemTypeViewModel>> GetItemTypeAsync();
+        Task<List<PurchaseViewModel>> GetPurchaseDateWiseAsync(DateTime sdate, DateTime edate);
         Task<List<PurchaseViewModel>> GetPurchasesAsync();
         Task<List<ItemSubGroupViewModel>> GetSubGroupsAsync();
         Task<ItemSubGroupViewModel?> GetSubGroupAsync(int id);

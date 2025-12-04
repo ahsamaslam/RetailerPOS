@@ -3,6 +3,7 @@ public class CreatePurchaseDto
 {
     public DateTime Date { get; set; } = DateTime.UtcNow;
     public int VendorID { get; set; }
+    public string PurchaseType { get; set; }
     public decimal SubTotal { get; set; }
     public decimal Discount { get; set; }
     public decimal TaxAmount { get; set; }

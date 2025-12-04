@@ -55,15 +55,23 @@ namespace Retailer.POS.Web.Pages.Sales
             bool success=false;
             SalesMasterDto data = new SalesMasterDto() ;
             if (Sale.Id > 0)
-                  success = await _api.UpdateSaleAsync(Sale);
-            else
-                data = await _api.CreateSaleAsync(Sale);
-
-            if (!success)
             {
-                ModelState.AddModelError("", "Unable to save sale.");
-                return Page();
+                success = await _api.UpdateSaleAsync(Sale);
+
+
+                if (!success)
+                {
+                    ModelState.AddModelError("", "Unable to save sale.");
+                    return Page();
+                }
+
+
             }
+            else
+            {
+                data = await _api.CreateSaleAsync(Sale);
+            }
+          
             return Redirect($"~/Sales/Print/{data.Id}");
          //   return RedirectToPage("Index");
         }

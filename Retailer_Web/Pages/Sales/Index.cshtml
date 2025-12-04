@@ -76,14 +76,32 @@
 <!--end::App Main-->
 @section Scripts {
     <script>
-        $(document).ready(function () {
+        $(function () {
+            // When either date changes, navigate to the same page with query params
+            $('#startDate, #endDate').on('change', function () {
+                const s = $('#startDate').val();
+                const e = $('#endDate').val();
+
+                // If you want to require both dates set before fetching:
+                if (!s || !e) return;
+
+                // Build query string and reload page
+                const qs = new URLSearchParams({
+                    sdate: s,
+                    edate: e
+                }).toString();
+
+                // Navigate (this calls OnGetAsync on server)
+                window.location.href = `${window.location.pathname}?${qs}`;
+            });
+
+            // DataTable initialization (will run on full page load)
             $('#myTable').DataTable({
                 "paging": true,
                 "searching": true,
                 "ordering": true,
                 "info": true
             });
-            
         });
     </script>
 }

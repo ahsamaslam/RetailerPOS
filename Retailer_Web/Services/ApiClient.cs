@@ -262,6 +262,7 @@ public class ApiClient : IApiClient
         return resp.IsSuccessStatusCode;
     }
 
+    public async Task<List<PurchaseViewModel>> GetPurchaseDateWiseAsync(DateTime sdate, DateTime edate) => await _http.GetFromJsonAsync<List<PurchaseViewModel>>("api/Purchases/"+ sdate.ToString("yyyy-MM-dd") +"/"+ edate.ToString("yyyy-MM-dd"));
     public async Task<List<PurchaseViewModel>> GetPurchasesAsync() => await _http.GetFromJsonAsync<List<PurchaseViewModel>>("api/Purchases");
 
     // Branch
@@ -309,13 +310,12 @@ public class ApiClient : IApiClient
     {
         if (dto == null) return null;
         var resp = await _http.PostAsJsonAsync("api/sales", dto);
-        var jsonString = await resp.Content.ReadAsStringAsync();
-        return  JsonSerializer.Deserialize<SalesMasterDto>(jsonString);
+        return await resp.Content.ReadFromJsonAsync<SalesMasterDto>();
     }
 
     public async Task<IEnumerable<SalesMasterDto>> GetAllSaleDateWise(DateTime sdate, DateTime edate)
     { 
-        var resp = await _http.GetAsync("api/sales/GetAllDateWise/" + sdate.ToString("dd-MM-yyyy") + '/'+edate.ToString("dd-MM-yyyy"));
+        var resp = await _http.GetAsync("api/sales/GetAllDateWise/" + sdate.ToString("yyyy-MM-dd") + '/'+edate.ToString("yyyy-MM-dd"));
         return await  resp.Content.ReadFromJsonAsync< IEnumerable<SalesMasterDto>>();
     }
 
@@ -486,6 +486,18 @@ public class ApiClient : IApiClient
             _logger.LogError(ex, "Error deleting opening balance {Id}", id);
             return new ApiResult(false, ex.Message);
         }
+    }
+
+    public async Task<PurchaseMasterDto?> GetPurchaseByIdAsync(int id)
+    {
+        return await _http.GetFromJsonAsync<PurchaseMasterDto>($"api/Purchases/{id}");
+    }
+
+    public async Task<bool> UpdatePurchaseAsync(PurchaseMasterDto dto)
+    {
+        if (dto == null) return false;
+        var resp = await _http.PutAsJsonAsync($"api/Purchases/{dto.Id}", dto);
+        return resp.IsSuccessStatusCode;
     }
     // TODO: other methods implemented elsewhere in ApiClient...
 }

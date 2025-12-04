@@ -21,7 +21,7 @@
     {
         public int Id { get; set; }
         public int SalesMasterId { get; set; }
-        public string ItemCode { get; set; } = string.Empty;   // <- must be string
+        public int ItemCode { get; set; }    // <- must be string
         public string ItemName { get; set; } = string.Empty;   // <- must be string
         public decimal Rate { get; set; }
         public decimal Qty { get; set; }

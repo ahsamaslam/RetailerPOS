@@ -5,7 +5,10 @@
         public int Id { get; set; }
         public DateTime Date { get; set; }
         public decimal SubTotal { get; set; }
+        public string vendorName { get; set; }
         public decimal Total { get; set; }
+        public decimal TaxAmount { get; set; }
+        public decimal BalanceAmount { get; set; }
         public List<PurchaseDetailViewModel> Details { get; set; } = new();
     }
 

@@ -1,11 +1,12 @@
 ﻿@page "{id:int}"
-@model Retailer.POS.Web.Pages.Sales.DetailsModel
+@model Retailer.POS.Web.Pages.Sales.PrintModel
 @{
     Layout = null; // Exclude the layout
     ViewData["Title"] = "Sale Details";
 }
 <div class="ticket">
-    <img src="~/assets/img/adminltefulllogo.png" alt="Logo"> 
+    <img src="~/assets/img/adminltefulllogo.png" alt="Logo">
+    <link href="~/css/printstyle.css" rel="stylesheet" />
     <p class="centered">
         RECEIPT EXAMPLE
         <br>Address line 1
@@ -20,26 +21,15 @@
             </tr>
         </thead>
         <tbody>
+            @for (int i = 0; i < Model.Sale.Details.Count; i++)
+							{
             <tr>
-                <td class="quantity">1.00</td>
-                <td class="description">ARDUINO UNO R3</td>
-                <td class="price">$25.00</td>
+                    <td class="quantity">@Model.Sale.Details[i].Qty</td>
+                    <td class="description">@Model.Sale.Details[i].ItemName</td>
+                    <td class="price">@Model.Sale.Details[i].Rate</td>
             </tr>
-            <tr>
-                <td class="quantity">2.00</td>
-                <td class="description">JAVASCRIPT BOOK</td>
-                <td class="price">$10.00</td>
-            </tr>
-            <tr>
-                <td class="quantity">1.00</td>
-                <td class="description">STICKER PACK</td>
-                <td class="price">$10.00</td>
-            </tr>
-            <tr>
-                <td class="quantity"></td>
-                <td class="description">TOTAL</td>
-                <td class="price">$55.00</td>
-            </tr>
+                            }
+           
         </tbody>
     </table>
     <p class="centered">
@@ -47,11 +37,8 @@
         <br>parzibyte.me/blog
     </p>
 </div>
- 
-@section Scripts {
-    <script>
-        window.onload = function () {
-            window.print(); // Open print dialog when page loads
-        };
-    </script>
-}
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        window.print();
+    });
+</script>

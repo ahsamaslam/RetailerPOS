@@ -19,8 +19,8 @@ namespace Retailer.POS.Web.Pages.Sales
         public async Task OnGetAsync()
         {
 
-            Sales = (await _api.GetSalesAsync()).ToList();
-           // Sales = (await _api.GetAllSaleDateWise(sdate,edate)).ToList();
+            Sales = (await _api.GetAllSaleDateWise(sdate, edate)).ToList();
+            // Sales = (await _api.GetAllSaleDateWise(sdate,edate)).ToList();
         }
     }
 }

@@ -1,17 +1,18 @@
-using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 using Retailer.Api.Services;
 using Retailer.POS.Api.Data;
 using Retailer.POS.Api.Mappings;
 using Retailer.POS.Api.Repositories;
 using Retailer.POS.Api.Services;
 using Retailer.POS.API.UnitOfWork;
-using Microsoft.OpenApi.Models;
-using Microsoft.Extensions.DependencyInjection;
-using System.Security.Claims;
 using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
+using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -120,7 +121,10 @@ builder.Services.AddSwaggerGen(c =>
         { jwtScheme, Array.Empty<string>() }
     });
 });
-
+builder.Services.AddRazorPages().AddJsonOptions(options =>
+{
+    options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
+});
 builder.Services.AddAuthorization();
 
 var app = builder.Build();

@@ -18,7 +18,7 @@ public class SalesDetail : BaseEntity
 {
     public int SalesMasterId { get; set; }
     public SalesMaster? SalesMaster { get; set; }
-    public string ItemCode { get; set; } = string.Empty;
+    public int ItemCode { get; set; } 
     public string ItemName { get; set; } = string.Empty;
     public decimal Rate { get; set; }
     public decimal Qty { get; set; }

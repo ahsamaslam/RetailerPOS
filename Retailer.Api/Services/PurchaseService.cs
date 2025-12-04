@@ -46,10 +46,22 @@ public class PurchaseService : IPurchaseService
         }
     }
 
+    public async  Task<IEnumerable<PurchaseMasterDto?>> GetAll()
+    {
+        var pm = await _uow.PurchaseMasters.Query().Include(p => p.Details).ToListAsync();
+        return _mapper.Map<IEnumerable<PurchaseMasterDto>>(pm);
+    }
+
     public async Task<PurchaseMasterDto?> GetByIdAsync(int id)
     {
         var pm = await _uow.PurchaseMasters.Query().Include(p => p.Details).FirstOrDefaultAsync(p => p.Id == id);
         if (pm == null) return null;
         return _mapper.Map<PurchaseMasterDto>(pm);
+    }
+
+    public async Task<IEnumerable<PurchaseMasterDto?>> GetDateWiseAsync(DateTime sdate, DateTime edate)
+    {
+        var pm = await _uow.PurchaseMasters.Query().Include(p => p.Details).Where(p => p.Date.Date>=sdate.Date  &&  p.Date.Date<=edate.Date).ToListAsync();
+        return _mapper.Map<IEnumerable<PurchaseMasterDto>>(pm);
     }
 }

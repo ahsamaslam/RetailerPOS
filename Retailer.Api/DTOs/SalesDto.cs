@@ -18,7 +18,7 @@
     public class SalesDetailDto
     {
         public int Id { get; set; }
-        public string ItemCode { get; set; } = string.Empty;
+        public int ItemCode { get; set; } 
         public string ItemName { get; set; } = string.Empty;
         public decimal Rate { get; set; }
         public decimal Qty { get; set; }

@@ -12,13 +12,18 @@ public class CreateModel : PageModel
 
     public CreateModel(IApiClient api) => _api = api;
     [BindProperty]
-    public PurchaseMasterDto Purchase { get; set; } = new();
-    public IEnumerable<SelectListItem> Items { get; set; } = new List<SelectListItem>();
-    public IEnumerable<SelectListItem> vendor { get; set; } = new List<SelectListItem>();
-    public async Task OnGetAsync() { 
-        Items = (await _api.GetItemsAsync())
+    public PurchaseMasterDto Purchase { get; set; } = new()
+    {
+        Details = new List<PurchaseDetailDto> { new PurchaseDetailDto() }
+    };
+    public IEnumerable<SelectListItem> PurchaseType { get; set; } = new List<SelectListItem>() { new SelectListItem {  Value="1", Text="Cash"}
+        , new SelectListItem { Value = "1", Text = "Credit" } };
+    public IEnumerable<SelectListItem> ItemsList { get; set; } = new List<SelectListItem>();
+    public IEnumerable<SelectListItem> vendorList { get; set; } = new List<SelectListItem>();
+    public async Task OnGetAsync() {
+        ItemsList = (await _api.GetItemsAsync())
             .Select(c => new SelectListItem(c.Name, c.Id.ToString()));
-        vendor = (await _api.GetVendorsAsync())
+        vendorList = (await _api.GetVendorsAsync())
             .Select(c => new SelectListItem(c.Name, c.Id.ToString()));
     }
     public async Task<IActionResult> OnPostAsync()
@@ -34,6 +39,6 @@ public class CreateModel : PageModel
        Input.LoginId = 2;
         Input.Details = Purchase.Details.Select(x=> new CreatePurchaseDetailDto { ItemId = x.ItemId, Discount =0, ItemName=x.ItemName ,Rate=x.Rate, Qty=x.Qty, TaxPercentage=0}).ToList();
         await _api.CreatePurchaseAsync(Input);
-        return RedirectToPage("/Index");
+        return RedirectToPage("/Purchases/Index");
     }
 }

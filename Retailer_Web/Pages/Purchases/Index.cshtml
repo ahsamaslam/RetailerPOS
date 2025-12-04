@@ -1,32 +1,108 @@
 ﻿@page
 @model Retailer.POS.Web.Pages.Purchases.IndexModel
-@inject Retailer.POS.Web.Services.IApiClient ApiClient
+@{
+    ViewData["Title"] = "Purchase";
+}
+<main class="app-main">
+    <!--begin::App Content Header-->
+    <div class="app-content-header">
+        <!--begin::Container-->
+        <div class="container-fluid">
+            <!--begin::Row-->
+            <div class="row">
+                <div class="col-sm-6">
+                    <h3 class="mb-0">Purchase</h3>
+                    <a asp-page="Create">Create New</a>
+                </div>
+                <div class="col-sm-6">
+                    <ol class="breadcrumb float-sm-end">
+                        <li class="breadcrumb-item"><a href="#">Home</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">Dashboard</li>
+                    </ol>
+                </div>
+            </div>
+            <!--end::Row-->
+        </div>
+        <!--end::Container-->
+    </div>
+    <div class="app-content">
 
-<h2>Item Type</h2>
-<a asp-page="Create" class="btn btn-primary">Create New Purchases</a>
+        <div class="row">
+            <div class="col-md-3">
+                <label>Start Date</label>
+                <input asp-for="sdate" type="date" class="form-control text-start" id="startDate" />
+            </div>
+            <div class="col-md-3">
+                <label>End Date</label>
+                <input asp-for="edate" type="date" class="form-control text-start" id="endDate" />
+            </div>
+        </div>
+        <div class="row"></div>
+        <table id="myTable" class="table mt-2">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Vendor</th>
+                    <th>SubTotal</th>
+                    <th>Tax</th>
+                    <th>Balance</th>
+                    <th>Actions</th>
 
-<table class="table mt-2">
-    <thead>
-        <tr>
-            <th>Date</th>
-            <th>SubTotal</th>
-            <th>Total</th>
-            <th>Actions</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in Model.Purchase    )
-        {
-            <tr>
-                <td>@item.Date.ToShortDateString()</td>
-                <td>@item.SubTotal</td>
-                <td>@item.Total</td>
-                <td>
-                    <a asp-page="Details" asp-route-id="@item.Id">Views</a> 
-                    <a asp-page="Edit" asp-route-id="@item.Id">Edit</a>
-                </td>
-            </tr>
-        }
-    </tbody>
-    
-</table>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var s in Model.Purchase)
+                {
+                    <tr>
+                        <td>@s.Date.ToShortDateString()</td>
+                        <td>@s.vendorName</td>
+                        <td>@s.SubTotal</td>
+                        <td>@s.TaxAmount</td>
+                        <td>@s.BalanceAmount</td>
+                        <td>
+                            <a asp-page="Edit" asp-route-id="@s.Id" class="btn btn-sm btn-warning">Edit</a>
+                            <a asp-page="Details" asp-route-id="@s.Id" class="btn btn-sm btn-info">Details</a>
+                            <a asp-page="Print" asp-route-id="@s.Id" class="btn btn-sm btn-success">Print</a>
+                        </td>
+                    </tr>
+
+                }
+            </tbody>
+        </table>
+
+    </div>
+    <!--end::App Content-->
+</main>
+<!--end::App Main-->
+@section Scripts {
+    <script>
+        $(function () {
+            // When either date changes, navigate to the same page with query params
+            $('#startDate, #endDate').on('change', function () {
+                const s = $('#startDate').val();
+                const e = $('#endDate').val();
+
+                // If you want to require both dates set before fetching:
+                if (!s || !e) return;
+
+                // Build query string and reload page
+                const qs = new URLSearchParams({
+                    sdate: s,
+                    edate: e
+                }).toString();
+
+                // Navigate (this calls OnGetAsync on server)
+                window.location.href = `${window.location.pathname}?${qs}`;
+            });
+
+            // DataTable initialization (will run on full page load)
+            $('#myTable').DataTable({
+                "paging": true,
+                "searching": true,
+                "ordering": true,
+                "info": true
+            });
+        });
+    </script>
+}
+
