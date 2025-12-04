@@ -31,6 +31,8 @@ public class RetailerDbContext : DbContext
     public DbSet<Menu> Menus { get; set; } = default!;
     public DbSet<SubMenu> SubMenus { get; set; } = default!;
     public DbSet<SubMenuPermission> SubMenuPermissions { get; set; } = default!;
+    public DbSet<OpeningBalance> OpeningBalances { get; set; } = null!;
+
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -71,5 +73,9 @@ public class RetailerDbContext : DbContext
 
             // no b.HasOne(...Permission...) since Permission type is not in this DbContext
         });
+        modelBuilder.Entity<OpeningBalance>()
+          .HasIndex(ob => new { ob.Year, ob.Product })
+          .IsUnique()
+          .HasDatabaseName("UX_OpeningBalance_Year_Product");
     }
 }

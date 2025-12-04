@@ -36,6 +36,7 @@ namespace Retailer.POS.API.UnitOfWork
         private IGenericRepository<Scope>? _Scopes;
         private IGenericRepository<Role>? _Role;
         private IGenericRepository<RoleScope>? _RoleScopes;
+        private IGenericRepository<OpeningBalance>? _OpeningBalances;
 
         public IGenericRepository<Item> Items => _items ??= new GenericRepository<Item>(_context);
         public IGenericRepository<PurchaseMaster> PurchaseMasters => _purchaseMasters ??= new GenericRepository<PurchaseMaster>(_context);
@@ -58,6 +59,7 @@ namespace Retailer.POS.API.UnitOfWork
         public IGenericRepository<Role> Roles => _Role ??= new GenericRepository<Role>(_context);
         public IGenericRepository<RoleScope> RoleScopes => _RoleScopes ??= new GenericRepository<RoleScope>(_context);
 
+        public IGenericRepository<OpeningBalance> OpeningBalances => _OpeningBalances ??= new GenericRepository<OpeningBalance>(_context);
 
         public async Task<List<ItemSubGroupDto>> GetSubGroupsWithGroupAsync()
         {

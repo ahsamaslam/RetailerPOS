@@ -12,9 +12,11 @@ public class ApiClient : IApiClient
 {
 
     private readonly HttpClient _http;
-    public ApiClient(HttpClient http)
+    private readonly ILogger<ApiClient> _logger;
+    public ApiClient(HttpClient http, ILogger<ApiClient> logger)
     {
         _http = http;
+        _logger = logger;
     }
     public async Task<List<ItemDto>> GetItemsAsync()
     {
@@ -396,6 +398,94 @@ public class ApiClient : IApiClient
         var menus = await resp.Content.ReadFromJsonAsync<IEnumerable<MenuDto>>();
         return menus ?? Enumerable.Empty<MenuDto>();
     }
+    public async Task<List<OpeningBalanceViewModel>> GetOpeningBalancesAsync()
+    {
+        try
+        {
+            var res = await _http.GetFromJsonAsync<List<OpeningBalanceViewModel>>("api/openingbalances");
+            return res ?? new List<OpeningBalanceViewModel>();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error getting opening balances");
+            return new List<OpeningBalanceViewModel>();
+        }
+    }
 
+    public async Task<OpeningBalanceViewModel?> GetOpeningBalanceAsync(int id)
+    {
+        try
+        {
+            var resp = await _http.GetAsync($"api/openingbalances/{id}");
+            if (!resp.IsSuccessStatusCode) return null;
+            return await resp.Content.ReadFromJsonAsync<OpeningBalanceViewModel>();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error getting opening balance {Id}", id);
+            return null;
+        }
+    }
+
+    public async Task<ApiResult<OpeningBalanceViewModel>> CreateOpeningBalanceAsync(CreateOpeningBalanceDto dto)
+    {
+        try
+        {
+            var resp = await _http.PostAsJsonAsync("api/openingbalances", dto);
+            if (resp.IsSuccessStatusCode)
+            {
+                var data = await resp.Content.ReadFromJsonAsync<OpeningBalanceViewModel>();
+                return new ApiResult<OpeningBalanceViewModel>(true, data);
+            }
+
+            if (resp.StatusCode == System.Net.HttpStatusCode.Conflict)
+            {
+                return new ApiResult<OpeningBalanceViewModel>(false, null, "Opening balance already exists for this Year and Product.");
+            }
+
+            var err = await resp.Content.ReadAsStringAsync();
+            return new ApiResult<OpeningBalanceViewModel>(false, null, err);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error creating opening balance");
+            return new ApiResult<OpeningBalanceViewModel>(false, null, ex.Message);
+        }
+    }
+
+    public async Task<ApiResult> UpdateOpeningBalanceAsync(int id, UpdateOpeningBalanceDto dto)
+    {
+        try
+        {
+            var resp = await _http.PutAsJsonAsync($"api/openingbalances/{id}", dto);
+            if (resp.IsSuccessStatusCode) return new ApiResult(true);
+            if (resp.StatusCode == System.Net.HttpStatusCode.Conflict)
+                return new ApiResult(false, "Another opening balance exists for this Year and Product.");
+            var err = await resp.Content.ReadAsStringAsync();
+            return new ApiResult(false, err);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error updating opening balance {Id}", id);
+            return new ApiResult(false, ex.Message);
+        }
+    }
+
+    public async Task<ApiResult> DeleteOpeningBalanceAsync(int id)
+    {
+        try
+        {
+            var resp = await _http.DeleteAsync($"api/openingbalances/{id}");
+            if (resp.IsSuccessStatusCode) return new ApiResult(true);
+            if (resp.StatusCode == System.Net.HttpStatusCode.NotFound) return new ApiResult(false, "NotFound");
+            var err = await resp.Content.ReadAsStringAsync();
+            return new ApiResult(false, err);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error deleting opening balance {Id}", id);
+            return new ApiResult(false, ex.Message);
+        }
+    }
     // TODO: other methods implemented elsewhere in ApiClient...
 }

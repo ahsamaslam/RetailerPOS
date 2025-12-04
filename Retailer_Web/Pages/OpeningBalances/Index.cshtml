@@ -1,0 +1,47 @@
+﻿@page
+@model Retailer.POS.Web.Pages.OpeningBalances.IndexModel
+@{
+    ViewData["Title"] = "Opening Balances";
+}
+
+<h3>Opening Balances</h3>
+
+<p>
+    <a class="btn btn-primary" asp-page="./Create">Create New</a>
+</p>
+
+<table class="table table-striped table-sm">
+    <thead>
+        <tr>
+            <th>Year</th>
+            <th>Product</th>
+            <th>Opening Quantity</th>
+            <th>Created At</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (!Model.OpeningBalances.Any())
+        {
+            <tr><td colspan="5" class="text-center">No records found.</td></tr>
+        }
+        else
+        {
+            foreach (var item in Model.OpeningBalances)
+            {
+                <tr>
+                    <td>@item.Year</td>
+                    <td>@(string.IsNullOrEmpty(item.ProductName) ? "—" : item.ProductName)</td>
+                    <td>@item.OpeningQuantity</td>
+                    <td>@item.CreatedAt.ToLocalTime().ToString("yyyy-MM-dd HH:mm")</td>
+                    <td>
+                        <a class="btn btn-sm btn-secondary" asp-page="./Edit" asp-route-id="@item.Id">Edit</a>
+                        <form method="post" asp-page-handler="Delete" asp-route-id="@item.Id" class="d-inline" onsubmit="return confirm('Delete this opening balance?');">
+                            <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+                        </form>
+                    </td>
+                </tr>
+            }
+        }
+    </tbody>
+</table>

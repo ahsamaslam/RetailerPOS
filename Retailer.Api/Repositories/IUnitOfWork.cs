@@ -23,6 +23,8 @@ public interface IUnitOfWork : IDisposable
     IGenericRepository<Role> Roles { get; }
     IGenericRepository<Scope> Scopes { get; }
     IGenericRepository<RoleScope> RoleScopes { get; }
+    IGenericRepository<OpeningBalance> OpeningBalances { get; }
+
     Task<List<ItemSubGroupDto>> GetSubGroupsWithGroupAsync();
     Task<ItemSubGroupDto?> GetSubGroupByIdWithGroupAsync(int id);
     Task<int> SaveChangesAsync();

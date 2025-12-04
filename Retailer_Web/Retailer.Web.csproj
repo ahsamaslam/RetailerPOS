@@ -16,7 +16,6 @@
     <PackageReference Include="NToastNotify" Version="8.0.0" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Pages\NewFolder\" />
     <Folder Include="Pages\UserM\" />
     <Folder Include="wwwroot\lib\" />
   </ItemGroup>

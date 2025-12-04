@@ -105,6 +105,8 @@ builder.Services.AddScoped<IPermissionService, PermissionService>();
 builder.Services.AddSingleton<IAuthorizationPolicyProvider, DefaultAuthorizationPolicyProvider>();
 builder.Services.AddScoped<IAuthorizationHandler, PermissionHandler>();
 builder.Services.AddScoped<IClaimsTransformation, PermissionClaimsTransformer>();
+builder.Services.AddScoped<IDbInitializer, DbInitializer>();
+
 // MVC / Controllers
 builder.Services.AddControllers();
 
@@ -170,6 +172,12 @@ if (app.Environment.IsDevelopment())
     });
 }
 
+
+using (var scope = app.Services.CreateScope())
+{
+    var permService = scope.ServiceProvider.GetRequiredService<IDbInitializer>();
+    await permService.InitializeAsync();
+}
 
 app.UseHttpsRedirection();
 

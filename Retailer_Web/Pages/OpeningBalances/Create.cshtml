@@ -1,0 +1,27 @@
+﻿@page
+@model Retailer.POS.Web.Pages.OpeningBalances.CreateModel
+
+<form method="post">
+    <div class="form-group">
+        <label>Year</label>
+        <input asp-for="NewOpening.Year" class="form-control" />
+        <span asp-validation-for="NewOpening.Year" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label>Product</label>
+        <select asp-for="NewOpening.ProductId" class="form-control"
+                asp-items="@(new SelectList(Model.Products, "Id", "Name"))">
+            <option value="">-- Select Product --</option>
+        </select>
+        <span asp-validation-for="NewOpening.ProductId" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label>Opening Quantity</label>
+        <input asp-for="NewOpening.OpeningQuantity" class="form-control" />
+        <span asp-validation-for="NewOpening.OpeningQuantity" class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-primary mt-2">Save</button>
+</form>

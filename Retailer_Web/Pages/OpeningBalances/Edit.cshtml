@@ -1,0 +1,38 @@
+﻿@page "{id:int}"
+@model Retailer.POS.Web.Pages.OpeningBalances.EditModel
+@{
+    ViewData["Title"] = "Edit Opening Balance";
+}
+
+<h3>Edit Opening Balance</h3>
+
+<form method="post">
+    <input type="hidden" asp-for="Editing.Id" />
+
+    <div class="form-group mb-2">
+        <label asp-for="Editing.Year" class="form-label"></label>
+        <input asp-for="Editing.Year" class="form-control" />
+        <span asp-validation-for="Editing.Year" class="text-danger"></span>
+    </div>
+
+    <div class="form-group mb-2">
+        <label asp-for="Editing.ProductId" class="form-label">Product</label>
+        <select asp-for="Editing.ProductId" class="form-control" asp-items="Model.ProductSelectList">
+            <option value="">-- Select Product --</option>
+        </select>
+        <span asp-validation-for="Editing.ProductId" class="text-danger"></span>
+    </div>
+
+    <div class="form-group mb-2">
+        <label asp-for="Editing.OpeningQuantity" class="form-label"></label>
+        <input asp-for="Editing.OpeningQuantity" class="form-control" />
+        <span asp-validation-for="Editing.OpeningQuantity" class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Save</button>
+    <a asp-page="./Index" class="btn btn-secondary ms-2">Back</a>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

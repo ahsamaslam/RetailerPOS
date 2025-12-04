@@ -34,20 +34,7 @@ namespace AuthModule.API.Controllers
         }
 
 
-        [HttpPost("permissions")]
-        public async Task<IActionResult> CreatePermission([FromBody] CreatePermissionDto dto)
-        {
-            var p = await _perm.CreatePermissionAsync(dto.Name, dto.Description);
-            return Ok(p);
-        }
-
-
-        [HttpPost("roles/{roleId}/permissions/{permissionId}")]
-        public async Task<IActionResult> AssignToRole(string roleId, int permissionId)
-        {
-            await _perm.AssignPermissionToRoleAsync(roleId, permissionId);
-            return NoContent();
-        }
+       
         [HttpPost("roles")]
         public async Task<IActionResult> CreateRole([FromBody] CreateRoleDto dto)
         {
@@ -220,6 +207,21 @@ namespace AuthModule.API.Controllers
         }
         // ----------------- PERMISSIONS endpoints -----------------
 
+        [HttpPost("permissions")]
+        public async Task<IActionResult> CreatePermission([FromBody] CreatePermissionDto dto)
+        {
+            var p = await _perm.CreatePermissionAsync(dto.Name, dto.Description);
+            return Ok(p);
+        }
+
+
+        [HttpPost("roles/{roleId}/permissions/{permissionId}")]
+        public async Task<IActionResult> AssignToRole(string roleId, int permissionId)
+        {
+            await _perm.AssignPermissionToRoleAsync(roleId, permissionId);
+            return NoContent();
+        }
+
         // GET: api/admin/permissions
         [HttpGet("permissions")]
         public async Task<IActionResult> GetAllPermissions()
@@ -236,7 +238,7 @@ namespace AuthModule.API.Controllers
         {
             var p = await _perm.GetPermissionAsync(permissionId);
             if (p == null) return NotFound();
-            return Ok(new PermissionDto(p.Id, p.Name, p.Description));
+            return Ok(new PermissionDto(p.Id, p.Name, p.Description ?? ""));
         }
 
         // DELETE: api/admin/permissions/{id}
@@ -257,8 +259,7 @@ namespace AuthModule.API.Controllers
             if (role == null) return NotFound("Role not found");
 
             var perms = await _perm.GetPermissionsForRoleAsync(roleId);
-            var vm = perms.Select(p => new PermissionDto(p.Id, p.Name, p.Description)).ToList();
-            return Ok(vm);
+            return Ok(perms);
         }
 
         // DELETE: api/admin/roles/{roleId}/permissions/{permissionId}
@@ -282,8 +283,7 @@ namespace AuthModule.API.Controllers
             if (user == null) return NotFound("User not found");
 
             var perms = await _perm.GetPermissionsForUserAsync(userId);
-            var vm = perms.Select(p => new PermissionViewModel { Id = p.Id, Name = p.Name, Description = p.Description }).ToList();
-            return Ok(vm);
+            return Ok(perms);
         }
 
         // POST: api/admin/users/{userId}/permissions/{permissionId}
