@@ -9,6 +9,7 @@ namespace AuthModule.API.Services
         Task AssignPermissionToRoleAsync(string roleId, int permissionId);
         Task RemovePermissionFromRoleAsync(string roleId, int permissionId);
         Task<IEnumerable<string>> GetPermissionsForRoleAsync(string roleId);
+        Task<Permission> GetPermissionAsync(int permissionId);
         Task<List<string>> GetPermissionsForUserAsync(string userId);
         Task<bool> UserHasPermissionAsync(string userId, string permission);
         Task<List<Permission>> GetPermissionsForDefaultUserAsync();

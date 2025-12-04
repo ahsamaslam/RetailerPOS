@@ -26,17 +26,12 @@ namespace AuthModule.API.Services
             var perm = new Permission { Name = name, Description = description };
             _db.Permissions.Add(perm);
             await _db.SaveChangesAsync();
-            _cache.Remove("permissions:all");
             return perm;
         }
 
         public async Task<IEnumerable<Permission>> GetAllPermissionsAsync()
         {
-            return await _cache.GetOrCreateAsync("permissions:all", async entry =>
-            {
-                entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(10);
-                return await _db.Permissions.AsNoTracking().ToListAsync();
-            });
+            return await _db.Permissions.AsNoTracking().ToListAsync();
         }
 
         public async Task AssignPermissionToRoleAsync(string roleId, int permissionId)
@@ -44,16 +39,12 @@ namespace AuthModule.API.Services
             if (await _db.RolePermissions.AnyAsync(rp => rp.RoleId == roleId && rp.PermissionId == permissionId)) return;
             _db.RolePermissions.Add(new RolePermission { RoleId = roleId, PermissionId = permissionId });
             await _db.SaveChangesAsync();
-            _cache.Remove($"permissions:role:{roleId}");
-            _cache.Remove("permissions:all");
         }
         public async Task AssignPermissionToUserAsync(string UserId, int permissionId)
         {
             if (await _db.UserPermissions.AnyAsync(rp => rp.UserId == UserId && rp.PermissionId == permissionId)) return;
             _db.UserPermissions.Add(new UserPermission { UserId = UserId, PermissionId = permissionId });
             await _db.SaveChangesAsync();
-            _cache.Remove($"permissions:role:{UserId}");
-            _cache.Remove("permissions:all");
         }
         public async Task RemovePermissionFromRoleAsync(string roleId, int permissionId)
         {
@@ -61,21 +52,19 @@ namespace AuthModule.API.Services
             if (existing == null) return;
             _db.RolePermissions.Remove(existing);
             await _db.SaveChangesAsync();
-            _cache.Remove($"permissions:role:{roleId}");
-            _cache.Remove("permissions:all");
         }
 
         public async Task<IEnumerable<string>> GetPermissionsForRoleAsync(string roleId)
         {
-            var key = $"permissions:role:{roleId}";
-            return await _cache.GetOrCreateAsync(key, async entry =>
-            {
-                entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(5);
-                return await _db.RolePermissions
-                    .Where(rp => rp.RoleId == roleId)
-                    .Select(rp => rp.Permission!.Name)
-                    .ToListAsync();
-            });
+            return await _db.RolePermissions
+                   .Where(rp => rp.RoleId == roleId)
+                   .Select(rp => rp.Permission!.Name)
+                   .ToListAsync();
+        }
+        public async Task<Permission> GetPermissionAsync(int permissionId)
+        {
+            return await _db.Permissions
+                  .FirstOrDefaultAsync(rp => rp.Id == permissionId);
         }
         public async Task<List<Permission>> GetPermissionsForDefaultUserAsync() {
 

@@ -1,4 +1,5 @@
-﻿using AuthModule.API.Models;
+﻿using AuthModule.API.Dtos;
+using AuthModule.API.Models;
 using AuthModule.API.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -216,6 +217,97 @@ namespace AuthModule.API.Controllers
                 .Select(r => new { r.Id, r.Name })
                 .ToList();
             return Ok(roles);
+        }
+        // ----------------- PERMISSIONS endpoints -----------------
+
+        // GET: api/admin/permissions
+        [HttpGet("permissions")]
+        public async Task<IActionResult> GetAllPermissions()
+        {
+            var perms = await _perm.GetAllPermissionsAsync();
+            // return minimal view model expected by your Razor page
+            var vm = perms.Select(p => new PermissionDto(p.Id,p.Name,p.Description ?? "")).ToList();
+            return Ok(vm);
+        }
+
+        // GET: api/admin/permissions/{id}
+        [HttpGet("permissions/{permissionId:int}")]
+        public async Task<IActionResult> GetPermission(int permissionId)
+        {
+            var p = await _perm.GetPermissionAsync(permissionId);
+            if (p == null) return NotFound();
+            return Ok(new PermissionDto(p.Id, p.Name, p.Description));
+        }
+
+        // DELETE: api/admin/permissions/{id}
+        [HttpDelete("permissions/{permissionId:int}")]
+        public async Task<IActionResult> DeletePermission(int permissionId)
+        {
+            var removed = await _perm.DeletePermissionAsync(permissionId);
+            if (!removed) return NotFound();
+            return NoContent();
+        }
+
+        // GET: api/admin/roles/{roleId}/permissions
+        [HttpGet("roles/{roleId}/permissions")]
+        public async Task<IActionResult> GetPermissionsForRole(string roleId)
+        {
+            // validate role exists?
+            var role = await _roleManager.FindByIdAsync(roleId);
+            if (role == null) return NotFound("Role not found");
+
+            var perms = await _perm.GetPermissionsForRoleAsync(roleId);
+            var vm = perms.Select(p => new PermissionDto(p.Id, p.Name, p.Description)).ToList();
+            return Ok(vm);
+        }
+
+        // DELETE: api/admin/roles/{roleId}/permissions/{permissionId}
+        [HttpDelete("roles/{roleId}/permissions/{permissionId:int}")]
+        public async Task<IActionResult> RemovePermissionFromRole(string roleId, int permissionId)
+        {
+            var role = await _roleManager.FindByIdAsync(roleId);
+            if (role == null) return NotFound("Role not found");
+
+            var removed = await _perm.RemovePermissionFromRoleAsync(roleId, permissionId);
+            if (!removed) return NotFound();
+
+            return NoContent();
+        }
+
+        // GET: api/admin/users/{userId}/permissions
+        [HttpGet("users/{userId}/permissions")]
+        public async Task<IActionResult> GetPermissionsForUser(string userId)
+        {
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null) return NotFound("User not found");
+
+            var perms = await _perm.GetPermissionsForUserAsync(userId);
+            var vm = perms.Select(p => new PermissionViewModel { Id = p.Id, Name = p.Name, Description = p.Description }).ToList();
+            return Ok(vm);
+        }
+
+        // POST: api/admin/users/{userId}/permissions/{permissionId}
+        [HttpPost("users/{userId}/permissions/{permissionId:int}")]
+        public async Task<IActionResult> AssignPermissionToUserEndpoint(string userId, int permissionId)
+        {
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null) return NotFound("User not found");
+
+            await _perm.AssignPermissionToUserAsync(userId, permissionId);
+            return NoContent();
+        }
+
+        // DELETE: api/admin/users/{userId}/permissions/{permissionId}
+        [HttpDelete("users/{userId}/permissions/{permissionId:int}")]
+        public async Task<IActionResult> RemovePermissionFromUserEndpoint(string userId, int permissionId)
+        {
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null) return NotFound("User not found");
+
+            var removed = await _perm.RemovePermissionFromUserAsync(userId, permissionId);
+            if (!removed) return NotFound();
+
+            return NoContent();
         }
     }
 
