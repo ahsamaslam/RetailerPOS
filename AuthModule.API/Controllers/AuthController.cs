@@ -1,4 +1,5 @@
-﻿using AuthModule.API.Services;
+﻿using AuthModule.API.Models;
+using AuthModule.API.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -13,13 +14,13 @@ namespace AuthModule.API.Controllers
     [Route("api/auth")]
     public class AuthController : ControllerBase
     {
-        private readonly UserManager<IdentityUser> _userManager;
+        private readonly UserManager<ApplicationUser> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly IPermissionService _permissionService;
         private readonly IConfiguration _config;
 
         public AuthController(
-            UserManager<IdentityUser> userManager,
+            UserManager<ApplicationUser> userManager,
             RoleManager<IdentityRole> roleManager,
             IPermissionService permissionService,
             IConfiguration config)
@@ -44,7 +45,8 @@ namespace AuthModule.API.Controllers
             {
                 new Claim(ClaimTypes.NameIdentifier, user.Id),
                 new Claim(ClaimTypes.Name, user.UserName ?? string.Empty),
-                new Claim("sub", user.Id)
+                new Claim("sub", user.Id),
+                new Claim("companyId", user.CompanyId?.ToString() ?? string.Empty) // FIX: null-safe
             };
 
             // ============================

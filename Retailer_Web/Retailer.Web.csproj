@@ -5,18 +5,11 @@
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Remove="Pages\UserM\Index.cshtml.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Remove="Pages\UserM\Index.cshtml" />
-  </ItemGroup>
-  <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="8.0.0" />
     <PackageReference Include="NToastNotify" Version="8.0.0" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Pages\UserM\" />
     <Folder Include="wwwroot\lib\" />
   </ItemGroup>
 </Project>

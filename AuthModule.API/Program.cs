@@ -1,5 +1,6 @@
 using AuthModule.API.Auth;
 using AuthModule.API.Data;
+using AuthModule.API.Models;
 using AuthModule.API.Repositories;
 using AuthModule.API.Services;
 using Microsoft.AspNetCore.Authentication;
@@ -24,9 +25,8 @@ var val = builder.Configuration.GetConnectionString("DefaultConnection");
 // Db
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(val));
-
 // Identity
-builder.Services.AddIdentity<IdentityUser, IdentityRole>(options =>
+builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
 {
     options.SignIn.RequireConfirmedEmail = false;
 

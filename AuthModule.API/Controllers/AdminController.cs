@@ -1,9 +1,11 @@
-﻿using AuthModule.API.Dtos;
+﻿using AuthModule.API.Data;
+using AuthModule.API.Dtos;
 using AuthModule.API.Models;
 using AuthModule.API.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System.Linq;
 using System.Security.Claims;
 
@@ -15,17 +17,21 @@ namespace AuthModule.API.Controllers
     public class AdminController : ControllerBase
     {
         private readonly IPermissionService _perm;
-        private readonly UserManager<IdentityUser> _userManager;
+        private readonly UserManager<ApplicationUser> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly IConfiguration _config;
         private readonly ILogger<AdminController> _logger;
+        private readonly ApplicationDbContext _db;
+
         public AdminController(
              IPermissionService perm,
-             UserManager<IdentityUser> userManager,
+             UserManager<ApplicationUser> userManager,
              RoleManager<IdentityRole> roleManager,
              IConfiguration config,
+             ApplicationDbContext db,
              ILogger<AdminController> logger)
         {
+            _db = db;
             _perm = perm;
             _userManager = userManager;
             _roleManager = roleManager;
@@ -108,6 +114,11 @@ namespace AuthModule.API.Controllers
             if (string.IsNullOrWhiteSpace(dto.UserName) || string.IsNullOrWhiteSpace(dto.Password))
                 return BadRequest("Username and password are required.");
 
+            // Read CompanyId from JWT token
+            var companyId = User.FindFirst("companyId")?.Value;
+            if (string.IsNullOrWhiteSpace(companyId))
+                return Unauthorized("CompanyId is missing in token.");
+
             // Basic uniqueness checks
             if (await _userManager.FindByNameAsync(dto.UserName) != null)
                 return Conflict("Username already exists.");
@@ -120,11 +131,13 @@ namespace AuthModule.API.Controllers
             var allowedRoles = _config.GetSection("Auth:AssignableRoles")?.Get<string[]>() ?? new[] { "User", "Manager", "Admin" };
 
 
-            IdentityUser user = new IdentityUser
+            ApplicationUser user = new ApplicationUser
             {
                 UserName = dto.UserName,
                 Email = dto.Email,
-                EmailConfirmed = true // adjust if you want email confirmation flow
+                EmailConfirmed = true, // adjust if you want email confirmation flow
+                CompanyId = Guid.Parse(companyId)      // ⭐ Assign company from token
+
             };
 
             // Create user via UserManager (hashes password, etc.)
@@ -137,59 +150,102 @@ namespace AuthModule.API.Controllers
                 return BadRequest(new { errors });
             }
 
+            using var tx = await _db.Database.BeginTransactionAsync();
+
             try
             {
-                // Ensure default/target role exists (create if missing)
+                // Ensure default role exists (create if missing)
                 if (!await _roleManager.RoleExistsAsync(defaultRole))
                 {
                     var r = await _roleManager.CreateAsync(new IdentityRole(defaultRole));
                     if (!r.Succeeded)
                     {
-                        await _userManager.DeleteAsync(user);
+                        await _userManager.DeleteAsync(user); // cleanup created user
                         return StatusCode(StatusCodes.Status500InternalServerError, "Unable to create default role.");
                     }
                 }
 
-                // Assign default role first (always)
+                // Assign default role
                 var addDefaultRoleRes = await _userManager.AddToRoleAsync(user, defaultRole);
                 if (!addDefaultRoleRes.Succeeded)
                 {
-                    // cleanup and rollback
                     await _userManager.DeleteAsync(user);
                     return StatusCode(StatusCodes.Status500InternalServerError, "Unable to assign default role to user.");
                 }
 
-                  // _perm.gete
+                // Get assigned roles (should at least include defaultRole)
+                var assignedRoles = await _userManager.GetRolesAsync(user); // list of role names
 
+                // Map role names -> role ids using AspNetRoles table (Role entities)
+                var roleEntities = await _db.Roles
+                    .Where(r => assignedRoles.Contains(r.Name))
+                    .ToListAsync();
 
-               var permissions = await _perm.GetPermissionsForDefaultUserAsync();
+                var roleIds = roleEntities.Select(r => r.Id).ToList();
 
+                // Query RolePermissions by RoleId -> fetch Permission entities
+                // Assumes RolePermission has RoleId and Permission navigation property loaded or use join
+                var rolePermissionEntries = await _db.RolePermissions
+                    .Include(rp => rp.Permission)
+                    .Where(rp => roleIds.Contains(rp.RoleId))
+                    .ToListAsync();
 
-              
-                foreach (var perm in permissions)
+                var distinctPermissions = rolePermissionEntries
+                    .Select(rp => rp.Permission!)
+                    .Where(p => p != null)
+                    .GroupBy(p => p.Id)
+                    .Select(g => g.First())
+                    .ToList();
+
+                // Insert UserPermission rows for the new user (avoid duplicates)
+                var existingUserPermIds = await _db.UserPermissions
+                    .Where(up => up.UserId == user.Id)
+                    .Select(up => up.PermissionId)
+                    .ToListAsync();
+
+                var toAddUserPermissions = distinctPermissions
+                    .Where(p => !existingUserPermIds.Contains(p.Id))
+                    .Select(p => new UserPermission
+                    {
+                        UserId = user.Id,
+                        PermissionId = p.Id
+                    })
+                    .ToList();
+
+                if (toAddUserPermissions.Any())
                 {
-
-                    await _perm.AssignPermissionToUserAsync(user.Id, perm.Id);
-                     
+                    _db.UserPermissions.AddRange(toAddUserPermissions);
+                    await _db.SaveChangesAsync();
                 }
 
-                // Build response
-                var assignedRoles = await _userManager.GetRolesAsync(user);
+                await tx.CommitAsync();
+
+                // Prepare response
+                var permissionsForResponse = distinctPermissions.Select(p => new { p.Id, p.Name }).ToList();
+
                 return Ok(new
                 {
                     user.Id,
                     user.UserName,
                     user.Email,
+                    user.CompanyId,
                     Roles = assignedRoles,
-                    permissions
+                    Permissions = permissionsForResponse
                 });
             }
             catch (Exception ex)
             {
-               // _logger.LogError(ex, "Error creating user {UserName}", dto.UserName);
-                // Try cleanup: delete the identity user (if created)
+                // best-effort cleanup: remove the created user and rollback DB transaction
+                try
+                {
+                    await tx.RollbackAsync();
+                }
+                catch { /* ignore */ }
+
                 try { await _userManager.DeleteAsync(user); } catch { /* ignore */ }
-               return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred creating the user.");
+
+                // log ex if you have logger: _logger.LogError(ex, "CreateUser failed");
+                return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred creating the user.");
             }
         }
 

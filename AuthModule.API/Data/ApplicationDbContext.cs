@@ -1,4 +1,5 @@
 ﻿using AuthModule.API.Models;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using System.Security;
@@ -10,7 +11,7 @@ namespace AuthModule.API.Data
     {
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options) { }
 
-
+        public DbSet<Company> Companies { get; set; } = null!;
         public DbSet<RefreshToken> RefreshTokens { get; set; } = default!;
         public DbSet<Permission> Permissions { get; set; } = null!;
         public DbSet<RolePermission> RolePermissions { get; set; } = null!;
@@ -20,6 +21,23 @@ namespace AuthModule.API.Data
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
+
+            // Company
+            builder.Entity<Company>(b =>
+            {
+                b.HasKey(c => c.Id);
+                b.Property(c => c.Name).IsRequired().HasMaxLength(250);
+                b.HasIndex(c => c.Name).IsUnique(false); // change to true if company name must be unique
+            });
+
+            // Configure ApplicationUser -> Company relationship (many users -> one company)
+            builder.Entity<ApplicationUser>(b =>
+            {
+                b.HasOne(u => u.Company)
+                 .WithMany() // if you want Company.Users collection, add it to Company and replace WithMany(c => c.Users)
+                 .HasForeignKey(u => u.CompanyId)
+                 .OnDelete(DeleteBehavior.SetNull);
+            });
 
 
             builder.Entity<RefreshToken>(b =>

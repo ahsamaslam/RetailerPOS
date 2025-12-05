@@ -4,6 +4,7 @@ using AuthModule.API.Services;
 using AuthModule.API.Data;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using AuthModule.API.Models;
 
 namespace AuthModule.API.Auth
 {
@@ -11,11 +12,11 @@ namespace AuthModule.API.Auth
     {
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly ApplicationDbContext _db;
-        private readonly UserManager<IdentityUser> _userManager;
+        private readonly UserManager<ApplicationUser> _userManager;
 
         public PermissionHandler(IHttpContextAccessor httpContextAccessor,
                                  ApplicationDbContext db,
-                                 UserManager<IdentityUser> userManager)
+                                 UserManager<ApplicationUser> userManager)
         {
             _httpContextAccessor = httpContextAccessor;
             _db = db;

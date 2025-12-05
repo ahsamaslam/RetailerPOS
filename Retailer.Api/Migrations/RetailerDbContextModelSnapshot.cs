@@ -47,7 +47,7 @@ namespace Retailer.Api.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Menus");
+                    b.ToTable("Menus", (string)null);
                 });
 
             modelBuilder.Entity("Retailer.Api.Entities.OpeningBalance", b =>
@@ -81,7 +81,7 @@ namespace Retailer.Api.Migrations
                         .IsUnique()
                         .HasDatabaseName("UX_OpeningBalance_Year_Product");
 
-                    b.ToTable("OpeningBalances");
+                    b.ToTable("OpeningBalances", (string)null);
                 });
 
             modelBuilder.Entity("Retailer.Api.Entities.Role", b =>
@@ -98,7 +98,7 @@ namespace Retailer.Api.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Roles");
+                    b.ToTable("Roles", (string)null);
                 });
 
             modelBuilder.Entity("Retailer.Api.Entities.RoleScope", b =>
@@ -121,7 +121,7 @@ namespace Retailer.Api.Migrations
 
                     b.HasIndex("ScopeId");
 
-                    b.ToTable("RoleScopes");
+                    b.ToTable("RoleScopes", (string)null);
                 });
 
             modelBuilder.Entity("Retailer.Api.Entities.Scope", b =>
@@ -138,7 +138,7 @@ namespace Retailer.Api.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Scopes");
+                    b.ToTable("Scopes", (string)null);
                 });
 
             modelBuilder.Entity("Retailer.Api.Entities.SubMenu", b =>
@@ -175,7 +175,7 @@ namespace Retailer.Api.Migrations
 
                     b.HasIndex("MenuId");
 
-                    b.ToTable("SubMenus");
+                    b.ToTable("SubMenus", (string)null);
                 });
 
             modelBuilder.Entity("Retailer.Api.Entities.SubMenuPermission", b =>
@@ -189,7 +189,7 @@ namespace Retailer.Api.Migrations
 
                     b.HasKey("SubMenuId");
 
-                    b.ToTable("SubMenuPermissions");
+                    b.ToTable("SubMenuPermissions", (string)null);
                 });
 
             modelBuilder.Entity("Retailer.POS.Api.Entities.Branch", b =>
@@ -224,7 +224,7 @@ namespace Retailer.Api.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Branches");
+                    b.ToTable("Branches", (string)null);
                 });
 
             modelBuilder.Entity("Retailer.POS.Api.Entities.Customer", b =>
@@ -259,7 +259,7 @@ namespace Retailer.Api.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Customers");
+                    b.ToTable("Customers", (string)null);
                 });
 
             modelBuilder.Entity("Retailer.POS.Api.Entities.Employee", b =>
@@ -297,7 +297,7 @@ namespace Retailer.Api.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Employees");
+                    b.ToTable("Employees", (string)null);
                 });
 
             modelBuilder.Entity("Retailer.POS.Api.Entities.Item", b =>
@@ -357,7 +357,7 @@ namespace Retailer.Api.Migrations
 
                     b.HasIndex("UnitOfMeasureId");
 
-                    b.ToTable("Items");
+                    b.ToTable("Items", (string)null);
                 });
 
             modelBuilder.Entity("Retailer.POS.Api.Entities.ItemCategory", b =>
@@ -374,7 +374,7 @@ namespace Retailer.Api.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("ItemCategories");
+                    b.ToTable("ItemCategories", (string)null);
                 });
 
             modelBuilder.Entity("Retailer.POS.Api.Entities.ItemGroup", b =>
@@ -391,7 +391,7 @@ namespace Retailer.Api.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("ItemGroups");
+                    b.ToTable("ItemGroups", (string)null);
                 });
 
             modelBuilder.Entity("Retailer.POS.Api.Entities.ItemSubGroup", b =>
@@ -413,7 +413,7 @@ namespace Retailer.Api.Migrations
 
                     b.HasIndex("GroupId");
 
-                    b.ToTable("ItemSubGroups");
+                    b.ToTable("ItemSubGroups", (string)null);
                 });
 
             modelBuilder.Entity("Retailer.POS.Api.Entities.ItemType", b =>
@@ -430,7 +430,7 @@ namespace Retailer.Api.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("ItemTypes");
+                    b.ToTable("ItemTypes", (string)null);
                 });
 
             modelBuilder.Entity("Retailer.POS.Api.Entities.Login", b =>
@@ -461,7 +461,7 @@ namespace Retailer.Api.Migrations
 
                     b.HasIndex("RoleId");
 
-                    b.ToTable("Logins");
+                    b.ToTable("Logins", (string)null);
                 });
 
             modelBuilder.Entity("Retailer.POS.Api.Entities.PurchaseDetail", b =>
@@ -496,7 +496,7 @@ namespace Retailer.Api.Migrations
 
                     b.HasIndex("PurchaseId");
 
-                    b.ToTable("PurchaseDetails");
+                    b.ToTable("PurchaseDetails", (string)null);
                 });
 
             modelBuilder.Entity("Retailer.POS.Api.Entities.PurchaseMaster", b =>
@@ -542,7 +542,7 @@ namespace Retailer.Api.Migrations
 
                     b.HasIndex("VendorID");
 
-                    b.ToTable("PurchaseMasters");
+                    b.ToTable("PurchaseMasters", (string)null);
                 });
 
             modelBuilder.Entity("Retailer.POS.Api.Entities.SalesDetail", b =>
@@ -585,7 +585,7 @@ namespace Retailer.Api.Migrations
 
                     b.HasIndex("SalesMasterId");
 
-                    b.ToTable("SalesDetails");
+                    b.ToTable("SalesDetails", (string)null);
                 });
 
             modelBuilder.Entity("Retailer.POS.Api.Entities.SalesMaster", b =>
@@ -628,7 +628,7 @@ namespace Retailer.Api.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("SalesMasters");
+                    b.ToTable("SalesMasters", (string)null);
                 });
 
             modelBuilder.Entity("Retailer.POS.Api.Entities.StockTransfer", b =>
@@ -659,7 +659,7 @@ namespace Retailer.Api.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("StockTransfers");
+                    b.ToTable("StockTransfers", (string)null);
                 });
 
             modelBuilder.Entity("Retailer.POS.Api.Entities.StockTransferDetail", b =>
@@ -684,7 +684,7 @@ namespace Retailer.Api.Migrations
 
                     b.HasIndex("StockTransferId");
 
-                    b.ToTable("StockTransferDetails");
+                    b.ToTable("StockTransferDetails", (string)null);
                 });
 
             modelBuilder.Entity("Retailer.POS.Api.Entities.UnitOfMeasure", b =>
@@ -701,7 +701,7 @@ namespace Retailer.Api.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("UnitOfMeasures");
+                    b.ToTable("UnitOfMeasures", (string)null);
                 });
 
             modelBuilder.Entity("Retailer.POS.Api.Entities.Vendor", b =>
@@ -736,7 +736,7 @@ namespace Retailer.Api.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Vendors");
+                    b.ToTable("Vendors", (string)null);
                 });
 
             modelBuilder.Entity("Retailer.Api.Entities.RoleScope", b =>

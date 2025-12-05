@@ -16,12 +16,12 @@ namespace AuthModule.API.Services
         private readonly ApplicationDbContext _db;
         private readonly IMemoryCache _cache;
         private readonly ILogger<PermissionService>? _logger;
-        private readonly UserManager<IdentityUser> _userManager;
+        private readonly UserManager<ApplicationUser> _userManager;
 
 
 
         public PermissionService(ApplicationDbContext db, IMemoryCache cache,
-            ILogger<PermissionService>? logger, UserManager<IdentityUser> userManager)
+            ILogger<PermissionService>? logger, UserManager<ApplicationUser> userManager)
         {
             _db = db ?? throw new ArgumentNullException(nameof(db));
             _cache = cache ?? throw new ArgumentNullException(nameof(cache));

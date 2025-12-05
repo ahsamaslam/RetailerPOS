@@ -1,4 +1,5 @@
 ﻿using AuthModule.API.Dtos;
+using AuthModule.API.Models;
 using AuthModule.API.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -12,10 +13,10 @@ namespace AuthModule.API.Controllers
     public class UserController : ControllerBase
     {
         private readonly IPermissionService _perm;
-        private readonly UserManager<IdentityUser> _userManager;
+        private readonly UserManager<ApplicationUser> _userManager;
         public UserController(
              IPermissionService perm,
-             UserManager<IdentityUser> userManager)
+             UserManager<ApplicationUser> userManager)
         {
             _perm = perm;
             _userManager = userManager;
