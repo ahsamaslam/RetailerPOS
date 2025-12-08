@@ -15,6 +15,7 @@ public class CreatePurchaseDto
     public string? LoginName { get; set; }
     public int BranchId { get; set; }
     public string? BranchName { get; set; }
+    public int? year { get; set; } = 1;
     public List<CreatePurchaseDetailDto> Details { get; set; } = new();
 }
 

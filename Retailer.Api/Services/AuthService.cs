@@ -3,6 +3,7 @@ using System.Security.Claims;
 using System.Text;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Retailer.Api.DTOs;
 using Retailer.POS.Api.Repositories;
 using Retailer.POS.API.UnitOfWork;
 
@@ -16,8 +17,7 @@ public class AuthService : IAuthService
     {
         _uow = uow;
         _cfg = cfg;
-    }
-
+    } 
     // Simple validation: compares SHA256(password) with stored PasswordHash.
     public async Task<string?> ValidateAndCreateTokenAsync(string username, string password)
     {

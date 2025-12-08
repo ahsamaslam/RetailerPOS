@@ -4,6 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Retailer.Api.Services;
+using Retailer.API.Services;
 using Retailer.POS.Api.Data;
 using Retailer.POS.Api.Mappings;
 using Retailer.POS.Api.Repositories;
@@ -33,6 +34,8 @@ builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<IItemService, ItemService>();
 builder.Services.AddScoped<IPurchaseService, PurchaseService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IDbInitializer, DbInitializer>();
+
 // JWT Authentication
 var jwtSection = builder.Configuration.GetSection("Jwt");
 
@@ -50,14 +53,22 @@ builder.Services.AddAuthentication(options =>
     {
         ValidateIssuer = true,
         ValidIssuer = jwtSection.GetValue<string>("Issuer"),
+
         ValidateAudience = true,
-        ValidAudience = jwtSection.GetValue<string>("Audience"),
+        // Accept multiple audiences configured under Jwt:Audiences (fallback to Jwt:Audience)
+        ValidAudiences = jwtSection.GetSection("Audiences").Get<string[]>(),
+
         ValidateIssuerSigningKey = true,
-        NameClaimType = JwtRegisteredClaimNames.Sub,    // optional: set which claim maps to Name
-        RoleClaimType = ClaimTypes.Role,
         IssuerSigningKey = new SymmetricSecurityKey(Convert.FromBase64String(jwtSection.GetValue<string>("SigningKeyBase64"))),
+
         ValidateLifetime = true,
-        ClockSkew = TimeSpan.FromSeconds(30)
+        ClockSkew = TimeSpan.FromSeconds(30),
+
+        // Map the name and role claim types to what the token contains
+        // You issue ClaimTypes.NameIdentifier and ClaimTypes.Role in the token,
+        // so map NameClaimType -> ClaimTypes.NameIdentifier
+        NameClaimType = ClaimTypes.NameIdentifier,
+        RoleClaimType = ClaimTypes.Role
     };
 
     // Helpful debug logging for token validation failures
@@ -98,6 +109,7 @@ builder.Services.AddHttpClient("AuthModule", client =>
 builder.Services.AddTransient<TokenDelegationHandler>();
 // Register MenuService expecting an HttpClientFactory (inject IHttpClientFactory or HttpClient via named client)
 builder.Services.AddScoped<IMenuService, MenuService>();
+builder.Services.AddScoped<ICompanyService, CompanyService>();
 
 // Swagger
 builder.Services.AddEndpointsApiExplorer();
@@ -121,6 +133,11 @@ builder.Services.AddSwaggerGen(c =>
         { jwtScheme, Array.Empty<string>() }
     });
 });
+builder.Services.AddHttpClient<IFbrClient, FbrClient>(client =>
+{
+    client.BaseAddress = new Uri(builder.Configuration["Fbr:Url"] ?? "https://fbr.example/");
+    // set default headers or auth here if required
+});
 builder.Services.AddRazorPages().AddJsonOptions(options =>
 {
     options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
@@ -132,11 +149,18 @@ var app = builder.Build();
 app.UseSwagger();
 app.UseSwaggerUI();
 
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+
+    var initializer = services.GetRequiredService<IDbInitializer>();
+    await initializer.InitializeAsync(services);
+}
+
 // middleware order: Routing -> Auth -> AuthZ -> Endpoints
 app.UseHttpsRedirection();
 
 app.UseRouting();
-
 app.UseAuthentication();
 app.UseAuthorization();
 

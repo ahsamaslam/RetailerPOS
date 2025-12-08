@@ -216,6 +216,53 @@ namespace Retailer.Api.Services
 
             return result;
         }
+        public async Task<SubMenuDto?> CreateSubMenuAsync(int menuId, SubMenuDto dto)
+        {
+            // Validate parent menu exists
+            var parentMenu = await _db.Menus
+                .FirstOrDefaultAsync(m => m.Id == menuId);
+
+            if (parentMenu == null)
+                return null;
+
+            // Create entity
+            var sub = new SubMenu
+            {
+                MenuId = menuId,
+                Title = dto.Title,
+                Route = dto.Route,
+                SortOrder = dto.SortOrder,
+                IsActive = dto.IsActive
+            };
+
+            _db.SubMenus.Add(sub);
+            await _db.SaveChangesAsync();
+
+            // Map back to DTO
+            return new SubMenuDto
+            {
+                Id = sub.Id,
+                MenuId = sub.MenuId,
+                Title = sub.Title,
+                Route = sub.Route,
+                SortOrder = sub.SortOrder,
+                IsActive = sub.IsActive
+            };
+        }
+        public async Task<bool> DeleteSubMenuAsync(int menuId, int subMenuId)
+        {
+            // Ensure submenu belongs to this menu
+            var sub = await _db.SubMenus
+                .FirstOrDefaultAsync(s => s.Id == subMenuId && s.MenuId == menuId);
+
+            if (sub == null)
+                return false;
+
+            _db.SubMenus.Remove(sub);
+            await _db.SaveChangesAsync();
+
+            return true;
+        }
 
         // helper mapping
         private static MenuDto MapToDto(Menu m)

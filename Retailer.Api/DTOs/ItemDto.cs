@@ -6,6 +6,7 @@ public class ItemDto
     public string? Barcode { get; set; }
     public decimal Rate { get; set; }
     public decimal Cost { get; set; }
+    public decimal QtyInHand { get; set; }
     public string? CategoryName { get; set; }
     public string? GroupName { get; set; }
     public string? SubGroupName { get; set; }

@@ -21,6 +21,6 @@ public class Item : BaseEntity
     public string? UnitName { get; set; }
     public string? UnitCode { get; set; }
     public int? UnitOfMeasureId { get; set; }
-    public int QtyInHand { get; set; } = 0;
+    public decimal QtyInHand { get; set; } = 0;
     public UnitOfMeasure? UnitOfMeasure { get; set; }
 }

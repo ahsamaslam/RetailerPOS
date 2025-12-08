@@ -5,10 +5,10 @@ using Retailer.POS.Web.Services;
 
 namespace Retailer.Web.Pages.Purchases
 {
-    public class EditModel : PageModel
+    public class EditModel : BasePageModel
     {
         private readonly IApiClient _api;
-        public EditModel(IApiClient api) => _api = api;
+        public EditModel(IApiClient api) : base(api) => _api = api;
 
         [BindProperty]
         public PurchaseMasterDto Purchase { get; set; } = new();

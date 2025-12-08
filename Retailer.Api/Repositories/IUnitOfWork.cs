@@ -1,5 +1,6 @@
 using Retailer.Api.DTOs;
 using Retailer.Api.Entities;
+using Retailer.Api.Entities.Views;
 using Retailer.POS.Api.Entities;
 namespace Retailer.POS.Api.Repositories;
 public interface IUnitOfWork : IDisposable
@@ -9,6 +10,7 @@ public interface IUnitOfWork : IDisposable
     IGenericRepository<PurchaseDetail> PurchaseDetails { get; }
     IGenericRepository<Customer> Customers { get; }
     IGenericRepository<Vendor> Vendors { get; }
+    IGenericRepository<vwStockLedger> VwStockLedger { get; }
     IGenericRepository<Branch> Branches { get; }
     IGenericRepository<Employee> Employees { get; }
     IGenericRepository<SalesMaster> SalesMasters { get; }
@@ -28,4 +30,5 @@ public interface IUnitOfWork : IDisposable
     Task<List<ItemSubGroupDto>> GetSubGroupsWithGroupAsync();
     Task<ItemSubGroupDto?> GetSubGroupByIdWithGroupAsync(int id);
     Task<int> SaveChangesAsync();
+    Task<bool> UpdateQtys(List<int> productIDs, int year);
 }

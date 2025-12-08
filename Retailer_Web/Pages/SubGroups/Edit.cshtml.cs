@@ -3,13 +3,14 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Retailer.POS.Web.Models;
 using Retailer.POS.Web.Services;
+using Retailer.Web.Pages;
 
 namespace Retailer.POS.Web.Pages.SubGroups;
 
-public class EditModel : PageModel
+public class EditModel : BasePageModel
 {
     private readonly IApiClient _api;
-    public EditModel(IApiClient api) => _api = api;
+    public EditModel(IApiClient api) : base(api) => _api = api;
 
     [BindProperty]
     public ItemSubGroupViewModel SubGroup { get; set; } = new();

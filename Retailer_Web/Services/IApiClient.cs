@@ -12,6 +12,10 @@ namespace Retailer.POS.Web.Services
     public interface IApiClient
     {
         Task<List<ItemDto>> GetItemsAsync();
+        Task<CompanyDto?> GetCompanyAsync();
+        Task<CompanyDto?> GetUserCompanyAsync();
+        Task<CompanyDto?> GetCompanybyIdAsync(string guid);
+        Task<List<ItemDto>> GetStockItemsAsync(int categoryId = 0, int groupId = 0);
         Task<ItemDto?> GetItemAsync(int id);
         Task<(bool Success, string Message)> CreateItemAsync(CreateItemDto dto);
         Task<bool> UpdateItemAsync(ItemDto dto);
@@ -94,5 +98,12 @@ namespace Retailer.POS.Web.Services
         Task<ApiResult<OpeningBalanceViewModel>> CreateOpeningBalanceAsync(CreateOpeningBalanceDto dto);
         Task<ApiResult> UpdateOpeningBalanceAsync(int id, UpdateOpeningBalanceDto dto);
         Task<ApiResult> DeleteOpeningBalanceAsync(int id);
+
+
+        //Menu Management
+        Task<MenuDto?> CreateMenuAsync(MenuDto dto);
+        Task<SubMenuDto?> CreateSubMenuAsync(int menuId, SubMenuDto dto);
+        Task<bool> DeleteMenuAsync(int menuId);
+        Task<bool> DeleteSubMenuAsync(int menuId, int subMenuId);
     }
 }

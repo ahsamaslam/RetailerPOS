@@ -4,34 +4,28 @@ using Retailer.POS.Api.Entities;
 using Retailer.POS.Api.Repositories; // your IUnitOfWork namespace
 using Retailer.POS.Api.DTOs;
 using Microsoft.AspNetCore.Http.HttpResults;
-using Retailer.Api.DTOs; // optional DTO namespace if you have
+using Retailer.Api.DTOs;
+using Microsoft.AspNetCore.Authorization;
+using Retailer.Api.Services; // optional DTO namespace if you have
 
 namespace Retailer.POS.Api.Controllers
 {
+    [Authorize]
     [ApiController]
     [Route("api/[controller]")]
     public class SalesController : ControllerBase
     {
         private readonly IUnitOfWork _uow;
-
-        public SalesController(IUnitOfWork uow)
+        private readonly IFbrClient _fbrClient;
+        private readonly ICompanyService _companyService;
+        public SalesController(IUnitOfWork uow, IFbrClient fbrClient, ICompanyService companyService)
         {
             _uow = uow;
+            _fbrClient = fbrClient;
+            _companyService = companyService;
         }
 
-        // GET api/sales
-        [HttpGet]
-        public async Task<IActionResult> GetAll()
-        {
-            // Use repository Query() if available; otherwise GetAllAsync and include details via DB context.
-            var list = await _uow.SalesMasters
-                .Query()
-                //.Include(s => s.Details)
-                .OrderByDescending(s => s.Date)
-                .ToListAsync();
-
-            return Ok(list);
-        }
+          
         [HttpGet]
         [HttpGet("GetAllDateWise/{sdate}/{edate}")]
         public async Task<IActionResult> GetAllDateWise(DateTime sdate, DateTime edate)
@@ -92,25 +86,70 @@ namespace Retailer.POS.Api.Controllers
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] SalesMaster model)
         {
-            if (model == null) return BadRequest();
-
-            // ensure details' SalesMaster navigation is cleared (EF will set it)
-            foreach (var d in model.Details)
+            try
             {
-                // Reset IDs to ensure EF treats them as new (if client accidentally sent Ids)
-                d.Id = 0;
-                // Ensure FK is not set to an incorrect value
-                d.SalesMasterId = 0;
-                // Ensure navigation property points to parent (optional)
-                d.SalesMaster = model;
+                if (model == null) return BadRequest();
+
+                // ensure details' SalesMaster navigation is cleared (EF will set it)
+                foreach (var d in model.Details)
+                {
+                    // Reset IDs to ensure EF treats them as new (if client accidentally sent Ids)
+                    d.Id = 0;
+                    // Ensure FK is not set to an incorrect value
+                    d.SalesMasterId = 0;
+                    // Ensure navigation property points to parent (optional)
+                    d.SalesMaster = model;
+                }
+                //foreach (var d in model.Details) d.SalesMaster = null;
+
+                await _uow.SalesMasters.AddAsync(model);
+                await _uow.SaveChangesAsync();
+                var itemids = model.Details.GroupBy(x => x.ItemCode).Select(x => x.Key).ToList();
+                var year = model.Year;
+                var companyIdClaim = User.FindFirst("companyId")?.Value;
+                if (!string.IsNullOrEmpty(companyIdClaim) && Guid.TryParse(companyIdClaim, out var companyId))
+                {
+                    var company = await _companyService.GetCompanyByIdAsync(companyIdClaim);
+                    if (company?.fbrActive == true)
+                    {
+                        // send invoice to FBR
+                        try
+                        {
+                            Customer customer = _uow.Customers.Query().Where(r => r.Id == model.CustomerCode).First(); ;
+                            var fbrResult = await _fbrClient.SendInvoiceAsync(company, model, customer);
+                            var created = model;
+                            if (!fbrResult.Success)
+                            {
+                                // _logger.LogWarning("FBR invoice send failed for sale {SaleId}: {Message}", model.Id, fbrResult.Message);
+                                // decide whether to mark sale as 'FBRFailed' or queue for retry
+                                //    await _salesService.MarkSaleFbrStatusAsync(created.Id, false, fbrResult.Message);
+                            }
+                            else
+                            {
+                                //_logger.LogInformation("FBR invoice accepted for sale {SaleId} externalId={ExternalId}", created.Id, fbrResult.ExternalId);
+                                // await _salesService.MarkSaleFbrStatusAsync(created.Id, true, fbrResult.ExternalId);
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            //_logger.LogError(ex, "Exception while sending invoice to FBR for sale {SaleId}", model.Id) ;
+                            //     await _salesService.MarkSaleFbrStatusAsync(model.Id, false, ex.Message);
+                        }
+                    }
+                }
+                else
+                {
+                    //_logger.LogDebug("No companyId claim present; skipping FBR send");
+                }
+                await _uow.UpdateQtys(itemids, year);
+
+                return Ok(model);
             }
-            //foreach (var d in model.Details) d.SalesMaster = null;
+            catch (Exception exx)
+            {
+                return BadRequest(exx.StackTrace);
 
-            await _uow.SalesMasters.AddAsync(model);
-            await _uow.SaveChangesAsync();
-
-
-            return Ok(model);
+            }
         }
 
         // PUT api/sales/{id}

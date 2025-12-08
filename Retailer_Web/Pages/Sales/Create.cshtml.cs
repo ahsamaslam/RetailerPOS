@@ -5,13 +5,14 @@ using Microsoft.Extensions.Hosting;
 using Retailer.POS.Web.ApiDTOs;
 using Retailer.POS.Web.Services;
 using Retailer.Web.Dtos;
+using Retailer.Web.Pages;
 
 namespace Retailer.POS.Web.Pages.Sales
 {
-    public class CreateModel : PageModel
+    public class CreateModel : BasePageModel
     {
         private readonly IApiClient _api;
-        public CreateModel(IApiClient api) => _api = api;
+        public CreateModel(IApiClient api) : base(api) => _api = api;
 
         [BindProperty]
         public SalesMasterDto Sale { get; set; } = new()
@@ -28,7 +29,7 @@ namespace Retailer.POS.Web.Pages.Sales
         {
             // Load dropdown data
             var items = await _api.GetItemsAsync();
-            ItemsList = items.Select(i => new ItemSelectListItem { Value = i.Id.ToString(), Text = i.Name , rate = i.Rate, cost=i.Cost }).ToList();
+            ItemsList = items.Select(i => new ItemSelectListItem { Value = i.Id.ToString(), Text = i.Name , rate = i.Rate, cost=i.Cost, qty =  i.QtyInHand }).ToList();
 
             var customers = await _api.GetCustomersAsync();
             CustomersList = customers.Select(c => new SelectListItem { Value = c.Id.ToString(), Text = c.Name }).ToList();

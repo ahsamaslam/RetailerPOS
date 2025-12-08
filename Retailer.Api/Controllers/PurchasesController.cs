@@ -30,6 +30,9 @@ namespace Retailer.POS.Api.Controllers
             try
             {
                 var created = await _svc.CreatePurchaseAsync(dto);
+                var itemids = created.Details.GroupBy(x => x.ItemId).Select(x=>x.Key).ToList();
+                var year = created.year;
+                await _svc.UpdateQtys(itemids, year);     
                 return CreatedAtAction(nameof(Get), new { id = created.Id }, created);
             }
             catch (Exception exx)

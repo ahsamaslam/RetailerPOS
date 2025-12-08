@@ -14,4 +14,5 @@ public class ItemDto
     public int GroupId { get; set; }
     public int? SubGroupId { get; set; }
     public int ItemTypeId { get; set; }
+    public decimal QtyInHand { get; set; } = 0;
 }

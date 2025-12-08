@@ -1,5 +1,6 @@
 using Retailer.Api.DTOs;
 using Retailer.Api.Entities;
+using Retailer.Api.Entities.Views;
 using Retailer.Api.Repositories;
 using Retailer.POS.Api.Data;
 using Retailer.POS.Api.Entities;
@@ -28,6 +29,7 @@ namespace Retailer.POS.API.UnitOfWork
         private IGenericRepository<SalesDetail> _salesDetails;
         private IGenericRepository<StockTransfer> _stockTransfers;
         private IGenericRepository<StockTransferDetail> _stockTransferDetails;
+        private IGenericRepository<vwStockLedger> _vwStockLedger;
         private IGenericRepository<Login> _logins;
         private IGenericRepository<ItemCategory>? _itemCategories;
         private IGenericRepository<ItemGroup>? _itemGroups;
@@ -39,6 +41,7 @@ namespace Retailer.POS.API.UnitOfWork
         private IGenericRepository<OpeningBalance>? _OpeningBalances;
 
         public IGenericRepository<Item> Items => _items ??= new GenericRepository<Item>(_context);
+        public IGenericRepository<vwStockLedger> VwStockLedger => _vwStockLedger ??= new GenericRepository<vwStockLedger>(_context);
         public IGenericRepository<PurchaseMaster> PurchaseMasters => _purchaseMasters ??= new GenericRepository<PurchaseMaster>(_context);
         public IGenericRepository<PurchaseDetail> PurchaseDetails => _purchaseDetails ??= new GenericRepository<PurchaseDetail>(_context);
         public IGenericRepository<Customer> Customers => _customers ??= new GenericRepository<Customer>(_context);
@@ -60,7 +63,7 @@ namespace Retailer.POS.API.UnitOfWork
         public IGenericRepository<RoleScope> RoleScopes => _RoleScopes ??= new GenericRepository<RoleScope>(_context);
 
         public IGenericRepository<OpeningBalance> OpeningBalances => _OpeningBalances ??= new GenericRepository<OpeningBalance>(_context);
-
+ 
         public async Task<List<ItemSubGroupDto>> GetSubGroupsWithGroupAsync()
         {
             return await ((ItemSubGroupRepository)_itemSubGroups).GetAllWithGroupAsync();
@@ -97,6 +100,36 @@ namespace Retailer.POS.API.UnitOfWork
         {
             Dispose(true);
             GC.SuppressFinalize(this);
+        }
+
+        public async  Task<bool> UpdateQtys(List<int> productIDs, int year)
+        {
+            try
+            {
+                var query =   _context.vwStockLedger.Where(r => productIDs.Contains(r.ProductID) && r.Year == year)
+                    .GroupBy(x => x.ProductID).Select(x => new Item { Id = x.Key, QtyInHand = x.Sum(x => x.Qty) }).ToList(); ;
+
+
+                var itemsToUpdate = _context.Items.Where(i => productIDs.Contains(i.Id)).ToList();
+
+                // Step 3: Update Qty in Item table
+                foreach (var item in itemsToUpdate)
+                {
+                    var stock = query.FirstOrDefault(s => s.Id == item.Id);
+                    if (stock != null)
+                    {
+                        item.QtyInHand = stock.QtyInHand;
+                    }
+                }
+
+                // Step 4: Save changes
+                await _context.SaveChangesAsync();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                return false;
+            }
         }
         #endregion
     }

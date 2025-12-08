@@ -1,3 +1,5 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace Retailer.POS.Api.Entities;
 public class PurchaseMaster : BaseEntity
 {
@@ -14,5 +16,7 @@ public class PurchaseMaster : BaseEntity
     public Login Login { get; set; }
     public int BranchId { get; set; }
     public Branch Branch { get; set; }
+     
+    public int Year { get; set; } = 1;
     public ICollection<PurchaseDetail> Details { get; set; } = new List<PurchaseDetail>();
 }

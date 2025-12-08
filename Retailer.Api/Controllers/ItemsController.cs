@@ -15,6 +15,13 @@ namespace Retailer.POS.Api.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAll() => Ok(await _svc.GetAllAsync());
 
+        [HttpGet("GetStockItemsAsync/{categoryId}/{groupId}")]
+        public async Task<IActionResult> GetStockItemsAsync(int categoryId , int groupId )
+        {
+          return  Ok(await  _svc.GetStockItemsAsync(categoryId, groupId));
+             
+        }
+
         [HttpGet("{id}")]
         public async Task<IActionResult> Get(int id)
         {

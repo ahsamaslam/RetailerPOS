@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Retailer.Api.Entities;
+using Retailer.Api.Entities.Views;
 using Retailer.POS.Api.Entities;
 
 namespace Retailer.POS.Api.Data;
@@ -8,6 +9,7 @@ public class RetailerDbContext : DbContext
 {
     public RetailerDbContext(DbContextOptions<RetailerDbContext> options) : base(options) { }
 
+    public DbSet<vwStockLedger> vwStockLedger => Set<vwStockLedger>();
     public DbSet<ItemCategory> ItemCategories => Set<ItemCategory>();
     public DbSet<ItemGroup> ItemGroups => Set<ItemGroup>();
     public DbSet<ItemSubGroup> ItemSubGroups => Set<ItemSubGroup>();
@@ -74,7 +76,7 @@ public class RetailerDbContext : DbContext
             // no b.HasOne(...Permission...) since Permission type is not in this DbContext
         });
         modelBuilder.Entity<OpeningBalance>()
-          .HasIndex(ob => new { ob.Year, ob.Product })
+          .HasIndex(ob => new { ob.Year, ob.ProductID })
           .IsUnique()
           .HasDatabaseName("UX_OpeningBalance_Year_Product");
     }

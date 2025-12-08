@@ -4,15 +4,16 @@ using NToastNotify;
 using Retailer.POS.Web.ApiDTOs;
 using Retailer.POS.Web.Services;
 using Retailer.Web.Models;
+using Retailer.Web.Pages;
 
 namespace Retailer.POS.Web.Pages.OpeningBalances;
-public class IndexModel : PageModel
+public class IndexModel : BasePageModel
 {
     private readonly ILogger<IndexModel> _logger;
     private readonly IToastNotification _toastNotification;
     private readonly IApiClient _api;
 
-    public IndexModel(IApiClient api, ILogger<IndexModel> logger, IToastNotification toastNotification)
+    public IndexModel(IApiClient api, ILogger<IndexModel> logger, IToastNotification toastNotification): base(api)
     {
         _api = api;
         _logger = logger;

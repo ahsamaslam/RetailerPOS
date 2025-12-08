@@ -32,8 +32,20 @@ public class ItemService : IItemService
         _uow.Items.Remove(e);
         await _uow.SaveChangesAsync();
     }
+    public async Task<IEnumerable<ItemDto>> GetStockItemsAsync(int categoryId = 0, int groupId = 0)
+    {
 
-    public async Task<IEnumerable<ItemDto>> GetAllAsync()
+        var items = await _uow.Items.Query()
+            .Include(x=>x.Category)
+            .Include(x=>x.Group)
+            .Include(x=>x.SubGroup)
+    .Where(r => r.QtyInHand > 0
+             && (categoryId == 0 || r.CategoryId == categoryId)
+             && (groupId == 0 || r.GroupId == groupId))
+    .ToListAsync();
+        return _mapper.Map<IEnumerable<ItemDto>>(items);
+    }
+        public async Task<IEnumerable<ItemDto>> GetAllAsync()
     {
 
 

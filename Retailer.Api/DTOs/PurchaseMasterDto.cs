@@ -5,6 +5,7 @@ public class PurchaseMasterDto
     public DateTime Date { get; set; }
     public decimal SubTotal { get; set; }
     public decimal Total { get; set; }
+    public int year { get; set; } = 1;
     public List<PurchaseDetailDto> Details { get; set; } = new();
 }
 

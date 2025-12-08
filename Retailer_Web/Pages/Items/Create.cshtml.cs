@@ -4,14 +4,15 @@ using Microsoft.AspNetCore.Mvc;
 using Retailer.POS.Web.Services;
 using Retailer.POS.Web.ApiDTOs;
 using System.Text.RegularExpressions;
+using Retailer.Web.Pages;
 
 namespace Retailer.POS.Web.Pages.Items;
 
-public class CreateModel : PageModel
+public class CreateModel : BasePageModel
 {
     private readonly IApiClient _api;
 
-    public CreateModel(IApiClient api) => _api = api;
+    public CreateModel(IApiClient api) : base(api) { _api = api; }
 
     [BindProperty]
     public CreateItemDto Input { get; set; } = new();

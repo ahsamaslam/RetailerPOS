@@ -67,6 +67,7 @@ namespace AuthModule.API.Controllers
             var company = await _db.Companies.AsNoTracking().FirstOrDefaultAsync(c => c.Id == id);
             if (company == null) return NotFound();
 
+            
             return Ok(ToResponseDto(company));
         }
 
@@ -115,7 +116,15 @@ namespace AuthModule.API.Controllers
                 Address = c.Address,
                 ContactEmail = c.ContactEmail,
                 ContactPhone = c.ContactPhone,
-                IsActive = c.IsActive
+                IsActive = c.IsActive,
+                fbrActive = c.fbrActive,
+                 fbrToken = c.fbrToken  ,
+                 pralToken  =c.pralToken,
+                  invoiceCounter = c.invoiceCounter ,
+                  invoicePerPage = c.invoicePerPage,
+                  Province = c.Province,
+                  CNIC= c.CNIC,NTN = c.NTN
+                  
             };
     }
 }

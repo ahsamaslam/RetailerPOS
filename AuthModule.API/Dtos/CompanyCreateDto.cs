@@ -9,6 +9,8 @@ namespace AuthModule.API.Dtos
         public string Name { get; set; } = null!;
 
         [MaxLength(100)]
+        public string? CNIC { get; set; }
+        [MaxLength(100)]
         public string? ShortName { get; set; }
 
         [MaxLength(512)]
@@ -21,6 +23,12 @@ namespace AuthModule.API.Dtos
         [MaxLength(50)]
         public string? ContactPhone { get; set; }
 
-        public bool IsActive { get; set; } = true;
+        public bool IsActive { get; set; }
+        public bool fbrActive { get; set; }
+        public string? pralToken { get; set; }
+        public string? fbrToken { get; set; }
+        public int invoiceCounter { get; set; } = 0;
+        public int invoicePerPage { get; set; } = 0;
+        public string? Province { get; set; } = "";
     }
 }

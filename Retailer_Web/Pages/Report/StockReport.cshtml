@@ -1,0 +1,173 @@
+﻿@page
+@model Retailer.Web.Pages.Report.StockReportModel
+@{
+}
+<main class="app-main">
+    <!--begin::App Content Header-->
+    <div class="app-content-header">
+        <!--begin::Container-->
+        <div class="container-fluid">
+            <!--begin::Row-->
+            <div class="row">
+                <div class="col-sm-10">
+                    <h3 class="mb-0">Stock Report</h3>
+                    
+                </div>
+                <div class="col-sm-2">
+                    <div class="btn-group">
+                        <button type="button"
+                                class="btn btn-primary dropdown-toggle"
+                                data-bs-toggle="dropdown"
+                                aria-expanded="false">
+                            Export
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="#">PDF</a></li>
+                            <li>
+                                <a class="dropdown-item" href="#">Excel</a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" href="#">Word</a>
+                            </li>
+                            
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <!--end::Row-->
+        </div>
+        <!--end::Container-->
+    </div>
+    <div class="app-content">
+        <div class="row">
+            <!--begin::Quick Example-->
+            <div class="card card-primary card-outline mb-4">
+                <!--begin::Header-->
+                <div class="card-header">
+                    <div class="card-title">Filter</div>
+                </div>
+                <!--end::Header-->
+                <!--begin::Form-->
+              
+                    <!--begin::Body-->
+                    <div class="card-body">
+                        <div class="row">
+                    <div class="col-md-6">
+                        <label>Category</label>
+                        <select id="categorySelect" asp-for="Input.CategoryId" asp-items="Model.Categories" class="form-control"></select>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <label>Group</label>
+                        <select id="groupSelect" asp-for="Input.GroupId" asp-items="Model.Groups" class="form-control"></select>
+                    </div>
+                    </div>
+                    </div>
+                    <!--end::Body-->
+                    <!--begin::Footer-->
+                    <div class="card-footer">
+                      
+                    </div>
+                    <!--end::Footer-->
+            
+                <!--end::Form-->
+            </div>
+            <!--end::Quick Example-->
+        </div>
+        <div class="row">
+            <table class="table" id="itemsTable">
+                <thead style="position: sticky;top: 0" class="thead-dark">
+                    <tr>
+                        <th class="header" scope="col">#</th>
+                        <th class="header" scope="col">Item Name</th>
+                        <th class="header" scope="col">Qty</th>
+                        <th class="header" scope="col">Category</th>
+                        <th class="header" scope="col">Group</th>
+                    </tr>
+                </thead>
+                <tbody id="itemsTbody">
+                    </tbody>
+            </table>  
+          
+       
+        </div>
+        </div>
+        </main>
+@section Scripts {
+    <script>
+        (function () {
+            // helper to parse value as int; fallback 0
+            function parseIntOrZero(value) {
+                const v = parseInt(value, 10);
+                return isNaN(v) ? 0 : v;
+            }
+
+            const categorySelect = document.getElementById('categorySelect');
+            const groupSelect = document.getElementById('groupSelect');
+            const tbody = document.getElementById('itemsTbody');
+
+            // Fetch items with current filters and render
+            async function loadItems() {
+                const categoryId = parseIntOrZero(categorySelect.value);
+                const groupId = parseIntOrZero(groupSelect.value);
+
+                // build URL: handler=Items maps to OnGetItemsAsync
+                const url = new URL(window.location.href);
+                url.searchParams.set('handler', 'Items');
+                url.searchParams.set('categoryId', categoryId);
+                url.searchParams.set('groupId', groupId);
+
+                try {
+                    const resp = await fetch(url.toString(), { method: 'GET', headers: { 'Accept': 'application/json' } });
+                    if (!resp.ok) throw new Error('Network response was not ok');
+
+                    const items = await resp.json();
+                    renderTable(items);
+                } catch (err) {
+                    console.error('Failed to load items', err);
+                    tbody.innerHTML = `<tr><td colspan="5">Failed to load items.</td></tr>`;
+                }
+            }
+
+            function renderTable(items) {
+                if (!items || items.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="5">No items found.</td></tr>';
+                    return;
+                }
+
+                let html = '';
+                for (let i = 0; i < items.length; i++) {
+                    const it = items[i];
+                    html += `<tr>
+                            <th scope="row">${i + 1}</th>
+                            <td>${escapeHtml(it.name || it.Name || '')}</td>
+                            <td class="text-center">${escapeHtml(it.qty?.toString() || it.Qty?.toString() || '0')}</td>
+                            <td>${escapeHtml(it.categoryName || it.CategoryName || '')}</td>
+                            <td>${escapeHtml(it.groupName || it.GroupName || '')}</td>
+                         </tr>`;
+                }
+                tbody.innerHTML = html;
+            }
+
+            // small escape to avoid injecting HTML
+            function escapeHtml(unsafe) {
+                return unsafe
+                    .replaceAll('&', '&amp;')
+                    .replaceAll('<', '&lt;')
+                    .replaceAll('>', '&gt;')
+                    .replaceAll('"', '&quot;')
+                    .replaceAll("'", '&#039;');
+            }
+
+            // wire events
+            categorySelect.addEventListener('change', loadItems);
+            groupSelect.addEventListener('change', loadItems);
+
+            // initial load
+            document.addEventListener('DOMContentLoaded', function () {
+                // If the selects are already populated server-side then call loadItems
+                loadItems();
+            });
+        })();
+    </script>
+}

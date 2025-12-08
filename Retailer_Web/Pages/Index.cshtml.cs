@@ -5,14 +5,14 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Retailer.POS.Web.Services;
 using Retailer.Web.ApiDTOs;
+using Retailer.Web.Pages;
 [Authorize]
-public class IndexModel : PageModel
+public class IndexModel : BasePageModel
 {
-    private readonly IApiClient _api;
+    public IndexModel(IApiClient api) : base(api)
+    {
+    }
 
-    public IndexModel(IApiClient api) => _api = api;
-
-    public IEnumerable<MenuDto> Menus { get; set; } = Enumerable.Empty<MenuDto>();
     public async Task<IActionResult> OnPostLogoutAsync()
     {
         await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
@@ -34,7 +34,6 @@ public class IndexModel : PageModel
 
         try
         {
-            Menus = await _api.GetMenusForCurrentUserAsync();
             return Page();
         }
         catch (UnauthorizedAccessException)
@@ -45,9 +44,6 @@ public class IndexModel : PageModel
         }
         catch (Exception ex)
         {
-            // log if you have logger; for now show empty menu and page
-            // _logger?.LogError(ex, "Failed to load menus");
-            Menus = Enumerable.Empty<MenuDto>();
             return Page();
         }
     }

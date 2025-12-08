@@ -11,7 +11,8 @@ public class AutoMapperProfile : Profile
         CreateMap<Item, ItemDto>()
             .ForMember(d => d.CategoryName, o => o.MapFrom(s => s.Category != null ? s.Category.Name : null))
             .ForMember(d => d.GroupName, o => o.MapFrom(s => s.Group != null ? s.Group.Name : null))
-            .ForMember(d => d.SubGroupName, o => o.MapFrom(s => s.SubGroup != null ? s.SubGroup.Name : null));
+            .ForMember(d => d.SubGroupName, o => o.MapFrom(s => s.SubGroup != null ? s.SubGroup.Name : null))
+            .ForMember(d => d.QtyInHand, o => o.MapFrom(s => s.QtyInHand ));
 
         CreateMap<CreatePurchaseDto, PurchaseMaster>();
         CreateMap<CreatePurchaseDetailDto, PurchaseDetail>();

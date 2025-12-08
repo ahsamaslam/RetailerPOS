@@ -2,12 +2,13 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Retailer.POS.Web.Models;
 using Retailer.POS.Web.Services;
+using Retailer.Web.Pages;
 
 namespace Retailer.POS.Web.Pages.ItemType;
-public class EditModel : PageModel
+public class EditModel : BasePageModel
 {
     private readonly IApiClient _api;
-    public EditModel(IApiClient api) => _api = api;
+    public EditModel(IApiClient api) : base(api) { _api = api; }
 
     [BindProperty]
     public ItemTypeViewModel ItemType { get; set; } = new();

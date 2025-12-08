@@ -1,4 +1,6 @@
-﻿namespace Retailer.POS.Web.ApiDTOs
+﻿using System.ComponentModel.DataAnnotations.Schema;
+
+namespace Retailer.POS.Web.ApiDTOs
 {
     public class SalesMasterDto
     {
@@ -30,5 +32,7 @@
         public decimal TaxPercentage { get; set; }
         public decimal TaxAmount { get; set; }
         public decimal Amount { get; set; }
+        [NotMapped]
+        public decimal Stock { get; set; }
     }
 }

@@ -47,7 +47,7 @@ namespace Retailer.Api.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Menus", (string)null);
+                    b.ToTable("Menus");
                 });
 
             modelBuilder.Entity("Retailer.Api.Entities.OpeningBalance", b =>
@@ -67,21 +67,20 @@ namespace Retailer.Api.Migrations
                     b.Property<decimal>("OpeningQuantity")
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<string>("Product")
-                        .IsRequired()
+                    b.Property<int>("ProductID")
                         .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
+                        .HasColumnType("int");
 
                     b.Property<int>("Year")
                         .HasColumnType("int");
 
                     b.HasKey("OpeningBalanceId");
 
-                    b.HasIndex("Year", "Product")
+                    b.HasIndex("Year", "ProductID")
                         .IsUnique()
                         .HasDatabaseName("UX_OpeningBalance_Year_Product");
 
-                    b.ToTable("OpeningBalances", (string)null);
+                    b.ToTable("OpeningBalances");
                 });
 
             modelBuilder.Entity("Retailer.Api.Entities.Role", b =>
@@ -98,7 +97,7 @@ namespace Retailer.Api.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Roles", (string)null);
+                    b.ToTable("Roles");
                 });
 
             modelBuilder.Entity("Retailer.Api.Entities.RoleScope", b =>
@@ -121,7 +120,7 @@ namespace Retailer.Api.Migrations
 
                     b.HasIndex("ScopeId");
 
-                    b.ToTable("RoleScopes", (string)null);
+                    b.ToTable("RoleScopes");
                 });
 
             modelBuilder.Entity("Retailer.Api.Entities.Scope", b =>
@@ -138,7 +137,7 @@ namespace Retailer.Api.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Scopes", (string)null);
+                    b.ToTable("Scopes");
                 });
 
             modelBuilder.Entity("Retailer.Api.Entities.SubMenu", b =>
@@ -175,7 +174,7 @@ namespace Retailer.Api.Migrations
 
                     b.HasIndex("MenuId");
 
-                    b.ToTable("SubMenus", (string)null);
+                    b.ToTable("SubMenus");
                 });
 
             modelBuilder.Entity("Retailer.Api.Entities.SubMenuPermission", b =>
@@ -189,7 +188,44 @@ namespace Retailer.Api.Migrations
 
                     b.HasKey("SubMenuId");
 
-                    b.ToTable("SubMenuPermissions", (string)null);
+                    b.ToTable("SubMenuPermissions");
+                });
+
+            modelBuilder.Entity("Retailer.Api.Entities.Views.vwStockLedger", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<decimal>("Discount")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("OpeningBalanceId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ProductID")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("Qty")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("Rate")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("TaxPercentage")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("Year")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("vwStockLedger");
                 });
 
             modelBuilder.Entity("Retailer.POS.Api.Entities.Branch", b =>
@@ -224,7 +260,7 @@ namespace Retailer.Api.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Branches", (string)null);
+                    b.ToTable("Branches");
                 });
 
             modelBuilder.Entity("Retailer.POS.Api.Entities.Customer", b =>
@@ -257,9 +293,12 @@ namespace Retailer.Api.Migrations
                     b.Property<string>("Province")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<bool?>("Register")
+                        .HasColumnType("bit");
+
                     b.HasKey("Id");
 
-                    b.ToTable("Customers", (string)null);
+                    b.ToTable("Customers");
                 });
 
             modelBuilder.Entity("Retailer.POS.Api.Entities.Employee", b =>
@@ -297,7 +336,7 @@ namespace Retailer.Api.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Employees", (string)null);
+                    b.ToTable("Employees");
                 });
 
             modelBuilder.Entity("Retailer.POS.Api.Entities.Item", b =>
@@ -327,8 +366,8 @@ namespace Retailer.Api.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("QtyInHand")
-                        .HasColumnType("int");
+                    b.Property<decimal>("QtyInHand")
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<decimal>("Rate")
                         .HasColumnType("decimal(18,2)");
@@ -357,7 +396,7 @@ namespace Retailer.Api.Migrations
 
                     b.HasIndex("UnitOfMeasureId");
 
-                    b.ToTable("Items", (string)null);
+                    b.ToTable("Items");
                 });
 
             modelBuilder.Entity("Retailer.POS.Api.Entities.ItemCategory", b =>
@@ -374,7 +413,7 @@ namespace Retailer.Api.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("ItemCategories", (string)null);
+                    b.ToTable("ItemCategories");
                 });
 
             modelBuilder.Entity("Retailer.POS.Api.Entities.ItemGroup", b =>
@@ -391,7 +430,7 @@ namespace Retailer.Api.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("ItemGroups", (string)null);
+                    b.ToTable("ItemGroups");
                 });
 
             modelBuilder.Entity("Retailer.POS.Api.Entities.ItemSubGroup", b =>
@@ -413,7 +452,7 @@ namespace Retailer.Api.Migrations
 
                     b.HasIndex("GroupId");
 
-                    b.ToTable("ItemSubGroups", (string)null);
+                    b.ToTable("ItemSubGroups");
                 });
 
             modelBuilder.Entity("Retailer.POS.Api.Entities.ItemType", b =>
@@ -430,7 +469,7 @@ namespace Retailer.Api.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("ItemTypes", (string)null);
+                    b.ToTable("ItemTypes");
                 });
 
             modelBuilder.Entity("Retailer.POS.Api.Entities.Login", b =>
@@ -461,7 +500,7 @@ namespace Retailer.Api.Migrations
 
                     b.HasIndex("RoleId");
 
-                    b.ToTable("Logins", (string)null);
+                    b.ToTable("Logins");
                 });
 
             modelBuilder.Entity("Retailer.POS.Api.Entities.PurchaseDetail", b =>
@@ -496,7 +535,7 @@ namespace Retailer.Api.Migrations
 
                     b.HasIndex("PurchaseId");
 
-                    b.ToTable("PurchaseDetails", (string)null);
+                    b.ToTable("PurchaseDetails");
                 });
 
             modelBuilder.Entity("Retailer.POS.Api.Entities.PurchaseMaster", b =>
@@ -534,6 +573,9 @@ namespace Retailer.Api.Migrations
                     b.Property<int>("VendorID")
                         .HasColumnType("int");
 
+                    b.Property<int>("Year")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
 
                     b.HasIndex("BranchId");
@@ -542,7 +584,7 @@ namespace Retailer.Api.Migrations
 
                     b.HasIndex("VendorID");
 
-                    b.ToTable("PurchaseMasters", (string)null);
+                    b.ToTable("PurchaseMasters");
                 });
 
             modelBuilder.Entity("Retailer.POS.Api.Entities.SalesDetail", b =>
@@ -581,11 +623,40 @@ namespace Retailer.Api.Migrations
                     b.Property<decimal>("TaxPercentage")
                         .HasColumnType("decimal(18,2)");
 
+                    b.Property<decimal>("extraTax")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("fedPayable")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("furtherTax")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("hsCode")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<decimal>("otherTax")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("saleType")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("sroItemSerialNo")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("sroScheduleNo")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("uoM")
+                        .HasColumnType("nvarchar(max)");
+
                     b.HasKey("Id");
 
                     b.HasIndex("SalesMasterId");
 
-                    b.ToTable("SalesDetails", (string)null);
+                    b.ToTable("SalesDetails");
                 });
 
             modelBuilder.Entity("Retailer.POS.Api.Entities.SalesMaster", b =>
@@ -605,8 +676,8 @@ namespace Retailer.Api.Migrations
                     b.Property<DateTime>("CreateDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("CustomerCode")
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<int?>("CustomerCode")
+                        .HasColumnType("int");
 
                     b.Property<string>("CustomerName")
                         .HasColumnType("nvarchar(max)");
@@ -626,9 +697,15 @@ namespace Retailer.Api.Migrations
                     b.Property<decimal>("TotalDiscount")
                         .HasColumnType("decimal(18,2)");
 
+                    b.Property<int>("Year")
+                        .HasColumnType("int");
+
+                    b.Property<string>("hsCode")
+                        .HasColumnType("nvarchar(max)");
+
                     b.HasKey("Id");
 
-                    b.ToTable("SalesMasters", (string)null);
+                    b.ToTable("SalesMasters");
                 });
 
             modelBuilder.Entity("Retailer.POS.Api.Entities.StockTransfer", b =>
@@ -659,7 +736,7 @@ namespace Retailer.Api.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("StockTransfers", (string)null);
+                    b.ToTable("StockTransfers");
                 });
 
             modelBuilder.Entity("Retailer.POS.Api.Entities.StockTransferDetail", b =>
@@ -684,7 +761,7 @@ namespace Retailer.Api.Migrations
 
                     b.HasIndex("StockTransferId");
 
-                    b.ToTable("StockTransferDetails", (string)null);
+                    b.ToTable("StockTransferDetails");
                 });
 
             modelBuilder.Entity("Retailer.POS.Api.Entities.UnitOfMeasure", b =>
@@ -701,7 +778,7 @@ namespace Retailer.Api.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("UnitOfMeasures", (string)null);
+                    b.ToTable("UnitOfMeasures");
                 });
 
             modelBuilder.Entity("Retailer.POS.Api.Entities.Vendor", b =>
@@ -736,7 +813,7 @@ namespace Retailer.Api.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Vendors", (string)null);
+                    b.ToTable("Vendors");
                 });
 
             modelBuilder.Entity("Retailer.Api.Entities.RoleScope", b =>

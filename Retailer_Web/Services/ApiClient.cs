@@ -24,12 +24,29 @@ public class ApiClient : IApiClient
         r.EnsureSuccessStatusCode();
         return await r.Content.ReadFromJsonAsync<List<ItemDto>>() ?? new List<ItemDto>();
     }
-
+    public async Task<List<ItemDto>> GetStockItemsAsync(int categoryId, int groupId)
+    {
+        var r = await _http.GetAsync("api/items/GetStockItemsAsync/" + categoryId.ToString()+"/" + groupId.ToString());
+        r.EnsureSuccessStatusCode();
+        return await r.Content.ReadFromJsonAsync<List<ItemDto>>() ?? new List<ItemDto>();
+    }
     public async Task<ItemDto?> GetItemAsync(int id)
     {
         var r = await _http.GetAsync($"api/items/{id}");
         if (!r.IsSuccessStatusCode) return null;
         return await r.Content.ReadFromJsonAsync<ItemDto>();
+    }
+      public async Task<CompanyDto?> GetCompanyAsync()
+    {
+        var r = await _http.GetAsync($"api/Companies");
+        if (!r.IsSuccessStatusCode) return null;
+        return await r.Content.ReadFromJsonAsync<CompanyDto>();
+    }
+    public async Task<CompanyDto?> GetUserCompanyAsync()
+    {
+        var r = await _http.GetAsync($"api/Companies/User");
+        if (!r.IsSuccessStatusCode) return null;
+        return await r.Content.ReadFromJsonAsync<CompanyDto>();
     }
 
     public async Task<(bool Success, string Message)> CreateItemAsync(CreateItemDto dto)
@@ -51,13 +68,13 @@ public class ApiClient : IApiClient
         }
 
     }
-
     public async Task<PurchaseMasterDto> CreatePurchaseAsync(CreatePurchaseDto dto)
     {
         var r = await _http.PostAsJsonAsync("api/purchases", dto);
         r.EnsureSuccessStatusCode();
         return await r.Content.ReadFromJsonAsync<PurchaseMasterDto>() ?? throw new Exception("No purchase returned");
     }
+   
 
     public async Task<string?> LoginAsync(string username, string password)
     {
@@ -500,4 +517,39 @@ public class ApiClient : IApiClient
         return resp.IsSuccessStatusCode;
     }
     // TODO: other methods implemented elsewhere in ApiClient...
+
+    //Menu
+    // ------- Menus (add these to your ApiClient class) -------
+    public async Task<MenuDto?> CreateMenuAsync(MenuDto dto)
+    {
+        if (dto == null) throw new ArgumentNullException(nameof(dto));
+        var resp = await _http.PostAsJsonAsync("api/menus", dto);
+        if (!resp.IsSuccessStatusCode) return null;
+        return await resp.Content.ReadFromJsonAsync<MenuDto>();
+    }
+
+    public async Task<SubMenuDto?> CreateSubMenuAsync(int menuId, SubMenuDto dto)
+    {
+        if (dto == null) throw new ArgumentNullException(nameof(dto));
+        var resp = await _http.PostAsJsonAsync($"api/menus/{menuId}/submenus", dto);
+        if (!resp.IsSuccessStatusCode) return null;
+        return await resp.Content.ReadFromJsonAsync<SubMenuDto>();
+    }
+
+    public async Task<bool> DeleteMenuAsync(int menuId)
+    {
+        if (menuId <= 0) return false;
+        var resp = await _http.DeleteAsync($"api/menus/{menuId}");
+        return resp.IsSuccessStatusCode;
+    }
+
+    public async Task<bool> DeleteSubMenuAsync(int menuId, int subMenuId)
+    {
+        if (menuId <= 0 || subMenuId <= 0) return false;
+        var resp = await _http.DeleteAsync($"api/menus/{menuId}/submenus/{subMenuId}");
+        return resp.IsSuccessStatusCode;
+    }
+
+    public async Task<CompanyDto?> GetCompanybyIdAsync(string guid) => await _http.GetFromJsonAsync<CompanyDto>($"api/Companies/{guid}");
+    
 }

@@ -46,7 +46,9 @@ namespace AuthModule.API.Controllers
                 new Claim(ClaimTypes.NameIdentifier, user.Id),
                 new Claim(ClaimTypes.Name, user.UserName ?? string.Empty),
                 new Claim("sub", user.Id),
-                new Claim("companyId", user.CompanyId?.ToString() ?? string.Empty) // FIX: null-safe
+                new Claim("companyId", user.CompanyId?.ToString() ?? string.Empty), // FIX: null-safe
+                new Claim("picture", user.picture?.ToString() ?? string.Empty) // FIX: null-safe
+
             };
 
             // ============================

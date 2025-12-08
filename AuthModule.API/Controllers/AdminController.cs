@@ -229,6 +229,7 @@ namespace AuthModule.API.Controllers
                     user.UserName,
                     user.Email,
                     user.CompanyId,
+                    user.picture,
                     Roles = assignedRoles,
                     Permissions = permissionsForResponse
                 });

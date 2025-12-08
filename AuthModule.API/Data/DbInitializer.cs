@@ -19,10 +19,10 @@ public class DbInitializer : IDbInitializer
     // Add Manager role and ensure SuperAdmin/Admin/User/Manager are present
     private static readonly string[] DefaultRoles = new[]
     {
-        "SuperAdmin",
-        "Admin",
-        "Manager",
-        "User"
+        "superadmin",
+        "admin",
+        "manager",
+        "user"
     };
 
     private readonly ApplicationDbContext _db;
@@ -110,8 +110,8 @@ public class DbInitializer : IDbInitializer
         }
 
         // 4. Assign permissions to SuperAdmin and Admin (ALL permissions) ----
-        var superAdminRole = await GetRoleAsync("SuperAdmin");
-        var adminRole = await GetRoleAsync("Admin");
+        var superAdminRole = await GetRoleAsync("superadmin");
+        var adminRole = await GetRoleAsync("admin");
 
         if (superAdminRole != null)
         {
@@ -144,7 +144,7 @@ public class DbInitializer : IDbInitializer
         }
 
         // 5. Manager role: View, Add, Edit for pages + some sensible global perms
-        var managerRole = await GetRoleAsync("Manager");
+        var managerRole = await GetRoleAsync("manager");
         if (managerRole != null)
         {
             // page-level perms: View, Add, Edit
@@ -180,7 +180,7 @@ public class DbInitializer : IDbInitializer
         }
 
         // 6. User role: Add + View for pages + minimal global perms
-        var userRole = await GetRoleAsync("User");
+        var userRole = await GetRoleAsync("user");
         if (userRole != null)
         {
             // page-level perms: Add, View

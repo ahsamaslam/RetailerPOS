@@ -1,17 +1,20 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Retailer.POS.Web.Services;
+using Retailer.Web.Pages;
 using System.Net.Http.Json;
 
 namespace Admin.Pages.Admin
 {
-    public class PermissionsModel : PageModel
+    public class PermissionsModel : BasePageModel
     {
         private readonly HttpClient _client;
-
-        public PermissionsModel(IHttpClientFactory factory)
+        private readonly IApiClient _api;
+        public PermissionsModel(IHttpClientFactory factory,IApiClient api) : base(api)
         {
             _client = factory.CreateClient();
             _client.BaseAddress = new Uri("https://localhost:7001/api/admin/");
+            _api = api;
         }
 
         [BindProperty]

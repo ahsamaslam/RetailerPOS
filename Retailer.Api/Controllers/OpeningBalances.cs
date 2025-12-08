@@ -26,12 +26,12 @@ namespace Retailer.Api.Controllers
             var list = await _uow.OpeningBalances
                                  .Query()
                                  .OrderByDescending(x => x.Year)
-                                 .ThenBy(x => x.Product)
+                                 .ThenBy(x => x.ProductID)
                                  .Select(x => new OpeningBalanceViewModel
                                  {
                                      Id = x.Id,
                                      Year = x.Year,
-                                     Product = x.Product,
+                                     ProductID = x.ProductID,
                                      OpeningQuantity = x.OpeningQuantity,
                                      CreatedAt = x.CreatedAt
                                  }).ToListAsync();
@@ -49,7 +49,7 @@ namespace Retailer.Api.Controllers
             {
                 Id = entity.Id,
                 Year = entity.Year,
-                Product = entity.Product,
+                ProductID = entity.ProductID,
                 OpeningQuantity = entity.OpeningQuantity,
                 CreatedAt = entity.CreatedAt
             });
@@ -62,12 +62,12 @@ namespace Retailer.Api.Controllers
             var list = await _uow.OpeningBalances
                                  .Query()
                                  .Where(x => x.Year == year)
-                                 .OrderBy(x => x.Product)
+                                 .OrderBy(x => x.ProductID)
                                  .Select(x => new OpeningBalanceViewModel
                                  {
                                      Id = x.Id,
                                      Year = x.Year,
-                                     Product = x.Product,
+                                     ProductID = x.ProductID,
                                      OpeningQuantity = x.OpeningQuantity,
                                      CreatedAt = x.CreatedAt
                                  }).ToListAsync();
@@ -84,14 +84,14 @@ namespace Retailer.Api.Controllers
             // uniqueness check (Year + Product)
             var exists = await _uow.OpeningBalances
                                    .Query()
-                                   .AnyAsync(x => x.Year == dto.Year && x.Product == dto.Product);
+                                   .AnyAsync(x => x.Year == dto.Year && x.ProductID == dto.ProductID);
             if (exists)
                 return Conflict("Opening balance for this Year and Product already exists.");
 
             var entity = new OpeningBalance
             {
                 Year = dto.Year,
-                Product = dto.Product,
+                ProductID = dto.ProductID,
                 OpeningQuantity = dto.OpeningQuantity,
                 CreatedAt = DateTime.UtcNow
             };
@@ -103,7 +103,7 @@ namespace Retailer.Api.Controllers
             {
                 Id = entity.Id,
                 Year = entity.Year,
-                Product = entity.Product,
+                ProductID = entity.ProductID,
                 OpeningQuantity = entity.OpeningQuantity,
                 CreatedAt = entity.CreatedAt
             };
@@ -124,12 +124,12 @@ namespace Retailer.Api.Controllers
             // uniqueness check for Year+Product excluding current record
             var exists = await _uow.OpeningBalances
                                    .Query()
-                                   .AnyAsync(x => x.Id != id && x.Year == dto.Year && x.Product == dto.Product);
+                                   .AnyAsync(x => x.Id != id && x.Year == dto.Year && x.ProductID == dto.ProductID);
             if (exists)
                 return Conflict("Another opening balance exists for this Year and Product.");
 
             entity.Year = dto.Year;
-            entity.Product = dto.Product;
+            entity.ProductID = dto.ProductID;
             entity.OpeningQuantity = dto.OpeningQuantity;
 
             _uow.OpeningBalances.Update(entity);

@@ -11,7 +11,7 @@
         public decimal TotalDiscount { get; set; }
         public decimal TaxAmount { get; set; }
         public decimal BalanceAmount { get; set; }
-        public string? CustomerCode { get; set; }
+        public int? CustomerCode { get; set; }
         public List<SalesDetailDto> Details { get; set; } = new List<SalesDetailDto>();
     }
 

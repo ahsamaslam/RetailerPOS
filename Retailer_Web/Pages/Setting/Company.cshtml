@@ -1,0 +1,97 @@
+﻿@page
+@model Retailer.Web.Setting.CompanyModel
+@{
+} 
+@inject Retailer.POS.Web.Services.IApiClient ApiClient
+ 
+<main class="app-main">
+    <!--begin::App Content Header-->
+    <div class="app-content-header">
+        <!--begin::Container-->
+        <div class="container-fluid">
+            <!--begin::Row-->
+            <div class="row">
+                <div class="col-sm-6"><h3 class="mb-0">Manage Company</h3></div>
+                <div class="col-sm-6">
+                    <ol class="breadcrumb float-sm-end">
+                        <li class="breadcrumb-item"><a href="#">Home</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">Dashboard</li>
+                    </ol>
+                </div>
+            </div>
+            <!--end::Row-->
+        </div>
+        <!--end::Container-->
+    </div>
+    <div class="app-content">
+<form method="post">
+    <div class="row mb-2">
+        <div class="col-md-6">
+ 
+        <label>Name</label>
+                    <input asp-for="Input.Name" required class="form-control" />
+    </div>
+        <div class="col-md-6">
+        <label>Mobile</label>
+                    <input asp-for="Input.ShortName" required class="form-control" />
+    </div>
+        <div class="col-md-6">
+        <label>City</label>
+                    <input asp-for="Input.Address" required class="form-control" />
+    </div>
+                <div class="col-md-6">
+                    <label>Province</label>
+                    <input asp-for="Input.Province" required class="form-control" />
+                </div>
+        <div class="col-md-6">
+        <label>Phone</label>
+                    <input asp-for="Input.ContactPerson" required class="form-control" />
+    </div>
+                <div class="col-md-6">
+                    <label>Email</label>
+                    <input asp-for="Input.ContactEmail" required class="form-control" />
+                </div>
+                <div class="col-md-6">
+                    <label>CNIC</label>
+                    <input asp-for="Input.CNIC" required class="form-control" />
+                </div>
+                <div class="col-md-6">
+                    <label>NTN</label>
+                    <input asp-for="Input.NTN" required class="form-control" />
+                </div>
+                <div class="col-md-6">
+                    <label>STRN</label>
+                    <input asp-for="Input.STRN" required class="form-control" />
+                </div>
+                <div class="col-md-6">
+                    <label>Token</label>
+                    <input asp-for="Input.pralToken" required class="form-control" />
+                </div>
+                <div class="col-md-6">
+                    <label>Invoices</label>
+                    <input asp-for="Input.invoicePerPage" required class="form-control" />
+                </div>
+                <div class="col-md-6">
+                    <input asp-for="Input.fbrActive" class="form-check-input" type="checkbox" />
+                    <label asp-for="Input.fbrActive" class="form-check-label"></label>
+                </div>
+                <div class="form-group">
+                    <div style="padding:10px;">
+                        @if ( (Model.Input.logo)!=null)
+                        {
+                            <img src="Input.logo" alt="Sample Image" width="300px" />
+                        }
+                    </div>
+                    <label asp-for="Input.logo"   class="control-label" />
+                    <input asp-for="Input.logo" class="form-control" />
+                    <span asp-validation-for="Input.logo" class="text-danger" />
+                </div>
+    </div>
+    @if (Model.IsAdmin)
+{
+    <button type="submit" class="btn btn-success" >Update</button>
+    <a asp-page="Index" class="btn btn-secondary">Cancel</a>
+}
+</form>
+</div>
+</main>

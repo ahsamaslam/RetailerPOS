@@ -16,11 +16,10 @@ namespace Retailer.Api.Entities
         /// </summary>
         [Required]
         [MaxLength(200)]
-        public string Product { get; set; } = "";
+        public int ProductID { get; set; } 
 
         [Required]
-        public decimal OpeningQuantity { get; set; }
-
+        public decimal OpeningQuantity { get; set; } 
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     }
 }

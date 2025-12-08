@@ -32,6 +32,10 @@ namespace AuthModule.API.Migrations
                         .HasMaxLength(512)
                         .HasColumnType("nvarchar(512)");
 
+                    b.Property<string>("CNIC")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
                     b.Property<string>("ContactEmail")
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
@@ -47,12 +51,45 @@ namespace AuthModule.API.Migrations
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
 
+                    b.Property<string>("NTN")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(250)
                         .HasColumnType("nvarchar(250)");
 
+                    b.Property<string>("Province")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("STRN")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
                     b.Property<string>("ShortName")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<bool>("fbrActive")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("fbrToken")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<int>("invoiceCounter")
+                        .HasColumnType("int");
+
+                    b.Property<int>("invoicePerPage")
+                        .HasColumnType("int");
+
+                    b.Property<string>("logoPath")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("pralToken")
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
@@ -398,6 +435,10 @@ namespace AuthModule.API.Migrations
 
                     b.Property<Guid?>("CompanyId")
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("picture")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasIndex("CompanyId");
 
