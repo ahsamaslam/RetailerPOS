@@ -110,6 +110,7 @@ builder.Services.AddTransient<TokenDelegationHandler>();
 // Register MenuService expecting an HttpClientFactory (inject IHttpClientFactory or HttpClient via named client)
 builder.Services.AddScoped<IMenuService, MenuService>();
 builder.Services.AddScoped<ICompanyService, CompanyService>();
+builder.Services.AddScoped<IUserService, UserService>();
 
 // Swagger
 builder.Services.AddEndpointsApiExplorer();

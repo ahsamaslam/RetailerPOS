@@ -2,7 +2,7 @@
 {
     public class CompanyViewModel
     {
-        public int Id { get; set; }
+        public Guid Id { get; set; }
         public string? Name { get; set; }
         public string? ShortName { get; set; }
         public string? Address { get; set; }
@@ -13,6 +13,8 @@
         public string? CNIC { get; set; } 
         public string? STRN { get; set; }
         public IFormFile? logo { get; set; }
+        public string? logoPath { get; set; } 
+
 
         public bool fbrActive { get; set; }
         public string? Province { get; set; }

@@ -17,8 +17,12 @@ namespace Retailer.POS.Web.Services
         Task<CompanyDto?> GetCompanybyIdAsync(string guid);
         Task<List<ItemDto>> GetStockItemsAsync(int categoryId = 0, int groupId = 0);
         Task<ItemDto?> GetItemAsync(int id);
+        Task<UserDto?> GetCurrentUserAsync();
         Task<(bool Success, string Message)> CreateItemAsync(CreateItemDto dto);
         Task<bool> UpdateItemAsync(ItemDto dto);
+        Task<(bool value, string Message)> ChangePasswordAsync(UserPasswordDto dto);
+        Task<(bool value, string Message)> CheckPasswordAsync(UserPasswordDto dto);
+        Task<(bool Success, string Message)>  UpdateCompanyAsync(CompanyViewModel dto);
         Task<PurchaseMasterDto> CreatePurchaseAsync(CreatePurchaseDto dto);
         Task<string?> LoginAsync(string username, string password);
         Task<List<EmployeeDto>> GetEmployeesAsync();

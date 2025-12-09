@@ -17,6 +17,7 @@
         public int invoiceCounter { get; set; } = 0;
         public int invoicePerPage { get; set; } = 0;
         public string? Province { get; set; } = "";
+        public string? logoPath { get; set; } = "";
     }
 
 }

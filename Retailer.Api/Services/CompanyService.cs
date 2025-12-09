@@ -35,13 +35,11 @@ namespace Retailer.Api.Services
             return companyList;
         }
 
-        public async Task<CompanyDto?> GetCompanyByIdAsync(string id)
+        public async Task<CompanyDto?> GetCompanyByIdAsync(Guid id)
         {
             try
             {
-                if (string.IsNullOrWhiteSpace(id))
-                    throw new ArgumentNullException(nameof(id));
-
+               
                 var response = await _httpClient.GetAsync($"api/Companies/" + id);
                 if (!response.IsSuccessStatusCode)
                     throw new InvalidOperationException("Failed to fetch Company from AuthModule");
@@ -86,11 +84,9 @@ namespace Retailer.Api.Services
             return createdCompany;
         }
 
-        public async Task<bool> UpdateCompanyAsync(int id, CompanyDto dto)
+        public async Task<bool> UpdateCompanyAsync(Guid id, CompanyDto dto)
         {
-            if (id <= 0)
-                throw new ArgumentOutOfRangeException(nameof(id), "Id must be greater than zero.");
-
+             
             if (dto is null)
                 throw new ArgumentNullException(nameof(dto));
 

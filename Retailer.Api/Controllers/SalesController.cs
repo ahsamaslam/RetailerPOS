@@ -109,7 +109,7 @@ namespace Retailer.POS.Api.Controllers
                 var companyIdClaim = User.FindFirst("companyId")?.Value;
                 if (!string.IsNullOrEmpty(companyIdClaim) && Guid.TryParse(companyIdClaim, out var companyId))
                 {
-                    var company = await _companyService.GetCompanyByIdAsync(companyIdClaim);
+                    var company = await _companyService.GetCompanyByIdAsync(Guid.Parse(companyIdClaim) );
                     if (company?.fbrActive == true)
                     {
                         // send invoice to FBR

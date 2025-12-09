@@ -85,7 +85,12 @@ namespace Retailer.Web.Pages.Admin
         public string Id { get; set; } = "";
         public string UserName { get; set; } = "";
         public string Email { get; set; } = "";
+        public string oldPassword { get; set; } = "";
+        public string currentPasswordA { get; set; } = "";
+        public string currentPasswordB { get; set; } = "";
         public List<string> Roles { get; set; } = new();
+        public IFormFile? picture { get; set; }
+        public string? logoPath { get; set; }
     }
 
     // Use a simple class for model-binding with BindProperty

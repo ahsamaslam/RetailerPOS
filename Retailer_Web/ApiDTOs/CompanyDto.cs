@@ -11,7 +11,7 @@
         public string CNIC { get; set; }  
         public string Province { get; set; }  
         public string STRN { get; set; }  
-        public string logoPath { get; set; }  
+        public string? logoPath { get; set; }  
         public string ContactEmail { get; set; }  
         public string ContactPhone { get; set; }
         public bool fbrActive { get; set; } = false;

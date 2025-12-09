@@ -551,5 +551,77 @@ public class ApiClient : IApiClient
     }
 
     public async Task<CompanyDto?> GetCompanybyIdAsync(string guid) => await _http.GetFromJsonAsync<CompanyDto>($"api/Companies/{guid}");
-    
+
+    public async Task<(bool Success, string Message)> UpdateCompanyAsync(CompanyViewModel dto)
+    {
+        try
+        {
+            var r = await _http.PutAsJsonAsync($"api/Companies/{dto.Id}", dto);
+            r.EnsureSuccessStatusCode();
+            if (r.IsSuccessStatusCode)
+            {
+                return (true, "Company Updated successfully");
+            }
+            else
+            {
+                var content = await r.Content.ReadFromJsonAsync<Dictionary<string, string>>();
+                string message = content != null && content.ContainsKey("message")
+                    ? content["message"]
+                    : "Unknown error";
+
+                return (false, message);
+            }
+        }
+        catch (Exception exx)
+        {
+            return (false, "Unknown error");
+        }
+    }
+
+    public async Task<UserDto?> GetCurrentUserAsync()
+    {
+      //  return await _http.GetFromJsonAsync<UserDto>("api/User/currentUser");
+        var r = await _http.GetAsync("api/User/currentUser");
+        r.EnsureSuccessStatusCode();
+        return await r.Content.ReadFromJsonAsync<UserDto>() ?? new UserDto();
+    }
+
+    public async  Task<(bool value, string Message)> ChangePasswordAsync(UserPasswordDto dto)
+    {
+        var r = await _http.PostAsJsonAsync("api/User/ChangePassword", dto);
+        r.EnsureSuccessStatusCode();
+        if (r.IsSuccessStatusCode)
+        {
+            return (true, "Item Type created successfully");
+        }
+        else
+        {
+            var content = await r.Content.ReadFromJsonAsync<Dictionary<string, string>>();
+            string message = content != null && content.ContainsKey("message")
+                ? content["message"]
+                : "Unknown error"; 
+            return (false, message);
+
+        }
+    }
+
+    public async  Task<(bool value, string Message)> CheckPasswordAsync(UserPasswordDto dto)
+    {
+        //currentUserPassword
+        var r = await _http.PostAsJsonAsync("api/User/currentUserPassword", dto);
+        r.EnsureSuccessStatusCode();
+        if (r.IsSuccessStatusCode)
+        {
+            return (true, "Item Type created successfully");
+        }
+        else
+        {
+            var content = await r.Content.ReadFromJsonAsync<Dictionary<string, string>>();
+            string message = content != null && content.ContainsKey("message")
+                ? content["message"]
+                : "Unknown error";
+
+            return (false, message);
+        }
+    }
 }

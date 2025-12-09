@@ -17,6 +17,11 @@ namespace AuthModule.API.Dtos
         [MaxLength(100)]
         public string? CNIC { get; set; }
         [MaxLength(100)]
+        public string? NTN { get; set; } 
+        [MaxLength(100)]
+        public string? STRN { get; set; }
+        [MaxLength(100)]
+        public string? logoPath { get; set; }
         [EmailAddress]
         public string? ContactEmail { get; set; }
 

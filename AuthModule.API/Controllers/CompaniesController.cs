@@ -21,6 +21,19 @@ namespace AuthModule.API.Controllers
             _db = db;
         }
 
+        [Authorize]
+        [HttpGet("Scenerio/{companyID:guid?}")]
+        public async Task<IActionResult> GetScenarioCompany(Guid companyID ) 
+        {
+            // Extract CompanyId from token
+            var companiesScnerio = await _db.CompanyScenario
+                .Include(cs => cs.ScenarioMaster)
+                .Include(cs => cs.Company)
+                .Where(cs => cs.CompanyId == companyID)
+                .ToListAsync(); 
+            return Ok(companiesScnerio);
+        }
+
         // POST: api/companies
         [HttpPost]
         public async Task<ActionResult<CompanyResponseDto>> Create([FromBody] CompanyCreateDto dto)
@@ -36,11 +49,9 @@ namespace AuthModule.API.Controllers
                 ContactEmail = dto.ContactEmail,
                 ContactPhone = dto.ContactPhone,
                 IsActive = dto.IsActive
-            };
-
+            }; 
             await _db.Companies.AddAsync(company);
-            await _db.SaveChangesAsync();
-
+            await _db.SaveChangesAsync(); 
             var resp = ToResponseDto(company);
             return CreatedAtAction(nameof(GetById), new { id = company.Id }, resp);
         }
@@ -54,8 +65,7 @@ namespace AuthModule.API.Controllers
                 .AsNoTracking()
                 .OrderBy(c => c.Name)
                 .Select(c => ToResponseDto(c))
-                .ToListAsync();
-
+                .ToListAsync(); 
             return Ok(companies);
         }
 
@@ -65,9 +75,7 @@ namespace AuthModule.API.Controllers
         public async Task<ActionResult<CompanyResponseDto>> GetById(Guid id)
         {
             var company = await _db.Companies.AsNoTracking().FirstOrDefaultAsync(c => c.Id == id);
-            if (company == null) return NotFound();
-
-            
+            if (company == null) return NotFound(); 
             return Ok(ToResponseDto(company));
         }
 
@@ -86,7 +94,13 @@ namespace AuthModule.API.Controllers
             company.Address = dto.Address;
             company.ContactEmail = dto.ContactEmail;
             company.ContactPhone = dto.ContactPhone;
-            company.IsActive = dto.IsActive;
+            company.fbrActive = dto.fbrActive;
+            company.pralToken = dto.pralToken;
+            company.fbrToken = dto.fbrToken;
+            company.STRN = dto.STRN;
+            company.NTN = dto.NTN; 
+            company.Province = dto.Province;
+            company.logoPath = dto.logoPath;
 
             _db.Companies.Update(company);
             await _db.SaveChangesAsync();
@@ -123,8 +137,9 @@ namespace AuthModule.API.Controllers
                   invoiceCounter = c.invoiceCounter ,
                   invoicePerPage = c.invoicePerPage,
                   Province = c.Province,
-                  CNIC= c.CNIC,NTN = c.NTN
-                  
+                  CNIC= c.CNIC,NTN = c.NTN,
+                logoPath= c.logoPath
+
             };
     }
 }

@@ -11,5 +11,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="wwwroot\lib\" />
+    <Folder Include="wwwroot\uploads\CompanyLogo\" />
+    <Folder Include="wwwroot\uploads\UserLogo\" />
   </ItemGroup>
 </Project>

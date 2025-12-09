@@ -24,16 +24,17 @@
         <!--end::Container-->
     </div>
     <div class="app-content">
-<form method="post">
+        <<form method="post" enctype="multipart/form-data">
+
     <div class="row mb-2">
         <div class="col-md-6">
- 
+                    <input type="hidden" asp-for="Input.Id" /> 
         <label>Name</label>
                     <input asp-for="Input.Name" required class="form-control" />
     </div>
         <div class="col-md-6">
         <label>Mobile</label>
-                    <input asp-for="Input.ShortName" required class="form-control" />
+                    <input asp-for="Input.ShortName"   class="form-control" />
     </div>
         <div class="col-md-6">
         <label>City</label>
@@ -45,7 +46,7 @@
                 </div>
         <div class="col-md-6">
         <label>Phone</label>
-                    <input asp-for="Input.ContactPerson" required class="form-control" />
+                    <input asp-for="Input.ContactPerson"   class="form-control" />
     </div>
                 <div class="col-md-6">
                     <label>Email</label>
@@ -53,7 +54,7 @@
                 </div>
                 <div class="col-md-6">
                     <label>CNIC</label>
-                    <input asp-for="Input.CNIC" required class="form-control" />
+                    <input asp-for="Input.CNIC"   class="form-control" />
                 </div>
                 <div class="col-md-6">
                     <label>NTN</label>
@@ -61,31 +62,43 @@
                 </div>
                 <div class="col-md-6">
                     <label>STRN</label>
-                    <input asp-for="Input.STRN" required class="form-control" />
+                    <input asp-for="Input.STRN"   class="form-control" />
                 </div>
                 <div class="col-md-6">
                     <label>Token</label>
-                    <input asp-for="Input.pralToken" required class="form-control" />
+                    <input asp-for="Input.pralToken"   class="form-control" />
                 </div>
                 <div class="col-md-6">
                     <label>Invoices</label>
-                    <input asp-for="Input.invoicePerPage" required class="form-control" />
+                    <input asp-for="Input.invoicePerPage"   class="form-control" />
                 </div>
                 <div class="col-md-6">
                     <input asp-for="Input.fbrActive" class="form-check-input" type="checkbox" />
                     <label asp-for="Input.fbrActive" class="form-check-label"></label>
                 </div>
-                <div class="form-group">
-                    <div style="padding:10px;">
-                        @if ( (Model.Input.logo)!=null)
-                        {
-                            <img src="Input.logo" alt="Sample Image" width="300px" />
-                        }
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <div class="row mb-2">
+                            <div class="col-md-12">
+                                <!-- Preview -->
+                                <div style="padding:10px; margin-top:10px;">
+                                    <img id="logoPreview"
+                                         src="@(string.IsNullOrEmpty(Model.Input.logoPath) ? Url.Content("~/images/default-logo.png") : Model.Input.logoPath)"
+                                        alt="Feature Image" style="max-width:300px;  " />
+                                </div>
+                    <div class="col-md-12">
+                    <label asp-for="Input.logo" class="control-label">Feature Image</label>
+
+                    <!-- File upload input -->
+                                    <input asp-for="LogoFile" type="file" class="form-control" accept="image/*" onchange="previewImage(event)" />
                     </div>
-                    <label asp-for="Input.logo"   class="control-label" />
-                    <input asp-for="Input.logo" class="form-control" />
-                    <span asp-validation-for="Input.logo" class="text-danger" />
+                   
+                    </div>
+                    </div>
+                    <span asp-validation-for="Input.logo" class="text-danger"></span>
                 </div>
+                </div>
+
     </div>
     @if (Model.IsAdmin)
 {
@@ -95,3 +108,16 @@
 </form>
 </div>
 </main>
+<script>
+    function previewImage(event) {
+        var input = event.target;
+        var reader = new FileReader();
+        reader.onload = function () {
+            var dataURL = reader.result;
+            var output = document.getElementById('logoPreview');
+            output.src = dataURL;
+            output.style.display = 'block';
+        };
+        reader.readAsDataURL(input.files[0]);
+    }
+</script>

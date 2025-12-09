@@ -100,6 +100,28 @@ namespace AuthModule.API.Migrations
                     b.ToTable("Companies");
                 });
 
+            modelBuilder.Entity("AuthModule.API.Models.CompanyScenario", b =>
+                {
+                    b.Property<Guid>("Guid")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("CompanyId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("ScenarioMasterId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Guid");
+
+                    b.HasIndex("CompanyId");
+
+                    b.HasIndex("ScenarioMasterId");
+
+                    b.ToTable("CompanyScenario");
+                });
+
             modelBuilder.Entity("AuthModule.API.Models.Permission", b =>
                 {
                     b.Property<int>("Id")
@@ -197,6 +219,36 @@ namespace AuthModule.API.Migrations
                     b.HasIndex("RoleId1");
 
                     b.ToTable("RolePermissions");
+                });
+
+            modelBuilder.Entity("AuthModule.API.Models.ScenarioMaster", b =>
+                {
+                    b.Property<string>("ScenarioId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("BuyerRegistrationType")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("SaleType")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ScenarioName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("SroItemSerialNo")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("SroScheduleNo")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("ScenarioId");
+
+                    b.ToTable("ScenarioMaster");
                 });
 
             modelBuilder.Entity("AuthModule.API.Models.UserPermission", b =>
@@ -443,6 +495,25 @@ namespace AuthModule.API.Migrations
                     b.HasIndex("CompanyId");
 
                     b.HasDiscriminator().HasValue("ApplicationUser");
+                });
+
+            modelBuilder.Entity("AuthModule.API.Models.CompanyScenario", b =>
+                {
+                    b.HasOne("AuthModule.API.Models.Company", "Company")
+                        .WithMany()
+                        .HasForeignKey("CompanyId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("AuthModule.API.Models.ScenarioMaster", "ScenarioMaster")
+                        .WithMany()
+                        .HasForeignKey("ScenarioMasterId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Company");
+
+                    b.Navigation("ScenarioMaster");
                 });
 
             modelBuilder.Entity("AuthModule.API.Models.RolePermission", b =>

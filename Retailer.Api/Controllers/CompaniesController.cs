@@ -21,9 +21,9 @@ namespace Retailer.Api.Controllers
         /// <summary>
         /// Admin: get company by id
         /// </summary>
-        [HttpGet("{id:int}")]
+        [HttpGet("{id}")]
         [Authorize]
-        public async Task<IActionResult> Get(string id)
+        public async Task<IActionResult> Get(Guid id)
         {
             var dto = await _companyService.GetCompanyByIdAsync(id);
             if (dto == null) return NotFound();
@@ -41,7 +41,7 @@ namespace Retailer.Api.Controllers
                 return Unauthorized("companyId claim missing.");
 
             // Fetch company from database
-            var company = await _companyService.GetCompanyByIdAsync(companyIdString);
+            var company = await _companyService.GetCompanyByIdAsync(Guid.Parse(companyIdString));
 
             if (company == null)
                 return NotFound("Company not found.");
@@ -64,9 +64,9 @@ namespace Retailer.Api.Controllers
         /// <summary>
         /// Admin: update top-level company
         /// </summary>
-        [HttpPut("{id:int}")]
+        [HttpPut("{id}")]
         [Authorize]
-        public async Task<IActionResult> Update(int id, [FromBody] CompanyDto dto)
+        public async Task<IActionResult> Update(Guid id, [FromBody] CompanyDto dto)
         {
             if (dto == null) return BadRequest();
             var ok = await _companyService.UpdateCompanyAsync(id, dto);

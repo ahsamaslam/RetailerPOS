@@ -16,6 +16,8 @@ namespace AuthModule.API.Data
         public DbSet<Permission> Permissions { get; set; } = null!;
         public DbSet<RolePermission> RolePermissions { get; set; } = null!;
         public DbSet<UserPermission> UserPermissions { get; set; } = null!;
+        public DbSet<ScenarioMaster> ScenarioMaster { get; set; } = null!;
+        public DbSet<CompanyScenario> CompanyScenario { get; set; } = null!;
 
 
         protected override void OnModelCreating(ModelBuilder builder)
