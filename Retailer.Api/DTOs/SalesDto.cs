@@ -26,5 +26,9 @@
         public decimal TaxPercentage { get; set; }
         public decimal TaxAmount { get; set; }
         public decimal Amount { get; set; }
-    }
+		public decimal extraTaxP { get; set; }
+		public decimal furtherTaxP { get; set; }
+		public decimal extraTax { get; set; }
+		public decimal furtherTax { get; set; }
+	}
 }

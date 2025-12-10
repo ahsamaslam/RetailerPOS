@@ -4,7 +4,9 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Extensions.Hosting;
 using Retailer.POS.Web.ApiDTOs;
 using Retailer.POS.Web.Services;
+using Retailer.Web.ApiDTOs;
 using Retailer.Web.Dtos;
+using Retailer.Web.Models;
 using Retailer.Web.Pages;
 
 namespace Retailer.POS.Web.Pages.Sales
@@ -19,16 +21,17 @@ namespace Retailer.POS.Web.Pages.Sales
         {
             Details = new List<SalesDetailDto> { new SalesDetailDto() }
         };
-
-        public List<ItemSelectListItem> ItemsList { get; set; } = new();
+		public CompanyDto company { get; set; } = new();
+		public List<ItemSelectListItem> ItemsList { get; set; } = new();
         public List<SelectListItem> SaleType { get; set; } = new List<SelectListItem>() { new SelectListItem {  Value="1", Text="Cash"}
         , new SelectListItem { Value = "1", Text = "Credit" } };
         public List<SelectListItem> CustomersList { get; set; } = new();
 
         public async Task<IActionResult> OnGetAsync(int? id)
         {
-            // Load dropdown data
-            var items = await _api.GetItemsAsync();
+			  company = await _api.GetUserCompanyAsync();
+			// Load dropdown data
+			var items = await _api.GetItemsAsync();
             ItemsList = items.Select(i => new ItemSelectListItem { Value = i.Id.ToString(), Text = i.Name , rate = i.Rate, cost=i.Cost, qty =  i.QtyInHand }).ToList();
 
             var customers = await _api.GetCustomersAsync();

@@ -24,7 +24,7 @@
         <!--end::Container-->
     </div>
     <div class="app-content">
-        <<form method="post" enctype="multipart/form-data">
+        <form method="post" enctype="multipart/form-data">
 
     <div class="row mb-2">
         <div class="col-md-6">
@@ -76,6 +76,22 @@
                     <input asp-for="Input.fbrActive" class="form-check-input" type="checkbox" />
                     <label asp-for="Input.fbrActive" class="form-check-label"></label>
                 </div>
+
+                <div class="col-md-6">
+                    <input asp-for="Input.isGst" class="form-check-input" type="checkbox" />
+                    <label asp-for="Input.isGst" class="form-check-label"></label>
+                    <input asp-for="Input.gstVal" required class="form-control" />
+                </div>
+                <div class="col-md-6">
+                    <input asp-for="Input.isFed" class="form-check-input" type="checkbox" />
+                    <label asp-for="Input.isFed" class="form-check-label"></label>
+                    <input asp-for="Input.fedVal" required class="form-control" />
+                </div>
+                <div class="col-md-6">
+                    <input asp-for="Input.isEd" class="form-check-input" type="checkbox" />
+                    <label asp-for="Input.isEd" class="form-check-label"></label>
+                    <input asp-for="Input.edVal" required class="form-control" />
+                </div>
                 <div class="col-md-6">
                     <div class="form-group">
                         <div class="row mb-2">
@@ -87,7 +103,7 @@
                                         alt="Feature Image" style="max-width:300px;  " />
                                 </div>
                     <div class="col-md-12">
-                    <label asp-for="Input.logo" class="control-label">Feature Image</label>
+                                    <label asp-for="LogoFile" class="control-label">Feature Image</label>
 
                     <!-- File upload input -->
                                     <input asp-for="LogoFile" type="file" class="form-control" accept="image/*" onchange="previewImage(event)" />

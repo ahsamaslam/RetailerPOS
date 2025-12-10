@@ -3,6 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Retailer.Api.DTOs
 {
+    
     public class CompanyDto
     {
         public string Id { get; set; }
@@ -23,5 +24,18 @@ namespace Retailer.Api.DTOs
         public string? fbrToken { get; set; } 
         public int invoiceCounter { get; set; } = 0;
         public int invoicePerPage { get; set; } = 0;
+        public bool isGst { get; set; } = false;
+        public double gstVal { get; set; } = 0;
+        public bool isEd { get; set; } = false;
+        public double edVal { get; set; } = 0;
+        public bool isFed { get; set; } = false;
+        public double fedVal { get; set; } = 0;
+        public CompanyType CompanyType { get; set; }
+    }
+    public enum CompanyType
+    {
+        None,
+        FBR,
+        PRAL
     }
 }

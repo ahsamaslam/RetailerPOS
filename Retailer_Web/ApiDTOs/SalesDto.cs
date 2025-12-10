@@ -15,7 +15,7 @@ namespace Retailer.POS.Web.ApiDTOs
         public decimal TotalDiscount { get; set; }
         public decimal TaxAmount { get; set; }
         public decimal BalanceAmount { get; set; }
-        public string? CustomerCode { get; set; }
+        public int? CustomerCode { get; set; }
         public List<SalesDetailDto> Details { get; set; } = new();
     }
 
@@ -30,7 +30,11 @@ namespace Retailer.POS.Web.ApiDTOs
         public decimal subTotal { get; set; }
         public decimal Discount { get; set; }
         public decimal TaxPercentage { get; set; }
-        public decimal TaxAmount { get; set; }
+		public decimal extraTax { get; set; }
+		public decimal extraTaxP { get; set; }
+		public decimal furtherTaxP { get; set; }
+		public decimal furtherTax { get; set; }
+		public decimal TaxAmount { get; set; }
         public decimal Amount { get; set; }
         [NotMapped]
         public decimal Stock { get; set; }

@@ -1,0 +1,161 @@
+﻿@page "{id:int}"
+@model Retailer.Web.Pages.Sales.PrintA4Model
+ @{
+    Layout = null; // Exclude the layout
+    ViewData["Title"] = "Sale Detailss";
+}
+ 
+  <!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Invoice - Caliph Pharmaceuticals</title>
+  <style>
+    :root{
+      --accent:#0b6fb3;
+      --muted:#666;
+      --paper:#fff;
+      --bg:#f4f6f8;
+      --maxw:900px;
+    }
+    html,body{height:100%;margin:0;font-family:Inter,Segoe UI,Roboto,Arial,sans-serif;background:var(--bg);color:#111;}
+    .wrap{max-width:var(--maxw);margin:28px auto;padding:24px;background:var(--paper);box-shadow:0 6px 24px rgba(20,30,40,0.08);border-radius:8px;}
+    header{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:18px;}
+    .brand{display:flex;gap:16px;align-items:center;}
+    .logo{
+      width:84px;height:84px;border-radius:8px;background:linear-gradient(135deg,var(--accent),#5bb0e6);
+      display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:18px;
+    }
+    .company{line-height:1.15;}
+    .company h2{margin:0;font-size:18px;letter-spacing:0.2px}
+    .company p{margin:3px 0;color:var(--muted);font-size:13px}
+    .meta{min-width:240px;text-align:right;font-size:14px;}
+    .meta .title{font-weight:700;color:var(--muted);font-size:12px}
+    .meta .value{font-weight:700;font-size:16px;margin-top:6px}
+    .meta .sub{color:var(--muted);font-size:13px;margin-top:6px}
+    .section{display:flex;gap:18px;margin:18px 0;padding:14px;border-radius:6px;background:#fbfdff;border:1px solid rgba(10,70,120,0.03)}
+    .section .left{flex:1}
+    .section .right{width:260px}
+    .bill-to{font-size:14px}
+    .bill-to h4{margin:0 0 6px 0}
+    table{width:100%;border-collapse:collapse;margin-top:10px;font-size:14px}
+    th,td{padding:10px 8px;border-bottom:1px solid #e9eef2;text-align:left}
+    th{background:#fafbfc;font-weight:600;font-size:13px;color:var(--muted)}
+    td.right, th.right{text-align:right}
+    tfoot td{border:none;padding-top:12px;font-weight:700}
+    .totals{margin-top:12px;display:flex;justify-content:flex-end}
+    .totals table{width:380px}
+    .notes{margin-top:18px;color:var(--muted);font-size:13px}
+    .footer{margin-top:22px;border-top:1px solid #eef2f5;padding-top:12px;color:var(--muted);font-size:13px;display:flex;justify-content:space-between;align-items:center}
+    
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div class="brand">
+        <div class="logo">CP</div>
+        <div class="company">
+          <h2>Caliph Pharmaceuticals (PVT) Ltd</h2>
+          <p>PLOT NO.-17, SIZ INDUSTRIAL ESTATE, RISALPUR, Nowshera, KHYBER PAKHTUNKHWA, Pakistan</p>
+          <p style="font-size:12px;color:var(--muted)">FBR Invoice #: <strong>3146017DIZLESTN343479</strong></p>
+        </div>
+      </div>
+
+      <div class="meta">
+        <div class="title">INVOICE</div>
+        <div class="value">Inv No. 96</div>
+        <div class="sub">Date: <strong>30/11/2025</strong></div>
+        <div class="sub">Due Date: <strong>30/11/2025</strong></div>
+        <div class="sub" style="margin-top:10px">Account No: <strong>1005</strong></div>
+      </div>
+    </header>
+
+    <div class="section" aria-labelledby="bill-to">
+      <div class="left">
+        <div class="bill-to" id="bill-to">
+          <h4>Bill To</h4>
+          <div><strong>Imtiaz Ali</strong></div>
+          <div>Karachi, SINDH</div>
+        </div>
+      </div>
+      <div class="right">
+        <div style="font-size:13px;color:var(--muted)">Terms</div>
+        <div style="font-weight:700;margin-top:6px">Days: 0</div>
+      </div>
+    </div>
+
+    <main>
+      <table aria-describedby="items">
+        <thead>
+          <tr>
+            <th style="width:6%">Sr</th>
+            <th style="width:12%">Code</th>
+            <th>Product Name</th>
+            <th style="width:8%">Unit</th>
+            <th class="right" style="width:10%">Quantity</th>
+            <th class="right" style="width:12%">Rate</th>
+            <th class="right" style="width:14%">Amount</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>1</td>
+            <td>1017</td>
+            <td>CALSIC Capsules 40mg (14's)</td>
+            <td>Each</td>
+            <td class="right">315</td>
+            <td class="right">70</td>
+            <td class="right">22,050.00</td>
+          </tr>
+          <tr>
+            <td>2</td>
+            <td>1020</td>
+            <td>CALSOZOLE Capsules 20mg</td>
+            <td>Each</td>
+            <td class="right">275</td>
+            <td class="right">80</td>
+            <td class="right">22,000.00</td>
+          </tr>
+          <tr>
+            <td>3</td>
+            <td>1022</td>
+            <td>CEPMOL-T Tablets</td>
+            <td>Each</td>
+            <td class="right">325</td>
+            <td class="right">100</td>
+            <td class="right">32,500.00</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="totals">
+        <table>
+          <tbody>
+            <tr>
+              <td style="padding:8px 12px">Sub Total:</td>
+              <td class="right" style="padding:8px 12px">76,550.00</td>
+            </tr>
+            <tr>
+              <td style="padding:8px 12px">GST:</td>
+              <td class="right" style="padding:8px 12px">765.50</td>
+            </tr>
+            <tr style="border-top:1px dashed #e1e7eb">
+              <td style="padding:12px">Total:</td>
+              <td class="right" style="padding:12px;font-size:16px">Rs. 77,315.50</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p class="notes">This is a system generated invoice and does not require any signatures.</p>
+    </main>
+
+    <div class="footer">
+      <div>If you have any questions about this invoice, please contact accounts@caliphpharma.example</div>
+      <div style="font-size:12px;color:var(--muted)">Page 1</div>
+    </div>
+  </div>
+</body>
+</html>

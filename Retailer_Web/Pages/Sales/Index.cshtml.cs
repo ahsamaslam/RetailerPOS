@@ -23,5 +23,12 @@ namespace Retailer.POS.Web.Pages.Sales
             Sales = (await _api.GetAllSaleDateWise(sdate, edate)).ToList();
             // Sales = (await _api.GetAllSaleDateWise(sdate,edate)).ToList();
         }
+
+        public async Task OnPrint()
+        {
+
+            Sales = (await _api.GetAllSaleDateWise(sdate, edate)).ToList();
+            // Sales = (await _api.GetAllSaleDateWise(sdate,edate)).ToList();
+        }
     }
 }

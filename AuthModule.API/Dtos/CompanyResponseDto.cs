@@ -18,6 +18,19 @@
         public int invoicePerPage { get; set; } = 0;
         public string? Province { get; set; } = "";
         public string? logoPath { get; set; } = "";
+        public bool isGst { get; set; } = false;
+        public double gstVal { get; set; } = 0;
+        public bool isEd { get; set; } = false;
+        public double edVal { get; set; } = 0;
+        public bool isFed { get; set; } = false;
+        public double fedVal { get; set; } = 0;
+        public CompanyType CompanyType { get; set; }
+    }
+    public enum CompanyType
+    {
+        None,
+        FBR,
+        PRAL
     }
 
 }

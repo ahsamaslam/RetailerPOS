@@ -36,6 +36,9 @@ namespace AuthModule.API.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
+                    b.Property<int>("CompanyType")
+                        .HasColumnType("int");
+
                     b.Property<string>("ContactEmail")
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
@@ -72,6 +75,9 @@ namespace AuthModule.API.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
+                    b.Property<double>("edVal")
+                        .HasColumnType("float");
+
                     b.Property<bool>("fbrActive")
                         .HasColumnType("bit");
 
@@ -79,11 +85,26 @@ namespace AuthModule.API.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
+                    b.Property<double>("fedVal")
+                        .HasColumnType("float");
+
+                    b.Property<double>("gstVal")
+                        .HasColumnType("float");
+
                     b.Property<int>("invoiceCounter")
                         .HasColumnType("int");
 
                     b.Property<int>("invoicePerPage")
                         .HasColumnType("int");
+
+                    b.Property<bool>("isEd")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("isFed")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("isGst")
+                        .HasColumnType("bit");
 
                     b.Property<string>("logoPath")
                         .HasMaxLength(100)

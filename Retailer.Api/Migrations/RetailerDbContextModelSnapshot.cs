@@ -626,10 +626,16 @@ namespace Retailer.Api.Migrations
                     b.Property<decimal>("extraTax")
                         .HasColumnType("decimal(18,2)");
 
+                    b.Property<decimal>("extraTaxP")
+                        .HasColumnType("decimal(18,2)");
+
                     b.Property<decimal>("fedPayable")
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<decimal>("furtherTax")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("furtherTaxP")
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<string>("hsCode")

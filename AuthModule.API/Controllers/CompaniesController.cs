@@ -48,7 +48,19 @@ namespace AuthModule.API.Controllers
                 Address = dto.Address,
                 ContactEmail = dto.ContactEmail,
                 ContactPhone = dto.ContactPhone,
-                IsActive = dto.IsActive
+                IsActive = dto.IsActive ,
+                CNIC = dto.CNIC,
+                NTN  = dto.NTN,
+                fbrActive = dto.fbrActive,
+                pralToken= dto.pralToken,
+                fbrToken = dto.fbrToken,
+                 edVal = dto.edVal,
+                 gstVal  = dto.gstVal,
+                 fedVal= dto.fedVal,
+                 isGst = dto.isGst,
+                 isEd = dto.isEd,
+                 isFed = dto.isFed,
+                 
             }; 
             await _db.Companies.AddAsync(company);
             await _db.SaveChangesAsync(); 
@@ -101,7 +113,12 @@ namespace AuthModule.API.Controllers
             company.NTN = dto.NTN; 
             company.Province = dto.Province;
             company.logoPath = dto.logoPath;
-
+            company.isEd = dto.isEd;
+            company.isGst = dto.isGst;
+            company.isFed = dto.isFed;
+            company.edVal = dto.edVal;
+            company.gstVal = dto.gstVal; 
+            company.fedVal = dto.fedVal;   
             _db.Companies.Update(company);
             await _db.SaveChangesAsync();
 
@@ -138,7 +155,14 @@ namespace AuthModule.API.Controllers
                   invoicePerPage = c.invoicePerPage,
                   Province = c.Province,
                   CNIC= c.CNIC,NTN = c.NTN,
-                logoPath= c.logoPath
+                logoPath= c.logoPath,
+                isFed = c.isFed,
+                isEd= c.isEd , 
+                isGst = c.isGst,
+                gstVal= c.gstVal,
+                fedVal = c.fedVal,
+                edVal = c.edVal,
+                CompanyType = c.CompanyType
 
             };
     }

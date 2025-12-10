@@ -8,10 +8,29 @@
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="8.0.0" />
     <PackageReference Include="NToastNotify" Version="8.0.0" />
+    <PackageReference Include="ReportViewerCore.NETCore" Version="15.1.27" />
   </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.CodeAnalysis" Version="4.10.0" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.10.0" />
+  </ItemGroup>
+
   <ItemGroup>
     <Folder Include="wwwroot\lib\" />
     <Folder Include="wwwroot\uploads\CompanyLogo\" />
     <Folder Include="wwwroot\uploads\UserLogo\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Update="DataSet\saleDS.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>saleDS.xsd</DependentUpon>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Update="DataSet\saleDS.xsd">
+      <Generator>MSDataSetGenerator</Generator>
+      <LastGenOutput>saleDS.Designer.cs</LastGenOutput>
+    </None>
   </ItemGroup>
 </Project>

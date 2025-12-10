@@ -18,6 +18,7 @@ namespace Retailer.Web.Setting
         }
         [BindProperty]
         public IFormFile? LogoFile { get; set; } // For new file upload
+        public string? logoPath { get; set; } // For new file upload
 
         [BindProperty]
         public CompanyViewModel Input { get; set; } = new();
@@ -59,6 +60,7 @@ namespace Retailer.Web.Setting
         { 
             var company = await _api.GetUserCompanyAsync();
            
+            
             if (company != null)
             {
                 companyID =  company.Id;
@@ -78,9 +80,21 @@ namespace Retailer.Web.Setting
                       fbrActive = company.fbrActive ,
                       Province =  company.Province,
                       logoPath = company.logoPath,
+                      CompanyType = company.CompanyType,   
+                      isEd =  company.isEd , 
+                      isFed = company.isFed,
+                      isGst = company.isGst,
+                      gstVal =  company.gstVal,
+                      fedVal=  company.fedVal,
+                       edVal = company.edVal
+                      
                 };
-                if(company.logoPath!=null)
-                LogoFile = GetFormFileFromPath( company.logoPath);
+                if (company.logoPath != null)
+                {
+                    LogoFile = GetFormFileFromPath(company.logoPath);
+                    logoPath = company.logoPath;
+                }
+                 
             }           
         }
         public async Task<string> SaveLogoAsync(IFormFile? logo)
@@ -118,6 +132,8 @@ namespace Retailer.Web.Setting
         public async Task<IActionResult> OnPostAsync()
         {
             if (!ModelState.IsValid) return Page();
+            //if(logoPath!=null)
+
             Input.logoPath =await SaveLogoAsync(LogoFile);
               (bool Success, string Message) = await _api.UpdateCompanyAsync(Input);
 
