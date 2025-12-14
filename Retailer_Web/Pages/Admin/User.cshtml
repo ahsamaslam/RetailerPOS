@@ -4,47 +4,344 @@
     ViewData["Title"] = "Manage Users";
 }
 
-<h2>Users</h2>
+<!-- Page header -->
+<div class="d-flex align-items-center justify-content-between mb-4">
+    <h1 class="h3 mb-0">Users</h1>
+</div>
 
-<h3>Create User</h3>
-<form method="post">
-    <input asp-for="NewUser.UserName" placeholder="Username" required />
-    <input asp-for="NewUser.Email" type="email" placeholder="Email" required />
-    <input asp-for="NewUser.Password" type="password" placeholder="Password" required />
-    <button type="submit">Create User</button>
-</form>
+<!-- Flash / TempData messages -->
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success">@TempData["Success"]</div>
+}
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger">@TempData["Error"]</div>
+}
 
-<hr />
+<!-- Search & filters -->
+<div class="row mb-3">
+    <div class="col-md-6">
+        <input id="searchBox" class="form-control" placeholder="Search by username or email..." />
+    </div>
+    <div class="col-md-6">
+        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createuserModalpopup" data-mode="create">
+            <i class="bi bi-plus-lg"></i> Create User
+        </button>
+    </div>
+</div>
 
-<h3>All Users</h3>
-<table border="1">
-    <tr>
-        <th>Username</th>
-        <th>Email</th>
-        <th>Roles</th>
-        <th>Assign Role</th>
-    </tr>
-    @foreach (var user in Model.Users)
-    {
-        <tr>
-            <td>@user.UserName</td>
-            <td>@user.Email</td>
-            <td>@string.Join(", ", user.Roles)</td>
-            <form method="post" asp-page-handler="AssignRole">
-            <td>
-                    <input type="hidden" name="UserId" value="@user.Id" />
-                    <select name="RoleName" class="form-select" required>
-                        <option value="">Select Role</option>
-                        @foreach (var role in Model.AllRoles)
+<!-- Users table -->
+<div class="table-responsive">
+    <table class="table table-hover align-middle">
+        <thead class="table-light">
+            <tr>
+                <th style="width:40px;"></th>
+                <th>Username</th>
+                <th>Email</th>
+                <th style="min-width:220px">Roles</th>
+                <th style="width:200px" class="text-end">Actions</th>
+            </tr>
+        </thead>
+        <tbody id="usersTableBody">
+            @foreach (var user in Model.Users)
+            {
+                <tr data-username="@user.UserName" data-email="@user.Email">
+                    <td>
+                        <!-- avatar placeholder -->
+                        <img src="@user.AvatarUrl ?? Url.Content(" ~ /assets/img/user2-160x160.jpg")" class="rounded-circle" style="width:36px;height:36px;object-fit:cover" />
+                    </td>
+                    <td class="align-middle">@user.UserName</td>
+                    <td class="align-middle">@user.Email</td>
+                    <td class="align-middle">
+                        @if (user.Roles != null && user.Roles.Any())
                         {
-                            <option value="@role">@role</option>
+                            foreach (var r in user.Roles)
+                            {
+                                <span class="badge bg-secondary me-1">@r</span>
+                            }
                         }
-                    </select>                
-            </td>
-            <td>
-                <button type="submit" class="btn btn-primary btn-sm mt-1">Assign</button>
-            </td>
+                        else
+                        {
+                            <span class="text-muted">No roles</span>
+                        }
+                    </td>
+                    <td class="text-end">
+                        <div class="d-inline-flex">
+
+                            <!-- Edit -->
+                            <button class="btn btn-outline-primary btn-sm btn-icon action-btn"
+                                    data-bs-toggle="modal" data-bs-target="#createuserModalpopup"
+                                    data-mode="edit"
+                                    data-userid="@user.Id"
+                                    data-username="@user.UserName"
+                                    data-email="@user.Email"
+                                    data-currentroles="@string.Join(",", user.Roles)"
+                                    title="Edit">
+                                <i class="bi bi-pencil"></i>
+                            </button>
+
+                            <!-- Assign Roles -->
+                            <button class="btn btn-outline-secondary btn-sm btn-icon action-btn"
+                                    data-bs-toggle="modal" data-bs-target="#rolesModal"
+                                    data-userid="@user.Id"
+                                    data-username="@user.UserName"
+                                    data-currentroles="@string.Join(",", user.Roles)"
+                                    title="Manage Roles">
+                                <i class="bi bi-person-plus"></i>
+                            </button>
+
+                            <!-- Block / Unblock -->
+                            @if (user.IsBlocked)
+                            {
+                                <form method="post" asp-page-handler="Unblock" class="d-inline action-btn">
+                                    <input type="hidden" name="UserId" value="@user.Id" />
+                                    <button class="btn btn-warning btn-sm btn-icon" title="Unblock user">
+                                        <i class="bi bi-unlock"></i>
+                                    </button>
+                                </form>
+                            }
+                            else
+                            {
+                                <form method="post" asp-page-handler="Block" class="d-inline action-btn"
+                                      onsubmit="return confirm('Block user @user.UserName?');">
+                                    <input type="hidden" name="UserId" value="@user.Id" />
+                                    <button class="btn btn-outline-warning btn-sm btn-icon" title="Block user">
+                                        <i class="bi bi-lock"></i>
+                                    </button>
+                                </form>
+                            }
+
+                            <!-- Delete -->
+                            <form method="post" asp-page-handler="Delete" class="d-inline action-btn"
+                                  onsubmit="return confirm('Delete user @user.UserName? This cannot be undone.');">
+                                <input type="hidden" name="UserId" value="@user.Id" />
+                                <button class="btn btn-outline-danger btn-sm btn-icon" title="Delete user">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </form>
+
+                        </div>
+                    </td>
+
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<!-- Pagination area (if needed) -->
+@if (Model.TotalPages > 1)
+{
+    <nav class="mt-3" aria-label="page-navigation">
+        <ul class="pagination justify-content-center">
+            @for (int i = 1; i <= Model.TotalPages; i++)
+            {
+                <li class="page-item @(i == Model.Page ? "active" : "")">
+                    <a class="page-link" href="?page=@i">@i</a>
+                </li>
+            }
+        </ul>
+    </nav>
+}
+
+<!-- ---------- Create / Edit User Modal ---------- -->
+<div class="modal fade" id="createuserModalpopup" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-md modal-dialog-centered">
+        <div class="modal-content">
+            <form method="post" id="userForm">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="userModalTitle">Create User</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" asp-for="EditUser.Id" id="EditUser_Id" />
+
+                    <div class="mb-3">
+                        <label class="form-label">Username</label>
+                        <input asp-for="EditUser.UserName" class="form-control" id="EditUser_UserName" required />
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Email</label>
+                        <input asp-for="EditUser.Email" type="email" class="form-control" id="EditUser_Email" required />
+                    </div>
+
+                    <div class="mb-3" id="passwordRow">
+                        <label class="form-label">Password</label>
+                        <input asp-for="EditUser.Password" type="password" class="form-control" id="EditUser_Password" />
+                    </div>
+                    <div class="mb-3" id="currentRoleRow">
+                        <label class="form-label">Roles</label>
+                        <div class="form-text" id="EditUser_CurrentRole"> <span class="badge bg-secondary me-1"></span></div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Assign role</label>
+                        <select asp-for="EditUser.InitialRole" class="form-select">
+                            <option value="">-- none --</option>
+                            @foreach (var r in Model.AllRoles)
+                            {
+                                <option value="@r">@r</option>
+                            }
+                        </select>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button id="userFormSubmit" type="submit" class="btn btn-primary">Save</button>
+                </div>
             </form>
-        </tr>
-    }
-</table>
+        </div>
+    </div>
+</div>
+
+<!-- ---------- Roles Modal (assign/remove multiple roles) ---------- -->
+<div class="modal fade" id="rolesModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-md modal-dialog-centered">
+        <div class="modal-content">
+            <form method="post" asp-page-handler="AssignRoles" id="rolesForm">
+                <div class="modal-header">
+                    <h5 class="modal-title">Manage Roles for <span id="rolesModalUserName"></span></h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+
+                <div class="modal-body">
+                    <input type="hidden" name="UserId" id="rolesForm_UserId" />
+                    <div class="mb-2">
+                        <label class="form-label">Current roles</label>
+                        <div id="currentRolesContainer" class="mb-2"></div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Toggle roles</label>
+                        <div class="row">
+                            @foreach (var role in Model.AllRoles)
+                            {
+                                <div class="col-6 mb-2">
+                                    <div class="form-check">
+                                        <input class="form-check-input role-checkbox" name="SelectedRoles" type="checkbox" value="@role" id="role_@role" />
+                                        <label class="form-check-label" for="role_@role">@role</label>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                        <div class="form-text">Check roles to assign; uncheck to remove.</div>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-success">Save Roles</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Small client-side helpers -->
+@section Scripts {
+    <script>
+        (function () {
+            const userModalEl = document.getElementById('createuserModalpopup');
+            userModalEl?.addEventListener('show.bs.modal', function (e) {
+                const trigger = e.relatedTarget;
+                const mode = trigger?.getAttribute('data-mode') || 'create';
+                const title = document.getElementById('userModalTitle');
+                const passwordRow = document.getElementById('passwordRow');
+                const currentRolesRow = document.getElementById('currentRoleRow');
+
+                // clear form values if create
+                if (mode === 'create') {
+                    title.textContent = 'Create User';
+                    document.getElementById('EditUser_Id').value = '';
+                    document.getElementById('EditUser_UserName').value = '';
+                    document.getElementById('EditUser_Email').value = '';
+                    document.getElementById('EditUser_Password').value = '';
+                    //passwordRow.style.display = 'block';
+                    currentRolesRow.style.display = 'none';
+                    // set form action to create handler
+                    document.getElementById('userForm').setAttribute('action', '?handler=Create');
+                } else {
+                    title.textContent = 'Edit User';
+                    const id = trigger.getAttribute('data-userid');
+                    const username = trigger.getAttribute('data-username');
+                    const email = trigger.getAttribute('data-email');
+                    const currentRolesRaw = trigger?.getAttribute('data-currentroles') || '';
+                    const currentRoles = currentRolesRaw ? currentRolesRaw.split(',') : [];
+
+                    document.getElementById('EditUser_Id').value = id;
+                    document.getElementById('EditUser_UserName').value = username ?? '';
+                    document.getElementById('EditUser_Email').value = email ?? '';
+                    document.getElementById('EditUser_Password').value = '';
+                    currentRolesRow.style.display = 'block';
+                    //document.getElementById('EditUser_CurrentRole').innerHTML = "<span class='badge bg-secondary me-1'>" + currentRoles + "</span>"
+
+                    const container = document.getElementById('EditUser_CurrentRole');
+                    container.innerHTML = '';
+                    if (currentRoles.length) {
+                        currentRoles.forEach(r => {
+                            const s = document.createElement('span');
+                            s.className = 'badge bg-secondary me-1';
+                            s.textContent = r;
+                            container.appendChild(s);
+                        });
+                    } else {
+                        container.innerHTML = '<small class="text-muted">No roles assigned</small>';
+                    }
+
+                    // hide password unless explicitly changing it
+                    //passwordRow.style.display = 'none';
+                    // set form action to edit handler
+                    document.getElementById('userForm').setAttribute('action', '?handler=Edit');
+                }
+            });
+
+            // Roles modal populate
+            const rolesModalEl = document.getElementById('rolesModal');
+            rolesModalEl?.addEventListener('show.bs.modal', function (e) {
+                const trigger = e.relatedTarget;
+                const userId = trigger?.getAttribute('data-userid');
+                const username = trigger?.getAttribute('data-username');
+                const currentRolesRaw = trigger?.getAttribute('data-currentroles') || '';
+                const currentRoles = currentRolesRaw ? currentRolesRaw.split(',') : [];
+
+                document.getElementById('rolesModalUserName').textContent = username || '';
+                document.getElementById('rolesForm_UserId').value = userId || '';
+
+                // show current roles as badges
+                const container = document.getElementById('currentRolesContainer');
+                container.innerHTML = '';
+                if (currentRoles.length) {
+                    currentRoles.forEach(r => {
+                        const s = document.createElement('span');
+                        s.className = 'badge bg-secondary me-1';
+                        s.textContent = r;
+                        container.appendChild(s);
+                    });
+                } else {
+                    container.innerHTML = '<small class="text-muted">No roles assigned</small>';
+                }
+
+                // set checkboxes state according to current roles
+                document.querySelectorAll('.role-checkbox').forEach(cb => {
+                    cb.checked = currentRoles.includes(cb.value);
+                });
+
+                // ensure form posts to handler AssignRoles
+                document.getElementById('rolesForm').setAttribute('action', '?handler=AssignRoles');
+            });
+
+            // Simple search filter
+            const searchBox = document.getElementById('searchBox');
+            searchBox?.addEventListener('input', function (e) {
+                const q = this.value.trim().toLowerCase();
+                document.querySelectorAll('#usersTableBody tr').forEach(tr => {
+                    const username = tr.dataset.username?.toLowerCase() || '';
+                    const email = tr.dataset.email?.toLowerCase() || '';
+                    tr.style.display = (username.includes(q) || email.includes(q)) ? '' : 'none';
+                });
+            });
+        })();
+    </script>
+}

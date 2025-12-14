@@ -1,45 +1,77 @@
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.AspNetCore.Mvc;
+using Retailer.Web.Models;
 using Retailer.POS.Web.Services;
-using Retailer.Web.Pages;
-using System.Net.Http.Json;
 
-namespace Admin.Pages.Admin
+namespace Retailer.Web.Pages.Admin
 {
+
     public class PermissionsModel : BasePageModel
     {
         private readonly HttpClient _client;
         private readonly IApiClient _api;
-        public PermissionsModel(IHttpClientFactory factory,IApiClient api) : base(api)
+
+        public PermissionsModel(IHttpClientFactory factory,IApiClient api):base(api)
         {
-            _client = factory.CreateClient();
-            _client.BaseAddress = new Uri("https://localhost:7001/api/admin/");
+            _client = factory.CreateClient("AuthApi");
             _api = api;
         }
 
-        [BindProperty]
-        public CreatePermissionDto NewPermission { get; set; }
-
         public List<PermissionViewModel> Permissions { get; set; } = new();
+
+        [BindProperty]
+        public PermissionDto EditPermission { get; set; } = new();
 
         public async Task OnGetAsync()
         {
-            Permissions = await _client.GetFromJsonAsync<List<PermissionViewModel>>("permissions") ?? new List<PermissionViewModel>();
+            Permissions = await _client
+                .GetFromJsonAsync<List<PermissionViewModel>>("api/admin/permissions")
+                ?? new();
         }
 
-        public async Task<IActionResult> OnPostAsync()
+        public async Task<IActionResult> OnPostCreateAsync()
         {
-            var response = await _client.PostAsJsonAsync("permissions", NewPermission);
-            if (!response.IsSuccessStatusCode)
+            var res = await _client.PostAsJsonAsync("api/admin/permissions", EditPermission);
+
+            if (!res.IsSuccessStatusCode)
             {
-                ModelState.AddModelError(string.Empty, "Error creating permission");
+                ModelState.AddModelError(string.Empty, "Failed to create permission.");
                 await OnGetAsync();
                 return Page();
             }
+
+            TempData["Success"] = "Permission created.";
+            return RedirectToPage();
+        }
+
+        public async Task<IActionResult> OnPostEditAsync()
+        {
+            var res = await _client.PutAsJsonAsync(
+                $"api/admin/permissions/{EditPermission.Id}", EditPermission);
+
+            if (!res.IsSuccessStatusCode)
+            {
+                ModelState.AddModelError(string.Empty, "Failed to update permission.");
+                await OnGetAsync();
+                return Page();
+            }
+
+            TempData["Success"] = "Permission updated.";
+            return RedirectToPage();
+        }
+
+        public async Task<IActionResult> OnPostDeleteAsync(int permissionId)
+        {
+            var res = await _client.DeleteAsync($"api/admin/permissions/{permissionId}");
+
+            if (!res.IsSuccessStatusCode)
+            {
+                TempData["Error"] = "Failed to delete permission.";
+                return RedirectToPage();
+            }
+
+            TempData["Success"] = "Permission deleted.";
             return RedirectToPage();
         }
     }
-
-    public class PermissionViewModel { public int Id { get; set; } public string Name { get; set; } = ""; public string? Description { get; set; } }
-    public record CreatePermissionDto(string Name, string? Description);
 }

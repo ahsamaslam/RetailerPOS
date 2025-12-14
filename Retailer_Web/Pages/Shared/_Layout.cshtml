@@ -1,7 +1,4 @@
-﻿@using Microsoft.AspNetCore.Http
-@inject IHttpContextAccessor HttpContextAccessor
-
-@await Component.InvokeAsync("NToastNotify")
+﻿@await Component.InvokeAsync("NToastNotify")
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -28,6 +25,27 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jsvectormap@1.5.3/dist/css/jsvectormap.min.css" crossorigin="anonymous" />
 
     @RenderSection("Head", required: false)
+
+    <style>
+        .btn-icon {
+            width: 36px;
+            height: 32px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+        }
+
+        /* Add spacing between action buttons */
+        .action-btn {
+            margin-right: 6px; /* space between buttons */
+        }
+
+            /* Remove margin on last button */
+            .action-btn:last-child {
+                margin-right: 0;
+            }
+    </style>
 </head>
 <body class="layout-fixed sidebar-expand-lg sidebar-open bg-body-tertiary">
     <div class="app-wrapper">

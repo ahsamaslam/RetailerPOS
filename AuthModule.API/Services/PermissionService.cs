@@ -87,6 +87,15 @@ namespace AuthModule.API.Services
             await _db.SaveChangesAsync();
             return true;
         }
+        public async Task<bool> UpdatePermissionAsync(PermissionDto permissionDto)
+        {
+            var permission = await _db.Permissions.FindAsync(permissionDto.Id);
+            if (permission == null) return false;
+            permission.Name = permissionDto.Name;
+            permission.Description = permissionDto.Description;
+            await _db.SaveChangesAsync();
+            return true;
+        }
         public async Task<List<Permission>> GetPermissionsForDefaultUserAsync() {
 
 

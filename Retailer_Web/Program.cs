@@ -20,7 +20,7 @@ builder.Services.AddHttpClient<IApiClient, ApiClient>(client =>
 builder.Services.AddHttpClient("AuthApi", client =>
 {
     client.BaseAddress = new Uri(builder.Configuration["AuthModule:Authority"]);
-});
+}).AddHttpMessageHandler<TokenDelegatingHandler>();
 
 // IMPORTANT: set cookie as the default scheme for web pages so unauthorized -> redirect
 builder.Services.AddAuthentication(options =>

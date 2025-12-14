@@ -1,11 +1,10 @@
 using Retailer.POS.Web.ApiDTOs;
 using Retailer.POS.Web.Models;
 using Retailer.Web.ApiDTOs;
+using Retailer.Web.Helpers;
 using Retailer.Web.Models;
-using System;
-using System.Net.Http.Headers;
+using System.Net;
 using System.Text.Json;
-using static System.Net.WebRequestMethods;
 
 namespace Retailer.POS.Web.Services;
 public class ApiClient : IApiClient
@@ -13,383 +12,465 @@ public class ApiClient : IApiClient
 
     private readonly HttpClient _http;
     private readonly ILogger<ApiClient> _logger;
-    public ApiClient(HttpClient http, ILogger<ApiClient> logger)
+    private readonly JsonSerializerOptions _jsonOptions = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+    public ApiClient(HttpClient http)
     {
         _http = http;
-        _logger = logger;
+    }
+    public async Task<T> GetAsync<T>(string url)
+    {
+        using var resp = await _http.GetAsync(url);
+        if (resp.StatusCode == HttpStatusCode.Unauthorized)
+            throw new ApiUnauthorizedException();
+
+        resp.EnsureSuccessStatusCode();
+        // null for empty response will be handled by caller if T allows null
+        return await resp.Content.ReadFromJsonAsync<T>(_jsonOptions)
+               ?? throw new InvalidOperationException("Response content was empty.");
+    }
+
+    // Generic POST that returns typed response
+    public async Task<TResponse?> PostAsync<TRequest, TResponse>(string url, TRequest body)
+    {
+        using var resp = await _http.PostAsJsonAsync(url, body, _jsonOptions);
+        if (resp.StatusCode == HttpStatusCode.Unauthorized)
+            throw new ApiUnauthorizedException();
+
+        resp.EnsureSuccessStatusCode();
+        return await resp.Content.ReadFromJsonAsync<TResponse>(_jsonOptions);
+    }
+
+    public async Task<TResponse?> PutAsync<TRequest, TResponse>(string url, TRequest body)
+    {
+        using var resp = await _http.PutAsJsonAsync(url, body, _jsonOptions);
+        if (resp.StatusCode == HttpStatusCode.Unauthorized)
+            throw new ApiUnauthorizedException();
+
+        resp.EnsureSuccessStatusCode();
+        return await resp.Content.ReadFromJsonAsync<TResponse>(_jsonOptions);
+    }
+
+    public async Task DeleteAsync(string url)
+    {
+        using var resp = await _http.DeleteAsync(url);
+        if (resp.StatusCode == HttpStatusCode.Unauthorized)
+            throw new ApiUnauthorizedException();
+
+        resp.EnsureSuccessStatusCode();
+    }
+    /// <summary>
+    /// Helper to parse error message (if server returns JSON { message: "..." }).
+    /// Falls back to raw response body string.
+    /// </summary>
+    private async Task<string> ReadErrorMessageAsync(HttpResponseMessage resp)
+    {
+        try
+        {
+            var dict = await resp.Content.ReadFromJsonAsync<Dictionary<string, string>>(_jsonOptions);
+            if (dict != null && dict.TryGetValue("message", out var m)) return m;
+        }
+        catch { /* ignore JSON parse issues */ }
+
+        try
+        {
+            return await resp.Content.ReadAsStringAsync();
+        }
+        catch { return "Unknown error"; }
     }
     public async Task<List<ItemDto>> GetItemsAsync()
     {
-        var r = await _http.GetAsync("api/items");
-        r.EnsureSuccessStatusCode();
-        return await r.Content.ReadFromJsonAsync<List<ItemDto>>() ?? new List<ItemDto>();
+        return await GetAsync<List<ItemDto>>("api/items");
     }
     public async Task<List<ItemDto>> GetStockItemsAsync(int categoryId, int groupId)
     {
-        var r = await _http.GetAsync("api/items/GetStockItemsAsync/" + categoryId.ToString()+"/" + groupId.ToString());
-        r.EnsureSuccessStatusCode();
-        return await r.Content.ReadFromJsonAsync<List<ItemDto>>() ?? new List<ItemDto>();
+        return await GetAsync<List<ItemDto>>("api/items/GetStockItemsAsync/" + categoryId.ToString() + "/" + groupId.ToString());
     }
-    public async Task<ItemDto?> GetItemAsync(int id)
-    {
-        var r = await _http.GetAsync($"api/items/{id}");
-        if (!r.IsSuccessStatusCode) return null;
-        return await r.Content.ReadFromJsonAsync<ItemDto>();
-    }
-      public async Task<CompanyDto?> GetCompanyAsync()
-    {
-        var r = await _http.GetAsync($"api/Companies");
-        if (!r.IsSuccessStatusCode) return null;
-        return await r.Content.ReadFromJsonAsync<CompanyDto>();
-    }
-    public async Task<CompanyDto?> GetUserCompanyAsync()
-    {
-        var r = await _http.GetAsync($"api/Companies/User");
-        if (!r.IsSuccessStatusCode) return null;
-        return await r.Content.ReadFromJsonAsync<CompanyDto>();
-    }
+    
+    // Items
+    public async Task<ItemDto?> GetItemAsync(int id) => await GetAsync<ItemDto>($"api/items/{id}");
 
     public async Task<(bool Success, string Message)> CreateItemAsync(CreateItemDto dto)
     {
-        var r = await _http.PostAsJsonAsync("api/items", dto);
-        r.EnsureSuccessStatusCode();
-        if (r.IsSuccessStatusCode)
-        {
-            return (true, "Item Type created successfully");
-        }
-        else
-        {
-            var content = await r.Content.ReadFromJsonAsync<Dictionary<string, string>>();
-            string message = content != null && content.ContainsKey("message")
-                ? content["message"]
-                : "Unknown error";
+        using var resp = await _http.PostAsJsonAsync("api/items", dto, _jsonOptions);
+        if (resp.StatusCode == HttpStatusCode.Unauthorized) throw new ApiUnauthorizedException();
 
+        if (resp.IsSuccessStatusCode) return (true, "Item Type created successfully");
+
+        var message = await ReadErrorMessageAsync(resp);
+        return (false, message);
+    }
+
+    public async Task<bool> UpdateItemAsync(ItemDto dto)
+    {
+        if (dto == null) throw new ArgumentNullException(nameof(dto));
+        using var resp = await _http.PutAsJsonAsync($"api/items/{dto.Id}", dto, _jsonOptions);
+        if (resp.StatusCode == HttpStatusCode.Unauthorized) throw new ApiUnauthorizedException();
+        return resp.IsSuccessStatusCode;
+    }
+
+    // Companies
+    public async Task<CompanyDto?> GetCompanyAsync() => await GetAsync<CompanyDto>("api/Companies");
+
+    public async Task<CompanyDto?> GetUserCompanyAsync() => await GetAsync<CompanyDto>("api/Companies/User");
+
+    public async Task<CompanyDto?> GetCompanybyIdAsync(string guid) => await GetAsync<CompanyDto>($"api/Companies/{guid}");
+
+    public async Task<(bool Success, string Message)> UpdateCompanyAsync(CompanyViewModel dto)
+    {
+        try
+        {
+            using var r = await _http.PutAsJsonAsync($"api/Companies/{dto.Id}", dto, _jsonOptions);
+            if (r.StatusCode == HttpStatusCode.Unauthorized) throw new ApiUnauthorizedException();
+
+            if (r.IsSuccessStatusCode) return (true, "Company Updated successfully");
+
+            var message = await ReadErrorMessageAsync(r);
             return (false, message);
         }
-
+        catch (ApiUnauthorizedException) { throw; }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error updating company");
+            return (false, "Unknown error");
+        }
     }
-    public async Task<PurchaseMasterDto> CreatePurchaseAsync(CreatePurchaseDto dto)
-    {
-        var r = await _http.PostAsJsonAsync("api/purchases", dto);
-        r.EnsureSuccessStatusCode();
-        return await r.Content.ReadFromJsonAsync<PurchaseMasterDto>() ?? throw new Exception("No purchase returned");
-    }
-   
 
+    // Authentication
     public async Task<string?> LoginAsync(string username, string password)
     {
-        var r = await _http.PostAsJsonAsync("api/auth/login", new { username, password });
+        using var r = await _http.PostAsJsonAsync("api/auth/login", new { username, password }, _jsonOptions);
+        if (r.StatusCode == HttpStatusCode.Unauthorized) return null;
         if (!r.IsSuccessStatusCode) return null;
-        var obj = await r.Content.ReadFromJsonAsync<JsonElement>();
-        if (obj.TryGetProperty("token", out var t)) return t.GetString();
+
+        var obj = await r.Content.ReadFromJsonAsync<JsonElement>(_jsonOptions);
+        if (obj.ValueKind == JsonValueKind.Object && obj.TryGetProperty("token", out var t))
+            return t.GetString();
+
         return null;
     }
-    public async Task<List<EmployeeDto>> GetEmployeesAsync() =>
-        await _http.GetFromJsonAsync<List<EmployeeDto>>("api/employees") ?? new();
 
-    public async Task<EmployeeDto?> GetEmployeeByIdAsync(int id) =>
-        await _http.GetFromJsonAsync<EmployeeDto>($"api/employees/{id}");
+    // Employees
+    public async Task<List<EmployeeDto>> GetEmployeesAsync() =>
+        await GetAsync<List<EmployeeDto>>("api/employees") ?? new List<EmployeeDto>();
+
+    public async Task<EmployeeDto?> GetEmployeeByIdAsync(int id) => await GetAsync<EmployeeDto>($"api/employees/{id}");
 
     public async Task<bool> CreateEmployeeAsync(EmployeeDto employee)
     {
-        var resp = await _http.PostAsJsonAsync("api/employees", employee);
+        using var resp = await _http.PostAsJsonAsync("api/employees", employee, _jsonOptions);
+        if (resp.StatusCode == HttpStatusCode.Unauthorized) throw new ApiUnauthorizedException();
         return resp.IsSuccessStatusCode;
     }
 
     public async Task<bool> UpdateEmployeeAsync(EmployeeDto employee)
     {
-        var resp = await _http.PutAsJsonAsync($"api/employees/{employee.Id}", employee);
+        using var resp = await _http.PutAsJsonAsync($"api/employees/{employee.Id}", employee, _jsonOptions);
+        if (resp.StatusCode == HttpStatusCode.Unauthorized) throw new ApiUnauthorizedException();
         return resp.IsSuccessStatusCode;
     }
 
-    // Similar for Customer
+    // Customers
     public async Task<List<CustomerViewModel>> GetCustomersAsync() =>
-        await _http.GetFromJsonAsync<List<CustomerViewModel>>("api/customers") ?? new();
+        await GetAsync<List<CustomerViewModel>>("api/customers") ?? new List<CustomerViewModel>();
 
-    public async Task<CustomerViewModel?> GetCustomerByIdAsync(int id) =>
-        await _http.GetFromJsonAsync<CustomerViewModel>($"api/customers/{id}");
+    public async Task<CustomerViewModel?> GetCustomerByIdAsync(int id) => await GetAsync<CustomerViewModel>($"api/customers/{id}");
 
-    public async Task<bool> CreateCustomerAsync(CustomerViewModel customer) =>
-        (await _http.PostAsJsonAsync("api/customers", customer)).IsSuccessStatusCode;
+    public async Task<bool> CreateCustomerAsync(CustomerViewModel customer)
+    {
+        using var resp = await _http.PostAsJsonAsync("api/customers", customer, _jsonOptions);
+        if (resp.StatusCode == HttpStatusCode.Unauthorized) throw new ApiUnauthorizedException();
+        return resp.IsSuccessStatusCode;
+    }
 
-    public async Task<bool> UpdateCustomerAsync(CustomerViewModel customer) =>
-        (await _http.PutAsJsonAsync($"api/customers/{customer.Id}", customer)).IsSuccessStatusCode;
+    public async Task<bool> UpdateCustomerAsync(CustomerViewModel customer)
+    {
+        using var resp = await _http.PutAsJsonAsync($"api/customers/{customer.Id}", customer, _jsonOptions);
+        if (resp.StatusCode == HttpStatusCode.Unauthorized) throw new ApiUnauthorizedException();
+        return resp.IsSuccessStatusCode;
+    }
 
-    // Similar for Vendor
+    // Vendors
     public async Task<List<VendorViewModel>> GetVendorsAsync() =>
-        await _http.GetFromJsonAsync<List<VendorViewModel>>("api/vendors") ?? new();
+        await GetAsync<List<VendorViewModel>>("api/vendors") ?? new List<VendorViewModel>();
 
-    public async Task<VendorViewModel?> GetVendorByIdAsync(int id) =>
-        await _http.GetFromJsonAsync<VendorViewModel>($"api/vendors/{id}");
+    public async Task<VendorViewModel?> GetVendorByIdAsync(int id) => await GetAsync<VendorViewModel>($"api/vendors/{id}");
 
-    public async Task<bool> CreateVendorAsync(VendorViewModel vendor) =>
-        (await _http.PostAsJsonAsync("api/vendors", vendor)).IsSuccessStatusCode;
+    public async Task<bool> CreateVendorAsync(VendorViewModel vendor)
+    {
+        using var resp = await _http.PostAsJsonAsync("api/vendors", vendor, _jsonOptions);
+        if (resp.StatusCode == HttpStatusCode.Unauthorized) throw new ApiUnauthorizedException();
+        return resp.IsSuccessStatusCode;
+    }
 
-    public async Task<bool> UpdateVendorAsync(VendorViewModel vendor) =>
-        (await _http.PutAsJsonAsync($"api/vendors/{vendor.Id}", vendor)).IsSuccessStatusCode;
-    // -------- Category --------
-    public async Task<List<ItemCategoryViewModel>> GetCategoriesAsync()
-        => await _http.GetFromJsonAsync<List<ItemCategoryViewModel>>("api/Categories");
+    public async Task<bool> UpdateVendorAsync(VendorViewModel vendor)
+    {
+        using var resp = await _http.PutAsJsonAsync($"api/vendors/{vendor.Id}", vendor, _jsonOptions);
+        if (resp.StatusCode == HttpStatusCode.Unauthorized) throw new ApiUnauthorizedException();
+        return resp.IsSuccessStatusCode;
+    }
 
-    public async Task<ItemCategoryViewModel?> GetCategoryAsync(int id)
-        => await _http.GetFromJsonAsync<ItemCategoryViewModel>($"api/Categories/{id}");
+    // Categories
+    public async Task<List<ItemCategoryViewModel>> GetCategoriesAsync() =>
+        await GetAsync<List<ItemCategoryViewModel>>("api/Categories") ?? new List<ItemCategoryViewModel>();
+
+    public async Task<ItemCategoryViewModel?> GetCategoryAsync(int id) => await GetAsync<ItemCategoryViewModel>($"api/Categories/{id}");
 
     public async Task<(bool Success, string Message)> CreateCategoryAsync(ItemCategoryViewModel dto)
     {
-        var resp = await _http.PostAsJsonAsync("api/Categories", dto);
-        if (resp.IsSuccessStatusCode)
-        {
-            return (true, "Category created successfully");
-        }
-        else
-        {
-            var content = await resp.Content.ReadFromJsonAsync<Dictionary<string, string>>();
-            string message = content != null && content.ContainsKey("message")
-                ? content["message"]
-                : "Unknown error";
+        using var resp = await _http.PostAsJsonAsync("api/Categories", dto, _jsonOptions);
+        if (resp.StatusCode == HttpStatusCode.Unauthorized) throw new ApiUnauthorizedException();
 
-            return (false, message);
-        }
+        if (resp.IsSuccessStatusCode) return (true, "Category created successfully");
 
+        var message = await ReadErrorMessageAsync(resp);
+        return (false, message);
     }
 
     public async Task UpdateCategoryAsync(ItemCategoryViewModel dto)
     {
-
         if (dto == null) throw new ArgumentNullException(nameof(dto));
         if (dto.Id <= 0) throw new ArgumentException("category Id must be set on DTO when updating.");
-        var resp = await _http.PutAsJsonAsync($"api/Categories/{dto.Id}", dto);
+        using var resp = await _http.PutAsJsonAsync($"api/Categories/{dto.Id}", dto, _jsonOptions);
+        if (resp.StatusCode == HttpStatusCode.Unauthorized) throw new ApiUnauthorizedException();
         resp.EnsureSuccessStatusCode();
     }
 
     public async Task DeleteCategoryAsync(int id)
-        => await _http.DeleteAsync($"api/Categories/{id}");
+    {
+        using var resp = await _http.DeleteAsync($"api/Categories/{id}");
+        if (resp.StatusCode == HttpStatusCode.Unauthorized) throw new ApiUnauthorizedException();
+        resp.EnsureSuccessStatusCode();
+    }
 
-    // -------- Group --------
-    public async Task<List<ItemGroupViewModel>> GetGroupsAsync()
-        => await _http.GetFromJsonAsync<List<ItemGroupViewModel>>("api/groups");
+    // Groups
+    public async Task<List<ItemGroupViewModel>> GetGroupsAsync() =>
+        await GetAsync<List<ItemGroupViewModel>>("api/groups") ?? new List<ItemGroupViewModel>();
 
-    public async Task<ItemGroupViewModel?> GetGroupAsync(int id)
-        => await _http.GetFromJsonAsync<ItemGroupViewModel>($"api/groups/{id}");
+    public async Task<ItemGroupViewModel?> GetGroupAsync(int id) => await GetAsync<ItemGroupViewModel>($"api/groups/{id}");
 
     public async Task<(bool Success, string Message)> CreateGroupAsync(ItemGroupViewModel dto)
     {
-        var resp = await _http.PostAsJsonAsync("api/groups", dto);
-        if (resp.IsSuccessStatusCode)
-        {
-            return (true, "Item Type created successfully");
-        }
-        else
-        {
-            var content = await resp.Content.ReadFromJsonAsync<Dictionary<string, string>>();
-            string message = content != null && content.ContainsKey("message")
-                ? content["message"]
-                : "Unknown error";
+        using var resp = await _http.PostAsJsonAsync("api/groups", dto, _jsonOptions);
+        if (resp.StatusCode == HttpStatusCode.Unauthorized) throw new ApiUnauthorizedException();
 
-            return (false, message);
-        }
+        if (resp.IsSuccessStatusCode) return (true, "Item Type created successfully");
 
+        var message = await ReadErrorMessageAsync(resp);
+        return (false, message);
     }
 
     public async Task<bool> UpdateGroupAsync(ItemGroupViewModel dto)
     {
-        if (dto == null)
-            throw new ArgumentNullException(nameof(dto));
+        if (dto == null) throw new ArgumentNullException(nameof(dto));
+        if (dto.Id <= 0) throw new ArgumentException("Group Id must be set on DTO when updating.");
 
-        if (dto.Id <= 0)
-            throw new ArgumentException("Group Id must be set on DTO when updating.");
+        using var resp = await _http.PutAsJsonAsync($"api/groups/{dto.Id}", dto, _jsonOptions);
+        if (resp.StatusCode == HttpStatusCode.Unauthorized) throw new ApiUnauthorizedException();
 
-        var resp = await _http.PutAsJsonAsync($"api/groups/{dto.Id}", dto);
-
-        // Optional: this throws an exception if not successful.
         resp.EnsureSuccessStatusCode();
-
-        // Return whether the request succeeded.
         return resp.IsSuccessStatusCode;
     }
 
     public async Task DeleteGroupAsync(int id)
-        => await _http.DeleteAsync($"api/groups/{id}");
+    {
+        using var resp = await _http.DeleteAsync($"api/groups/{id}");
+        if (resp.StatusCode == HttpStatusCode.Unauthorized) throw new ApiUnauthorizedException();
+        resp.EnsureSuccessStatusCode();
+    }
 
-    // -------- SubGroup --------
-    public async Task<List<ItemSubGroupViewModel>> GetSubGroupsAsync()
-        => await _http.GetFromJsonAsync<List<ItemSubGroupViewModel>>("api/subgroups");
+    // SubGroups
+    public async Task<List<ItemSubGroupViewModel>> GetSubGroupsAsync() =>
+        await GetAsync<List<ItemSubGroupViewModel>>("api/subgroups") ?? new List<ItemSubGroupViewModel>();
 
-    public async Task<ItemSubGroupViewModel?> GetSubGroupAsync(int id)
-        => await _http.GetFromJsonAsync<ItemSubGroupViewModel>($"api/subgroups/{id}");
+    public async Task<ItemSubGroupViewModel?> GetSubGroupAsync(int id) => await GetAsync<ItemSubGroupViewModel>($"api/subgroups/{id}");
 
     public async Task<bool> CreateSubGroupAsync(ItemSubGroupViewModel dto)
     {
-        var resp = await _http.PostAsJsonAsync("api/subgroups", dto);
+        using var resp = await _http.PostAsJsonAsync("api/subgroups", dto, _jsonOptions);
+        if (resp.StatusCode == HttpStatusCode.Unauthorized) throw new ApiUnauthorizedException();
         return resp.IsSuccessStatusCode;
     }
 
     public async Task<bool> UpdateSubGroupAsync(ItemSubGroupViewModel dto)
     {
-        if (dto == null)
-            throw new ArgumentNullException(nameof(dto));
-
-        if (dto.Id <= 0)
-            throw new ArgumentException("SubGroup Id must be set on DTO when updating.");
-
-        var resp = await _http.PutAsJsonAsync($"api/subgroups/{dto.Id}", dto);
-
-        // Optional: this throws an exception if not successful.
-        resp.EnsureSuccessStatusCode();
-
-        // Return whether the request succeeded.
-        return resp.IsSuccessStatusCode;
-    }
-    public async Task<bool> UpdateItemAsync(ItemDto dto)
-    {
         if (dto == null) throw new ArgumentNullException(nameof(dto));
-        var resp = await _http.PutAsJsonAsync($"api/items/{dto.Id}", dto);
+        if (dto.Id <= 0) throw new ArgumentException("SubGroup Id must be set on DTO when updating.");
+
+        using var resp = await _http.PutAsJsonAsync($"api/subgroups/{dto.Id}", dto, _jsonOptions);
+        if (resp.StatusCode == HttpStatusCode.Unauthorized) throw new ApiUnauthorizedException();
+
+        resp.EnsureSuccessStatusCode();
         return resp.IsSuccessStatusCode;
     }
 
     public async Task DeleteSubGroupAsync(int id)
-        => await _http.DeleteAsync($"api/subgroups/{id}");
+    {
+        using var resp = await _http.DeleteAsync($"api/subgroups/{id}");
+        if (resp.StatusCode == HttpStatusCode.Unauthorized) throw new ApiUnauthorizedException();
+        resp.EnsureSuccessStatusCode();
+    }
 
-    public async Task<List<ItemTypeViewModel>> GetItemTypeAsync() => await _http.GetFromJsonAsync<List<ItemTypeViewModel>>("api/ItemType");
+    // Item types
+    public async Task<List<ItemTypeViewModel>> GetItemTypeAsync() =>
+        await GetAsync<List<ItemTypeViewModel>>("api/ItemType") ?? new List<ItemTypeViewModel>();
 
     public async Task<(bool Success, string Message)> CreateItemTypeAsync(ItemTypeViewModel dto)
     {
-        var resp = await _http.PostAsJsonAsync("api/ItemType", dto);
-        if (resp.IsSuccessStatusCode)
-        {
-            return (true, "Item Type created successfully");
-        }
-        else
-        {
-            var content = await resp.Content.ReadFromJsonAsync<Dictionary<string, string>>();
-            string message = content != null && content.ContainsKey("message")
-                ? content["message"]
-                : "Unknown error";
+        using var resp = await _http.PostAsJsonAsync("api/ItemType", dto, _jsonOptions);
+        if (resp.StatusCode == HttpStatusCode.Unauthorized) throw new ApiUnauthorizedException();
 
-            return (false, message);
-        }
+        if (resp.IsSuccessStatusCode) return (true, "Item Type created successfully");
+        var message = await ReadErrorMessageAsync(resp);
+        return (false, message);
     }
 
-    public async Task<ItemTypeViewModel?> GetItemTypeAsync(int id) => await _http.GetFromJsonAsync<ItemTypeViewModel>($"api/ItemType/{id}");
-
+    public async Task<ItemTypeViewModel?> GetItemTypeAsync(int id) => await GetAsync<ItemTypeViewModel>($"api/ItemType/{id}");
 
     public async Task<bool> UpdateItemTypeAsync(ItemTypeViewModel ItemType)
     {
-        var resp = await _http.PutAsJsonAsync($"api/ItemType/{ItemType.Id}", ItemType);
+        using var resp = await _http.PutAsJsonAsync($"api/ItemType/{ItemType.Id}", ItemType, _jsonOptions);
+        if (resp.StatusCode == HttpStatusCode.Unauthorized) throw new ApiUnauthorizedException();
         return resp.IsSuccessStatusCode;
     }
 
-    public async Task<List<PurchaseViewModel>> GetPurchaseDateWiseAsync(DateTime sdate, DateTime edate) => await _http.GetFromJsonAsync<List<PurchaseViewModel>>("api/Purchases/"+ sdate.ToString("yyyy-MM-dd") +"/"+ edate.ToString("yyyy-MM-dd"));
-    public async Task<List<PurchaseViewModel>> GetPurchasesAsync() => await _http.GetFromJsonAsync<List<PurchaseViewModel>>("api/Purchases");
+    // Purchases
+    public async Task<PurchaseMasterDto> CreatePurchaseAsync(CreatePurchaseDto dto)
+    {
+        using var resp = await _http.PostAsJsonAsync("api/purchases", dto, _jsonOptions);
+        if (resp.StatusCode == HttpStatusCode.Unauthorized) throw new ApiUnauthorizedException();
+        resp.EnsureSuccessStatusCode();
+        return await resp.Content.ReadFromJsonAsync<PurchaseMasterDto>(_jsonOptions)
+               ?? throw new Exception("No purchase returned");
+    }
+
+    public async Task<List<PurchaseViewModel>> GetPurchaseDateWiseAsync(DateTime sdate, DateTime edate) =>
+        await GetAsync<List<PurchaseViewModel>>($"api/Purchases/{sdate:yyyy-MM-dd}/{edate:yyyy-MM-dd}") ?? new List<PurchaseViewModel>();
+
+    public async Task<List<PurchaseViewModel>> GetPurchasesAsync() =>
+        await GetAsync<List<PurchaseViewModel>>("api/Purchases") ?? new List<PurchaseViewModel>();
+
+    public async Task<PurchaseMasterDto?> GetPurchaseByIdAsync(int id) => await GetAsync<PurchaseMasterDto>($"api/Purchases/{id}");
+
+    public async Task<bool> UpdatePurchaseAsync(PurchaseMasterDto dto)
+    {
+        if (dto == null) return false;
+        using var resp = await _http.PutAsJsonAsync($"api/Purchases/{dto.Id}", dto, _jsonOptions);
+        if (resp.StatusCode == HttpStatusCode.Unauthorized) throw new ApiUnauthorizedException();
+        return resp.IsSuccessStatusCode;
+    }
 
     // Branch
-    public async Task<IEnumerable<BranchDto>> GetAllBranchesAsync()
-    {
-        return await _http.GetFromJsonAsync<IEnumerable<BranchDto>>("api/branch") ?? Enumerable.Empty<BranchDto>();
-    }
+    public async Task<IEnumerable<BranchDto>> GetAllBranchesAsync() =>
+        await GetAsync<IEnumerable<BranchDto>>("api/branch") ?? Array.Empty<BranchDto>();
 
-    public async Task<BranchDto?> GetBranchByIdAsync(int id)
-    {
-        return await _http.GetFromJsonAsync<BranchDto>($"api/branch/{id}");
-    }
+    public async Task<BranchDto?> GetBranchByIdAsync(int id) => await GetAsync<BranchDto>($"api/branch/{id}");
 
     public async Task<bool> CreateBranchAsync(BranchDto dto)
     {
         if (dto == null) return false;
-        var resp = await _http.PostAsJsonAsync("api/branch", dto);
+        using var resp = await _http.PostAsJsonAsync("api/branch", dto, _jsonOptions);
+        if (resp.StatusCode == HttpStatusCode.Unauthorized) throw new ApiUnauthorizedException();
         return resp.IsSuccessStatusCode;
     }
 
     public async Task<bool> UpdateBranchAsync(BranchDto dto)
     {
         if (dto == null) return false;
-        var resp = await _http.PutAsJsonAsync($"api/branch/{dto.Id}", dto);
+        using var resp = await _http.PutAsJsonAsync($"api/branch/{dto.Id}", dto, _jsonOptions);
+        if (resp.StatusCode == HttpStatusCode.Unauthorized) throw new ApiUnauthorizedException();
         return resp.IsSuccessStatusCode;
     }
 
     public async Task<bool> DeleteBranchAsync(int id)
     {
-        var resp = await _http.DeleteAsync($"api/branch/{id}");
+        using var resp = await _http.DeleteAsync($"api/branch/{id}");
+        if (resp.StatusCode == HttpStatusCode.Unauthorized) throw new ApiUnauthorizedException();
         return resp.IsSuccessStatusCode;
     }
-    // Sales
-    public async Task<IEnumerable<SalesMasterDto>> GetSalesAsync()
-    {
-        return await _http.GetFromJsonAsync<IEnumerable<SalesMasterDto>>("api/sales") ?? Enumerable.Empty<SalesMasterDto>();
-    }
 
-    public async Task<SalesMasterDto?> GetSaleByIdAsync(int id)
-    {
-        return await _http.GetFromJsonAsync<SalesMasterDto>($"api/sales/{id}");
-    }
+    // Sales
+    public async Task<IEnumerable<SalesMasterDto>> GetSalesAsync() =>
+        await GetAsync<IEnumerable<SalesMasterDto>>("api/sales") ?? Array.Empty<SalesMasterDto>();
+
+    public async Task<SalesMasterDto?> GetSaleByIdAsync(int id) => await GetAsync<SalesMasterDto>($"api/sales/{id}");
 
     public async Task<SalesMasterDto?> CreateSaleAsync(SalesMasterDto dto)
     {
         if (dto == null) return null;
-        var resp = await _http.PostAsJsonAsync("api/sales", dto);
-        return await resp.Content.ReadFromJsonAsync<SalesMasterDto>();
+        using var resp = await _http.PostAsJsonAsync("api/sales", dto, _jsonOptions);
+        if (resp.StatusCode == HttpStatusCode.Unauthorized) throw new ApiUnauthorizedException();
+        if (!resp.IsSuccessStatusCode) return null;
+        return await resp.Content.ReadFromJsonAsync<SalesMasterDto>(_jsonOptions);
     }
 
     public async Task<IEnumerable<SalesMasterDto>> GetAllSaleDateWise(DateTime sdate, DateTime edate)
-    { 
-        var resp = await _http.GetAsync("api/sales/GetAllDateWise/" + sdate.ToString("yyyy-MM-dd") + '/'+edate.ToString("yyyy-MM-dd"));
-        return await  resp.Content.ReadFromJsonAsync< IEnumerable<SalesMasterDto>>();
+    {
+        using var resp = await _http.GetAsync($"api/sales/GetAllDateWise/{sdate:yyyy-MM-dd}/{edate:yyyy-MM-dd}");
+        if (resp.StatusCode == HttpStatusCode.Unauthorized) throw new ApiUnauthorizedException();
+        resp.EnsureSuccessStatusCode();
+        return await resp.Content.ReadFromJsonAsync<IEnumerable<SalesMasterDto>>(_jsonOptions) ?? Array.Empty<SalesMasterDto>();
     }
 
     public async Task<bool> UpdateSaleAsync(SalesMasterDto dto)
     {
         if (dto == null) return false;
-        var resp = await _http.PutAsJsonAsync($"api/sales/{dto.Id}", dto);
+        using var resp = await _http.PutAsJsonAsync($"api/sales/{dto.Id}", dto, _jsonOptions);
+        if (resp.StatusCode == HttpStatusCode.Unauthorized) throw new ApiUnauthorizedException();
         return resp.IsSuccessStatusCode;
     }
 
     public async Task<bool> DeleteSaleAsync(int id)
     {
-        var resp = await _http.DeleteAsync($"api/sales/{id}");
+        using var resp = await _http.DeleteAsync($"api/sales/{id}");
+        if (resp.StatusCode == HttpStatusCode.Unauthorized) throw new ApiUnauthorizedException();
         return resp.IsSuccessStatusCode;
     }
 
-    public async Task<IEnumerable<ScopeDto>> GetAllScopesAsync()
-    => await _http.GetFromJsonAsync<IEnumerable<ScopeDto>>("api/scopes") ?? Enumerable.Empty<ScopeDto>();
+    // Scopes
+    public async Task<IEnumerable<ScopeDto>> GetAllScopesAsync() =>
+        await GetAsync<IEnumerable<ScopeDto>>("api/scopes") ?? Array.Empty<ScopeDto>();
 
-    public async Task<ScopeDto?> GetScopeByIdAsync(int id)
-        => await _http.GetFromJsonAsync<ScopeDto>($"api/scopes/{id}");
+    public async Task<ScopeDto?> GetScopeByIdAsync(int id) => await GetAsync<ScopeDto>($"api/scopes/{id}");
 
     public async Task<bool> CreateScopeAsync(ScopeDto dto)
     {
-        var resp = await _http.PostAsJsonAsync("api/scopes", dto);
+        using var resp = await _http.PostAsJsonAsync("api/scopes", dto, _jsonOptions);
+        if (resp.StatusCode == HttpStatusCode.Unauthorized) throw new ApiUnauthorizedException();
         return resp.IsSuccessStatusCode;
     }
 
     public async Task<bool> UpdateScopeAsync(ScopeDto dto)
     {
-        var resp = await _http.PutAsJsonAsync($"api/scopes/{dto.Id}", dto);
+        using var resp = await _http.PutAsJsonAsync($"api/scopes/{dto.Id}", dto, _jsonOptions);
+        if (resp.StatusCode == HttpStatusCode.Unauthorized) throw new ApiUnauthorizedException();
         return resp.IsSuccessStatusCode;
     }
 
     public async Task<bool> DeleteScopeAsync(int id)
     {
-        var resp = await _http.DeleteAsync($"api/scopes/{id}");
+        using var resp = await _http.DeleteAsync($"api/scopes/{id}");
+        if (resp.StatusCode == HttpStatusCode.Unauthorized) throw new ApiUnauthorizedException();
         return resp.IsSuccessStatusCode;
     }
-    public async Task<IEnumerable<RoleDto>> GetAllRolesAsync()
-    {
-        var result = await _http.GetFromJsonAsync<IEnumerable<RoleDto>>("api/roles");
-        return result ?? Enumerable.Empty<RoleDto>();
-    }
+
+    // Roles
+    public async Task<IEnumerable<RoleDto>> GetAllRolesAsync() =>
+        await GetAsync<IEnumerable<RoleDto>>("api/roles") ?? Array.Empty<RoleDto>();
 
     public async Task<RoleDto?> GetRoleByIdAsync(int id)
     {
         if (id <= 0) return null;
-        var resp = await _http.GetAsync($"api/roles/{id}");
+        using var resp = await _http.GetAsync($"api/roles/{id}");
+        if (resp.StatusCode == HttpStatusCode.Unauthorized) throw new ApiUnauthorizedException();
         if (!resp.IsSuccessStatusCode) return null;
-        return await resp.Content.ReadFromJsonAsync<RoleDto>();
+        return await resp.Content.ReadFromJsonAsync<RoleDto>(_jsonOptions);
     }
 
     public async Task<bool> CreateRoleAsync(RoleDto dto)
     {
         if (dto == null) throw new ArgumentNullException(nameof(dto));
-        var resp = await _http.PostAsJsonAsync("api/roles", dto);
+        using var resp = await _http.PostAsJsonAsync("api/roles", dto, _jsonOptions);
+        if (resp.StatusCode == HttpStatusCode.Unauthorized) throw new ApiUnauthorizedException();
         return resp.IsSuccessStatusCode;
     }
 
@@ -398,30 +479,60 @@ public class ApiClient : IApiClient
         if (dto == null) throw new ArgumentNullException(nameof(dto));
         if (dto.Id <= 0) throw new ArgumentException("Role Id must be set for update.", nameof(dto));
 
-        var resp = await _http.PutAsJsonAsync($"api/roles/{dto.Id}", dto);
+        using var resp = await _http.PutAsJsonAsync($"api/roles/{dto.Id}", dto, _jsonOptions);
+        if (resp.StatusCode == HttpStatusCode.Unauthorized) throw new ApiUnauthorizedException();
         return resp.IsSuccessStatusCode;
     }
+
+    // Menus
     public async Task<IEnumerable<MenuDto>> GetMenusForCurrentUserAsync()
     {
-        // call your POS API endpoint that returns menus for current user:
-        var resp = await _http.GetAsync("api/menus/me");
-        if (resp.StatusCode == System.Net.HttpStatusCode.Unauthorized)
-        {
-            // let caller handle redirect / sign out
-            throw new UnauthorizedAccessException();
-        }
-
+        using var resp = await _http.GetAsync("api/menus/me");
+        if (resp.StatusCode == HttpStatusCode.Unauthorized) throw new ApiUnauthorizedException();
         resp.EnsureSuccessStatusCode();
-        var menus = await resp.Content.ReadFromJsonAsync<IEnumerable<MenuDto>>();
-        return menus ?? Enumerable.Empty<MenuDto>();
+        return await resp.Content.ReadFromJsonAsync<IEnumerable<MenuDto>>(_jsonOptions) ?? Array.Empty<MenuDto>();
     }
+
+    public async Task<MenuDto?> CreateMenuAsync(MenuDto dto)
+    {
+        using var resp = await _http.PostAsJsonAsync("api/menus", dto, _jsonOptions);
+        if (resp.StatusCode == HttpStatusCode.Unauthorized) throw new ApiUnauthorizedException();
+        if (!resp.IsSuccessStatusCode) return null;
+        return await resp.Content.ReadFromJsonAsync<MenuDto>(_jsonOptions);
+    }
+
+    public async Task<SubMenuDto?> CreateSubMenuAsync(int menuId, SubMenuDto dto)
+    {
+        using var resp = await _http.PostAsJsonAsync($"api/menus/{menuId}/submenus", dto, _jsonOptions);
+        if (resp.StatusCode == HttpStatusCode.Unauthorized) throw new ApiUnauthorizedException();
+        if (!resp.IsSuccessStatusCode) return null;
+        return await resp.Content.ReadFromJsonAsync<SubMenuDto>(_jsonOptions);
+    }
+
+    public async Task<bool> DeleteMenuAsync(int menuId)
+    {
+        if (menuId <= 0) return false;
+        using var resp = await _http.DeleteAsync($"api/menus/{menuId}");
+        if (resp.StatusCode == HttpStatusCode.Unauthorized) throw new ApiUnauthorizedException();
+        return resp.IsSuccessStatusCode;
+    }
+
+    public async Task<bool> DeleteSubMenuAsync(int menuId, int subMenuId)
+    {
+        if (menuId <= 0 || subMenuId <= 0) return false;
+        using var resp = await _http.DeleteAsync($"api/menus/{menuId}/submenus/{subMenuId}");
+        if (resp.StatusCode == HttpStatusCode.Unauthorized) throw new ApiUnauthorizedException();
+        return resp.IsSuccessStatusCode;
+    }
+
+    // Opening balances
     public async Task<List<OpeningBalanceViewModel>> GetOpeningBalancesAsync()
     {
         try
         {
-            var res = await _http.GetFromJsonAsync<List<OpeningBalanceViewModel>>("api/openingbalances");
-            return res ?? new List<OpeningBalanceViewModel>();
+            return await GetAsync<List<OpeningBalanceViewModel>>("api/openingbalances") ?? new List<OpeningBalanceViewModel>();
         }
+        catch (ApiUnauthorizedException) { throw; }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error getting opening balances");
@@ -433,10 +544,12 @@ public class ApiClient : IApiClient
     {
         try
         {
-            var resp = await _http.GetAsync($"api/openingbalances/{id}");
+            using var resp = await _http.GetAsync($"api/openingbalances/{id}");
+            if (resp.StatusCode == HttpStatusCode.Unauthorized) throw new ApiUnauthorizedException();
             if (!resp.IsSuccessStatusCode) return null;
-            return await resp.Content.ReadFromJsonAsync<OpeningBalanceViewModel>();
+            return await resp.Content.ReadFromJsonAsync<OpeningBalanceViewModel>(_jsonOptions);
         }
+        catch (ApiUnauthorizedException) { throw; }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error getting opening balance {Id}", id);
@@ -448,14 +561,16 @@ public class ApiClient : IApiClient
     {
         try
         {
-            var resp = await _http.PostAsJsonAsync("api/openingbalances", dto);
+            using var resp = await _http.PostAsJsonAsync("api/openingbalances", dto, _jsonOptions);
+            if (resp.StatusCode == HttpStatusCode.Unauthorized) throw new ApiUnauthorizedException();
+
             if (resp.IsSuccessStatusCode)
             {
-                var data = await resp.Content.ReadFromJsonAsync<OpeningBalanceViewModel>();
+                var data = await resp.Content.ReadFromJsonAsync<OpeningBalanceViewModel>(_jsonOptions);
                 return new ApiResult<OpeningBalanceViewModel>(true, data);
             }
 
-            if (resp.StatusCode == System.Net.HttpStatusCode.Conflict)
+            if (resp.StatusCode == HttpStatusCode.Conflict)
             {
                 return new ApiResult<OpeningBalanceViewModel>(false, null, "Opening balance already exists for this Year and Product.");
             }
@@ -463,6 +578,7 @@ public class ApiClient : IApiClient
             var err = await resp.Content.ReadAsStringAsync();
             return new ApiResult<OpeningBalanceViewModel>(false, null, err);
         }
+        catch (ApiUnauthorizedException) { throw; }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error creating opening balance");
@@ -474,13 +590,16 @@ public class ApiClient : IApiClient
     {
         try
         {
-            var resp = await _http.PutAsJsonAsync($"api/openingbalances/{id}", dto);
+            using var resp = await _http.PutAsJsonAsync($"api/openingbalances/{id}", dto, _jsonOptions);
+            if (resp.StatusCode == HttpStatusCode.Unauthorized) throw new ApiUnauthorizedException();
+
             if (resp.IsSuccessStatusCode) return new ApiResult(true);
-            if (resp.StatusCode == System.Net.HttpStatusCode.Conflict)
+            if (resp.StatusCode == HttpStatusCode.Conflict)
                 return new ApiResult(false, "Another opening balance exists for this Year and Product.");
             var err = await resp.Content.ReadAsStringAsync();
             return new ApiResult(false, err);
         }
+        catch (ApiUnauthorizedException) { throw; }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error updating opening balance {Id}", id);
@@ -492,12 +611,15 @@ public class ApiClient : IApiClient
     {
         try
         {
-            var resp = await _http.DeleteAsync($"api/openingbalances/{id}");
+            using var resp = await _http.DeleteAsync($"api/openingbalances/{id}");
+            if (resp.StatusCode == HttpStatusCode.Unauthorized) throw new ApiUnauthorizedException();
+
             if (resp.IsSuccessStatusCode) return new ApiResult(true);
-            if (resp.StatusCode == System.Net.HttpStatusCode.NotFound) return new ApiResult(false, "NotFound");
+            if (resp.StatusCode == HttpStatusCode.NotFound) return new ApiResult(false, "NotFound");
             var err = await resp.Content.ReadAsStringAsync();
             return new ApiResult(false, err);
         }
+        catch (ApiUnauthorizedException) { throw; }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error deleting opening balance {Id}", id);
@@ -505,123 +627,34 @@ public class ApiClient : IApiClient
         }
     }
 
-    public async Task<PurchaseMasterDto?> GetPurchaseByIdAsync(int id)
-    {
-        return await _http.GetFromJsonAsync<PurchaseMasterDto>($"api/Purchases/{id}");
-    }
+    //public async Task<PurchaseMasterDto?> GetPurchaseByIdAsync(int id) => await GetAsync<PurchaseMasterDto>($"api/Purchases/{id}");
 
-    public async Task<bool> UpdatePurchaseAsync(PurchaseMasterDto dto)
-    {
-        if (dto == null) return false;
-        var resp = await _http.PutAsJsonAsync($"api/Purchases/{dto.Id}", dto);
-        return resp.IsSuccessStatusCode;
-    }
-    // TODO: other methods implemented elsewhere in ApiClient...
-
-    //Menu
-    // ------- Menus (add these to your ApiClient class) -------
-    public async Task<MenuDto?> CreateMenuAsync(MenuDto dto)
-    {
-        if (dto == null) throw new ArgumentNullException(nameof(dto));
-        var resp = await _http.PostAsJsonAsync("api/menus", dto);
-        if (!resp.IsSuccessStatusCode) return null;
-        return await resp.Content.ReadFromJsonAsync<MenuDto>();
-    }
-
-    public async Task<SubMenuDto?> CreateSubMenuAsync(int menuId, SubMenuDto dto)
-    {
-        if (dto == null) throw new ArgumentNullException(nameof(dto));
-        var resp = await _http.PostAsJsonAsync($"api/menus/{menuId}/submenus", dto);
-        if (!resp.IsSuccessStatusCode) return null;
-        return await resp.Content.ReadFromJsonAsync<SubMenuDto>();
-    }
-
-    public async Task<bool> DeleteMenuAsync(int menuId)
-    {
-        if (menuId <= 0) return false;
-        var resp = await _http.DeleteAsync($"api/menus/{menuId}");
-        return resp.IsSuccessStatusCode;
-    }
-
-    public async Task<bool> DeleteSubMenuAsync(int menuId, int subMenuId)
-    {
-        if (menuId <= 0 || subMenuId <= 0) return false;
-        var resp = await _http.DeleteAsync($"api/menus/{menuId}/submenus/{subMenuId}");
-        return resp.IsSuccessStatusCode;
-    }
-
-    public async Task<CompanyDto?> GetCompanybyIdAsync(string guid) => await _http.GetFromJsonAsync<CompanyDto>($"api/Companies/{guid}");
-
-    public async Task<(bool Success, string Message)> UpdateCompanyAsync(CompanyViewModel dto)
-    {
-        try
-        {
-            var r = await _http.PutAsJsonAsync($"api/Companies/{dto.Id}", dto);
-            r.EnsureSuccessStatusCode();
-            if (r.IsSuccessStatusCode)
-            {
-                return (true, "Company Updated successfully");
-            }
-            else
-            {
-                var content = await r.Content.ReadFromJsonAsync<Dictionary<string, string>>();
-                string message = content != null && content.ContainsKey("message")
-                    ? content["message"]
-                    : "Unknown error";
-
-                return (false, message);
-            }
-        }
-        catch (Exception exx)
-        {
-            return (false, "Unknown error");
-        }
-    }
-
+    // Password & user-related
     public async Task<UserDto?> GetCurrentUserAsync()
     {
-      //  return await _http.GetFromJsonAsync<UserDto>("api/User/currentUser");
-        var r = await _http.GetAsync("api/User/currentUser");
+        using var r = await _http.GetAsync("api/User/currentUser");
+        if (r.StatusCode == HttpStatusCode.Unauthorized) throw new ApiUnauthorizedException();
         r.EnsureSuccessStatusCode();
-        return await r.Content.ReadFromJsonAsync<UserDto>() ?? new UserDto();
+        return await r.Content.ReadFromJsonAsync<UserDto>(_jsonOptions) ?? new UserDto();
     }
 
-    public async  Task<(bool value, string Message)> ChangePasswordAsync(UserPasswordDto dto)
+    public async Task<(bool value, string Message)> ChangePasswordAsync(UserPasswordDto dto)
     {
-        var r = await _http.PostAsJsonAsync("api/User/ChangePassword", dto);
-        r.EnsureSuccessStatusCode();
-        if (r.IsSuccessStatusCode)
-        {
-            return (true, "Item Type created successfully");
-        }
-        else
-        {
-            var content = await r.Content.ReadFromJsonAsync<Dictionary<string, string>>();
-            string message = content != null && content.ContainsKey("message")
-                ? content["message"]
-                : "Unknown error"; 
-            return (false, message);
-
-        }
+        using var r = await _http.PostAsJsonAsync("api/User/ChangePassword", dto, _jsonOptions);
+        if (r.StatusCode == HttpStatusCode.Unauthorized) throw new ApiUnauthorizedException();
+        if (r.IsSuccessStatusCode) return (true, "Item Type created successfully");
+        var content = await r.Content.ReadFromJsonAsync<Dictionary<string, string>>(_jsonOptions);
+        string message = content != null && content.ContainsKey("message") ? content["message"] : await r.Content.ReadAsStringAsync();
+        return (false, message);
     }
 
-    public async  Task<(bool value, string Message)> CheckPasswordAsync(UserPasswordDto dto)
+    public async Task<(bool value, string Message)> CheckPasswordAsync(UserPasswordDto dto)
     {
-        //currentUserPassword
-        var r = await _http.PostAsJsonAsync("api/User/currentUserPassword", dto);
-        r.EnsureSuccessStatusCode();
-        if (r.IsSuccessStatusCode)
-        {
-            return (true, "Item Type created successfully");
-        }
-        else
-        {
-            var content = await r.Content.ReadFromJsonAsync<Dictionary<string, string>>();
-            string message = content != null && content.ContainsKey("message")
-                ? content["message"]
-                : "Unknown error";
-
-            return (false, message);
-        }
+        using var r = await _http.PostAsJsonAsync("api/User/currentUserPassword", dto, _jsonOptions);
+        if (r.StatusCode == HttpStatusCode.Unauthorized) throw new ApiUnauthorizedException();
+        if (r.IsSuccessStatusCode) return (true, "Item Type created successfully");
+        var content = await r.Content.ReadFromJsonAsync<Dictionary<string, string>>(_jsonOptions);
+        string message = content != null && content.ContainsKey("message") ? content["message"] : await r.Content.ReadAsStringAsync();
+        return (false, message);
     }
 }

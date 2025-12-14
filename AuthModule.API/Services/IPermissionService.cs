@@ -16,6 +16,7 @@ namespace AuthModule.API.Services
         Task AssignPermissionToUserAsync(string UserId, int permissionId);
         Task<bool> RemovePermissionFromRoleAsync(string roleId, int permissionId);
         Task<bool> DeletePermissionAsync(int permissionId);
+        Task<bool> UpdatePermissionAsync(PermissionDto permissionDto);
         Task<bool> RemovePermissionFromUserAsync(string userId, int permissionId);
     }
 

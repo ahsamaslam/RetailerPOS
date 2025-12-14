@@ -64,7 +64,7 @@ builder.Services.AddAuthentication(options =>
         ValidateAudience = true,
         ValidAudiences = audiences,
         ValidateIssuerSigningKey = true,
-        NameClaimType = JwtRegisteredClaimNames.Sub,    // optional: set which claim maps to Name
+        NameClaimType = ClaimTypes.NameIdentifier,    // optional: set which claim maps to Name
         RoleClaimType = ClaimTypes.Role,
         IssuerSigningKey = new SymmetricSecurityKey(keyBytes),
         // Fallback resolver: give middleware the keys to try (useful when kid missing)
@@ -76,6 +76,35 @@ builder.Services.AddAuthentication(options =>
         ValidateLifetime = true,
         ClockSkew = TimeSpan.FromSeconds(30)
     };
+    // Helpful debug logging for token validation failures
+    options.Events = new JwtBearerEvents
+    {
+        OnForbidden = ctx =>
+        {
+            // Log exception to console (or replace with your logger)
+            Console.WriteLine("Jwt authentication failed: " + ctx);
+            return Task.CompletedTask;
+        },
+        OnAuthenticationFailed = ctx =>
+        {
+            // Log exception to console (or replace with your logger)
+            Console.WriteLine("Jwt authentication failed: " + ctx.Exception?.Message);
+            return Task.CompletedTask;
+        },
+        OnMessageReceived = ctx =>
+        {
+            // Inspect if Authorization header is present
+            var auth = ctx.Request.Headers["Authorization"].FirstOrDefault();
+            Console.WriteLine("Auth header: " + (auth ?? "[none]"));
+            return Task.CompletedTask;
+        },
+        OnTokenValidated = ctx =>
+        {
+            Console.WriteLine("Token validated for: " + ctx.Principal?.Identity?.Name);
+            return Task.CompletedTask;
+        }
+    };
+
 });
 
 // Authorization — register before adding custom provider/handlers

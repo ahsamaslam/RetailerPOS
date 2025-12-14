@@ -1,8 +1,18 @@
 ﻿@using System.Security.Claims
 @using Retailer.Web.ApiDTOs
+@using Retailer.Web.Models
 @using Retailer.Web.Pages.Admin
+@using Microsoft.AspNetCore.Http
 @inject IHttpContextAccessor HttpContextAccessor
 @{
+    var path = Context.Request.Path;
+    bool isAdminSection = path.StartsWithSegments("/admin");
+    bool isUsers = path.StartsWithSegments("/admin/user");
+    bool isRoles = path.StartsWithSegments("/admin/roles");
+    bool isPermissions = path.StartsWithSegments("/admin/permissions");
+    const string LayoutUserInfoKey = "_LayoutUserInfo";
+    var info = Context.Items[LayoutUserInfoKey] as LayoutUserInfo
+               ?? new LayoutUserInfo();
     // menus provided by BasePageModel via HttpContext.Items["Menus"]
     var menus = HttpContextAccessor.HttpContext?.Items["Menus"] as IEnumerable<MenuDto> ?? Enumerable.Empty<MenuDto>();
 
@@ -64,6 +74,12 @@
     <div class="sidebar-wrapper">
         <nav class="mt-2" aria-label="Main navigation">
             <ul class="nav sidebar-menu flex-column" data-lte-toggle="treeview" data-accordion="false" id="navigation">
+                <li class="nav-item">
+                    <a asp-page="/Index" class="nav-link active">
+                        <i class="nav-icon bi bi-speedometer"></i>
+                        <p>Dashboard</p>
+                    </a>
+                </li>
                 @* Dynamic menus *@
                 @foreach (var menu in menus.Where(m => m.IsActive).OrderBy(m => m.SortOrder))
                 {
@@ -80,15 +96,36 @@
                         }
                     </li>
                 }
-
-                @* Fallback static menu (optional) - keep only what you need *@
-                @if (!menus.Any())
+                @if (info.IsAdmin)
                 {
-                    <li class="nav-item">
-                        <a asp-page="/Index" class="nav-link active">
-                            <i class="nav-icon bi bi-speedometer"></i>
-                            <p>Dashboard</p>
+                    <li class="nav-item @(isAdminSection ? "menu-open" : "")">
+                        <a href="#" class="nav-link @(isAdminSection ? "active" : "")" aria-expanded="@(isAdminSection ? "true" : "false")">
+                            <i class="nav-icon bi bi-tools"></i>
+                            <p>
+                                Admin Panel
+                                <i class="nav-arrow bi @(isAdminSection ? "bi-chevron-down" : "bi-chevron-right")"></i>
+                            </p>
                         </a>
+                        <ul class="nav nav-treeview">
+                            <li class="nav-item">
+                                <a href="~/admin/user" class="nav-link @(isUsers ? "active" : "")">
+                                    <i class="nav-icon bi bi-circle"></i>
+                                    <p>Users</p>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="~/admin/roles" class="nav-link @(isRoles ? "active" : "")">
+                                    <i class="nav-icon bi bi-circle"></i>
+                                    <p>Roles</p>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="~/admin/permissions" class="nav-link @(isPermissions ? "active" : "")">
+                                    <i class="nav-icon bi bi-circle"></i>
+                                    <p>Permission</p>
+                                </a>
+                            </li>
+                        </ul>
                     </li>
                 }
             </ul>

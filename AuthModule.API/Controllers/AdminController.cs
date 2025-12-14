@@ -13,7 +13,7 @@ namespace AuthModule.API.Controllers
 {
     [ApiController]
     [Route("api/admin")]
-   // [Authorize(Roles = "Admin")]
+    [Authorize(Roles = "admin")]
     public class AdminController : ControllerBase
     {
         private readonly IPermissionService _perm;
@@ -56,22 +56,67 @@ namespace AuthModule.API.Controllers
             return Ok(role);
         }
 
-        [HttpPost("users/{userId}/roles/{roleName}")]
-        public async Task<IActionResult> AssignRoleToUser(string userId, string roleName)
+        // POST api/admin/users/{userId}/roles
+        [HttpPost("users/{userId}/roles")]
+        public async Task<IActionResult> AssignRolesToUser(string userId, [FromBody] List<string>? roles)
         {
+            // Allow empty list to mean "remove all roles"
+            roles ??= new List<string>();
+
             var user = await _userManager.FindByIdAsync(userId);
             if (user == null) return NotFound("User not found");
 
-            if (!await _roleManager.RoleExistsAsync(roleName))
-                return NotFound("Role not found");
+            // Normalize and remove empty/whitespace names
+            var requested = roles
+                .Where(r => !string.IsNullOrWhiteSpace(r))
+                .Select(r => r.Trim())
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .ToList();
 
-            var result = await _userManager.AddToRoleAsync(user, roleName);
+            // Validate role existence
+            var missingRoles = new List<string>();
+            foreach (var r in requested)
+            {
+                if (!await _roleManager.RoleExistsAsync(r))
+                    missingRoles.Add(r);
+            }
 
-            if (!result.Succeeded)
-                return BadRequest(result.Errors);
+            if (missingRoles.Any())
+            {
+                return NotFound(new { message = "One or more roles not found", missing = missingRoles });
+            }
 
+            // Get current roles
+            var currentRoles = await _userManager.GetRolesAsync(user);
+
+            // Determine roles to add and remove
+            var toAdd = requested.Except(currentRoles, StringComparer.OrdinalIgnoreCase).ToList();
+            var toRemove = currentRoles.Except(requested, StringComparer.OrdinalIgnoreCase).ToList();
+
+            // Remove roles not wanted
+            if (toRemove.Any())
+            {
+                var remResult = await _userManager.RemoveFromRolesAsync(user, toRemove);
+                if (!remResult.Succeeded)
+                {
+                    return BadRequest(new { message = "Failed to remove roles", errors = remResult.Errors });
+                }
+            }
+
+            // Add new roles
+            if (toAdd.Any())
+            {
+                var addResult = await _userManager.AddToRolesAsync(user, toAdd);
+                if (!addResult.Succeeded)
+                {
+                    return BadRequest(new { message = "Failed to add roles", errors = addResult.Errors });
+                }
+            }
+
+            // Success - no content
             return NoContent();
         }
+
 
         [HttpDelete("users/{userId}/roles/{roleName}")]
         public async Task<IActionResult> RemoveRoleFromUser(string userId, string roleName)
@@ -128,7 +173,7 @@ namespace AuthModule.API.Controllers
 
             // Determine default and allowed roles from config (fallbacks)
             var defaultRole = _config["Auth:DefaultRole"] ?? "User";
-            var allowedRoles = _config.GetSection("Auth:AssignableRoles")?.Get<string[]>() ?? new[] { "User", "Manager", "Admin" };
+            var allowedRoles = _config.GetSection("Auth:AssignableRoles")?.Get<string[]>() ?? new[] { "user", "manager", "admin" };
 
 
             ApplicationUser user = new ApplicationUser
@@ -303,6 +348,14 @@ namespace AuthModule.API.Controllers
         public async Task<IActionResult> DeletePermission(int permissionId)
         {
             var removed = await _perm.DeletePermissionAsync(permissionId);
+            if (!removed) return NotFound();
+            return NoContent();
+        }
+        // Update: api/admin/permissions/{id}
+        [HttpPut("permissions/{permissionId:int}")]
+        public async Task<IActionResult> UpdatePermission([FromBody] PermissionDto permissionDto)
+        {
+            var removed = await _perm.UpdatePermissionAsync(permissionDto);
             if (!removed) return NotFound();
             return NoContent();
         }

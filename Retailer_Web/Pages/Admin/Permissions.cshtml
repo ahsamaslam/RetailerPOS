@@ -1,31 +1,172 @@
 ﻿@page
-@model Admin.Pages.Admin.PermissionsModel
+@model Retailer.Web.Pages.Admin.PermissionsModel
 @{
     ViewData["Title"] = "Manage Permissions";
 }
 
-<h2>Permissions</h2>
+<!-- Header -->
+<div class="d-flex align-items-center justify-content-between mb-3">
+    <h3 class="mb-0">Permissions</h3>
+</div>
 
-<h3>Create Permission</h3>
-<form method="post">
-    <input asp-for="NewPermission.Name" placeholder="Permission Name" required />
-    <input asp-for="NewPermission.Description" placeholder="Description" />
-    <button type="submit">Create Permission</button>
-</form>
+<!-- Alerts -->
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success">@TempData["Success"]</div>
+}
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger">@TempData["Error"]</div>
+}
 
-<hr />
+<!-- Search -->
+<div class="row mb-3">
+    <div class="col-md-6">
+        <input id="searchBox"
+               class="form-control"
+               placeholder="Search permission name or description..." />
+    </div>
+    <div class="col-md-6">
+        <button class="btn btn-primary"
+                data-bs-toggle="modal"
+                data-bs-target="#permissionModal"
+                data-mode="create">
+            <i class="bi bi-plus-lg"></i> Create Permission
+        </button>
+    </div>
+</div>
 
-<h3>All Permissions</h3>
-<table border="1">
-    <tr>
-        <th>Name</th>
-        <th>Description</th>
-    </tr>
-    @foreach (var p in Model.Permissions)
-    {
-        <tr>
-            <td>@p.Name</td>
-            <td>@p.Description</td>
-        </tr>
-    }
-</table>
+<!-- Table -->
+<div class="table-responsive">
+    <table class="table table-hover align-middle">
+        <thead class="table-light">
+            <tr>
+                <th>Name</th>
+                <th>Description</th>
+                <th style="width:160px" class="text-end">Actions</th>
+            </tr>
+        </thead>
+        <tbody id="permissionsTableBody">
+            @foreach (var p in Model.Permissions)
+            {
+                <tr data-name="@p.Name" data-desc="@p.Description">
+                    <td>@p.Name</td>
+                    <td class="text-muted">@p.Description</td>
+                    <td class="text-end">
+                        <div class="d-inline-flex">
+
+                            <!-- Edit -->
+                            <button class="btn btn-outline-primary btn-sm btn-icon action-btn"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#permissionModal"
+                                    data-mode="edit"
+                                    data-id="@p.Id"
+                                    data-name="@p.Name"
+                                    data-desc="@p.Description"
+                                    title="Edit">
+                                <i class="bi bi-pencil"></i>
+                            </button>
+
+                            <!-- Delete -->
+                            <form method="post"
+                                  asp-page-handler="Delete"
+                                  class="d-inline action-btn"
+                                  onsubmit="return confirm('Delete permission @p.Name?');">
+                                <input type="hidden" name="PermissionId" value="@p.Id" />
+                                <button class="btn btn-outline-danger btn-sm btn-icon"
+                                        title="Delete">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </form>
+
+                        </div>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<!-- ---------- Create / Edit Permission Modal ---------- -->
+<div class="modal fade" id="permissionModal" tabindex="-1">
+    <div class="modal-dialog modal-md modal-dialog-centered">
+        <div class="modal-content">
+            <form method="post" id="permissionForm">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="permissionModalTitle">Create Permission</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+
+                <div class="modal-body">
+                    <div asp-validation-summary="All" class="text-danger"></div>
+
+                    <input type="hidden" asp-for="EditPermission.Id" id="Perm_Id" />
+
+                    <div class="mb-3">
+                        <label class="form-label">Name</label>
+                        <input asp-for="EditPermission.Name"
+                               class="form-control"
+                               id="Perm_Name"
+                               required />
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Description</label>
+                        <textarea asp-for="EditPermission.Description"
+                                  class="form-control"
+                                  id="Perm_Desc"
+                                  rows="2"></textarea>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button"
+                            class="btn btn-secondary"
+                            data-bs-dismiss="modal">
+                        Cancel
+                    </button>
+                    <button type="submit"
+                            class="btn btn-primary">
+                        Save
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        (() => {
+
+            // Create / Edit modal
+            document.getElementById('permissionModal')
+                ?.addEventListener('show.bs.modal', e => {
+                    const btn = e.relatedTarget;
+                    const mode = btn?.dataset.mode || 'create';
+
+                    document.getElementById('permissionModalTitle').textContent =
+                        mode === 'create' ? 'Create Permission' : 'Edit Permission';
+
+                    document.getElementById('Perm_Id').value = btn?.dataset.id || '';
+                    document.getElementById('Perm_Name').value = btn?.dataset.name || '';
+                    document.getElementById('Perm_Desc').value = btn?.dataset.desc || '';
+
+                    document.getElementById('permissionForm')
+                        .setAttribute('action', `?handler=${mode === 'create' ? 'Create' : 'Edit'}`);
+                });
+
+            // Search
+            const searchBox = document.getElementById('searchBox');
+            searchBox?.addEventListener('input', function () {
+                const q = this.value.toLowerCase();
+                document.querySelectorAll('#permissionsTableBody tr').forEach(tr => {
+                    const name = tr.dataset.name?.toLowerCase() || '';
+                    const desc = tr.dataset.desc?.toLowerCase() || '';
+                    tr.style.display = (name.includes(q) || desc.includes(q)) ? '' : 'none';
+                });
+            });
+
+        })();
+    </script>
+}

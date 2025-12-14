@@ -4,35 +4,186 @@
     ViewData["Title"] = "Manage Roles";
 }
 
-<h2>Roles</h2>
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h3>Roles</h3>
+    <button class="btn btn-primary"
+            data-bs-toggle="modal"
+            data-bs-target="#roleModal"
+            data-mode="create">
+        <i class="bi bi-plus"></i> Create Role
+    </button>
+</div>
 
-<h3>Create Role</h3>
-<form method="post">
-    <input asp-for="NewRole.Name" placeholder="Role Name" required />
-    <button type="submit">Create Role</button>
-</form>
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success">@TempData["Success"]</div>
+}
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger">@TempData["Error"]</div>
+}
 
-<hr />
-
-<h3>All Roles</h3>
-<table border="1">
-    <tr>
-        <th>Name</th>
-        <th>Assign Permission</th>
-    </tr>
-    @foreach (var role in Model.Roles)
-    {
+<table class="table table-hover align-middle">
+    <thead>
         <tr>
-            <td>@role.Name</td>
-            <td>
-                <select onchange="(async e => await Model.AssignPermission(role.Id, int.Parse(e.Value.ToString())))">
-                    <option value="">Select Permission</option>
-                    @foreach (var p in Model.AllPermissions)
-                    {
-                        <option value="@p.Id">@p.Name</option>
-                    }
-                </select>
-            </td>
+            <th>Role</th>
+            <th style="width:220px">Actions</th>
         </tr>
-    }
+    </thead>
+    <tbody>
+        @foreach (var role in Model.Roles)
+        {
+            <tr>
+                <td>@role.Name</td>
+                <td class="text-end">
+                    <div class="d-inline-flex">
+
+                        <!-- Edit -->
+                        <button class="btn btn-outline-primary btn-sm btn-icon action-btn"
+                                data-bs-toggle="modal"
+                                data-bs-target="#roleModal"
+                                data-mode="edit"
+                                data-roleid="@role.Id"
+                                data-rolename="@role.Name"
+                                title="Edit">
+                            <i class="bi bi-pencil"></i>
+                        </button>
+
+                        <!-- Permissions -->
+                        <form method="post"
+                              asp-page-handler="LoadPermissions"
+                              class="d-inline action-btn">
+                            <input type="hidden" name="roleId" value="@role.Id" />
+                            <input type="hidden" name="roleName" value="@role.Name" />
+                            <button class="btn btn-outline-secondary btn-sm btn-icon"
+                                    title="Permissions">
+                                <i class="bi bi-shield-lock"></i>
+                            </button>
+                        </form>
+
+                        <!-- Delete -->
+                       @*  <form method="post"
+                              asp-page-handler="Delete"
+                              class="d-inline action-btn"
+                              onsubmit="return confirm('Delete role @role.Name?');">
+                            <input type="hidden" name="RoleId" value="@role.Id" />
+                            <button class="btn btn-outline-danger btn-sm btn-icon"
+                                    title="Delete">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </form> *@
+
+                    </div>
+                </td>
+            </tr>
+        }
+    </tbody>
 </table>
+<div class="modal fade" id="roleModal" tabindex="-1">
+    <div class="modal-dialog modal-sm modal-dialog-centered">
+        <div class="modal-content">
+            <form method="post" id="roleForm">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="roleModalTitle">Create Role</h5>
+                    <button class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+
+                <div class="modal-body">
+                    <div asp-validation-summary="All" class="text-danger"></div>
+
+                    <input type="hidden" asp-for="EditRole.Id" id="Role_Id" />
+
+                    <div class="mb-3">
+                        <label>Role Name</label>
+                        <input asp-for="EditRole.Name" class="form-control" id="Role_Name" required />
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button class="btn btn-primary">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="permissionsModal" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <form method="post" asp-page-handler="AssignPermissions">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        Permissions for <span id="permRoleName"></span>
+                    </h5>
+                    <button class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+
+                <div class="modal-body">
+                    <input type="hidden" name="RoleId" id="permRoleId" value="@Model.SelectedRoleId" />
+
+                    <div class="row">
+                        @foreach (var p in Model.AllPermissions)
+                        {
+                            <div class="col-6 mb-2">
+                                <div class="form-check">
+                                    <input class="form-check-input"
+                                           type="checkbox"
+                                           name="SelectedPermissions"
+                                           value="@p.Id"
+                                           id="perm_@p.Id"
+                                    @(Model.AssignedPermissionIds.Contains(p.Id) ? "checked" : "") />
+                                    <label class="form-check-label" for="perm_@p.Id">
+                                        @p.Name
+                                    </label>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <!-- DOES NOT submit -->
+                    <button type="button"
+                            class="btn btn-secondary"
+                            data-bs-dismiss="modal">
+                        Close
+                    </button>
+
+                    <!-- ONLY this submits -->
+                    <button type="submit"
+                            class="btn btn-success">
+                        Save Permissions
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+@section Scripts {
+    @if (ViewData["OpenPermissionsModal"] as bool? == true)
+    {
+        <script>
+            new bootstrap.Modal(document.getElementById('permissionsModal')).show();
+        </script>
+    }
+    <script>
+        (() => {
+
+            document.getElementById('roleModal')
+                ?.addEventListener('show.bs.modal', e => {
+                    const btn = e.relatedTarget;
+                    const mode = btn?.dataset.mode || 'create';
+
+                    document.getElementById('roleModalTitle').textContent =
+                        mode === 'create' ? 'Create Role' : 'Edit Role';
+
+                    document.getElementById('Role_Id').value = btn?.dataset.roleid || '';
+                    document.getElementById('Role_Name').value = btn?.dataset.rolename || '';
+
+                    document.getElementById('roleForm')
+                        .setAttribute('action', `?handler=${mode === 'create' ? 'Create' : 'Edit'}`);
+                });
+
+        })();
+    </script>
+}

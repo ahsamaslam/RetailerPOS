@@ -24,13 +24,6 @@
                 </a>
             </li>
 
-            @* Admin Panel button only if admin *@
-            @if (info.IsAdmin)
-            {
-                <li class="nav-item me-2">
-                    <a class="btn btn-sm btn-outline-primary" href="~/Admin" title="Admin Panel">Admin Panel</a>
-                </li>
-            }
 
             @* Avatar + Name, clicking avatar opens a small modal *@
             <li class="nav-item">
@@ -67,12 +60,7 @@
                     <a class="list-group-item list-group-item-action" href="~/Account/Profile">
                         <i class="bi bi-person-circle me-2"></i> Profile
                     </a>
-                    @if (info.IsAdmin)
-                    {
-                        <a class="list-group-item list-group-item-action" href="~/Admin">
-                            <i class="bi bi-shield-lock-fill me-2"></i> Admin Panel
-                        </a>
-                    }
+                   
                 </div>
             </div>
 
