@@ -60,7 +60,7 @@ namespace Retailer.Web.Pages.Admin
                 {
                     try
                     {
-                        user.Roles = await _client.GetFromJsonAsync<List<string>>($"users/{user.Id}/roles") ?? new List<string>();
+                        user.Roles = await _client.GetFromJsonAsync<List<string>>($"api/admin/users/{user.Id}/roles") ?? new List<string>();
                     }
                     catch (HttpRequestException rex)
                     {
