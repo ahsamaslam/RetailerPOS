@@ -6,12 +6,6 @@
 
 <div class="d-flex justify-content-between align-items-center mb-3">
     <h3>Roles</h3>
-    <button class="btn btn-primary"
-            data-bs-toggle="modal"
-            data-bs-target="#roleModal"
-            data-mode="create">
-        <i class="bi bi-plus"></i> Create Role
-    </button>
 </div>
 
 @if (TempData["Success"] != null)
@@ -22,6 +16,21 @@
 {
     <div class="alert alert-danger">@TempData["Error"]</div>
 }
+<div class="row mb-3">
+    <div class="col-md-6">
+        <input id="searchBox"
+               class="form-control"
+               placeholder="Search roles..." />
+    </div>
+    <div class="col-md-6">
+        <button class="btn btn-primary"
+                data-bs-toggle="modal"
+                data-bs-target="#roleModal"
+                data-mode="create">
+            <i class="bi bi-plus"></i> Create Role
+        </button>
+    </div>
+</div>
 
 <table class="table table-hover align-middle">
     <thead>
@@ -33,9 +42,9 @@
     <tbody>
         @foreach (var role in Model.Roles)
         {
-            <tr>
+            <tr data-role="@role.Name">
                 <td>@role.Name</td>
-                <td class="text-end">
+                <td>
                     <div class="d-inline-flex">
 
                         <!-- Edit -->
@@ -85,7 +94,7 @@
             <form method="post" id="roleForm">
                 <div class="modal-header">
                     <h5 class="modal-title" id="roleModalTitle">Create Role</h5>
-                    <button class="btn-close" data-bs-dismiss="modal"></button>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
 
                 <div class="modal-body">
@@ -115,7 +124,7 @@
                     <h5 class="modal-title">
                         Permissions for <span id="permRoleName"></span>
                     </h5>
-                    <button class="btn-close" data-bs-dismiss="modal"></button>
+                    <button class="btn-close" type="button" aria-label="Close" data-bs-dismiss="modal"></button>
                 </div>
 
                 <div class="modal-body">
@@ -183,6 +192,17 @@
                     document.getElementById('roleForm')
                         .setAttribute('action', `?handler=${mode === 'create' ? 'Create' : 'Edit'}`);
                 });
+
+            const searchBox = document.getElementById('searchBox');
+
+            searchBox?.addEventListener('input', function () {
+                const q = this.value.trim().toLowerCase();
+
+                document.querySelectorAll('tbody tr').forEach(tr => {
+                    const roleName = tr.dataset.role?.toLowerCase() || '';
+                    tr.style.display = roleName.includes(q) ? '' : 'none';
+                });
+            });
 
         })();
     </script>
