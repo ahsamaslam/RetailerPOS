@@ -81,10 +81,10 @@ namespace Retailer.Web.Pages
 
             await next();
         }
-        protected void PopulateUserInfoAsync()
+        protected async Task PopulateUserInfoAsync()
         {
             var info = new LayoutUserInfo();
-
+            var company =await _api.GetUserCompanyAsync();
             if (User?.Identity?.IsAuthenticated == true)
             {
                 // Try common claim names; fallback to Identity.Name
@@ -101,7 +101,7 @@ namespace Retailer.Web.Pages
                 // Role name is usually "Admin" (case-sensitive depending on your store)
                 info.IsAdmin = User.IsInRole("admin");
             }
-
+            info.companyName = company.Name;
             // store in HttpContext.Items so layout/partial can retrieve it (short-lived per-request)
             HttpContext.Items[LayoutUserInfoKey] = info;
         }

@@ -1,4 +1,4 @@
-﻿using Retailer.Web.ApiDTOs;
+﻿using Retailer.Web.ApiDTOs; 
 
 namespace Retailer.Web.Models
 {
@@ -30,7 +30,7 @@ namespace Retailer.Web.Models
         public bool isEd { get; set; } = false;
         public double edVal { get; set; } = 0;
         public bool isFed { get; set; } = false;
-        public double fedVal { get; set; } = 0;
+        public double fedVal { get; set; } = 0; 
     }
     
 }

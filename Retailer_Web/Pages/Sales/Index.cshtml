@@ -62,7 +62,23 @@
                         <td>
                             <a asp-page="Edit" asp-route-id="@s.Id" class="btn btn-sm btn-warning">Edit</a>
                             <a asp-page="Details" asp-route-id="@s.Id" class="btn btn-sm btn-info">Details</a>
-                            <a asp-page="Print" asp-route-id="@s.Id" class="btn btn-sm btn-success">Print</a>
+                            <div class="dropdown">
+                                <button class="btn btn-sm btn-success dropdown-toggle"
+                                        type="button"
+                                        data-bs-toggle="dropdown">
+                                    Actions
+                                </button>
+
+                                <ul class="dropdown-menu">
+                                    <li>
+                                        <a class="dropdown-item"
+                                           asp-page-handler="Print"
+                                           asp-route-id="@s.Id">
+                                            Print
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
                         </td>
                     </tr>
 

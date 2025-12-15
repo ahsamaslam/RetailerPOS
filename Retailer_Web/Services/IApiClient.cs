@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Http;
 using Retailer.POS.Web.ApiDTOs;
 using Retailer.POS.Web.Models;
+using Retailer.Web;
 using Retailer.Web.ApiDTOs;
 using Retailer.Web.Models;
 

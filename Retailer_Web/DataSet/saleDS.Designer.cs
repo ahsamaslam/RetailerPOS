@@ -712,6 +712,8 @@ namespace Retailer.Web.DataSet {
             
             private global::System.Data.DataColumn columnCNIC;
             
+            private global::System.Data.DataColumn columnimg;
+            
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
             public SaleMasterDataTable() {
@@ -819,6 +821,14 @@ namespace Retailer.Web.DataSet {
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
+            public global::System.Data.DataColumn imgColumn {
+                get {
+                    return this.columnimg;
+                }
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
             [global::System.ComponentModel.Browsable(false)]
             public int Count {
                 get {
@@ -854,7 +864,7 @@ namespace Retailer.Web.DataSet {
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
-            public SaleMasterRow AddSaleMasterRow(string Date, string CustomerName, double SubTotal, double TotalDiscount, double TaxAmount, double BalanceAmount, string City, string Province, string CNIC) {
+            public SaleMasterRow AddSaleMasterRow(string Date, string CustomerName, double SubTotal, double TotalDiscount, double TaxAmount, double BalanceAmount, string City, string Province, string CNIC, byte img) {
                 SaleMasterRow rowSaleMasterRow = ((SaleMasterRow)(this.NewRow()));
                 object[] columnValuesArray = new object[] {
                         Date,
@@ -865,7 +875,8 @@ namespace Retailer.Web.DataSet {
                         BalanceAmount,
                         City,
                         Province,
-                        CNIC};
+                        CNIC,
+                        img};
                 rowSaleMasterRow.ItemArray = columnValuesArray;
                 this.Rows.Add(rowSaleMasterRow);
                 return rowSaleMasterRow;
@@ -897,6 +908,7 @@ namespace Retailer.Web.DataSet {
                 this.columnCity = base.Columns["City"];
                 this.columnProvince = base.Columns["Province"];
                 this.columnCNIC = base.Columns["CNIC"];
+                this.columnimg = base.Columns["img"];
             }
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
@@ -920,6 +932,8 @@ namespace Retailer.Web.DataSet {
                 base.Columns.Add(this.columnProvince);
                 this.columnCNIC = new global::System.Data.DataColumn("CNIC", typeof(string), null, global::System.Data.MappingType.Element);
                 base.Columns.Add(this.columnCNIC);
+                this.columnimg = new global::System.Data.DataColumn("img", typeof(byte), null, global::System.Data.MappingType.Element);
+                base.Columns.Add(this.columnimg);
             }
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
@@ -1918,6 +1932,22 @@ namespace Retailer.Web.DataSet {
             
             [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
+            public byte img {
+                get {
+                    try {
+                        return ((byte)(this[this.tableSaleMaster.imgColumn]));
+                    }
+                    catch (global::System.InvalidCastException e) {
+                        throw new global::System.Data.StrongTypingException("The value for column \'img\' in table \'SaleMaster\' is DBNull.", e);
+                    }
+                }
+                set {
+                    this[this.tableSaleMaster.imgColumn] = value;
+                }
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
             public bool IsDateNull() {
                 return this.IsNull(this.tableSaleMaster.DateColumn);
             }
@@ -2022,6 +2052,18 @@ namespace Retailer.Web.DataSet {
             [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
             public void SetCNICNull() {
                 this[this.tableSaleMaster.CNICColumn] = global::System.Convert.DBNull;
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
+            public bool IsimgNull() {
+                return this.IsNull(this.tableSaleMaster.imgColumn);
+            }
+            
+            [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+            [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Design.TypedDataSetGenerator", "17.0.0.0")]
+            public void SetimgNull() {
+                this[this.tableSaleMaster.imgColumn] = global::System.Convert.DBNull;
             }
         }
         

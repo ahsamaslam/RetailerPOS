@@ -25,6 +25,9 @@ namespace Retailer.POS.Web.ApiDTOs
         public int SalesMasterId { get; set; }
         public int ItemCode { get; set; }    // <- must be string
         public string ItemName { get; set; } = string.Empty;   // <- must be string
+        public string HsCode { get; set; } = string.Empty;   // <- must be string
+        public string UOM { get; set; } = string.Empty;   // <- must be string
+        public string SaleType { get; set; } = string.Empty;   // <- must be string
         public decimal Rate { get; set; }
         public decimal Qty { get; set; }
         public decimal subTotal { get; set; }

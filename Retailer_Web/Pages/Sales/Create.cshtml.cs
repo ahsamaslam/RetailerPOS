@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Extensions.Hosting;
 using Retailer.POS.Web.ApiDTOs;
 using Retailer.POS.Web.Services;
+using Retailer.Web;
 using Retailer.Web.ApiDTOs;
 using Retailer.Web.Dtos;
 using Retailer.Web.Models;

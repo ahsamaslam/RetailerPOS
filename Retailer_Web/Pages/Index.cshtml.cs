@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Retailer.POS.Web.Services;
 using Retailer.Web.ApiDTOs;
@@ -12,6 +13,21 @@ public class IndexModel : BasePageModel
     public IndexModel(IApiClient api) : base(api)
     {
     }
+    [BindProperty]
+    public double totalSale { get; set; } = 20000;
+    [BindProperty]
+    public double totalSaleReturn { get; set; } = 20000;
+    [BindProperty]
+    public int[] SaleSeries { get; set; } = new[] { 700, 100 };
+    [BindProperty]
+    
+    public string[] SaleLabels { get; set; } = new[] { "Sale", "Return"};
+    public int[] PurchaseSeries { get; set; } = new[] { 1500, 100 };
+    [BindProperty]
+    public string[] PurchaseLabels { get; set; } = new[] { "Purchase", "Return" };
+    public int[] PaymentSeries { get; set; } = new[] { 15000, 1500 };
+    [BindProperty]
+    public string[] PaymentLabels { get; set; } = new[] { "Customer", "Vendor" };
 
     public async Task<IActionResult> OnPostLogoutAsync()
     {

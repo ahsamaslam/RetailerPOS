@@ -89,12 +89,14 @@ namespace Retailer.Web.Setting
                        edVal = company.edVal
                       
                 };
-                if (company.logoPath != null)
-                {
-                    LogoFile = GetFormFileFromPath(company.logoPath);
-                    logoPath = company.logoPath;
-                }
+                //if (company.logoPath != null)
+                //{
+                //    LogoFile = GetFormFileFromPath(company.logoPath);
+                //    logoPath = company.logoPath;
+                //}
                  
+            
+            
             }           
         }
         public async Task<string> SaveLogoAsync(IFormFile? logo)

@@ -1,7 +1,9 @@
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Retailer.POS.Web.Services;
+using Retailer.Web.Helpers;
 using System.Text.Json.Serialization;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,7 +13,7 @@ builder.Services.AddRazorPages().AddNToastNotifyNoty(); // you can combine, but 
 
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddTransient<TokenDelegatingHandler>();
-
+builder.Services.AddScoped<RdlcDataTableHelper>();
 // HttpClient used by your ApiClient; TokenDelegatingHandler will add Bearer token from cookie claims
 builder.Services.AddHttpClient<IApiClient, ApiClient>(client =>
 {
