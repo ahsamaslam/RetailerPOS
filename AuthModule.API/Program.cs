@@ -106,6 +106,7 @@ builder.Services.AddAuthentication(options =>
     };
 
 });
+builder.Services.AddHttpContextAccessor();
 
 // Authorization — register before adding custom provider/handlers
 builder.Services.AddAuthorization(options =>

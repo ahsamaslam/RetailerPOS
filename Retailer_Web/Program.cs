@@ -1,5 +1,7 @@
+using AuthModule.API.Auth;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Retailer.POS.Web.Services;
 using Retailer.Web.Helpers;
 using System.Text.Json.Serialization;
@@ -50,7 +52,10 @@ builder.Services.AddAuthentication(options =>
 
 builder.Services.AddAuthorization(options =>
 {
-    options.AddPolicy("AdminOnly", policy => policy.RequireRole("Admin"));
+    options.AddPolicy(RequiresPermissionAttribute.PermissionPolicyName, policy =>
+    {
+        policy.Requirements.Add(new PermissionRequirement());
+    });
 });
 // near other builder.Services calls
 builder.Services.AddSession(options =>
@@ -74,6 +79,7 @@ app.UseStaticFiles();
 app.UseRouting();
 
 app.UseSession();
+
 // authentication before authorization and endpoints
 app.UseAuthentication();
 app.UseAuthorization();

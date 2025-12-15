@@ -65,7 +65,7 @@ namespace AuthModule.API.Controllers
             var permissions = await _permissionService.GetPermissionsForUserAsync(user.Id);
 
             foreach (var p in permissions.Distinct())
-                claims.Add(new Claim("permission", p));
+                claims.Add(new Claim("permission", p.Name));
 
             // ============================
             //   GENERATE TOKEN

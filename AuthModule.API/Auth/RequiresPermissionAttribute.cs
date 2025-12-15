@@ -6,6 +6,7 @@ namespace AuthModule.API.Auth
     /// Put this on controllers/actions or razor page handlers:
     /// [RequiresPermission("Employees.Create")]
     /// </summary>
+    [AttributeUsage(AttributeTargets.Method | AttributeTargets.Class)]
     public class RequiresPermissionAttribute : AuthorizeAttribute
     {
         public RequiresPermissionAttribute(string permission)

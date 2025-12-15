@@ -3,7 +3,28 @@
 @{
     ViewData["Title"] = "Manage Users";
 }
+<style>
+    .modal-overlay {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,0.5);
+        z-index: 9999;
+    }
 
+        .modal-overlay.show {
+            display: block;
+        }
+
+    .modal-box {
+        background: #fff;
+        width: 600px;
+        max-width: 95%;
+        margin: 10% auto;
+        padding: 1rem;
+        border-radius: 6px;
+    }
+</style>
 <!-- Page header -->
 <div class="d-flex align-items-center justify-content-between mb-4">
     <h1 class="h3 mb-0">Users</h1>
@@ -90,6 +111,18 @@
                                     title="Manage Roles">
                                 <i class="bi bi-person-plus"></i>
                             </button>
+                            <form method="post"
+                                  asp-page-handler="LoadUserPermissions"
+                                  class="d-inline action-btn">
+                                <input type="hidden" name="userId" value="@user.Id" />
+                                <input type="hidden" name="userName" value="@user.UserName" />
+
+                                <button type="submit"
+                                        class="btn btn-outline-info btn-sm btn-icon"
+                                        title="Manage Permissions">
+                                    <i class="bi bi-shield-check"></i>
+                                </button>
+                            </form>
 
                             <!-- Block / Unblock -->
                             @if (user.IsBlocked)
@@ -144,6 +177,73 @@
         </ul>
     </nav>
 }
+
+<div class="modal fade"
+     id="userPermissionsModal"
+     tabindex="-1"
+     aria-hidden="true">
+
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+
+            <form method="post"
+                  asp-page-handler="AssignUserPermissions">
+
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        Permissions for <span>@Model.SelectedUserName</span>
+                    </h5>
+                    <button type="button"
+                            class="btn-close"
+                            data-bs-dismiss="modal"></button>
+                </div>
+
+                <div class="modal-body">
+                    <input type="hidden"
+                           name="UserId"
+                           value="@Model.SelectedUserId" />
+
+                    <div class="row">
+                        @foreach (var p in Model.AllPermissions)
+                        {
+                            <div class="col-6 mb-2">
+                                <div class="form-check">
+                                    <input class="form-check-input"
+                                           type="checkbox"
+                                           name="SelectedPermissions"
+                                           value="@p.Id"
+                                           id="perm_@p.Id"
+                                           @(Model.AssignedUserPermissionIds.Contains(p.Id) ? "checked" : "") />
+                                    <label class="form-check-label"
+                                           for="perm_@p.Id">
+                                        @p.Name
+                                    </label>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button"
+                            class="btn btn-secondary"
+                            data-bs-dismiss="modal">
+                        Close
+                    </button>
+
+                    <button type="submit"
+                            class="btn btn-success">
+                        Save Permissions
+                    </button>
+                </div>
+
+            </form>
+
+        </div>
+    </div>
+</div>
+
+
 
 <!-- ---------- Create / Edit User Modal ---------- -->
 <div class="modal fade" id="createuserModalpopup" tabindex="-1" aria-hidden="true">
@@ -331,6 +431,45 @@
                 // ensure form posts to handler AssignRoles
                 document.getElementById('rolesForm').setAttribute('action', '?handler=AssignRoles');
             });
+                    // User Permissions modal populate
+                // User Permissions modal populate
+        const userPermModalEl = document.getElementById('userPermissionsModal');
+
+        userPermModalEl?.addEventListener('show.bs.modal', function (e) {
+            const trigger = e.relatedTarget;
+
+            const userId = trigger?.getAttribute('data-userid');
+            const username = trigger?.getAttribute('data-username');
+
+            const currentPermsRaw =
+                trigger?.getAttribute('data-currentpermissions') || '';
+
+            const currentPerms = currentPermsRaw
+                ? currentPermsRaw.split(',').map(p => p.trim())
+                : [];
+
+            // Set header username
+            document.getElementById('userPermUserName').textContent = username || '';
+
+            // Set hidden userId
+            document.getElementById('userPermUserId').value = userId || '';
+
+            // Reset all checkboxes
+            document.querySelectorAll('.user-perm-checkbox')
+                .forEach(cb => cb.checked = false);
+
+            // Check assigned permissions
+            document.querySelectorAll('.user-perm-checkbox')
+                .forEach(cb => {
+                    if (currentPerms.includes(cb.value)) {
+                        cb.checked = true;
+                    }
+                });
+
+            // Ensure correct handler
+            document.getElementById('userPermissionsForm')
+                .setAttribute('action', '?handler=AssignUserPermissions');
+        });
 
             // Simple search filter
             const searchBox = document.getElementById('searchBox');
@@ -343,5 +482,16 @@
                 });
             });
         })();
+    </script>
+}
+@if (ViewData["OpenUserPermissionsModal"] as bool? == true)
+{
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const modalEl = document.getElementById('userPermissionsModal');
+            if (modalEl) {
+                new bootstrap.Modal(modalEl).show();
+            }
+        });
     </script>
 }

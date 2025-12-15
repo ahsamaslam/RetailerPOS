@@ -1,8 +1,11 @@
+using AuthModule.API.Auth;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using Retailer.Api.Data;
 using Retailer.Api.Services;
 using Retailer.API.Services;
 using Retailer.POS.Api.Data;
@@ -34,7 +37,7 @@ builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<IItemService, ItemService>();
 builder.Services.AddScoped<IPurchaseService, PurchaseService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
-builder.Services.AddScoped<IDbInitializer, DbInitializer>();
+builder.Services.AddScoped<IDbInitializer, Retailer.API.Services.DbInitializer>();
 
 // JWT Authentication
 var jwtSection = builder.Configuration.GetSection("Jwt");
@@ -106,7 +109,6 @@ builder.Services.AddHttpClient("AuthModule", client =>
 // ensure the handler is applied to this HttpClient
 .AddHttpMessageHandler<TokenDelegationHandler>();
 
-builder.Services.AddTransient<TokenDelegationHandler>();
 // Register MenuService expecting an HttpClientFactory (inject IHttpClientFactory or HttpClient via named client)
 builder.Services.AddScoped<IMenuService, MenuService>();
 builder.Services.AddScoped<ICompanyService, CompanyService>();
@@ -139,12 +141,14 @@ builder.Services.AddHttpClient<IFbrClient, FbrClient>(client =>
     client.BaseAddress = new Uri(builder.Configuration["Fbr:Url"] ?? "https://fbr.example/");
     // set default headers or auth here if required
 });
-builder.Services.AddRazorPages().AddJsonOptions(options =>
+builder.Services.AddAuthorization(options =>
 {
-    options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
+    options.AddPolicy(RequiresPermissionAttribute.PermissionPolicyName, policy =>
+    {
+        policy.Requirements.Add(new PermissionRequirement());
+    });
 });
-builder.Services.AddAuthorization();
-
+builder.Services.AddScoped<IAuthorizationHandler, ClaimsPermissionHandler>();
 var app = builder.Build();
 
 app.UseSwagger();
