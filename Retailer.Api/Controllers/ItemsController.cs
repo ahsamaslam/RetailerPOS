@@ -1,3 +1,5 @@
+using AuthModule.API.Auth;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Retailer.POS.Api.DTOs;
 using Retailer.POS.Api.Services;
@@ -7,11 +9,13 @@ namespace Retailer.POS.Api.Controllers
 
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize(Policy = "Permission")]
     public class ItemsController : ControllerBase
     {
         private readonly IItemService _svc;
         public ItemsController(IItemService svc) => _svc = svc;
 
+        [RequiresPermission("Items.View")]
         [HttpGet]
         public async Task<IActionResult> GetAll() => Ok(await _svc.GetAllAsync());
 
@@ -21,7 +25,7 @@ namespace Retailer.POS.Api.Controllers
           return  Ok(await  _svc.GetStockItemsAsync(categoryId, groupId));
              
         }
-
+        [RequiresPermission("Items.Edit")]
         [HttpGet("{id}")]
         public async Task<IActionResult> Get(int id)
         {

@@ -44,7 +44,7 @@ namespace AuthModule.API.Controllers
             {
                 UserId = userId,
                 Roles = roles.ToList(),
-                Permissions = permissions
+                Permissions = permissions.Select(x => x.Name).ToList()
             });
         }
         [Authorize]

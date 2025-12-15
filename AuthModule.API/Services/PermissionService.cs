@@ -48,12 +48,43 @@ namespace AuthModule.API.Services
             _db.RolePermissions.Add(new RolePermission { RoleId = roleId, PermissionId = permissionId });
             await _db.SaveChangesAsync();
         }
-        public async Task AssignPermissionToUserAsync(string UserId, int permissionId)
+        public async Task AssignPermissionToUserAsync(string userId, List<int> permissionIds)
         {
-            if (await _db.UserPermissions.AnyAsync(rp => rp.UserId == UserId && rp.PermissionId == permissionId)) return;
-            _db.UserPermissions.Add(new UserPermission { UserId = UserId, PermissionId = permissionId });
+            permissionIds ??= new List<int>();
+
+            // Load existing permissions for user
+            var existingPermissions = await _db.UserPermissions
+                .Where(up => up.UserId == userId)
+                .ToListAsync();
+
+            var existingIds = existingPermissions
+                .Select(up => up.PermissionId)
+                .ToList();
+
+            // Determine permissions to add
+            var toAdd = permissionIds
+                .Except(existingIds)
+                .Select(pid => new UserPermission
+                {
+                    UserId = userId,
+                    PermissionId = pid
+                })
+                .ToList();
+
+            // Determine permissions to remove
+            var toRemove = existingPermissions
+                .Where(up => !permissionIds.Contains(up.PermissionId))
+                .ToList();
+
+            if (toAdd.Any())
+                _db.UserPermissions.AddRange(toAdd);
+
+            if (toRemove.Any())
+                _db.UserPermissions.RemoveRange(toRemove);
+
             await _db.SaveChangesAsync();
         }
+
         public async Task<bool> RemovePermissionFromRoleAsync(string roleId, int permissionId)
         {
             var existing = await _db.RolePermissions.FirstOrDefaultAsync(rp => rp.RoleId == roleId && rp.PermissionId == permissionId);
@@ -104,42 +135,74 @@ namespace AuthModule.API.Services
 
 
         }
-        public async Task<List<string>> GetPermissionsForUserAsync(string userId)
+        public async Task<List<PermissionDto>> GetPermissionsForUserAsync(string userId)
         {
-            if (string.IsNullOrWhiteSpace(userId)) return new List<string>();
+            if (string.IsNullOrWhiteSpace(userId))
+                return new List<PermissionDto>();
 
-            var userRolesSet = _db.Set<IdentityUserRole<string>>();
+            //// -------------------------
+            //// 1. Get role IDs
+            //// -------------------------
+            //var roleIds = await _db.Set<IdentityUserRole<string>>()
+            //    .Where(ur => ur.UserId == userId)
+            //    .Select(ur => ur.RoleId)
+            //    .ToListAsync();
 
-            var roleIds = await (from ur in userRolesSet
-                                 where ur.UserId == userId
-                                 select ur.RoleId).ToListAsync();
+            //// -------------------------
+            //// 2. Load permissions from roles
+            //// -------------------------
+            var permissions = new Dictionary<int, PermissionDto>();
 
-            // permissions from roles
-            var rolePerms = new List<string>();
-            if (roleIds.Count > 0)
-            {
-                rolePerms = await _db.RolePermissions
-                    .Where(rp => roleIds.Contains(rp.RoleId))
-                    .Select(rp => rp.Permission!.Name)
-                    .ToListAsync();
-            }
+            //if (roleIds.Any())
+            //{
+            //    var rolePermissions = await _db.RolePermissions
+            //        .Include(rp => rp.Permission)
+            //        .Where(rp => roleIds.Contains(rp.RoleId))
+            //        .Select(rp => rp.Permission!)
+            //        .Distinct()
+            //        .ToListAsync();
 
-            // direct user permissions (with IsAllowed flag)
-            var userPerms = await _db.UserPermissions
+            //    foreach (var p in rolePermissions)
+            //    {
+            //        permissions[p.Id] = new PermissionDto(
+            //            p.Id,
+            //            p.Name,
+            //            p.Description ?? string.Empty
+            //        );
+            //    }
+            //}
+
+            // -------------------------
+            // 3. Apply user overrides
+            // -------------------------
+            var userOverrides = await _db.UserPermissions
+                .Include(up => up.Permission)
                 .Where(up => up.UserId == userId)
-                .Include(x => x.Permission)
-                .Select(up => new { up.Permission!.Name, up.IsAllowed, link = up.Permission.link })
                 .ToListAsync();
 
-            var result = new HashSet<string>(rolePerms, StringComparer.OrdinalIgnoreCase);
-
-            foreach (var up in userPerms)
+            foreach (var up in userOverrides)
             {
-                if (up.IsAllowed) result.Add(up.Name);
-                else result.RemoveWhere(n => string.Equals(n, up.Name, StringComparison.OrdinalIgnoreCase));
+                var p = up.Permission!;
+                if (up.IsAllowed)
+                {
+                    permissions[p.Id] = new PermissionDto(
+                        p.Id,
+                        p.Name,
+                        p.Description ?? string.Empty
+                    );
+                }
+                else
+                {
+                    permissions.Remove(p.Id);
+                }
             }
 
-            return result.ToList();
+            // -------------------------
+            // 4. Return final permissions
+            // -------------------------
+            return permissions.Values
+                .OrderBy(p => p.Name)
+                .ToList();
         }
 
         /// <summary>
@@ -153,10 +216,9 @@ namespace AuthModule.API.Services
 
             permission = permission.Trim();
 
-            // First, check cached computed permissions for user
-            var perms = await GetPermissionsForUserAsync(userId);
-            var found = perms.Any(p => string.Equals(p, permission, StringComparison.OrdinalIgnoreCase));
-            return found;
+            var permissions = await GetPermissionsForUserAsync(userId);
+
+            return permissions.Any(p => p.Name.Equals(permission, StringComparison.OrdinalIgnoreCase));
         }
         /// <summary>
         /// Remove a specific permission assignment for a user.

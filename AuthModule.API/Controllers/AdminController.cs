@@ -397,13 +397,13 @@ namespace AuthModule.API.Controllers
         }
 
         // POST: api/admin/users/{userId}/permissions/{permissionId}
-        [HttpPost("users/{userId}/permissions/{permissionId:int}")]
-        public async Task<IActionResult> AssignPermissionToUserEndpoint(string userId, int permissionId)
+        [HttpPut("users/{userId}/permissions")]
+        public async Task<IActionResult> AssignPermissionToUserEndpoint(string userId, [FromBody] List<int> permissionIds)
         {
             var user = await _userManager.FindByIdAsync(userId);
             if (user == null) return NotFound("User not found");
 
-            await _perm.AssignPermissionToUserAsync(userId, permissionId);
+            await _perm.AssignPermissionToUserAsync(userId, permissionIds);
             return NoContent();
         }
 

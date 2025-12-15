@@ -1,7 +1,8 @@
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.ReportingServices.ReportProcessing.ReportObjectModel;
+using Retailer.POS.Web.Services;
 using System.ComponentModel.DataAnnotations;
 using System.Net;
-using Microsoft.AspNetCore.Mvc;
-using Retailer.POS.Web.Services;
 
 namespace Retailer.Web.Pages.Admin
 {
@@ -41,9 +42,15 @@ namespace Retailer.Web.Pages.Admin
 
         // pagination support (optional)
         public int Page { get; set; } = 1;
-        public int TotalPages { get; set; } = 1
+        public int TotalPages { get; set; } = 1;
 
-;        // ----------------- Page handlers -----------------
+        public string? SelectedUserId { get; set; }
+        public string? SelectedUserName { get; set; }
+
+        public List<int> AssignedUserPermissionIds { get; set; } = new();
+        public List<PermissionViewModel> AllPermissions { get; set; } = new();
+
+        // ----------------- Page handlers -----------------
 
         public async Task<IActionResult> OnGetAsync(int page = 1)
         {
@@ -54,13 +61,14 @@ namespace Retailer.Web.Pages.Admin
                 // get users and role names
                 Users = await _client.GetFromJsonAsync<List<UserViewModel>>("api/admin/users") ?? new List<UserViewModel>();
                 AllRoles = await _client.GetFromJsonAsync<List<string>>("api/admin/roles/names") ?? new List<string>();
-
+                AllPermissions = await _client.GetFromJsonAsync<List<PermissionViewModel>>("api/admin/permissions") ?? new List<PermissionViewModel>();
                 // populate roles per user (API call per user) - this keeps backward compatibility
                 foreach (var user in Users)
                 {
                     try
                     {
                         user.Roles = await _client.GetFromJsonAsync<List<string>>($"api/admin/users/{user.Id}/roles") ?? new List<string>();
+                       
                     }
                     catch (HttpRequestException rex)
                     {
@@ -68,7 +76,6 @@ namespace Retailer.Web.Pages.Admin
                         user.Roles = new List<string>();
                     }
                 }
-
                 // optional simple paging if API supports - for now this is client-side values
                 TotalPages = 1;
             }
@@ -339,6 +346,85 @@ namespace Retailer.Web.Pages.Admin
             }
             catch { return "Unknown error"; }
         }
+        public async Task<IActionResult> OnPostLoadUserPermissionsAsync(string userId, string userName)
+        {
+            SelectedUserId = userId;
+            SelectedUserName = userName;
+
+            await OnGetAsync(); // reload users, roles, permissions
+
+            var response = await _client.GetAsync(
+                $"api/admin/users/{userId}/permissions");
+
+            if (response.StatusCode == HttpStatusCode.Forbidden)
+            {
+                TempData["Error"] = "You do not have permission to manage user permissions.";
+                return RedirectToPage();
+            }
+
+            if (!response.IsSuccessStatusCode)
+            {
+                TempData["Error"] = "Failed to load user permissions.";
+                return RedirectToPage();
+            }
+            var raw = await response.Content.ReadAsStringAsync();
+            _logger.LogInformation(raw);
+            var perms = await response.Content
+                .ReadFromJsonAsync<List<PermissionViewModel>>()
+                ?? new();
+
+            AssignedUserPermissionIds = perms.Select(p => p.Id).ToList();
+
+            ViewData["OpenUserPermissionsModal"] = true;
+            return Page();
+        }
+        public async Task<IActionResult> OnPostAssignUserPermissionsAsync(
+     string userId,
+     List<int> selectedPermissions)
+        {
+            if (string.IsNullOrWhiteSpace(userId))
+            {
+                TempData["Error"] = "Invalid user.";
+                return RedirectToPage();
+            }
+
+            selectedPermissions ??= new List<int>();
+
+            var existingPerms = await _client
+                .GetFromJsonAsync<List<PermissionViewModel>>(
+                    $"api/admin/users/{userId}/permissions"
+                ) ?? new List<PermissionViewModel>();
+
+            var existingIds = existingPerms.Select(p => p.Id).ToHashSet();
+
+            var toAdd = selectedPermissions.Except(existingIds).ToList();
+            var toRemove = existingIds.Except(selectedPermissions).ToList();
+
+            var resp = await _client.PutAsJsonAsync($"api/admin/users/{userId}/permissions",selectedPermissions);
+
+            if (!resp.IsSuccessStatusCode)
+            {
+                TempData["Error"] = "Failed to update user permissions.";
+                return RedirectToPage();
+            }
+
+            foreach (var pid in toRemove)
+            {
+                var resp_r = await _client.DeleteAsync(
+                    $"api/admin/users/{userId}/permissions/{pid}"
+                );
+
+                if (!resp_r.IsSuccessStatusCode)
+                {
+                    TempData["Error"] = "Failed to remove permissions.";
+                    return RedirectToPage();
+                }
+            }
+
+            TempData["Success"] = "User permissions updated successfully.";
+            return RedirectToPage();
+        }
+
     }
 
     // --------- VIEW MODELS / DTOs used by the page (adjust if you have real DTOs) ----------
@@ -348,6 +434,7 @@ namespace Retailer.Web.Pages.Admin
         public string UserName { get; set; } = "";
         public string Email { get; set; } = "";
         public List<string> Roles { get; set; } = new();
+        public List<string> Permissions { get; set; } = new();
         public bool IsBlocked { get; set; } = false;
         public string? AvatarUrl { get; set; }
         public string oldPassword { get; set; } = "";
