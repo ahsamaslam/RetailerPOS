@@ -89,6 +89,8 @@ public class LoginModel : PageModel
             .Select(c => c.Value)
             .Distinct(StringComparer.OrdinalIgnoreCase)
             .ToArray();
+        var pictureClaim = jwt.Claims
+    .FirstOrDefault(c => string.Equals(c.Type, "picture", StringComparison.OrdinalIgnoreCase))?.Value;
 
         // Build claims for cookie principal — include token as access_token claim
         var claims = new List<Claim>
@@ -98,7 +100,10 @@ public class LoginModel : PageModel
             new Claim("access_token", token),  // TokenDelegatingHandler will read this claim if needed
             new Claim("sub", userId ?? string.Empty)
         };
-
+        if (!string.IsNullOrEmpty(pictureClaim))
+        {
+            claims.Add(new Claim("picture", pictureClaim));
+        }
         // add roles
         foreach (var r in roles)
             claims.Add(new Claim(ClaimTypes.Role, r));

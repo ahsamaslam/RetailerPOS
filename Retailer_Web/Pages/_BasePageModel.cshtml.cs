@@ -93,10 +93,7 @@ namespace Retailer.Web.Pages
                                 ?? User.Identity?.Name
                                 ?? "User";
 
-                info.AvatarUrl = User.FindFirst("picture")?.Value
-                                 ?? User.FindFirst("avatar")?.Value
-                                 // use Url.Content to make sure ~ works when rendering
-                                 ?? Url.Content("~/assets/img/user2-160x160.jpg");
+                info.AvatarUrl = User.FindFirst("picture")?.Value;
 
                 // Role name is usually "Admin" (case-sensitive depending on your store)
                 info.IsAdmin = User.IsInRole("admin");

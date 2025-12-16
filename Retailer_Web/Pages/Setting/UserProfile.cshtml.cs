@@ -1,9 +1,18 @@
+using Microsoft.AspNetCore.Http.Json;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Retailer.POS.Web.Services;
 using Retailer.Web.ApiDTOs;
+using Retailer.Web.Helpers;
 using Retailer.Web.Models;
 using Retailer.Web.Pages.Admin;
+using static System.Net.WebRequestMethods;
+using System.Net;
+using Retailer.POS.Web.ApiDTOs;
+using System.Text.Json;
+using Microsoft.ReportingServices.ReportProcessing.ReportObjectModel;
+using System.Net.Http;
+using System.Net.Http.Headers;
 
 namespace Retailer.Web.Pages.Setting
 {
@@ -11,47 +20,24 @@ namespace Retailer.Web.Pages.Setting
     {
         private readonly IApiClient _api;
         private IWebHostEnvironment env;
+        private readonly HttpClient _httpFactory;
+        private readonly HttpClient _http;
         public bool IsAdmin => User.IsInRole("admin");
-        public UserProfileModel(IApiClient api, IWebHostEnvironment _env) : base(api)
+        private readonly JsonSerializerOptions _jsonOptions = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+
+        public UserProfileModel(IApiClient api, IWebHostEnvironment _env, IHttpClientFactory httpFactory) : base(api)
         {
             env = _env;
             _api = api;
+            _http = httpFactory.CreateClient("AuthApi");
         }
+
         [BindProperty]
         public IFormFile? LogoFile { get; set; } // For new file upload
 
         [BindProperty]
         public UserViewModel Input { get; set; } = new();
         public Guid companyID { get; set; } = new();
-        public IFormFile? GetFormFileFromPath(string relativePath)
-        {
-            if (string.IsNullOrEmpty(relativePath))
-                return null;
-
-            // Remove leading slashes
-            relativePath = relativePath.TrimStart('/');
-
-            // Remove "uploads/CompanyLogo/" prefix if present
-            var prefix = "uploads/CompanyLogo/";
-            if (relativePath.StartsWith(prefix, StringComparison.OrdinalIgnoreCase))
-            {
-                relativePath = relativePath.Substring(prefix.Length);
-            }
-
-            // Combine with wwwroot/uploads/CompanyLogo
-            var folderPath = Path.Combine(env.WebRootPath, "uploads", "UserLogo");
-            var filePath = Path.Combine(folderPath, relativePath); 
-            if (!System.IO.File.Exists(filePath))
-                throw new FileNotFoundException("File not found", filePath); 
-            var fileStream = new FileStream(filePath, FileMode.Open, FileAccess.Read); 
-            IFormFile formFile = new FormFile(fileStream, 0, fileStream.Length, "file", Path.GetFileName(filePath))
-            {
-                Headers = new HeaderDictionary(),
-                ContentType = "application/octet-stream" // or detect MIME type dynamically
-            };
-
-            return formFile;
-        }
         public async Task<string> SaveLogoAsync(IFormFile? logo)
         {
             if (logo == null || logo.Length == 0)
@@ -84,53 +70,119 @@ namespace Retailer.Web.Pages.Setting
             // Return the relative URL to use in img src
             return $"/uploads/CompanyLogo/{fileName}";
         }
+        public async Task<IFormFile?> GetIFormFileFromUrlAsync(string url)
+        {
+            using var httpClient = new HttpClient();
+            var response = await httpClient.GetAsync(url);
 
+            if (!response.IsSuccessStatusCode)
+                return null;
+
+            var contentStream = await response.Content.ReadAsStreamAsync();
+            var contentBytes = await response.Content.ReadAsByteArrayAsync();
+
+            // Derive filename from URL (or set your own)
+            var fileName = Path.GetFileName(new Uri(url).AbsolutePath);
+
+            // Create the IFormFile from memory
+            var formFile = new FormFile(
+                baseStream: new MemoryStream(contentBytes),
+                baseStreamOffset: 0,
+                length: contentBytes.Length,
+                name: "file",
+                fileName: fileName
+            )
+            {
+                Headers = new HeaderDictionary(),
+                ContentType = response.Content.Headers.ContentType?.MediaType ?? "application/octet-stream"
+            };
+
+            return formFile;
+        }
         public async Task OnGetAsync()
         {
-            var user = await _api.GetCurrentUserAsync();
+            var user = await GetCurrentUserAsync();
 
             if (user != null)
             {
                 
                Input = new UserViewModel
                 {
-                Id = user.Id,
-               UserName = user.UserName,
-                   Email = user.Email
-                //    Address = company.Address,
-                //    ContactPhone = company.ContactPhone,
-                //    ContactEmail = company.ContactEmail,
-                //    NTN = company.NTN,
-                //    CNIC = company.CNIC,
-                //    STRN = company.STRN,
-                //    ContactPerson = company.ContactPerson,
-                //    ShortName = company.ShortName,
-                //    fbrToken = company.fbrToken,
-                //    pralToken = company.pralToken,
-                //    fbrActive = company.fbrActive,
-                //    Province = company.Province,
-                //    logoPath = company.logoPath,
+                    Id = user.Id,
+                    UserName = user.UserName,
+                    Email = user.Email,
+                    picture = user.picture
               };
-              if (user.picture != null)
-                 LogoFile = GetFormFileFromPath(user.picture);
+                if (user.picture != null)
+                {
+                    LogoFile = await GetIFormFileFromUrlAsync(user.picture); 
+                }
             }
         }
 
+        [IgnoreAntiforgeryToken]
         public async Task<IActionResult> OnPostUpdateProfileAsync()
         {
-            if (!ModelState.IsValid) return Page();
-            Input.logoPath = await SaveLogoAsync(LogoFile);
+            var content = new MultipartFormDataContent
+            {
+                { new StringContent(Input.Id), "UserId" },
+                { new StringContent(Input.UserName), "UserName" },
+                { new StringContent(Input.Email ?? ""), "Email" }
+            };
+
+            if (LogoFile != null)
+            {
+                var fileContent = new StreamContent(LogoFile.OpenReadStream());
+                fileContent.Headers.ContentType =
+                    new MediaTypeHeaderValue(LogoFile.ContentType);
+
+                content.Add(fileContent, "Picture", LogoFile.FileName);
+            }
+
+            var response = await _http.PutAsync("api/authuser/profile", content);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var error = await response.Content.ReadAsStringAsync();
+                throw new Exception(error);
+            }
+
             return Page();
-            //var user = await _api.GetCurrentUserAsync();
         }
         // ================= Password Change Handler =================
         public async Task<IActionResult> OnPostChangePasswordAsync()
         {
-            var user = await _api.CheckPasswordAsync( new UserPasswordDto { CurrentPassword  =  Input.oldPassword , NewPassword =  Input.currentPasswordA, userID  = Input.Id });
+            var user = await CheckPasswordAsync( new UserPasswordDto { CurrentPassword  =  Input.oldPassword , NewPassword =  Input.currentPasswordA, userID  = Input.Id });
             return Page();
         }
-          
+        private async Task<UserDto?> GetCurrentUserAsync()
+        {
+            using var r = await _http.GetAsync("api/authuser/currentUser");
+            if (r.StatusCode == HttpStatusCode.Unauthorized) throw new ApiUnauthorizedException();
+            r.EnsureSuccessStatusCode();
+            return await r.Content.ReadFromJsonAsync<UserDto>(_jsonOptions) ?? new UserDto();
+        }
 
-         
+        private async Task<(bool value, string Message)> ChangePasswordAsync(UserPasswordDto dto)
+        {
+            using var r = await _http.PostAsJsonAsync("api/authuser/ChangePassword", dto, _jsonOptions);
+            if (r.StatusCode == HttpStatusCode.Unauthorized) throw new ApiUnauthorizedException();
+            if (r.IsSuccessStatusCode) return (true, "Item Type created successfully");
+            var content = await r.Content.ReadFromJsonAsync<Dictionary<string, string>>(_jsonOptions);
+            string message = content != null && content.ContainsKey("message") ? content["message"] : await r.Content.ReadAsStringAsync();
+            return (false, message);
+        }
+
+        private async Task<(bool value, string Message)> CheckPasswordAsync(UserPasswordDto dto)
+        {
+            using var r = await _http.PostAsJsonAsync("api/authuser/currentUserPassword", dto, _jsonOptions);
+            if (r.StatusCode == HttpStatusCode.Unauthorized) throw new ApiUnauthorizedException();
+            if (r.IsSuccessStatusCode) return (true, "Item Type created successfully");
+            var content = await r.Content.ReadFromJsonAsync<Dictionary<string, string>>(_jsonOptions);
+            string message = content != null && content.ContainsKey("message") ? content["message"] : await r.Content.ReadAsStringAsync();
+            return (false, message);
+        }
+
+
     }
 }

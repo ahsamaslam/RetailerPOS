@@ -82,6 +82,14 @@ public class ApiClient : IApiClient
     {
         return await GetAsync<List<ItemDto>>("api/items");
     }
+    public async Task<List<CitiesDto>> GetCitiesAsync()
+    {
+        return await GetAsync<List<CitiesDto>>("api/Cities");
+    }
+    public async Task<List<ProvienceDto>> GetProvienceAsync()
+    {
+        return await GetAsync<List<ProvienceDto>>("api/Provience");
+    }
     public async Task<List<ItemDto>> GetStockItemsAsync(int categoryId, int groupId)
     {
         return await GetAsync<List<ItemDto>>("api/items/GetStockItemsAsync/" + categoryId.ToString() + "/" + groupId.ToString());
@@ -152,20 +160,20 @@ public class ApiClient : IApiClient
 
     // Employees
     public async Task<List<EmployeeDto>> GetEmployeesAsync() =>
-        await GetAsync<List<EmployeeDto>>("api/employees") ?? new List<EmployeeDto>();
+        await GetAsync<List<EmployeeDto>>("api/employee") ?? new List<EmployeeDto>();
 
-    public async Task<EmployeeDto?> GetEmployeeByIdAsync(int id) => await GetAsync<EmployeeDto>($"api/employees/{id}");
+    public async Task<EmployeeDto?> GetEmployeeByIdAsync(int id) => await GetAsync<EmployeeDto>($"api/employee/{id}");
 
     public async Task<bool> CreateEmployeeAsync(EmployeeDto employee)
     {
-        using var resp = await _http.PostAsJsonAsync("api/employees", employee, _jsonOptions);
+        using var resp = await _http.PostAsJsonAsync("api/employee", employee, _jsonOptions);
         if (resp.StatusCode == HttpStatusCode.Unauthorized) throw new ApiUnauthorizedException();
         return resp.IsSuccessStatusCode;
     }
 
     public async Task<bool> UpdateEmployeeAsync(EmployeeDto employee)
     {
-        using var resp = await _http.PutAsJsonAsync($"api/employees/{employee.Id}", employee, _jsonOptions);
+        using var resp = await _http.PutAsJsonAsync($"api/employee/{employee.Id}", employee, _jsonOptions);
         if (resp.StatusCode == HttpStatusCode.Unauthorized) throw new ApiUnauthorizedException();
         return resp.IsSuccessStatusCode;
     }
@@ -173,8 +181,11 @@ public class ApiClient : IApiClient
     // Customers
     public async Task<List<CustomerViewModel>> GetCustomersAsync() =>
         await GetAsync<List<CustomerViewModel>>("api/customers") ?? new List<CustomerViewModel>();
-
+    // Banks
+    public async Task<List<BanksViewModel>> GetBanksAsync() =>
+        await GetAsync<List<BanksViewModel>>("api/banks") ?? new List<BanksViewModel>();
     public async Task<CustomerViewModel?> GetCustomerByIdAsync(int id) => await GetAsync<CustomerViewModel>($"api/customers/{id}");
+    public async Task<BanksViewModel?> GetBankByIdAsync(int id) => await GetAsync<BanksViewModel>($"api/banks/{id}");
 
     public async Task<bool> CreateCustomerAsync(CustomerViewModel customer)
     {
@@ -182,10 +193,22 @@ public class ApiClient : IApiClient
         if (resp.StatusCode == HttpStatusCode.Unauthorized) throw new ApiUnauthorizedException();
         return resp.IsSuccessStatusCode;
     }
+    public async Task<bool> CreateBankAsync(BanksViewModel customer)
+    {
+        using var resp = await _http.PostAsJsonAsync("api/Banks", customer, _jsonOptions);
+        if (resp.StatusCode == HttpStatusCode.Unauthorized) throw new ApiUnauthorizedException();
+        return resp.IsSuccessStatusCode;
+    }
 
     public async Task<bool> UpdateCustomerAsync(CustomerViewModel customer)
     {
         using var resp = await _http.PutAsJsonAsync($"api/customers/{customer.Id}", customer, _jsonOptions);
+        if (resp.StatusCode == HttpStatusCode.Unauthorized) throw new ApiUnauthorizedException();
+        return resp.IsSuccessStatusCode;
+    }
+     public async Task<bool> UpdateBankAsync(BanksViewModel bank)
+    {
+        using var resp = await _http.PutAsJsonAsync($"api/banks/{bank.Id}", bank, _jsonOptions);
         if (resp.StatusCode == HttpStatusCode.Unauthorized) throw new ApiUnauthorizedException();
         return resp.IsSuccessStatusCode;
     }
@@ -631,31 +654,5 @@ public class ApiClient : IApiClient
     //public async Task<PurchaseMasterDto?> GetPurchaseByIdAsync(int id) => await GetAsync<PurchaseMasterDto>($"api/Purchases/{id}");
 
     // Password & user-related
-    public async Task<UserDto?> GetCurrentUserAsync()
-    {
-        using var r = await _http.GetAsync("api/User/currentUser");
-        if (r.StatusCode == HttpStatusCode.Unauthorized) throw new ApiUnauthorizedException();
-        r.EnsureSuccessStatusCode();
-        return await r.Content.ReadFromJsonAsync<UserDto>(_jsonOptions) ?? new UserDto();
-    }
-
-    public async Task<(bool value, string Message)> ChangePasswordAsync(UserPasswordDto dto)
-    {
-        using var r = await _http.PostAsJsonAsync("api/User/ChangePassword", dto, _jsonOptions);
-        if (r.StatusCode == HttpStatusCode.Unauthorized) throw new ApiUnauthorizedException();
-        if (r.IsSuccessStatusCode) return (true, "Item Type created successfully");
-        var content = await r.Content.ReadFromJsonAsync<Dictionary<string, string>>(_jsonOptions);
-        string message = content != null && content.ContainsKey("message") ? content["message"] : await r.Content.ReadAsStringAsync();
-        return (false, message);
-    }
-
-    public async Task<(bool value, string Message)> CheckPasswordAsync(UserPasswordDto dto)
-    {
-        using var r = await _http.PostAsJsonAsync("api/User/currentUserPassword", dto, _jsonOptions);
-        if (r.StatusCode == HttpStatusCode.Unauthorized) throw new ApiUnauthorizedException();
-        if (r.IsSuccessStatusCode) return (true, "Item Type created successfully");
-        var content = await r.Content.ReadFromJsonAsync<Dictionary<string, string>>(_jsonOptions);
-        string message = content != null && content.ContainsKey("message") ? content["message"] : await r.Content.ReadAsStringAsync();
-        return (false, message);
-    }
+    
 }

@@ -8,6 +8,7 @@ namespace Retailer.Web.Models
 		public string AvatarUrl { get; set; } = "/assets/img/user2-160x160.jpg";
 		public bool IsAdmin { get; set; } = false;
 		public string? companyName { get; set; }
+		public string? picture { get; set; }
 
     }
 }

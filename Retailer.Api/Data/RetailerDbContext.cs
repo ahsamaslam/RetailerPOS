@@ -17,6 +17,7 @@ public class RetailerDbContext : DbContext
     public DbSet<UnitOfMeasure> UnitOfMeasures => Set<UnitOfMeasure>();
     public DbSet<Item> Items => Set<Item>();
     public DbSet<Branch> Branches => Set<Branch>();
+    public DbSet<Banks> Banks => Set<Banks>();
     public DbSet<Employee> Employees => Set<Employee>();
     public DbSet<Role> Roles => Set<Role>();
     public DbSet<Scope> Scopes => Set<Scope>();

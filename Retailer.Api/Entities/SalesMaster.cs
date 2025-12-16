@@ -13,6 +13,8 @@ public class SalesMaster : BaseEntity
     public decimal BalanceAmount { get; set; }
     public int? CustomerCode { get; set; }
     public int Year { get; set; } = 1;
+    public int saleCode { get; set; } = 1;
+    public Guid companyID { get; set; }
     public ICollection<SalesDetail> Details { get; set; } = new List<SalesDetail>();
 }
 

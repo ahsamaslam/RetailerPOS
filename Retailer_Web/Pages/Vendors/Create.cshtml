@@ -2,25 +2,90 @@
 @model Retailer.POS.Web.Pages.Vendors.CreateModel
 @inject Retailer.POS.Web.Services.IApiClient ApiClient
 
-<h2>Create Vendor</h2>
+<main class="app-main">
+    <!--begin::App Content Header-->
+    <div class="app-content-header">
+        <!--begin::Container-->
+        <div class="container-fluid">
+            <!--begin::Row-->
+            <div class="row">
+                <div class="col-sm-6"><h3 class="mb-0">Create Vendor</h3></div>
+                <div class="col-sm-6">
+                    <ol class="breadcrumb float-sm-end">
+                        <li class="breadcrumb-item"><a href="#">Home</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">Dashboard</li>
+                    </ol>
+                </div>
+            </div>
+            <!--end::Row-->
+        </div>
+        <!--end::Container-->
+    </div>
+    <div class="app-content">
+        <form method="post">
+            <div class="row mb-2">
+                <div class="col-md-4">
+                    <label>Payment Type</label>
+                    <select asp-for="Vendor.PaymentType" required asp-items="Model.PaymentType" class="form-control">
+                        <option value="">-- Select Type --</option>
+                    </select>
+                </div>
+                <div class="col-md-8">
 
-<form method="post">
-    <div class="mb-3">
-        <label>Name</label>
-        <input asp-for="Vendor.Name" class="form-control" />
+                    <label>Name</label>
+                    <input asp-for="Vendor.Name" required class="form-control" />
+                </div>
+                <div class="col-md-4">
+                    <label>Mobile</label>
+                    <input asp-for="Vendor.Mobile" class="form-control" />
+                </div>
+                <div class="col-md-4">
+                    <label>Phone</label>
+                    <input asp-for="Vendor.Phone" class="form-control" />
+                </div>
+                <div class="col-md-4">
+                    <label>NTN</label>
+                    <input asp-for="Vendor.NTN" class="form-control" />
+                </div>
+                <div class="col-md-4">
+                    <label>STRN</label>
+                    <input asp-for="Vendor.STRN" class="form-control" />
+                </div>
+
+                <div class="col-md-4">
+                    <label>Province</label>
+                    <select asp-for="Vendor.Province" required asp-items="Model.Provience" class="form-control">
+                        <option value="">-- Select Provience --</option>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label>City</label>
+                    <select asp-for="Vendor.CityId" required asp-items="Model.Cities" class="form-control">
+                        <option value="">-- Select City --</option>
+                    </select>
+                </div>
+                <div class="col-md-12">
+                    <label>Address </label>
+                    <input asp-for="Vendor.Address" required class="form-control" />
+                </div>
+            </div>
+            <div class="row mb-2"><h4 class="mb-0">Opening Balance</h4></div>
+            <div class="row mb-2">
+                <div class="col-md-4">
+                    <label>Opening Date </label>
+                    <input asp-for="Vendor.openDate" class="form-control" />
+                </div>
+                <div class="col-md-4">
+                    <label>Opening Balance </label>
+                    <input asp-for="Vendor.openingBalance" type="number" class="form-control" />
+                </div>
+                <div class="col-md-4">
+                    <input asp-for="Vendor.Register" class="form-check-input" type="checkbox" />
+                    <label asp-for="Vendor.Register" class="form-check-label">Sales Tax Registered</label>
+                </div>
+            </div>
+            <button type="submit" class="btn btn-success">Save</button>
+            <a asp-page="Index" class="btn btn-secondary">Cancel</a>
+        </form>
     </div>
-    <div class="mb-3">
-        <label>Mobile</label>
-        <input asp-for="Vendor.Mobile" class="form-control" />
-    </div>
-    <div class="mb-3">
-        <label>City</label>
-        <input asp-for="Vendor.City" class="form-control" />
-    </div>
-    <div class="mb-3">
-        <label>Province</label>
-        <input asp-for="Vendor.Province" class="form-control" />
-    </div>
-    <button type="submit" class="btn btn-success">Save</button>
-    <a asp-page="Index" class="btn btn-secondary">Cancel</a>
-</form>
+</main>

@@ -24,24 +24,66 @@
     <div class="app-content">
 <form method="post">
     <div class="row mb-2">
-        <div class="col-md-6">
+                <div class="col-md-4">
+                    <label>Payment Type</label>
+                    <select asp-for="Customer.PaymentType" required asp-items="Model.PaymentType" class="form-control">
+                        <option value="">-- Select Type --</option>
+                    </select>
+                </div>
+        <div class="col-md-8">
  
         <label>Name</label>
         <input asp-for="Customer.Name" required class="form-control" />
     </div>
-        <div class="col-md-6">
+        <div class="col-md-4">
         <label>Mobile</label>
-            <input asp-for="Customer.Mobile" required class="form-control" />
+            <input asp-for="Customer.Mobile"   class="form-control" />
     </div>
-        <div class="col-md-6">
+                <div class="col-md-4">
+                    <label>Phone</label>
+                    <input asp-for="Customer.Phone"   class="form-control" />
+                </div>
+                <div class="col-md-4">
+                    <label>NTN</label>
+                    <input asp-for="Customer.NTN"   class="form-control" />
+                </div>
+                <div class="col-md-4">
+                    <label>STRN</label>
+                    <input asp-for="Customer.STRN"   class="form-control" />
+                </div>
+
+                <div class="col-md-4">
+                    <label>Province</label>
+                    <select asp-for="Customer.Province" required asp-items="Model.Provience" class="form-control">
+                        <option value="">-- Select Provience --</option>
+                    </select>
+                </div>
+                <div class="col-md-4">
         <label>City</label>
-            <input asp-for="Customer.City" required class="form-control" />
+                    <select asp-for="Customer.CityId" required asp-items="Model.Cities" class="form-control">
+                        <option value="">-- Select City --</option>
+                    </select>
     </div>
-        <div class="col-md-6">
-        <label>Province</label>
-            <input asp-for="Customer.Province" required class="form-control" />
+                <div class="col-md-12">
+                    <label>Address </label>
+                    <input asp-for="Customer.Address" required class="form-control" />
+                </div>
     </div>
-    </div>
+            <div class="row mb-2"><h4 class="mb-0">Opening Balance</h4></div>
+            <div class="row mb-2">
+                <div class="col-md-4">
+                    <label>Opening Date </label>
+                    <input asp-for="Customer.openDate"   class="form-control" />
+                </div>
+                <div class="col-md-4">
+                    <label>Opening Balance </label>
+                    <input asp-for="Customer.openingBalance" type="number"   class="form-control" />
+                </div>
+                <div class="col-md-4">
+                    <input asp-for="Customer.Register" class="form-check-input" type="checkbox" />
+                    <label asp-for="Customer.Register" class="form-check-label">Sales Tax Registered</label>
+                </div>
+            </div>
     <button type="submit" class="btn btn-success">Save</button>
     <a asp-page="Index" class="btn btn-secondary">Cancel</a>
 </form>

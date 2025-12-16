@@ -1,5 +1,6 @@
 ﻿using AuthModule.API.Models;
 using AuthModule.API.Services;
+using Azure.Core;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -18,17 +19,25 @@ namespace AuthModule.API.Controllers
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly IPermissionService _permissionService;
         private readonly IConfiguration _config;
+        private   string serverPath;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
         public AuthController(
             UserManager<ApplicationUser> userManager,
             RoleManager<IdentityRole> roleManager,
             IPermissionService permissionService,
-            IConfiguration config)
+            IConfiguration config, 
+            IHttpContextAccessor httpContextAccessor)
         {
             _userManager = userManager;
             _roleManager = roleManager;
             _permissionService = permissionService;
-            _config = config;
+            _config = config; 
+            _httpContextAccessor = httpContextAccessor;
+            var request = _httpContextAccessor.HttpContext?.Request;
+
+            serverPath =
+              $"{request?.Scheme}://{request?.Host}{request?.PathBase}";
         }
 
         [HttpPost("login")]
@@ -47,7 +56,7 @@ namespace AuthModule.API.Controllers
                 new Claim(ClaimTypes.Name, user.UserName ?? string.Empty),
                 new Claim("sub", user.Id),
                 new Claim("companyId", user.CompanyId?.ToString() ?? string.Empty), // FIX: null-safe
-                new Claim("picture", user.picture?.ToString() ?? string.Empty) // FIX: null-safe
+                new Claim("picture", !string.IsNullOrEmpty(user.picture)?  serverPath+ user.picture?.ToString() : string.Empty) // FIX: null-safe
 
             };
 

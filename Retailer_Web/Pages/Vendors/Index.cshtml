@@ -2,32 +2,54 @@
 @model Retailer.POS.Web.Pages.Vendors.IndexModel
 @inject Retailer.POS.Web.Services.IApiClient ApiClient
 
-<h2>Vendors</h2>
-<a asp-page="Create" class="btn btn-primary">Create New Vendor</a>
-
-<table class="table table-striped mt-2">
-    <thead>
-        <tr>
-            <th>Name</th>
-            <th>Mobile</th>
-            <th>City</th>
-            <th>Province</th>
-            <th>Actions</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var vendor in Model.Vendors)
-        {
-            <tr>
-                <td>@vendor.Name</td>
-                <td>@vendor.Mobile</td>
-                <td>@vendor.City</td>
-                <td>@vendor.Province</td>
-                <td>
-                    <a asp-page="Edit" asp-route-id="@vendor.Id" class="btn btn-sm btn-warning">Edit</a>
-                    <a asp-page="Details" asp-route-id="@vendor.Id" class="btn btn-sm btn-info">Details</a>
-                </td>
-            </tr>
-        }
-    </tbody>
-</table>
+<main class="app-main">
+    <!--begin::App Content Header-->
+    <div class="app-content-header">
+        <!--begin::Container-->
+        <div class="container-fluid">
+            <!--begin::Row-->
+            <div class="row">
+                <div class="col-sm-6">
+                    <h3 class="mb-0">Vendors</h3>
+                    <a asp-page="Create">Create New</a>
+                </div>
+                <div class="col-sm-6">
+                    <ol class="breadcrumb float-sm-end">
+                        <li class="breadcrumb-item"><a href="#">Home</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">Dashboard</li>
+                    </ol>
+                </div>
+            </div>
+            <!--end::Row-->
+        </div>
+        <!--end::Container-->
+    </div>
+    <div class="app-content">
+        <table class="table table-striped mt-2">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Mobile</th>
+                    <th>City</th>
+                    <th>Province</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var vendor in Model.Vendors)
+                {
+                    <tr>
+                        <td>@vendor.Name</td>
+                        <td>@vendor.Mobile</td>
+                        <td>@vendor.City</td>
+                        <td>@vendor.Province</td>
+                        <td>
+                            <a asp-page="Edit" asp-route-id="@vendor.Id" class="btn btn-sm btn-warning">Edit</a>
+                            <a asp-page="Details" asp-route-id="@vendor.Id" class="btn btn-sm btn-info">Details</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</main>

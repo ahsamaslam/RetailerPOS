@@ -17,28 +17,29 @@ namespace Retailer.POS.Web.Services
         Task<TResponse?> PutAsync<TRequest, TResponse>(string url, TRequest body);
         Task DeleteAsync(string url);
         Task<List<ItemDto>> GetItemsAsync();
+        Task<List<CitiesDto>> GetCitiesAsync();
         Task<CompanyDto?> GetCompanyAsync();
         Task<CompanyDto?> GetUserCompanyAsync();
         Task<CompanyDto?> GetCompanybyIdAsync(string guid);
         Task<List<ItemDto>> GetStockItemsAsync(int categoryId = 0, int groupId = 0);
         Task<ItemDto?> GetItemAsync(int id);
-        Task<UserDto?> GetCurrentUserAsync();
         Task<(bool Success, string Message)> CreateItemAsync(CreateItemDto dto);
         Task<bool> UpdateItemAsync(ItemDto dto);
-        Task<(bool value, string Message)> ChangePasswordAsync(UserPasswordDto dto);
-        Task<(bool value, string Message)> CheckPasswordAsync(UserPasswordDto dto);
-        Task<(bool Success, string Message)>  UpdateCompanyAsync(CompanyViewModel dto);
         Task<PurchaseMasterDto> CreatePurchaseAsync(CreatePurchaseDto dto);
         Task<string?> LoginAsync(string username, string password);
         Task<List<EmployeeDto>> GetEmployeesAsync();
         Task<EmployeeDto?> GetEmployeeByIdAsync(int id);
         Task<bool> CreateEmployeeAsync(EmployeeDto employee);
         Task<bool> UpdateEmployeeAsync(EmployeeDto employee);
-
+        Task<List<ProvienceDto>> GetProvienceAsync();
         Task<List<CustomerViewModel>> GetCustomersAsync();
+        Task<List<BanksViewModel>> GetBanksAsync();
         Task<CustomerViewModel?> GetCustomerByIdAsync(int id);
+        Task<BanksViewModel?> GetBankByIdAsync(int id);
         Task<bool> CreateCustomerAsync(CustomerViewModel customer);
+        Task<bool> CreateBankAsync(BanksViewModel customer);
         Task<bool> UpdateCustomerAsync(CustomerViewModel customer);
+        Task<bool> UpdateBankAsync(BanksViewModel bank);
 
         Task<List<VendorViewModel>> GetVendorsAsync();
         Task<VendorViewModel?> GetVendorByIdAsync(int id);

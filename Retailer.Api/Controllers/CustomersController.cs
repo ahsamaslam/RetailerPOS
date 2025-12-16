@@ -31,5 +31,28 @@ namespace Retailer.Api.Controllers
             await _uow.SaveChangesAsync();
             return CreatedAtAction(nameof(Get), new { id = model.Id }, model);
         }
+        [HttpPut("{id:int}")]
+        public async Task<IActionResult> Update(int Id, [FromBody] Customer model)
+        { 
+                var existing = await _uow.Customers.GetByIdAsync(Id);
+                if (existing == null) return NotFound();
+                existing.openDate =  model.openDate;
+                existing.Phone = model.Phone; 
+                 existing.Address = model.Address;  
+                    existing.CityId = model.CityId;
+                existing.STRN = model.STRN;
+                existing.CNIC = model.CNIC;
+                existing.NTN = model.NTN;
+                existing.openDate = model.openDate;
+                existing.openingBalance = model.openingBalance;
+                 existing.Mobile =model.Mobile;
+                 existing.Phone =model.Phone;
+                 existing.Register =model.Register;
+                _uow.Customers.Update(existing);
+                await _uow.SaveChangesAsync();
+            
+           
+            return NoContent();
+        }
     }
 }

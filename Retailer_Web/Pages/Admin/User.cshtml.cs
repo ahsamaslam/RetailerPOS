@@ -440,7 +440,7 @@ namespace Retailer.Web.Pages.Admin
         public string oldPassword { get; set; } = "";
         public string currentPasswordA { get; set; } = ""; 
         public string currentPasswordB { get; set; } = "";
-        public IFormFile? picture { get; set; }
+        public string picture { get; set; }
         public string? logoPath { get; set; }
     }
 

@@ -1,6 +1,7 @@
 ﻿using AuthModule.API.Dtos;
 using AuthModule.API.Models;
 using AuthModule.API.Services;
+using Azure.Core;
 using Humanizer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -9,30 +10,50 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace AuthModule.API.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/authuser")]
     [ApiController]
-    public class UserController : ControllerBase
+    [Authorize]
+    public class AuthUserController : ControllerBase
     {
         private readonly IPermissionService _perm;
         private readonly UserManager<ApplicationUser> _userManager;
-        public UserController(
+        private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly IWebHostEnvironment _env;
+        private readonly string serverPath;
+
+        public AuthUserController(
              IPermissionService perm,
-             UserManager<ApplicationUser> userManager)
+             UserManager<ApplicationUser> userManager,
+             IWebHostEnvironment env,
+              IHttpContextAccessor httpContextAccessor)
         {
             _perm = perm;
             _userManager = userManager;
+            _env = env;
+            _httpContextAccessor = httpContextAccessor;
+            var request = _httpContextAccessor.HttpContext?.Request;
+
+              serverPath =
+                $"{request?.Scheme}://{request?.Host}{request?.PathBase}";
         }
-        [Authorize]
+
         [HttpGet("currentUser")]
-        public async Task<IActionResult> currentUser()
+        public async Task<IActionResult> GetCurrentUserAsync()
         {
+
             var userId = User.FindFirst("sub")?.Value;
             if (string.IsNullOrEmpty(userId)) return Unauthorized();
-           
             var user = await _userManager.FindByIdAsync(userId);
-            return Ok(user);
+           
+            return Ok(new UserDto()
+            {
+                CompanyId = user.CompanyId,
+                Email = user.Email,
+                Id = userId,
+                picture = string.IsNullOrEmpty(user.picture)?"": serverPath + user.picture,
+                UserName = user.UserName
+            });
         }
-        [Authorize]
         [HttpGet("permissions")]
         public async Task<IActionResult> GetUserPermissions()
         {
@@ -47,7 +68,6 @@ namespace AuthModule.API.Controllers
                 Permissions = permissions.Select(x => x.Name).ToList()
             });
         }
-        [Authorize]
         [HttpPost("CheckCurrentUserPassword")] 
         public async Task<IActionResult> CheckCurrentUserPassword(ChangePasswordDto password)
         {
@@ -97,6 +117,45 @@ namespace AuthModule.API.Controllers
             }
 
             return Ok(new { message = "Password changed successfully.", value = true });
+        }
+        [HttpPut("profile")]
+        public async Task<IActionResult> UpdateProfile([FromForm] UpdateUserProfileDto dto)
+        {
+            var user = await _userManager.FindByIdAsync(dto.UserId);
+            if (user == null)
+                return NotFound("User not found");
+
+            // Update basic fields
+            user.UserName = dto.UserName;
+            if (!string.IsNullOrWhiteSpace(dto.Email))
+                user.Email = dto.Email;
+
+            // Handle picture upload
+            if (dto.Picture != null && dto.Picture.Length > 0)
+            {
+                var uploadsFolder = Path.Combine(_env.WebRootPath, "uploads", "users");
+                Directory.CreateDirectory(uploadsFolder);
+
+                var fileName = $"{Guid.NewGuid()}{Path.GetExtension(dto.Picture.FileName)}";
+                var filePath = Path.Combine(uploadsFolder, fileName);
+
+                using var stream = new FileStream(filePath, FileMode.Create);
+                await dto.Picture.CopyToAsync(stream);
+
+                user.picture = $"/uploads/users/{fileName}";
+            }
+
+            var result = await _userManager.UpdateAsync(user);
+            if (!result.Succeeded)
+                return BadRequest(result.Errors);
+
+            return Ok(new
+            {
+                user.Id,
+                user.UserName,
+                user.Email,
+                user.picture
+            });
         }
 
     }

@@ -9,22 +9,21 @@ namespace Retailer.Api.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize]
     public class UserController : ControllerBase
     {
         private readonly IUserService _userService;
         public UserController(IUserService userService) => _userService = userService;
  
-        [Authorize]
+        
         [HttpGet("currentUser")]
         public async Task<IActionResult> GetCurrentUserAsync() => Ok(await _userService.GetCurrentUserAsync());
-        [Authorize]
+        
         [HttpPost("currentUserPassword")]
-       public async Task<UserResponseDto?> CheckCurrentUserPassword([FromForm]UserPasswordRequestDto user)
-            {
-
+        public async Task<UserResponseDto?> CheckCurrentUserPassword([FromForm]UserPasswordRequestDto user)
+        {
             return await _userService.CheckCurrentUserPassword(user);
         }
-        [Authorize]
         [HttpPost("ChangePassword")]
         public async Task<UserResponseDto?> ChangePassword([FromForm] UserPasswordRequestDto user)
         {

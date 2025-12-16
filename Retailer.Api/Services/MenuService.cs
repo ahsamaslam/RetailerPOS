@@ -163,7 +163,7 @@ namespace Retailer.Api.Services
             // 1. Fetch user's effective permissions from AuthModule
             if (!_cache.TryGetValue<HashSet<string>>(userId, out var effectivePermissions))
             {
-                var response = await _httpClient.GetAsync($"api/user/permissions");
+                var response = await _httpClient.GetAsync($"api/authuser/permissions");
                 if (!response.IsSuccessStatusCode)
                     throw new InvalidOperationException("Failed to fetch user permissions from AuthModule");
 

@@ -135,6 +135,7 @@ builder.Services.AddSwaggerGen(c =>
     {
         { jwtScheme, Array.Empty<string>() }
     });
+
 });
 builder.Services.AddHttpClient<IFbrClient, FbrClient>(client =>
 {

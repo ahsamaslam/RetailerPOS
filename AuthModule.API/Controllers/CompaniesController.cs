@@ -1,6 +1,6 @@
 ﻿using AuthModule.API.Data;
 using AuthModule.API.Dtos;
-using AuthModule.API.Models;
+using AuthModule.API.Models; 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -15,10 +15,15 @@ namespace AuthModule.API.Controllers
     public class CompaniesController : ControllerBase
     {
         private readonly ApplicationDbContext _db;
-
-        public CompaniesController(ApplicationDbContext db)
+        private readonly IHttpContextAccessor _httpContextAccessor;
+        private   string serverPath="";
+        public CompaniesController(ApplicationDbContext db, IHttpContextAccessor httpContextAccessor)
         {
             _db = db;
+            _httpContextAccessor = httpContextAccessor;
+            var request = _httpContextAccessor.HttpContext?.Request;
+            serverPath =
+            $"{request?.Scheme}://{request?.Host}{request?.PathBase}";
         }
 
         [Authorize]
@@ -87,6 +92,7 @@ namespace AuthModule.API.Controllers
         public async Task<ActionResult<CompanyResponseDto>> GetById(Guid id)
         {
             var company = await _db.Companies.AsNoTracking().FirstOrDefaultAsync(c => c.Id == id);
+            company.logoPath = string.IsNullOrEmpty(company.logoPath) ? "" : serverPath + company.logoPath;
             if (company == null) return NotFound(); 
             return Ok(ToResponseDto(company));
         }

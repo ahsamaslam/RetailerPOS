@@ -26,6 +26,9 @@ public interface IUnitOfWork : IDisposable
     IGenericRepository<Scope> Scopes { get; }
     IGenericRepository<RoleScope> RoleScopes { get; }
     IGenericRepository<OpeningBalance> OpeningBalances { get; }
+    IGenericRepository<Cities> Cities { get; }
+    IGenericRepository<Provience> Proviences { get; }
+    IGenericRepository<Banks> Banks { get; }
 
     Task<List<ItemSubGroupDto>> GetSubGroupsWithGroupAsync();
     Task<ItemSubGroupDto?> GetSubGroupByIdWithGroupAsync(int id);

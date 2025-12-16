@@ -39,10 +39,16 @@ namespace Retailer.POS.API.UnitOfWork
         private IGenericRepository<Role>? _Role;
         private IGenericRepository<RoleScope>? _RoleScopes;
         private IGenericRepository<OpeningBalance>? _OpeningBalances;
+        private IGenericRepository<Cities>? _cities;
+        private IGenericRepository<Provience>? _provience;
+        private IGenericRepository<Banks>? _banks;
 
         public IGenericRepository<Item> Items => _items ??= new GenericRepository<Item>(_context);
         public IGenericRepository<vwStockLedger> VwStockLedger => _vwStockLedger ??= new GenericRepository<vwStockLedger>(_context);
         public IGenericRepository<PurchaseMaster> PurchaseMasters => _purchaseMasters ??= new GenericRepository<PurchaseMaster>(_context);
+        public IGenericRepository<Cities> Cities => _cities ??= new GenericRepository<Cities>(_context);
+        public IGenericRepository<Banks> Banks => _banks ??= new GenericRepository<Banks>(_context);
+        public IGenericRepository<Provience> Proviences => _provience ??= new GenericRepository<Provience>(_context);
         public IGenericRepository<PurchaseDetail> PurchaseDetails => _purchaseDetails ??= new GenericRepository<PurchaseDetail>(_context);
         public IGenericRepository<Customer> Customers => _customers ??= new GenericRepository<Customer>(_context);
         public IGenericRepository<Vendor> Vendors => _vendors ??= new GenericRepository<Vendor>(_context);

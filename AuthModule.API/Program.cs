@@ -136,12 +136,14 @@ builder.Services.AddSingleton<IAuthorizationPolicyProvider, DefaultAuthorization
 builder.Services.AddScoped<IAuthorizationHandler, PermissionHandler>();
 builder.Services.AddScoped<IClaimsTransformation, PermissionClaimsTransformer>();
 builder.Services.AddScoped<IDbInitializer, DbInitializer>();
+builder.WebHost.UseWebRoot("wwwroot");
 
 // MVC / Controllers
 builder.Services.AddControllers();
 
 // Swagger / OpenAPI
 builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddHttpContextAccessor();
 
 builder.Services.AddSwaggerGen(options =>
 {
@@ -210,6 +212,9 @@ using (var scope = app.Services.CreateScope())
 }
 
 app.UseHttpsRedirection();
+app.UseStaticFiles(); // MUST be before routing
+
+app.UseRouting();
 
 app.UseAuthentication();
 app.UseAuthorization();
