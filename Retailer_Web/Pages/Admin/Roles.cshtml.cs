@@ -1,16 +1,13 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Retailer.POS.Web.Services;
-using System.Net.Http.Json;
 
 namespace Retailer.Web.Pages.Admin
 {
-    public class RolesModel : BasePageModel
+    public class RolesModel:PageModel
     {
         private readonly HttpClient _client;
 
-        public RolesModel(IHttpClientFactory factory, IApiClient api)
-            : base(api)
+        public RolesModel(IHttpClientFactory factory)
         {
             _client = factory.CreateClient("AuthApi");
             //_client.BaseAddress = new Uri("https://localhost:7001/api/admin/");

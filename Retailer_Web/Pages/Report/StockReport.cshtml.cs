@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -6,11 +7,12 @@ using Retailer.POS.Web.Services;
 
 namespace Retailer.Web.Pages.Report
 {
+    [Authorize]
     public class StockReportModel : BasePageModel
     {
         private readonly IApiClient _api;
 
-        public StockReportModel(IApiClient api) : base(api) => _api = api;
+        public StockReportModel(IApiClient api) => _api = api;
 
         [BindProperty]
         public CreateItemDto Input { get; set; } = new();

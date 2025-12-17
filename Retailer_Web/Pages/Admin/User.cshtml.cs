@@ -1,18 +1,18 @@
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.ReportingServices.ReportProcessing.ReportObjectModel;
+using Microsoft.AspNetCore.Mvc.RazorPages;
 using Retailer.POS.Web.Services;
 using System.ComponentModel.DataAnnotations;
 using System.Net;
 
 namespace Retailer.Web.Pages.Admin
 {
-    public class UsersModel : BasePageModel
+    public class UsersModel : PageModel
     {
         private readonly HttpClient _client;
         private readonly IApiClient _api;
         private readonly ILogger<UsersModel> _logger;
 
-        public UsersModel(IHttpClientFactory factory, IApiClient api, ILogger<UsersModel> logger) : base(api)
+        public UsersModel(IHttpClientFactory factory, IApiClient api, ILogger<UsersModel> logger)
         {
             _client = factory.CreateClient("AuthApi");
             // adjust API URL as needed (or use IConfiguration to read it)

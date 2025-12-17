@@ -1,21 +1,24 @@
 using AuthModule.API.Auth;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Authorization;
 using Retailer.POS.Web.Services;
 using Retailer.Web.Helpers;
-using System.Text.Json.Serialization;
+using Retailer.Web.Services.Layout;
 
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Razor pages (only once)
-builder.Services.AddRazorPages().AddRazorRuntimeCompilation();
-builder.Services.AddRazorPages().AddNToastNotifyNoty(); // you can combine, but avoid duplicate AddRazorPages calls
+builder.Services.AddRazorPages(options =>
+{
+    options.Conventions.AuthorizeFolder("/");
+    options.Conventions.AllowAnonymousToPage("/Login");
+}).AddNToastNotifyNoty();
 
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddTransient<TokenDelegatingHandler>();
 builder.Services.AddScoped<RdlcDataTableHelper>();
+builder.Services.AddScoped<ILayoutContext, LayoutContext>();
 // HttpClient used by your ApiClient; TokenDelegatingHandler will add Bearer token from cookie claims
 builder.Services.AddHttpClient<IApiClient, ApiClient>(client =>
 {

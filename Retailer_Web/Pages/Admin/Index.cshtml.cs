@@ -1,11 +1,11 @@
-using Microsoft.AspNetCore.Mvc.RazorPages;
-using Retailer.POS.Web.Services;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Retailer.Web.Pages.Admin
 {
+    [Authorize]
     public class IndexModel : BasePageModel
     {
-        public IndexModel(IApiClient api) : base(api)
+        public IndexModel()
         {
         }
 

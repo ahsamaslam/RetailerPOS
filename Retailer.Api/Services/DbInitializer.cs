@@ -14,7 +14,7 @@ namespace Retailer.API.Services
         // Pages and actions used to create menus/submenus
         private static readonly string[] Pages = new[]
         {
-            "Admin","Branches","Categories","Customers","Employees","Groups","Items","ItemType",
+            "Branches","Categories","Customers","Employees","Groups","Items","ItemType",
             "OpeningBalances","Sales","Purchases","SubGroups","Vendors"
         };
 

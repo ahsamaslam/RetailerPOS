@@ -50,9 +50,11 @@
 </head>
 <body class="layout-fixed sidebar-expand-lg sidebar-open bg-body-tertiary">
     <div class="app-wrapper">
-        <partial name="_TopBar" />
+        @* <partial name="_TopBar" /> *@
+        @await Component.InvokeAsync("TopBar")
+        @await Component.InvokeAsync("Sidebar")
         @* Sidebar is rendered via partial component/partial view *@
-        <partial name="_Sidebar" />
+       @*  <partial name="_Sidebar" /> *@
         <main role="main" class="pb-3">
             @RenderBody()
         </main>

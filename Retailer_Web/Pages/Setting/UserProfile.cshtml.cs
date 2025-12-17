@@ -13,9 +13,11 @@ using System.Text.Json;
 using Microsoft.ReportingServices.ReportProcessing.ReportObjectModel;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Retailer.Web.Pages.Setting
 {
+    [Authorize]
     public class UserProfileModel : BasePageModel
     {
         private readonly IApiClient _api;
@@ -25,7 +27,7 @@ namespace Retailer.Web.Pages.Setting
         public bool IsAdmin => User.IsInRole("admin");
         private readonly JsonSerializerOptions _jsonOptions = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
 
-        public UserProfileModel(IApiClient api, IWebHostEnvironment _env, IHttpClientFactory httpFactory) : base(api)
+        public UserProfileModel(IApiClient api, IWebHostEnvironment _env, IHttpClientFactory httpFactory)
         {
             env = _env;
             _api = api;

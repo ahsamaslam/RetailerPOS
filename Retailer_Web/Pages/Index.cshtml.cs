@@ -8,11 +8,8 @@ using Retailer.POS.Web.Services;
 using Retailer.Web.ApiDTOs;
 using Retailer.Web.Pages;
 [Authorize]
-public class IndexModel : BasePageModel
+public class IndexModel : PageModel
 {
-    public IndexModel(IApiClient api) : base(api)
-    {
-    }
     [BindProperty]
     public double totalSale { get; set; } = 20000;
     [BindProperty]

@@ -1,4 +1,5 @@
 // Pages/OpeningBalances/Create.cshtml.cs
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using NToastNotify;
@@ -9,13 +10,14 @@ using Retailer.Web.Models;
 using Retailer.Web.Pages;
 
 namespace Retailer.POS.Web.Pages.OpeningBalances;
+[Authorize]
 public class CreateModel : BasePageModel
 {
     private readonly ILogger<CreateModel> _logger;
     private readonly IToastNotification _toastNotification;
     private readonly IApiClient _api;
 
-    public CreateModel(IApiClient api, ILogger<CreateModel> logger, IToastNotification toastNotification):base(api)
+    public CreateModel(IApiClient api, ILogger<CreateModel> logger, IToastNotification toastNotification)
     {
         _api = api;
         _logger = logger;

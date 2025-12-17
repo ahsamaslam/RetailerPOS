@@ -4,12 +4,13 @@ using Retailer.POS.Web.ApiDTOs;
 using Retailer.POS.Web.Models;
 using Retailer.POS.Web.Services;
 using Retailer.Web.Pages;
+using Retailer.Web.Services.Layout;
 
 namespace Retailer.POS.Web.Pages.Sales;
-public class EditModel : BasePageModel
+public class EditModel : PageModel
 {
     private readonly IApiClient _api;
-    public EditModel(IApiClient api) : base(api) => _api = api;
+    public EditModel(IApiClient api) => _api = api;
 
     [BindProperty]
     public SalesMasterDto Sale { get; set; } = new();

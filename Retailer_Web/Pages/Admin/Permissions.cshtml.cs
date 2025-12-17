@@ -2,16 +2,17 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc;
 using Retailer.Web.Models;
 using Retailer.POS.Web.Services;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Retailer.Web.Pages.Admin
 {
-
+    [Authorize]
     public class PermissionsModel : BasePageModel
     {
         private readonly HttpClient _client;
         private readonly IApiClient _api;
 
-        public PermissionsModel(IHttpClientFactory factory,IApiClient api):base(api)
+        public PermissionsModel(IHttpClientFactory factory,IApiClient api)
         {
             _client = factory.CreateClient("AuthApi");
             _api = api;

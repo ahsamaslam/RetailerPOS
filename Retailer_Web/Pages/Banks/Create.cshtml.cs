@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Retailer.POS.Web.Services;
@@ -6,10 +7,11 @@ using Retailer.Web.Models;
 
 namespace Retailer.Web.Pages.Banks
 {
+    [Authorize]
     public class CreateModel : BasePageModel
     {
         private readonly IApiClient _api;
-        public CreateModel(IApiClient api) : base(api) { _api = api; }
+        public CreateModel(IApiClient api) { _api = api; }
 
         [BindProperty]
         public BanksViewModel Bank { get; set; } = new();

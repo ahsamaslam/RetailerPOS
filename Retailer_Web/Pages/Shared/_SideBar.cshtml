@@ -13,7 +13,7 @@
     const string LayoutUserInfoKey = "_LayoutUserInfo";
     var info = Context.Items[LayoutUserInfoKey] as LayoutUserInfo
                ?? new LayoutUserInfo();
-    // menus provided by BasePageModel via HttpContext.Items["Menus"]
+    // menus provided by PageModel via HttpContext.Items["Menus"]
     var menus = HttpContextAccessor.HttpContext?.Items["Menus"] as IEnumerable<MenuDto> ?? Enumerable.Empty<MenuDto>();
 
     // change this if your permission claim type uses a different name

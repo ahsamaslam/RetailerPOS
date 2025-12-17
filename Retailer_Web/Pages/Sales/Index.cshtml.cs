@@ -1,4 +1,5 @@
-﻿ using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Reporting.NETCore;
 using Retailer.POS.Web.ApiDTOs;
@@ -10,6 +11,7 @@ using System.Reflection;
 
 namespace Retailer.POS.Web.Pages.Sales
 {
+    [Authorize]
     public class IndexModel : BasePageModel
     {
         private readonly RdlcDataTableHelper _rdlcHelper;
@@ -18,7 +20,7 @@ namespace Retailer.POS.Web.Pages.Sales
         private readonly IWebHostEnvironment _env;
  
         private readonly IApiClient _api;
-        public IndexModel(IApiClient api, IWebHostEnvironment env, RdlcDataTableHelper rdlcHelper) : base(api) 
+        public IndexModel(IApiClient api, IWebHostEnvironment env, RdlcDataTableHelper rdlcHelper) 
         {
             _api = api;
             _env = env;

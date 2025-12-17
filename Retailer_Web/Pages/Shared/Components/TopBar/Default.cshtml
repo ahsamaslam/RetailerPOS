@@ -1,9 +1,5 @@
-﻿ @using Retailer.Web.Models
-@{
-    const string LayoutUserInfoKey = "_LayoutUserInfo";
-    var info = Context.Items[LayoutUserInfoKey] as LayoutUserInfo
-               ?? new LayoutUserInfo(); // fallback
-}
+﻿@using Retailer.Web.Models
+@model LayoutUserInfo
 
 <nav class="app-header navbar navbar-expand bg-body">
     <div class="container-fluid">
@@ -13,7 +9,7 @@
                     <i class="bi bi-list"></i>
                 </a>
             </li>
-            <li class="nav-item d-none d-md-block"><h4>@info.companyName</h4></li>
+            <li class="nav-item d-none d-md-block"><h4>@Model.companyName</h4></li>
         </ul>
 
         <ul class="navbar-nav ms-auto align-items-center">
@@ -29,10 +25,10 @@
             <li class="nav-item">
                 <div class="d-flex align-items-center">
                     <button type="button" class="btn p-0 border-0 bg-transparent" data-bs-toggle="modal" data-bs-target="#userModal" aria-label="Open profile">
-                        <img src="@info.AvatarUrl" onerror="this.src='@Url.Content("~/assets/img/user2-160x160.jpg")'"
+                        <img src="@Model.AvatarUrl" onerror="this.src='@Url.Content("~/assets/img/user2-160x160.jpg")'"
                              class="user-image rounded-circle shadow" alt="User Image" style="width:38px; height:38px; object-fit:cover;" />
                     </button>
-                    <span class="ms-2 d-none d-md-inline">@info.UserName</span>
+                    <span class="ms-2 d-none d-md-inline">@Model.UserName</span>
                 </div>
             </li>
         </ul>
@@ -45,10 +41,10 @@
         <div class="modal-content">
             <div class="modal-header">
                 <div class="d-flex align-items-center">
-                    <img src="@info.AvatarUrl" onerror="this.src='@Url.Content("~/assets/img/user2-160x160.jpg")'"
+                    <img src="@Model.AvatarUrl" onerror="this.src='@Url.Content("~/assets/img/user2-160x160.jpg")'"
                          class="rounded-circle shadow me-2" style="width:48px;height:48px;object-fit:cover" alt="User" />
                     <div>
-                        <h6 class="mb-0">@info.UserName</h6>
+                        <h6 class="mb-0">@Model.UserName</h6>
                         <small class="text-muted">Signed in</small>
                     </div>
                 </div>
@@ -60,7 +56,7 @@
                     <a class="list-group-item list-group-item-action" href="~/Setting/UserProfile">
                         <i class="bi bi-person-circle me-2"></i> Profile
                     </a>
-                   
+
                 </div>
             </div>
 

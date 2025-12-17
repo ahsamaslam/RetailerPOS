@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Retailer.POS.Web.Services;
@@ -6,12 +7,13 @@ using Retailer.Web.Pages;
 
 namespace Retailer.Web.Setting
 {
+    [Authorize]
     public class CompanyModel : BasePageModel
     {
         private readonly IApiClient _api;
         private IWebHostEnvironment env;
         public bool IsAdmin => User.IsInRole("admin");
-        public CompanyModel(IApiClient api, IWebHostEnvironment _env) : base(api)
+        public CompanyModel(IApiClient api, IWebHostEnvironment _env)
         {
             env = _env;
             _api = api;

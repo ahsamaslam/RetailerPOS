@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -8,13 +9,14 @@ using Retailer.Web.Models;
 using Retailer.Web.Pages;
 
 namespace Retailer.POS.Web.Pages.OpeningBalances;
+[Authorize]
 public class EditModel : BasePageModel
 {
     private readonly ILogger<EditModel> _logger;
     private readonly IToastNotification _toastNotification;
     private readonly IApiClient _api;
 
-    public EditModel(IApiClient api, ILogger<EditModel> logger, IToastNotification toastNotification): base(api)
+    public EditModel(IApiClient api, ILogger<EditModel> logger, IToastNotification toastNotification)
     {
         _api = api;
         _logger = logger;

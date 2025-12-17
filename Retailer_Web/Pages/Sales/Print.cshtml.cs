@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Retailer.POS.Web.ApiDTOs;
@@ -6,10 +7,11 @@ using Retailer.Web.Pages;
 
 namespace Retailer.POS.Web.Pages.Sales;
 
-    public class PrintModel : BasePageModel
+[Authorize]
+public class PrintModel : BasePageModel
     {
         private readonly IApiClient _api;
-        public PrintModel(IApiClient api) : base(api) => _api = api;
+        public PrintModel(IApiClient api) => _api = api;
         [BindProperty]
         public SalesMasterDto Sale { get; set; } = new();
         public async Task<IActionResult> OnGetAsync(int id)

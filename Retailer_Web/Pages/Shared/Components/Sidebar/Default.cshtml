@@ -1,0 +1,126 @@
+﻿@using Retailer.Web.ViewComponents
+@model SidebarViewModel
+@{
+    var path = Context.Request.Path;
+
+    bool isAdminSection = path.StartsWithSegments("/admin");
+    bool isUsers = path.StartsWithSegments("/admin/user");
+    bool isRoles = path.StartsWithSegments("/admin/roles");
+    bool isPermissions = path.StartsWithSegments("/admin/permissions");
+
+    string currentPath = path.Value?.TrimEnd('/') ?? "";
+
+    bool IsActive(string? route)
+    {
+        if (string.IsNullOrWhiteSpace(route))
+            return false;
+
+        var r = route.TrimEnd('/');
+
+        return currentPath.Equals(r, StringComparison.OrdinalIgnoreCase)
+            || currentPath.StartsWith(r + "/", StringComparison.OrdinalIgnoreCase);
+    }
+
+    string ResolveUrl(string? route)
+    {
+        if (string.IsNullOrWhiteSpace(route))
+            return "#";
+
+        if (route.StartsWith("http", StringComparison.OrdinalIgnoreCase))
+            return route;
+
+        if (route.StartsWith("/"))
+            return route;
+
+        return Url.Page(route) ?? "#";
+    }
+}
+<aside class="app-sidebar bg-body-secondary shadow" data-bs-theme="dark">
+    <div class="sidebar-brand">
+        <a asp-page="/Index" class="brand-link">
+            <img src="~/assets/img/AdminLTELogo.png"
+                 alt="Logo"
+                 class="brand-image opacity-75 shadow" />
+            <span class="brand-text fw-light">POS</span>
+        </a>
+    </div>
+
+    <div class="sidebar-wrapper">
+        <nav class="mt-2" aria-label="Main navigation">
+            <ul class="nav sidebar-menu flex-column"
+                data-lte-toggle="treeview"
+                data-accordion="false"
+                id="navigation">
+
+                <!-- Dashboard -->
+                <li class="nav-item">
+                    <a asp-page="/Index"
+                       class="nav-link @(IsActive("/Index") ? "active" : "")">
+                        <i class="nav-icon bi bi-speedometer"></i>
+                        <p>Dashboard</p>
+                    </a>
+                </li>
+
+                <!-- Dynamic menus -->
+                @foreach (var menu in Model.Menus
+                .Where(m => m.IsActive)
+                .OrderBy(m => m.SortOrder))
+                {
+                    var icon = string.IsNullOrWhiteSpace(menu.Icon)
+                    ? "bi bi-circle-fill"
+                    : menu.Icon;
+
+                    var firstRoute = menu.SubMenus?.FirstOrDefault()?.Route;
+
+                    <li class="nav-item">
+                        <a class="nav-link @(IsActive(firstRoute) ? "active" : "")"
+                           href="@ResolveUrl(firstRoute)">
+                            <i class="nav-icon @icon"></i>
+                            <p>@menu.Title</p>
+                        </a>
+                    </li>
+                }
+
+                <!-- Admin section -->
+                @if (Model.User?.IsAdmin == true)
+                {
+                    <li class="nav-item @(isAdminSection ? "menu-open" : "")">
+                        <a href="#"
+                           class="nav-link @(isAdminSection ? "active" : "")"
+                           aria-expanded="@(isAdminSection.ToString().ToLower())">
+                            <i class="nav-icon bi bi-tools"></i>
+                            <p>
+                                Admin Panel
+                                <i class="nav-arrow bi @(isAdminSection ? "bi-chevron-down" : "bi-chevron-right")"></i>
+                            </p>
+                        </a>
+
+                        <ul class="nav nav-treeview">
+                            <li class="nav-item">
+                                <a href="/admin/user"
+                                   class="nav-link @(isUsers ? "active" : "")">
+                                    <i class="nav-icon bi bi-circle"></i>
+                                    <p>Users</p>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="/admin/roles"
+                                   class="nav-link @(isRoles ? "active" : "")">
+                                    <i class="nav-icon bi bi-circle"></i>
+                                    <p>Roles</p>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="/admin/permissions"
+                                   class="nav-link @(isPermissions ? "active" : "")">
+                                    <i class="nav-icon bi bi-circle"></i>
+                                    <p>Permissions</p>
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                }
+            </ul>
+        </nav>
+    </div>
+</aside>
