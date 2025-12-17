@@ -1,5 +1,4 @@
-using AuthModule.API.Auth;
-using Microsoft.AspNetCore.Authentication.Cookies;
+ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Retailer.POS.Web.Services;
 using Retailer.Web.Helpers;
@@ -22,7 +21,7 @@ builder.Services.AddScoped<ILayoutContext, LayoutContext>();
 // HttpClient used by your ApiClient; TokenDelegatingHandler will add Bearer token from cookie claims
 builder.Services.AddHttpClient<IApiClient, ApiClient>(client =>
 {
-    client.BaseAddress = new Uri(builder.Configuration["ApiSettings:BaseUrl"] ?? "https://localhost:5001/");
+    client.BaseAddress = new Uri(builder.Configuration["ApiSettings:BaseUrl"] ?? "http://localhost:5001/");
 }).AddHttpMessageHandler<TokenDelegatingHandler>();
 builder.Services.AddHttpClient("AuthApi", client =>
 {
@@ -53,13 +52,13 @@ builder.Services.AddAuthentication(options =>
     // optional: events etc.
 });
 
-builder.Services.AddAuthorization(options =>
-{
-    options.AddPolicy(RequiresPermissionAttribute.PermissionPolicyName, policy =>
-    {
-        policy.Requirements.Add(new PermissionRequirement());
-    });
-});
+//builder.Services.AddAuthorization(options =>
+//{
+//    options.AddPolicy(RequiresPermissionAttribute.PermissionPolicyName, policy =>
+//    {
+//        policy.Requirements.Add(new PermissionRequirement());
+//    });
+//});
 // near other builder.Services calls
 builder.Services.AddSession(options =>
 {

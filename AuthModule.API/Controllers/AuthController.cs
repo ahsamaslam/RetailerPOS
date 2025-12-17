@@ -41,7 +41,7 @@ namespace AuthModule.API.Controllers
         }
 
         [HttpPost("login")]
-        public async Task<IActionResult> Login([FromBody] LoginDto dto)
+        public async Task<IActionResult> Login([FromBody] LoginRequestDto dto)
         {
             var user = await _userManager.FindByNameAsync(dto.UserName);
             if (user == null || !await _userManager.CheckPasswordAsync(user, dto.Password))
@@ -173,5 +173,5 @@ namespace AuthModule.API.Controllers
         }
     }
 
-    public record LoginDto(string UserName, string Password);
+    public record LoginRequestDto(string UserName, string Password);
 }

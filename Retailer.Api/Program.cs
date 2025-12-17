@@ -19,10 +19,13 @@ using System.Text;
 using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
-
+ 
 // Add services to the container.
 builder.Services.AddControllers();
-
+builder.Configuration
+    .SetBasePath(Directory.GetCurrentDirectory())
+    .AddJsonFile("Retailappsettings.json", optional: false, reloadOnChange: true)
+    .AddEnvironmentVariables();
 // DbContext
 builder.Services.AddDbContext<RetailerDbContext>(opts =>
     opts.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
@@ -104,7 +107,7 @@ builder.Services.AddTransient<TokenDelegationHandler>();
 builder.Services.AddMemoryCache();
 builder.Services.AddHttpClient("AuthModule", client =>
 {
-    client.BaseAddress = new Uri(builder.Configuration["AuthModule:Authority"] ?? "https://localhost:7001/");
+    client.BaseAddress = new Uri(builder.Configuration["AuthModule:Authority"] ?? "http://localhost:7001/");
 })
 // ensure the handler is applied to this HttpClient
 .AddHttpMessageHandler<TokenDelegationHandler>();

@@ -24,13 +24,13 @@
         public double edVal { get; set; } = 0;
         public bool isFed { get; set; } = false;
         public double fedVal { get; set; } = 0;
-        public CompanyType CompanyType { get; set; }
+     //   public CompanyType CompanyType { get; set; }
     }
-    public enum CompanyType
-    {
-        None,
-        FBR,
-        PRAL
-    }
+    //public enum CompanyType
+    //{
+    //    None,
+    //    FBR,
+    //    PRAL
+    //}
 
 }

@@ -33,7 +33,7 @@ namespace AuthModule.API.Dtos
         public int invoiceCounter { get; set; } = 0;
         public int invoicePerPage { get; set; } = 0;
         public string? Province { get; set; } = "";
-        public CompanyType CompanyType { get; set; }
+     //   public CompanyType CompanyType { get; set; }
         public bool isGst { get; set; } = false;
         public double gstVal { get; set; } = 0;
         public bool isEd { get; set; } = false;

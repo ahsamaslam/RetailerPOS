@@ -39,7 +39,36 @@ namespace Retailer.POS.Web.Pages.Sales
         public IFormFile? LogoFile { get; set; } // For new file upload 
         public string? logoPath { get; set; } // For new file upload
 
+        public async Task<IFormFile?> GetIFormFileFromUrlAsync(string url)
+        {
+            using var httpClient = new HttpClient();
+            var response = await httpClient.GetAsync(url);
 
+            if (!response.IsSuccessStatusCode)
+                return null;
+
+            var contentStream = await response.Content.ReadAsStreamAsync();
+
+            var contentBytes = await response.Content.ReadAsByteArrayAsync();
+
+            // Derive filename from URL (or set your own)
+            var fileName = Path.GetFileName(new Uri(url).AbsolutePath);
+
+            // Create the IFormFile from memory
+            var formFile = new FormFile(
+                baseStream: new MemoryStream(contentBytes),
+                baseStreamOffset: 0,
+                length: contentBytes.Length,
+                name: "file",
+                fileName: fileName
+            )
+            {
+                Headers = new HeaderDictionary(),
+                ContentType = response.Content.Headers.ContentType?.MediaType ?? "application/octet-stream"
+            };
+
+            return formFile;
+        }
         public async Task< CompanyViewModel> getActiveCompany() {
 
             var company = await _api.GetUserCompanyAsync();
@@ -75,7 +104,7 @@ namespace Retailer.POS.Web.Pages.Sales
                 if (company.logoPath != null)
                 {
                     //Company.img = System.IO.File.ReadAllBytes(_rdlcHelper.getFullpathCompanyLogo(_env, company.logoPath.ToString()));
-                    LogoFile = _rdlcHelper.GetFormFileFromPath(_env,company.logoPath);
+                    LogoFile = await GetIFormFileFromUrlAsync(company.logoPath);
                     logoPath = company.logoPath;
                 }
 

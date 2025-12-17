@@ -168,7 +168,7 @@ namespace AuthModule.API.Controllers
                 gstVal= c.gstVal,
                 fedVal = c.fedVal,
                 edVal = c.edVal,
-                CompanyType = c.CompanyType
+              //  CompanyType = c.CompanyType
 
             };
     }

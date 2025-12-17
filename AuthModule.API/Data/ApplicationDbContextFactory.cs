@@ -8,7 +8,7 @@ namespace AuthModule.API.Data
         public ApplicationDbContext CreateDbContext(string[] args)
         {
             var connStr = Environment.GetEnvironmentVariable("AUTHMODULE_CONN")
-              ?? "Server=localhost;Database=AuthModuleDB;User Id=sa;Password=sa;Trusted_Connection=False;TrustServerCertificate=true;";
+              ?? "Server=WIN-VI96OVQI4I6;Database=AuthModuleDB;User Id=ahsamsql;Password=unionlogix;Trusted_Connection=False;TrustServerCertificate=true;";
 
             var optionsBuilder = new DbContextOptionsBuilder<ApplicationDbContext>();
 

@@ -29,10 +29,6 @@
     <Folder Include="wwwroot\uploads\CompanyLogo\" />
     <Folder Include="wwwroot\uploads\UserLogo\" />
   </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\AuthModule.API\AuthModule.API.csproj" />
-  </ItemGroup>
   <ItemGroup>
     <Compile Update="DataSet\saleDS.Designer.cs">
       <DesignTime>True</DesignTime>
