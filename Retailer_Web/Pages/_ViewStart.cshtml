@@ -1,3 +1,6 @@
 ﻿@{
-    Layout = "_Layout";
+    var isSuperAdmin = User.IsInRole("superadmin");
+    Layout = isSuperAdmin
+        ? "_SuperAdminLayout"
+        : "_Layout";
 }

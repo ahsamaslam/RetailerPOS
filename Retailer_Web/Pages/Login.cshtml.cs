@@ -1,5 +1,4 @@
-using System.IdentityModel.Tokens.Jwt;
-using System.Net.Http.Json;
+ï»¿using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text.Json;
 using Microsoft.AspNetCore.Authentication;
@@ -9,124 +8,138 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace Retailer.Web.Pages;
+
 [AllowAnonymous]
 public class LoginModel : PageModel
 {
     private readonly IHttpClientFactory _httpFactory;
-    public LoginModel(IHttpClientFactory httpFactory)
+    private readonly ILogger<LoginModel> _logger;
+
+    public LoginModel(
+        IHttpClientFactory httpFactory,
+        ILogger<LoginModel> logger)
     {
         _httpFactory = httpFactory;
+        _logger = logger;
     }
 
     [BindProperty]
     public string UserName { get; set; } = string.Empty;
+
     [BindProperty]
     public string Password { get; set; } = string.Empty;
 
-    public string? ReturnUrl { get; set; }
+    public string ReturnUrl { get; set; } = "~/";
 
-    public void OnGet(string? returnUrl = null) => ReturnUrl = returnUrl ?? Url.Content("~/");
+    public void OnGet(string? returnUrl = null)
+    {
+        ReturnUrl = returnUrl ?? "~/";
+    }
 
     public async Task<IActionResult> OnPostAsync(string? returnUrl = null)
     {
-        returnUrl ??= Url.Content("~/");
+        ReturnUrl = returnUrl ?? "~/";
 
         var client = _httpFactory.CreateClient("AuthApi");
-        var resp = await client.PostAsJsonAsync("api/auth/login", new { UserName, Password }); 
-        if (!resp.IsSuccessStatusCode)
+        var response = await client.PostAsJsonAsync(
+            "api/auth/login",
+            new { UserName, Password });
+
+        if (!response.IsSuccessStatusCode)
         {
-            ModelState.AddModelError("", "Invalid credentials");
+            ModelState.AddModelError(string.Empty, "Invalid username or password");
             return Page();
         }
 
-        // Read JSON response and extract token (AuthController returns { token: "...", expiresIn:..., roles: ... })
-        var root = await resp.Content.ReadFromJsonAsync<JsonElement?>();
-        if (root == null || !root.Value.TryGetProperty("token", out var tokenElem))
+        var json = await response.Content.ReadFromJsonAsync<JsonElement>();
+        if (!json.TryGetProperty("token", out var tokenElement))
         {
-            ModelState.AddModelError("", "Invalid auth server response (no token)");
+            ModelState.AddModelError(string.Empty, "Authentication server returned no token");
             return Page();
         }
 
-        var token = tokenElem.GetString();
-        if (string.IsNullOrEmpty(token))
+        var token = tokenElement.GetString();
+        if (string.IsNullOrWhiteSpace(token))
         {
-            ModelState.AddModelError("", "Empty token returned by auth server");
+            ModelState.AddModelError(string.Empty, "Empty token returned from authentication server");
             return Page();
         }
 
-        // Decode JWT to extract claims (sub, name, roles, permission, etc.)
         var handler = new JwtSecurityTokenHandler();
         JwtSecurityToken jwt;
+
         try
         {
             jwt = handler.ReadJwtToken(token);
         }
-        catch (Exception)
+        catch
         {
-            ModelState.AddModelError("", "Failed to parse token from auth server");
+            ModelState.AddModelError(string.Empty, "Invalid token format");
             return Page();
         }
 
-        // get user id (sub or nameidentifier)
-        var userId = jwt.Claims.FirstOrDefault(c =>
-            c.Type == ClaimTypes.NameIdentifier || c.Type == "sub" || c.Type == JwtRegisteredClaimNames.Sub)?.Value;
-
-        var usernameClaim = jwt.Claims.FirstOrDefault(c =>
-            c.Type == ClaimTypes.Name || c.Type == "name" || c.Type == JwtRegisteredClaimNames.Name)?.Value
-            ?? UserName;
-
-        // collect role claims (tokens sometimes have role claim type as ClaimTypes.Role or "role" or that long URI)
-        var roleClaimTypes = new[] { ClaimTypes.Role, "role", "http://schemas.microsoft.com/ws/2008/06/identity/claims/role" };
-        var roles = jwt.Claims
-            .Where(c => roleClaimTypes.Contains(c.Type, StringComparer.OrdinalIgnoreCase))
-            .Select(c => c.Value)
-            .Distinct(StringComparer.OrdinalIgnoreCase)
-            .ToArray();
-
-        // collect permission claims (your token contains "permission" array)
-        var permissions = jwt.Claims
-            .Where(c => string.Equals(c.Type, "permission", StringComparison.OrdinalIgnoreCase))
-            .Select(c => c.Value)
-            .Distinct(StringComparer.OrdinalIgnoreCase)
-            .ToArray();
-        var pictureClaim = jwt.Claims
-    .FirstOrDefault(c => string.Equals(c.Type, "picture", StringComparison.OrdinalIgnoreCase))?.Value;
-
-        // Build claims for cookie principal — include token as access_token claim
         var claims = new List<Claim>
         {
-            new Claim(ClaimTypes.NameIdentifier, userId ?? string.Empty),
-            new Claim(ClaimTypes.Name, usernameClaim),
-            new Claim("access_token", token),  // TokenDelegatingHandler will read this claim if needed
-            new Claim("sub", userId ?? string.Empty)
+            new Claim(ClaimTypes.NameIdentifier,
+                jwt.Claims.First(c => c.Type == JwtRegisteredClaimNames.Sub).Value),
+
+            new Claim(ClaimTypes.Name,
+                jwt.Claims.FirstOrDefault(c =>
+                    c.Type == ClaimTypes.Name || c.Type == "name")?.Value
+                ?? UserName),
+
+            new Claim("access_token", token)
         };
-        if (!string.IsNullOrEmpty(pictureClaim))
+
+        var roleValues = jwt.Claims
+            .Where(c => c.Type == ClaimTypes.Role || c.Type == "role")
+            .Select(c => c.Value)
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .ToList();
+
+        foreach (var role in roleValues)
         {
-            claims.Add(new Claim("picture", pictureClaim));
+            claims.Add(new Claim(ClaimTypes.Role, role));
         }
-        // add roles
-        foreach (var r in roles)
-            claims.Add(new Claim(ClaimTypes.Role, r));
 
-        // add permission claims
-        foreach (var p in permissions)
-            claims.Add(new Claim("permission", p));
+        foreach (var perm in jwt.Claims
+                     .Where(c => c.Type == "permission")
+                     .Select(c => c.Value)
+                     .Distinct(StringComparer.OrdinalIgnoreCase))
+        {
+            claims.Add(new Claim("permission", perm));
+        }
 
-        var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
-        var principal = new ClaimsPrincipal(identity);
+        var isSuperAdmin = roleValues.Any(r => string.Equals(r, "superadmin", StringComparison.OrdinalIgnoreCase));
+        ReturnUrl = isSuperAdmin
+            ? "/SuperAdmin/SwitchCompany"
+            : returnUrl ?? "~/Home";
 
-        // store access token in session (TokenDelegatingHandler reads session first)
-        HttpContext.Session.SetString("AccessToken", token);
-        var logger = HttpContext.RequestServices.GetRequiredService<ILogger<LoginModel>>();
-        logger.LogInformation("Login completed for {user}. Token length={len}", UserName, token?.Length);
-        // sign-in cookie so user is authenticated in Razor pages
-        await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal,
+        var picture = jwt.Claims.FirstOrDefault(c => c.Type == "picture")?.Value;
+        if (!string.IsNullOrWhiteSpace(picture))
+        {
+            claims.Add(new Claim("picture", picture));
+        }
+
+        var identity = new ClaimsIdentity(
+            claims,
+            CookieAuthenticationDefaults.AuthenticationScheme);
+
+        await HttpContext.SignInAsync(
+            CookieAuthenticationDefaults.AuthenticationScheme,
+            new ClaimsPrincipal(identity),
             new AuthenticationProperties
             {
                 IsPersistent = true,
                 ExpiresUtc = DateTimeOffset.UtcNow.AddHours(8)
             });
 
-        return LocalRedirect(returnUrl);
+        HttpContext.Session.Remove("ImpersonatedCompanyId");
+        HttpContext.Session.Remove("ImpersonatedCompanyName");
+        HttpContext.Session.SetString("AccessToken", token);
+
+        _logger.LogInformation("User {User} logged in successfully", UserName);
+
+        return LocalRedirect(ReturnUrl);
     }
 }

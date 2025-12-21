@@ -7,7 +7,7 @@ using System.Security;
 
 namespace AuthModule.API.Data
 {
-    public class ApplicationDbContext : IdentityDbContext<Microsoft.AspNetCore.Identity.IdentityUser>
+    public class ApplicationDbContext : IdentityDbContext<ApplicationUser, IdentityRole, string>
     {
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options) { }
 
@@ -77,14 +77,16 @@ namespace AuthModule.API.Data
             builder.Entity<UserPermission>(b =>
             {
                 b.HasKey(up => new { up.UserId, up.PermissionId });
-                b.HasOne<Microsoft.AspNetCore.Identity.IdentityUser>()
-                .WithMany()
-                .HasForeignKey(up => up.UserId)
-                .OnDelete(DeleteBehavior.Cascade);
+
+                b.HasOne<ApplicationUser>()
+                    .WithMany()
+                    .HasForeignKey(up => up.UserId)
+                    .OnDelete(DeleteBehavior.Cascade);
+
                 b.HasOne(up => up.Permission)
-                .WithMany(p => p.UserPermissions)
-                .HasForeignKey(up => up.PermissionId)
-                .OnDelete(DeleteBehavior.Cascade);
+                    .WithMany(p => p.UserPermissions)
+                    .HasForeignKey(up => up.PermissionId)
+                    .OnDelete(DeleteBehavior.Cascade);
             });
         }
     }

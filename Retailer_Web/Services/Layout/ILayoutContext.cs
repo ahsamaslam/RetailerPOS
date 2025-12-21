@@ -5,7 +5,7 @@ namespace Retailer.Web.Services.Layout
 {
     public interface ILayoutContext
     {
-        Task<LayoutUserInfo> GetUserInfoAsync();
+        Task<LayoutUserInfo?> GetUserInfoAsync();
         Task<IEnumerable<MenuDto>> GetMenusAsync();
     }
 }

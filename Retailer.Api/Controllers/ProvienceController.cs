@@ -1,5 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Retailer.Api.Entities;
+using Retailer.Api.Infrastructure;
 using Retailer.POS.Api.DTOs;
 using Retailer.POS.Api.Repositories;
 using Retailer.POS.Api.Services;
@@ -8,11 +10,11 @@ namespace Retailer.POS.Api.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize]
     public class ProvienceController : ControllerBase
     {
         private readonly IUnitOfWork _uow;
         public ProvienceController(IUnitOfWork uow) => _uow = uow;
-
 
         [HttpGet]
         public async Task<IActionResult> GetAll()
@@ -47,7 +49,7 @@ namespace Retailer.POS.Api.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> Get(int id)
         {
-            var entity = await _uow.Proviences.GetByIdAsync(id);
+            var entity = await _uow.Proviences.GetAsync(b => b.Id == id);
             if (entity == null) return NotFound();
             return Ok(entity);
         }

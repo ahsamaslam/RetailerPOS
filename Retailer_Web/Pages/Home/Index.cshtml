@@ -1,0 +1,686 @@
+﻿@page
+@{
+    Layout = "_Layout";
+}
+@model Retailer.Web.Pages.Home.IndexModel
+<!--begin::App Main-->
+<main class="app-main">
+    <!--begin::App Content Header-->
+    <div class="app-content-header">
+        <!--begin::Container-->
+        <div class="container-fluid">
+            <!--begin::Row-->
+            <div class="row">
+                <div class="col-sm-6"><h3 class="mb-0">Dashboard</h3></div>
+                <div class="col-sm-6">
+                    <ol class="breadcrumb float-sm-end">
+                        <li class="breadcrumb-item"><a href="#">Home</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">Dashboard</li>
+                    </ol>
+                </div>
+            </div>
+            <!--end::Row-->
+        </div>
+        <!--end::Container-->
+    </div>
+    <!--end::App Content Header-->
+    <!--begin::App Content-->
+    <div class="app-content">
+        <!--begin::Container-->
+        <div class="container-fluid">
+            <!--begin::Row-->
+            <div class="row">
+                <div class="col-12 col-sm-6 col-md-3">
+                    <div class="info-box">
+                        <span class="info-box-icon text-bg-primary shadow-sm">
+                            <i class="bi bi-gear-fill"></i>
+                        </span>
+
+                        <div class="info-box-content">
+                            <span class="info-box-text">Total Items </span>
+                            <span class="info-box-number">
+                                10
+                                <small>%</small>
+                            </span>
+                        </div>
+                        <!-- /.info-box-content -->
+                    </div>
+                    <!-- /.info-box -->
+                </div>
+                <!-- /.col -->
+                <div class="col-12 col-sm-6 col-md-3">
+                    <div class="info-box">
+                        <span class="info-box-icon text-bg-danger shadow-sm">
+                            <i class="bi bi-hand-thumbs-up-fill"></i>
+                        </span>
+
+                        <div class="info-box-content">
+                            <span class="info-box-text">Likes</span>
+                            <span class="info-box-number">41,410</span>
+                        </div>
+                        <!-- /.info-box-content -->
+                    </div>
+                    <!-- /.info-box -->
+                </div>
+                <!-- /.col -->
+                <!-- fix for small devices only -->
+                <!-- <div class="clearfix hidden-md-up"></div> -->
+
+                <div class="col-12 col-sm-6 col-md-3">
+                    <div class="info-box">
+                        <span class="info-box-icon text-bg-success shadow-sm">
+                            <i class="bi bi-cart-fill"></i>
+                        </span>
+
+                        <div class="info-box-content">
+                            <span class="info-box-text">Sales</span>
+                            <span class="info-box-number">760</span>
+                        </div>
+                        <!-- /.info-box-content -->
+                    </div>
+                    <!-- /.info-box -->
+                </div>
+                <!-- /.col -->
+                <div class="col-12 col-sm-6 col-md-3">
+                    <div class="info-box">
+                        <span class="info-box-icon text-bg-warning shadow-sm">
+                            <i class="bi bi-people-fill"></i>
+                        </span>
+
+                        <div class="info-box-content">
+                            <span class="info-box-text">New Members</span>
+                            <span class="info-box-number">2,000</span>
+                        </div>
+                        <!-- /.info-box-content -->
+                    </div>
+                    <!-- /.info-box -->
+                </div>
+                <!-- /.col -->
+            </div>
+            <!--end::Row-->
+            <!--begin::Row-->
+            <div class="row">
+                <div class="col-4">
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h3 class="card-title">Total Sales</h3>
+
+                            <div class="card-tools">
+                                <button type="button" class="btn btn-tool" data-lte-toggle="card-collapse">
+                                    <i data-lte-icon="expand" class="bi bi-plus-lg"></i>
+                                    <i data-lte-icon="collapse" class="bi bi-dash-lg"></i>
+                                </button>
+                                <button type="button" class="btn btn-tool" data-lte-toggle="card-remove">
+                                    <i class="bi bi-x-lg"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <!-- /.card-header -->
+                        <div class="card-body">
+                            <!--begin::Row-->
+                            <div class="row">
+                                <div class="col-12">
+                                    <div id="pie-chart"></div>
+                                </div>
+                                <!-- /.col -->
+                            </div>
+                            <!--end::Row-->
+                        </div>
+                        <!-- /.card-body -->
+                        <div class="card-footer p-0">
+                            <ul class="nav nav-pills flex-column">
+                                <li class="nav-item">
+                                    <a href="#" class="nav-link">
+                                        Total Sales
+                                        <span class="float-end text-danger">
+
+                                            @Model.SaleSeries.Sum()
+                                        </span>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="#" class="nav-link">
+                                        Total Sales Return
+                                        <span class="float-end text-success">
+                                            4,000
+                                        </span>
+                                    </a>
+                                </li>
+
+                            </ul>
+                        </div>
+                        <!-- /.footer -->
+                    </div>
+                </div>
+                <div class="col-4">
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h3 class="card-title">Total Purchase</h3>
+
+                            <div class="card-tools">
+                                <button type="button" class="btn btn-tool" data-lte-toggle="card-collapse">
+                                    <i data-lte-icon="expand" class="bi bi-plus-lg"></i>
+                                    <i data-lte-icon="collapse" class="bi bi-dash-lg"></i>
+                                </button>
+                                <button type="button" class="btn btn-tool" data-lte-toggle="card-remove">
+                                    <i class="bi bi-x-lg"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <!-- /.card-header -->
+                        <div class="card-body">
+                            <!--begin::Row-->
+                            <div class="row">
+                                <div class="col-12">
+                                    <div id="pie-chart1"></div>
+                                </div>
+                                <!-- /.col -->
+                            </div>
+                            <!--end::Row-->
+                        </div>
+                        <!-- /.card-body -->
+                        <div class="card-footer p-0">
+                            <ul class="nav nav-pills flex-column">
+                                <li class="nav-item">
+                                    <a href="#" class="nav-link">
+                                        Total Sales
+                                        <span class="float-end text-danger">
+
+                                            55,000
+                                        </span>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="#" class="nav-link">
+                                        Total Sales Return
+                                        <span class="float-end text-success">
+                                            4,000
+                                        </span>
+                                    </a>
+                                </li>
+
+                            </ul>
+                        </div>
+                        <!-- /.footer -->
+                    </div>
+                </div>
+                <div class="col-4">
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h3 class="card-title">Total Payments</h3>
+
+                            <div class="card-tools">
+                                <button type="button" class="btn btn-tool" data-lte-toggle="card-collapse">
+                                    <i data-lte-icon="expand" class="bi bi-plus-lg"></i>
+                                    <i data-lte-icon="collapse" class="bi bi-dash-lg"></i>
+                                </button>
+                                <button type="button" class="btn btn-tool" data-lte-toggle="card-remove">
+                                    <i class="bi bi-x-lg"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <!-- /.card-header -->
+                        <div class="card-body">
+                            <!--begin::Row-->
+                            <div class="row">
+                                <div class="col-12">
+                                    <div id="pie-chart2"></div>
+                                </div>
+                                <!-- /.col -->
+                            </div>
+                            <!--end::Row-->
+                        </div>
+                        <!-- /.card-body -->
+                        <div class="card-footer p-0">
+                            <ul class="nav nav-pills flex-column">
+                                <li class="nav-item">
+                                    <a href="#" class="nav-link">
+                                        Total Sales
+                                        <span class="float-end text-danger">
+
+                                            55,000
+                                        </span>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="#" class="nav-link">
+                                        Total Sales Return
+                                        <span class="float-end text-success">
+                                            4,000
+                                        </span>
+                                    </a>
+                                </li>
+
+                            </ul>
+                        </div>
+                        <!-- /.footer -->
+                    </div>
+                </div>
+                @*    <div class="col-4">
+                <!--begin::Latest Order Widget-->
+                <div class="card">
+                <div class="card-header">
+                <h3 class="card-title">Latest Orders</h3>
+
+                <div class="card-tools">
+                <button type="button" class="btn btn-tool" data-lte-toggle="card-collapse">
+                <i data-lte-icon="expand" class="bi bi-plus-lg"></i>
+                <i data-lte-icon="collapse" class="bi bi-dash-lg"></i>
+                </button>
+                <button type="button" class="btn btn-tool" data-lte-toggle="card-remove">
+                <i class="bi bi-x-lg"></i>
+                </button>
+                </div>
+                </div>
+                <!-- /.card-header -->
+                <div class="card-body p-0">
+                <div class="table-responsive">
+                <table class="table m-0">
+                <thead>
+                <tr>
+                <th>Order ID</th>
+                <th>Item</th>
+                <th>Status</th>
+                <th>Popularity</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                <td>
+                <a href="pages/examples/invoice.html"
+                class="link-primary link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover">OR9842</a>
+                </td>
+                <td>Call of Duty IV</td>
+                <td>
+                <span class="badge text-bg-success"> Shipped </span>
+                </td>
+                <td>
+                <div id="table-sparkline-1"></div>
+                </td>
+                </tr>
+                <tr>
+                <td>
+                <a href="pages/examples/invoice.html"
+                class="link-primary link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover">OR1848</a>
+                </td>
+                <td>Samsung Smart TV</td>
+                <td>
+                <span class="badge text-bg-warning">Pending</span>
+                </td>
+                <td>
+                <div id="table-sparkline-2"></div>
+                </td>
+                </tr>
+                <tr>
+                <td>
+                <a href="pages/examples/invoice.html"
+                class="link-primary link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover">OR7429</a>
+                </td>
+                <td>iPhone 6 Plus</td>
+                <td>
+                <span class="badge text-bg-danger"> Delivered </span>
+                </td>
+                <td>
+                <div id="table-sparkline-3"></div>
+                </td>
+                </tr>
+                <tr>
+                <td>
+                <a href="pages/examples/invoice.html"
+                class="link-primary link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover">OR7429</a>
+                </td>
+                <td>Samsung Smart TV</td>
+                <td>
+                <span class="badge text-bg-info">Processing</span>
+                </td>
+                <td>
+                <div id="table-sparkline-4"></div>
+                </td>
+                </tr>
+                <tr>
+                <td>
+                <a href="pages/examples/invoice.html"
+                class="link-primary link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover">OR1848</a>
+                </td>
+                <td>Samsung Smart TV</td>
+                <td>
+                <span class="badge text-bg-warning">Pending</span>
+                </td>
+                <td>
+                <div id="table-sparkline-5"></div>
+                </td>
+                </tr>
+                <tr>
+                <td>
+                <a href="pages/examples/invoice.html"
+                class="link-primary link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover">OR7429</a>
+                </td>
+                <td>iPhone 6 Plus</td>
+                <td>
+                <span class="badge text-bg-danger"> Delivered </span>
+                </td>
+                <td>
+                <div id="table-sparkline-6"></div>
+                </td>
+                </tr>
+                <tr>
+                <td>
+                <a href="pages/examples/invoice.html"
+                class="link-primary link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover">OR9842</a>
+                </td>
+                <td>Call of Duty IV</td>
+                <td>
+                <span class="badge text-bg-success">Shipped</span>
+                </td>
+                <td>
+                <div id="table-sparkline-7"></div>
+                </td>
+                </tr>
+                </tbody>
+                </table>
+                </div>
+                <!-- /.table-responsive -->
+                </div>
+                <!-- /.card-body -->
+                <div class="card-footer clearfix">
+                <a href="javascript:void(0)" class="btn btn-sm btn-primary float-start">
+                Place New Order
+                </a>
+                <a href="javascript:void(0)" class="btn btn-sm btn-secondary float-end">
+                View All Orders
+                </a>
+                </div>
+                <!-- /.card-footer -->
+                </div>
+                <!-- /.card -->
+                </div> *@
+                <div class="col-8">
+
+                    <div class="card mb-4">
+                        <div class="card-header border-0">
+                            <div class="d-flex justify-content-between">
+                                <h3 class="card-title">Sales</h3>
+                                <a href="javascript:void(0);"
+                                   class="link-primary link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover">View Report</a>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="d-flex">
+                                <p class="d-flex flex-column">
+                                    <span class="fw-bold fs-5">$18,230.00</span>
+                                    <span>Sales Over Time</span>
+                                </p>
+                                <p class="ms-auto d-flex flex-column text-end">
+                                    <span class="text-success"> <i class="bi bi-arrow-up"></i> 33.1% </span>
+                                    <span class="text-secondary">Since Past Year</span>
+                                </p>
+                            </div>
+                            <!-- /.d-flex -->
+
+                            <div class="position-relative mb-4">
+                                <div id="sales-chart"></div>
+                            </div>
+
+                            <div class="d-flex flex-row justify-content-end">
+                                <span class="me-2">
+                                    <i class="bi bi-square-fill text-primary"></i> This year
+                                </span>
+
+                                <span> <i class="bi bi-square-fill text-secondary"></i> Last year </span>
+                            </div>
+                        </div>
+                        <div class="card-footer">
+                            <!--begin::Row-->
+                            <div class="row">
+                                <div class="col-md-3 col-6">
+                                    <div class="text-center border-end">
+                                        <span class="text-success">
+                                            <i class="bi bi-caret-up-fill"></i> 17%
+                                        </span>
+                                        <h5 class="fw-bold mb-0">$35,210.43</h5>
+                                        <span class="text-uppercase">TOTAL REVENUE</span>
+                                    </div>
+                                </div>
+
+                                <!-- /.col -->
+                                <div class="col-md-3 col-6">
+                                    <div class="text-center border-end">
+                                        <span class="text-info"> <i class="bi bi-caret-left-fill"></i> 0% </span>
+                                        <h5 class="fw-bold mb-0">$10,390.90</h5>
+                                        <span class="text-uppercase">TOTAL COST</span>
+                                    </div>
+                                </div>
+                                <!-- /.col -->
+                                <div class="col-md-3 col-6">
+                                    <div class="text-center border-end">
+                                        <span class="text-success">
+                                            <i class="bi bi-caret-up-fill"></i> 20%
+                                        </span>
+                                        <h5 class="fw-bold mb-0">$24,813.53</h5>
+                                        <span class="text-uppercase">TOTAL PROFIT</span>
+                                    </div>
+                                </div>
+                                <!-- /.col -->
+                                <div class="col-md-3 col-6">
+                                    <div class="text-center">
+                                        <span class="text-danger">
+                                            <i class="bi bi-caret-down-fill"></i> 18%
+                                        </span>
+                                        <h5 class="fw-bold mb-0">1200</h5>
+                                        <span class="text-uppercase">GOAL COMPLETIONS</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <!--end::Row-->
+                        </div>
+                    </div>
+                    <!-- /.card -->
+
+
+
+                </div>
+
+                <div class="col-4">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Recently Added Products</h3>
+
+                            <div class="card-tools">
+                                <button type="button" class="btn btn-tool" data-lte-toggle="card-collapse">
+                                    <i data-lte-icon="expand" class="bi bi-plus-lg"></i>
+                                    <i data-lte-icon="collapse" class="bi bi-dash-lg"></i>
+                                </button>
+                                <button type="button" class="btn btn-tool" data-lte-toggle="card-remove">
+                                    <i class="bi bi-x-lg"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <!-- /.card-header -->
+                        <div class="card-body p-0">
+                            <div class="px-2">
+                                <div class="d-flex border-top py-2 px-1">
+                                    <div class="col-2">
+                                        <img src="./assets/img/default-150x150.png"
+                                             alt="Product Image"
+                                             class="img-size-50" />
+                                    </div>
+                                    <div class="col-10">
+                                        <a href="javascript:void(0)" class="fw-bold">
+                                            Samsung TV
+                                            <span class="badge text-bg-warning float-end"> $1800 </span>
+                                        </a>
+                                        <div class="text-truncate">Samsung 32" 1080p 60Hz LED Smart HDTV.</div>
+                                    </div>
+                                </div>
+                                <!-- /.item -->
+                                <div class="d-flex border-top py-2 px-1">
+                                    <div class="col-2">
+                                        <img src="./assets/img/default-150x150.png"
+                                             alt="Product Image"
+                                             class="img-size-50" />
+                                    </div>
+                                    <div class="col-10">
+                                        <a href="javascript:void(0)" class="fw-bold">
+                                            Bicycle
+                                            <span class="badge text-bg-info float-end"> $700 </span>
+                                        </a>
+                                        <div class="text-truncate">
+                                            26" Mongoose Dolomite Men's 7-speed, Navy Blue.
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- /.item -->
+                                <div class="d-flex border-top py-2 px-1">
+                                    <div class="col-2">
+                                        <img src="./assets/img/default-150x150.png"
+                                             alt="Product Image"
+                                             class="img-size-50" />
+                                    </div>
+                                    <div class="col-10">
+                                        <a href="javascript:void(0)" class="fw-bold">
+                                            Xbox One
+                                            <span class="badge text-bg-danger float-end"> $350 </span>
+                                        </a>
+                                        <div class="text-truncate">
+                                            Xbox One Console Bundle with Halo Master Chief Collection.
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- /.item -->
+                                <div class="d-flex border-top py-2 px-1">
+                                    <div class="col-2">
+                                        <img src="./assets/img/default-150x150.png"
+                                             alt="Product Image"
+                                             class="img-size-50" />
+                                    </div>
+                                    <div class="col-10">
+                                        <a href="javascript:void(0)" class="fw-bold">
+                                            PlayStation 4
+                                            <span class="badge text-bg-success float-end"> $399 </span>
+                                        </a>
+                                        <div class="text-truncate">PlayStation 4 500GB Console (PS4)</div>
+                                    </div>
+                                </div>
+                                <!-- /.item -->
+                            </div>
+                        </div>
+                        <!-- /.card-body -->
+                        <div class="card-footer text-center">
+                            <a href="javascript:void(0)" class="uppercase"> View All Products </a>
+                        </div>
+                        <!-- /.card-footer -->
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+            </div>
+            <!-- /.row (main row) -->
+        </div>
+        <!--end::Container-->
+    </div>
+    <!--end::App Content-->
+</main>
+<!--end::App Main-->
+<script>
+
+    document.addEventListener("DOMContentLoaded", function () {
+        const pie_chart_options = {
+            chart: {
+                type: 'donut',
+            },
+            series: @Json.Serialize(Model.SaleSeries),
+            labels: @Json.Serialize(Model.SaleLabels),
+            dataLabels: {
+                enabled: false,
+            },
+            colors: ['#0d6efd', '#20c997', '#ffc107', '#d63384', '#6f42c1', '#adb5bd'],
+        };
+        const pie_chart_optionsA = {
+            chart: {
+                type: 'donut',
+            },
+            series: @Json.Serialize(Model.PurchaseSeries),
+            labels: @Json.Serialize(Model.PurchaseLabels),
+            dataLabels: {
+                enabled: false,
+            },
+            colors: ['#d63384', '#6f42c1', '#adb5bd'],
+        };
+        const pie_chart_optionsB = {
+            chart: {
+                type: 'donut',
+            },
+            series: @Json.Serialize(Model.PurchaseSeries),
+            labels: @Json.Serialize(Model.PurchaseLabels),
+            dataLabels: {
+                enabled: false,
+            },
+            colors: ['#20c997', '#ffc107', '#d63384'],
+        };
+        const pie_chart = new ApexCharts(document.querySelector('#pie-chart'), pie_chart_options);
+        pie_chart.render();
+        const pie_chart1 = new ApexCharts(document.querySelector('#pie-chart1'), pie_chart_optionsA);
+        pie_chart1.render();
+        const pie_chart2 = new ApexCharts(document.querySelector('#pie-chart2'), pie_chart_optionsB);
+        pie_chart2.render();
+        const sales_chart_options = {
+            series: [
+                {
+                    name: 'Net Profit',
+                    data: [44, 55, 57, 56, 61, 58, 63, 60, 66],
+                },
+                {
+                    name: 'Revenue',
+                    data: [76, 85, 101, 98, 87, 105, 91, 114, 94],
+                },
+                {
+                    name: 'Free Cash Flow',
+                    data: [35, 41, 36, 26, 45, 48, 52, 53, 41],
+                },
+            ],
+            chart: {
+                type: 'bar',
+                height: 200,
+            },
+            plotOptions: {
+                bar: {
+                    horizontal: false,
+                    columnWidth: '55%',
+                    endingShape: 'rounded',
+                },
+            },
+            legend: {
+                show: false,
+            },
+            colors: ['#0d6efd', '#20c997', '#ffc107'],
+            dataLabels: {
+                enabled: false,
+            },
+            stroke: {
+                show: true,
+                width: 2,
+                colors: ['transparent'],
+            },
+            xaxis: {
+                categories: ['Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct'],
+            },
+            fill: {
+                opacity: 1,
+            },
+            tooltip: {
+                y: {
+                    formatter: function (val) {
+                        return '$ ' + val + ' thousands';
+                    },
+                },
+            },
+        };
+
+        const sales_chart = new ApexCharts(
+            document.querySelector('#sales-chart'),
+            sales_chart_options,
+        );
+        sales_chart.render();
+    });
+</script>

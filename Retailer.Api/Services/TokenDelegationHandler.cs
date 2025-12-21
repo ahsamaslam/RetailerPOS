@@ -33,9 +33,18 @@ public class TokenDelegationHandler : DelegatingHandler
                 headerVal.Scheme.Equals("Bearer", System.StringComparison.OrdinalIgnoreCase) &&
                 !string.IsNullOrWhiteSpace(headerVal.Parameter))
             {
-                request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", headerVal.Parameter);
-                _logger.LogDebug("Forwarded Bearer token from incoming Authorization header.");
-                return base.SendAsync(request, cancellationToken);
+                try
+                {
+
+                    request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", headerVal.Parameter);
+                    _logger.LogDebug("Forwarded Bearer token from incoming Authorization header.");
+                    return base.SendAsync(request, cancellationToken);
+                }
+                catch(Exception e)
+                {
+                    // session may not be configured; don't fail the request, but log
+                    _logger.LogDebug(e, "Error when attempting to read token from session.");
+                }
             }
         }
 

@@ -1,12 +1,13 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Retailer.Api.DTOs;
+using Retailer.Api.Infrastructure;
+using Retailer.Api.Services; // optional DTO namespace if you have
+using Retailer.POS.Api.DTOs;
 using Retailer.POS.Api.Entities;
 using Retailer.POS.Api.Repositories; // your IUnitOfWork namespace
-using Retailer.POS.Api.DTOs;
-using Microsoft.AspNetCore.Http.HttpResults;
-using Retailer.Api.DTOs;
-using Microsoft.AspNetCore.Authorization;
-using Retailer.Api.Services; // optional DTO namespace if you have
 
 namespace Retailer.POS.Api.Controllers
 {
@@ -24,8 +25,9 @@ namespace Retailer.POS.Api.Controllers
             _fbrClient = fbrClient;
             _companyService = companyService;
         }
+        private Guid CompanyId => HttpContext.GetCompanyId();
+        private LoginDto CurrentUser => HttpContext.GetUserId();
 
-          
         [HttpGet]
         [HttpGet("GetAllDateWise/{sdate}/{edate}")]
         public async Task<IActionResult> GetAllDateWise(DateTime sdate, DateTime edate)
@@ -34,7 +36,7 @@ namespace Retailer.POS.Api.Controllers
             var list = await _uow.SalesMasters
 
                 .Query()
-                .Where(r => r.Date.Date >= sdate.Date.Date && r.Date.Date <= edate.Date)
+                .Where(r => r.CompanyId == CompanyId && r.Date.Date >= sdate.Date.Date && r.Date.Date <= edate.Date)
                 //.Include(s => s.Details)
                 .OrderByDescending(s => s.Date)
                 .ToListAsync();
@@ -54,7 +56,8 @@ namespace Retailer.POS.Api.Controllers
                 {
                     Id = s.Id,
                     Date = s.Date,
-                    LoginId = s.LoginId,
+                    UserId = CurrentUser.Id,
+                    UserName = CurrentUser.UserName,
                     BranchId = s.BranchId,
                     CustomerName = s.CustomerName,
                     SubTotal = s.SubTotal,
@@ -101,7 +104,9 @@ namespace Retailer.POS.Api.Controllers
                     d.SalesMaster = model;
                 }
                 //foreach (var d in model.Details) d.SalesMaster = null;
-
+                model.CompanyId = CompanyId;
+                model.CreateDate = DateTime.UtcNow;
+                model.UserId = CurrentUser.Id;
                 await _uow.SalesMasters.AddAsync(model);
                 await _uow.SaveChangesAsync();
                 var itemids = model.Details.GroupBy(x => x.ItemCode).Select(x => x.Key).ToList();
@@ -166,7 +171,7 @@ namespace Retailer.POS.Api.Controllers
 
             // update scalar properties
             existing.Date = model.Date;
-            existing.LoginId = model.LoginId;
+            existing.UserId = CurrentUser.Id;
             existing.BranchId = model.BranchId;
             existing.CustomerName = model.CustomerName;
             existing.SubTotal = model.SubTotal;
@@ -228,7 +233,7 @@ namespace Retailer.POS.Api.Controllers
         [HttpDelete("{id:int}")]
         public async Task<IActionResult> Delete(int id)
         {
-            var existing = await _uow.SalesMasters.GetByIdAsync(id);
+            var existing = await _uow.SalesMasters.GetAsync(b => b.Id == id);
             if (existing == null) return NotFound();
 
             _uow.SalesMasters.Remove(existing);

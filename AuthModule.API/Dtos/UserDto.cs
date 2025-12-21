@@ -7,5 +7,6 @@
         public string? Email { get; set; }
         public string? picture { get; set; }
         public Guid? CompanyId { get; set; }
+        public List<string> Roles { get; set; }
     }
 }

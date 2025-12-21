@@ -5,33 +5,25 @@ using Retailer.POS.Api.Entities;
 namespace Retailer.POS.Api.Repositories;
 public interface IUnitOfWork : IDisposable
 {
-    IGenericRepository<Item> Items { get; }
-    IGenericRepository<PurchaseMaster> PurchaseMasters { get; }
-    IGenericRepository<PurchaseDetail> PurchaseDetails { get; }
-    IGenericRepository<Customer> Customers { get; }
-    IGenericRepository<Vendor> Vendors { get; }
-    IGenericRepository<vwStockLedger> VwStockLedger { get; }
-    IGenericRepository<Branch> Branches { get; }
-    IGenericRepository<Employee> Employees { get; }
-    IGenericRepository<SalesMaster> SalesMasters { get; }
-    IGenericRepository<SalesDetail> SalesDetails { get; }
-    IGenericRepository<StockTransfer> StockTransfers { get; }
-    IGenericRepository<StockTransferDetail> StockTransferDetails { get; }
-    IGenericRepository<Login> Logins { get; }
-    IGenericRepository<ItemCategory> ItemCategories { get; }
-    IGenericRepository<ItemType> ItemTypes { get; }
-    IGenericRepository<ItemGroup> ItemGroups { get; }
-    IGenericRepository<ItemSubGroup> ItemSubGroups { get; }
-    IGenericRepository<Role> Roles { get; }
-    IGenericRepository<Scope> Scopes { get; }
-    IGenericRepository<RoleScope> RoleScopes { get; }
-    IGenericRepository<OpeningBalance> OpeningBalances { get; }
-    IGenericRepository<Cities> Cities { get; }
-    IGenericRepository<Provience> Proviences { get; }
-    IGenericRepository<Banks> Banks { get; }
-
-    Task<List<ItemSubGroupDto>> GetSubGroupsWithGroupAsync();
-    Task<ItemSubGroupDto?> GetSubGroupByIdWithGroupAsync(int id);
+    IRepository<Item> Items { get; }
+    IRepository<PurchaseMaster> PurchaseMasters { get; }
+    IRepository<PurchaseDetail> PurchaseDetails { get; }
+    IRepository<Customer> Customers { get; }
+    IRepository<Vendor> Vendors { get; }
+    IRepository<vwStockLedger> VwStockLedger { get; }
+    IRepository<Branch> Branches { get; }
+    IRepository<SalesMaster> SalesMasters { get; }
+    IRepository<SalesDetail> SalesDetails { get; }
+    IRepository<StockTransfer> StockTransfers { get; }
+    IRepository<StockTransferDetail> StockTransferDetails { get; }
+    IRepository<ItemCategory> ItemCategories { get; }
+    IRepository<ItemType> ItemTypes { get; }
+    IRepository<ItemGroup> ItemGroups { get; }
+    IRepository<ItemSubGroup> ItemSubGroups { get; }
+    IRepository<OpeningBalance> OpeningBalances { get; }
+    IRepository<Cities> Cities { get; }
+    IRepository<Provience> Proviences { get; }
+    IRepository<Banks> Banks { get; }
     Task<int> SaveChangesAsync();
     Task<bool> UpdateQtys(List<int> productIDs, int year);
 }

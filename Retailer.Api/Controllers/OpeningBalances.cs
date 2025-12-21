@@ -1,18 +1,21 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Retailer.Api.DTOs;
 using Retailer.Api.Entities;
+using Retailer.Api.Infrastructure;
 using Retailer.POS.Api.Repositories;
 
 namespace Retailer.Api.Controllers
 {
     [ApiController]
     [Route("api/openingbalances")]
+    [Authorize]
     public class OpeningBalancesController : ControllerBase
     {
         private readonly IUnitOfWork _uow;
         private readonly ILogger<OpeningBalancesController> _logger;
-
+        private Guid CompanyId => HttpContext.GetCompanyId();
         public OpeningBalancesController(IUnitOfWork uow, ILogger<OpeningBalancesController> logger)
         {
             _uow = uow;
@@ -27,6 +30,7 @@ namespace Retailer.Api.Controllers
                                  .Query()
                                  .OrderByDescending(x => x.Year)
                                  .ThenBy(x => x.ProductID)
+                                 .Where(x => x.CompanyId == CompanyId)
                                  .Select(x => new OpeningBalanceViewModel
                                  {
                                      Id = x.Id,
@@ -43,7 +47,7 @@ namespace Retailer.Api.Controllers
         [HttpGet("{id:int}")]
         public async Task<IActionResult> Get(int id)
         {
-            var entity = await _uow.OpeningBalances.GetByIdAsync(id);
+            var entity = await _uow.OpeningBalances.GetAsync(b => b.Id == id);
             if (entity == null) return NotFound();
             return Ok(new OpeningBalanceViewModel
             {
@@ -61,7 +65,7 @@ namespace Retailer.Api.Controllers
         {
             var list = await _uow.OpeningBalances
                                  .Query()
-                                 .Where(x => x.Year == year)
+                                 .Where(x => x.Year == year && x.CompanyId == CompanyId)
                                  .OrderBy(x => x.ProductID)
                                  .Select(x => new OpeningBalanceViewModel
                                  {
@@ -84,7 +88,7 @@ namespace Retailer.Api.Controllers
             // uniqueness check (Year + Product)
             var exists = await _uow.OpeningBalances
                                    .Query()
-                                   .AnyAsync(x => x.Year == dto.Year && x.ProductID == dto.ProductID);
+                                   .AnyAsync(x => x.Year == dto.Year && x.CompanyId == CompanyId && x.ProductID == dto.ProductID);
             if (exists)
                 return Conflict("Opening balance for this Year and Product already exists.");
 
@@ -93,7 +97,8 @@ namespace Retailer.Api.Controllers
                 Year = dto.Year,
                 ProductID = dto.ProductID,
                 OpeningQuantity = dto.OpeningQuantity,
-                CreatedAt = DateTime.UtcNow
+                CreatedAt = DateTime.UtcNow,
+                CompanyId = CompanyId
             };
 
             await _uow.OpeningBalances.AddAsync(entity);
@@ -118,7 +123,7 @@ namespace Retailer.Api.Controllers
             if (!ModelState.IsValid) return BadRequest(ModelState);
             if (id != dto.Id) return BadRequest("Id mismatch.");
 
-            var entity = await _uow.OpeningBalances.GetByIdAsync(id);
+            var entity = await _uow.OpeningBalances.GetAsync(b => b.Id == id);
             if (entity == null) return NotFound();
 
             // uniqueness check for Year+Product excluding current record
@@ -149,7 +154,7 @@ namespace Retailer.Api.Controllers
         [HttpDelete("{id:int}")]
         public async Task<IActionResult> Delete(int id)
         {
-            var entity = await _uow.OpeningBalances.GetByIdAsync(id);
+            var entity = await _uow.OpeningBalances.GetAsync(b => b.Id == id);
             if (entity == null) return NotFound();
 
             _uow.OpeningBalances.Remove(entity);

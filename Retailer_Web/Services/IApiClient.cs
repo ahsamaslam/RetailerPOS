@@ -13,6 +13,7 @@ namespace Retailer.POS.Web.Services
     public interface IApiClient
     {
         Task<T> GetAsync<T>(string url);
+        Task<T> GetAuthAsync<T>(string url);
         Task<TResponse?> PostAsync<TRequest, TResponse>(string url, TRequest body);
         Task<TResponse?> PutAsync<TRequest, TResponse>(string url, TRequest body);
         Task DeleteAsync(string url);

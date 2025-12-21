@@ -30,8 +30,10 @@ namespace Retailer.Api.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<Guid>("CompanyId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<string>("Name")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("ProvienceId")
@@ -80,6 +82,9 @@ namespace Retailer.Api.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("OpeningBalanceId"));
 
+                    b.Property<Guid>("CompanyId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
@@ -113,6 +118,9 @@ namespace Retailer.Api.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<Guid>("CompanyId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -120,63 +128,6 @@ namespace Retailer.Api.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Provience");
-                });
-
-            modelBuilder.Entity("Retailer.Api.Entities.Role", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("RoleName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Roles");
-                });
-
-            modelBuilder.Entity("Retailer.Api.Entities.RoleScope", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("RoleId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("ScopeId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("RoleId");
-
-                    b.HasIndex("ScopeId");
-
-                    b.ToTable("RoleScopes");
-                });
-
-            modelBuilder.Entity("Retailer.Api.Entities.Scope", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("ScopeName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Scopes");
                 });
 
             modelBuilder.Entity("Retailer.Api.Entities.SubMenu", b =>
@@ -238,6 +189,9 @@ namespace Retailer.Api.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<Guid>("CompanyId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
@@ -294,6 +248,9 @@ namespace Retailer.Api.Migrations
                     b.Property<int?>("CityId")
                         .HasColumnType("int");
 
+                    b.Property<Guid>("CompanyId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<string>("Mobile")
                         .HasColumnType("nvarchar(max)");
 
@@ -336,6 +293,9 @@ namespace Retailer.Api.Migrations
                     b.Property<string>("BillMobileNo")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<Guid>("CompanyId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<string>("ContactPerson")
                         .HasColumnType("nvarchar(max)");
 
@@ -367,6 +327,9 @@ namespace Retailer.Api.Migrations
 
                     b.Property<int?>("CityId")
                         .HasColumnType("int");
+
+                    b.Property<Guid>("CompanyId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Mobile")
                         .HasColumnType("nvarchar(max)");
@@ -406,44 +369,6 @@ namespace Retailer.Api.Migrations
                     b.ToTable("Customers");
                 });
 
-            modelBuilder.Entity("Retailer.POS.Api.Entities.Employee", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Address")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("CNIC")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("City")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("FirstName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("LastName")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Mobile1")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Mobile2")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Province")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Employees");
-                });
-
             modelBuilder.Entity("Retailer.POS.Api.Entities.Item", b =>
                 {
                     b.Property<int>("Id")
@@ -457,6 +382,9 @@ namespace Retailer.Api.Migrations
 
                     b.Property<int>("CategoryId")
                         .HasColumnType("int");
+
+                    b.Property<Guid>("CompanyId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<decimal>("Cost")
                         .HasColumnType("decimal(18,2)");
@@ -512,6 +440,9 @@ namespace Retailer.Api.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<Guid>("CompanyId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -529,6 +460,9 @@ namespace Retailer.Api.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<Guid>("CompanyId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -545,6 +479,9 @@ namespace Retailer.Api.Migrations
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<Guid>("CompanyId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<int>("GroupId")
                         .HasColumnType("int");
@@ -568,6 +505,9 @@ namespace Retailer.Api.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<Guid>("CompanyId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -577,37 +517,6 @@ namespace Retailer.Api.Migrations
                     b.ToTable("ItemTypes");
                 });
 
-            modelBuilder.Entity("Retailer.POS.Api.Entities.Login", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("EmployeeId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Password")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("RoleId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("UserName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("EmployeeId");
-
-                    b.HasIndex("RoleId");
-
-                    b.ToTable("Logins");
-                });
-
             modelBuilder.Entity("Retailer.POS.Api.Entities.PurchaseDetail", b =>
                 {
                     b.Property<int>("Id")
@@ -615,6 +524,9 @@ namespace Retailer.Api.Migrations
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<Guid>("CompanyId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<decimal>("Discount")
                         .HasColumnType("decimal(18,2)");
@@ -654,6 +566,9 @@ namespace Retailer.Api.Migrations
                     b.Property<int>("BranchId")
                         .HasColumnType("int");
 
+                    b.Property<Guid>("CompanyId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<DateTime>("CreateDate")
                         .HasColumnType("datetime2");
 
@@ -662,9 +577,6 @@ namespace Retailer.Api.Migrations
 
                     b.Property<decimal>("Discount")
                         .HasColumnType("decimal(18,2)");
-
-                    b.Property<int>("LoginId")
-                        .HasColumnType("int");
 
                     b.Property<decimal>("SubTotal")
                         .HasColumnType("decimal(18,2)");
@@ -675,6 +587,13 @@ namespace Retailer.Api.Migrations
                     b.Property<decimal>("Total")
                         .HasColumnType("decimal(18,2)");
 
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("UserName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<int>("VendorID")
                         .HasColumnType("int");
 
@@ -684,8 +603,6 @@ namespace Retailer.Api.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("BranchId");
-
-                    b.HasIndex("LoginId");
 
                     b.HasIndex("VendorID");
 
@@ -702,6 +619,9 @@ namespace Retailer.Api.Migrations
 
                     b.Property<decimal>("Amount")
                         .HasColumnType("decimal(18,2)");
+
+                    b.Property<Guid>("CompanyId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<decimal>("Discount")
                         .HasColumnType("decimal(18,2)");
@@ -784,6 +704,9 @@ namespace Retailer.Api.Migrations
                     b.Property<int>("BranchId")
                         .HasColumnType("int");
 
+                    b.Property<Guid>("CompanyId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<DateTime>("CreateDate")
                         .HasColumnType("datetime2");
 
@@ -796,9 +719,6 @@ namespace Retailer.Api.Migrations
                     b.Property<DateTime>("Date")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("LoginId")
-                        .HasColumnType("int");
-
                     b.Property<decimal>("SubTotal")
                         .HasColumnType("decimal(18,2)");
 
@@ -808,11 +728,11 @@ namespace Retailer.Api.Migrations
                     b.Property<decimal>("TotalDiscount")
                         .HasColumnType("decimal(18,2)");
 
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<int>("Year")
                         .HasColumnType("int");
-
-                    b.Property<Guid>("companyID")
-                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("hsCode")
                         .HasColumnType("nvarchar(max)");
@@ -832,6 +752,9 @@ namespace Retailer.Api.Migrations
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<Guid>("CompanyId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime>("CreateDate")
                         .HasColumnType("datetime2");
@@ -864,6 +787,9 @@ namespace Retailer.Api.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<Guid>("CompanyId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<string>("ItemCode")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -889,6 +815,9 @@ namespace Retailer.Api.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<Guid>("CompanyId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -912,11 +841,11 @@ namespace Retailer.Api.Migrations
                     b.Property<string>("CNIC")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("CityId")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int?>("CityId1")
+                    b.Property<int?>("CityId")
                         .HasColumnType("int");
+
+                    b.Property<Guid>("CompanyId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Mobile")
                         .HasColumnType("nvarchar(max)");
@@ -951,7 +880,7 @@ namespace Retailer.Api.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CityId1");
+                    b.HasIndex("CityId");
 
                     b.ToTable("Vendors");
                 });
@@ -965,25 +894,6 @@ namespace Retailer.Api.Migrations
                         .IsRequired();
 
                     b.Navigation("Provience");
-                });
-
-            modelBuilder.Entity("Retailer.Api.Entities.RoleScope", b =>
-                {
-                    b.HasOne("Retailer.Api.Entities.Role", "Role")
-                        .WithMany("RoleScopes")
-                        .HasForeignKey("RoleId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Retailer.Api.Entities.Scope", "Scope")
-                        .WithMany("RoleScopes")
-                        .HasForeignKey("ScopeId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Role");
-
-                    b.Navigation("Scope");
                 });
 
             modelBuilder.Entity("Retailer.Api.Entities.SubMenu", b =>
@@ -1077,25 +987,6 @@ namespace Retailer.Api.Migrations
                     b.Navigation("Group");
                 });
 
-            modelBuilder.Entity("Retailer.POS.Api.Entities.Login", b =>
-                {
-                    b.HasOne("Retailer.POS.Api.Entities.Employee", "Employee")
-                        .WithMany("Logins")
-                        .HasForeignKey("EmployeeId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Retailer.Api.Entities.Role", "Role")
-                        .WithMany("Logins")
-                        .HasForeignKey("RoleId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Employee");
-
-                    b.Navigation("Role");
-                });
-
             modelBuilder.Entity("Retailer.POS.Api.Entities.PurchaseDetail", b =>
                 {
                     b.HasOne("Retailer.POS.Api.Entities.Item", "Item")
@@ -1123,12 +1014,6 @@ namespace Retailer.Api.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Retailer.POS.Api.Entities.Login", "Login")
-                        .WithMany()
-                        .HasForeignKey("LoginId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("Retailer.POS.Api.Entities.Vendor", "Vendor")
                         .WithMany()
                         .HasForeignKey("VendorID")
@@ -1136,8 +1021,6 @@ namespace Retailer.Api.Migrations
                         .IsRequired();
 
                     b.Navigation("Branch");
-
-                    b.Navigation("Login");
 
                     b.Navigation("Vendor");
                 });
@@ -1168,7 +1051,7 @@ namespace Retailer.Api.Migrations
                 {
                     b.HasOne("Retailer.Api.Entities.Cities", "City")
                         .WithMany()
-                        .HasForeignKey("CityId1");
+                        .HasForeignKey("CityId");
 
                     b.Navigation("City");
                 });
@@ -1178,26 +1061,9 @@ namespace Retailer.Api.Migrations
                     b.Navigation("SubMenus");
                 });
 
-            modelBuilder.Entity("Retailer.Api.Entities.Role", b =>
-                {
-                    b.Navigation("Logins");
-
-                    b.Navigation("RoleScopes");
-                });
-
-            modelBuilder.Entity("Retailer.Api.Entities.Scope", b =>
-                {
-                    b.Navigation("RoleScopes");
-                });
-
             modelBuilder.Entity("Retailer.Api.Entities.SubMenu", b =>
                 {
                     b.Navigation("SubMenuPermissions");
-                });
-
-            modelBuilder.Entity("Retailer.POS.Api.Entities.Employee", b =>
-                {
-                    b.Navigation("Logins");
                 });
 
             modelBuilder.Entity("Retailer.POS.Api.Entities.ItemCategory", b =>

@@ -2,18 +2,17 @@
 using AuthModule.API.Dtos;
 using AuthModule.API.Models;
 using AuthModule.API.Services;
+using AuthModule.Infrastructure;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using System.Linq;
-using System.Security.Claims;
 
 namespace AuthModule.API.Controllers
 {
     [ApiController]
     [Route("api/admin")]
-    [Authorize(Roles = "admin")]
+    [Authorize(Roles = "admin,superadmin")]
     public class AdminController : ControllerBase
     {
         private readonly IPermissionService _perm;
@@ -39,8 +38,8 @@ namespace AuthModule.API.Controllers
             _logger = logger;
         }
 
+        private Guid CompanyId => HttpContext.GetCompanyId();
 
-       
         [HttpPost("roles")]
         public async Task<IActionResult> CreateRole([FromBody] CreateRoleDto dto)
         {
@@ -139,7 +138,7 @@ namespace AuthModule.API.Controllers
         [HttpGet("users")]
         public IActionResult GetAllUsers()
         {
-            var users = _userManager.Users.ToList();
+            var users = _userManager.Users.Where(x => x.CompanyId == CompanyId).ToList();
             return Ok(users.Select(u => new { u.Id, u.UserName, u.Email }));
         }
 
@@ -159,10 +158,20 @@ namespace AuthModule.API.Controllers
             if (string.IsNullOrWhiteSpace(dto.UserName) || string.IsNullOrWhiteSpace(dto.Password))
                 return BadRequest("Username and password are required.");
 
-            // Read CompanyId from JWT token
-            var companyId = User.FindFirst("companyId")?.Value;
-            if (string.IsNullOrWhiteSpace(companyId))
-                return Unauthorized("CompanyId is missing in token.");
+            Guid resolvedCompanyId;
+
+            if (User.IsInRole("superadmin"))
+            {
+                resolvedCompanyId = HttpContext.GetCompanyId();
+            }
+            else
+            {
+                var companyIdClaim = User.FindFirst("companyId")?.Value;
+                if (!Guid.TryParse(companyIdClaim, out resolvedCompanyId))
+                {
+                    return Unauthorized("CompanyId is missing in token.");
+                }
+            }
 
             // Basic uniqueness checks
             if (await _userManager.FindByNameAsync(dto.UserName) != null)
@@ -181,7 +190,7 @@ namespace AuthModule.API.Controllers
                 UserName = dto.UserName,
                 Email = dto.Email,
                 EmailConfirmed = true, // adjust if you want email confirmation flow
-                CompanyId = Guid.Parse(companyId)      // ⭐ Assign company from token
+                CompanyId = resolvedCompanyId      // ⭐ Assign company from token
 
             };
 

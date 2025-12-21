@@ -16,10 +16,11 @@ public class ItemService : IItemService
         _mapper = mapper;
     }
 
-    public async Task<ItemDto> CreateAsync(CreateItemDto dto)
+    public async Task<ItemDto> CreateAsync(CreateItemDto dto,Guid CompanyId)
     {
 
         var entity = _mapper.Map<Item>(dto);
+        entity.CompanyId = CompanyId;
         await _uow.Items.AddAsync(entity);
         await _uow.SaveChangesAsync();
         return _mapper.Map<ItemDto>(entity);
@@ -27,7 +28,7 @@ public class ItemService : IItemService
 
     public async Task DeleteAsync(int id)
     {
-        var e = await _uow.Items.GetByIdAsync(id);
+        var e = await _uow.Items.GetAsync(b => b.Id == id);
         if (e == null) throw new KeyNotFoundException("Item not found");
         _uow.Items.Remove(e);
         await _uow.SaveChangesAsync();
@@ -45,7 +46,7 @@ public class ItemService : IItemService
     .ToListAsync();
         return _mapper.Map<IEnumerable<ItemDto>>(items);
     }
-        public async Task<IEnumerable<ItemDto>> GetAllAsync()
+        public async Task<IEnumerable<ItemDto>> GetAllAsync(Guid CompanyId)
     {
 
 
@@ -54,6 +55,7 @@ public class ItemService : IItemService
          .Include(i => i.Group)
          .Include(i => i.SubGroup)
          .Include(i => i.ItemType)
+         .Where(i => i.CompanyId == CompanyId)
          .Select(i => new ItemDto
          {
              Id = i.Id,
@@ -99,7 +101,7 @@ public class ItemService : IItemService
 
     public async Task UpdateAsync(int id, CreateItemDto dto)
     {
-        var e = await _uow.Items.GetByIdAsync(id);
+        var e = await _uow.Items.GetAsync(b => b.Id == id);
         if (e == null) throw new KeyNotFoundException("Item not found");
         _mapper.Map(dto, e);
         _uow.Items.Update(e);

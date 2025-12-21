@@ -154,6 +154,7 @@ namespace Retailer.Api.Services
             return true;
         }
 
+
         // ----- User-facing: return only menus/submenus the user has permission for -----
         public async Task<IEnumerable<MenuDto>> GetMenusForUserAsync(string userId)
         {
@@ -164,6 +165,8 @@ namespace Retailer.Api.Services
             if (!_cache.TryGetValue<HashSet<string>>(userId, out var effectivePermissions))
             {
                 var response = await _httpClient.GetAsync($"api/authuser/permissions");
+                var body = await response.Content.ReadAsStringAsync();
+
                 if (!response.IsSuccessStatusCode)
                     throw new InvalidOperationException("Failed to fetch user permissions from AuthModule");
 

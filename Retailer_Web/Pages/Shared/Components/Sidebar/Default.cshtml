@@ -82,7 +82,7 @@
                 }
 
                 <!-- Admin section -->
-                @if (Model.User?.IsAdmin == true)
+                @if (Model.Menus.Count() > 0 && (Model.User?.IsAdmin == true || Model.User?.IsSuperAdmin == true))
                 {
                     <li class="nav-item @(isAdminSection ? "menu-open" : "")">
                         <a href="#"

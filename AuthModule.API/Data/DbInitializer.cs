@@ -2,13 +2,14 @@
 using AuthModule.API.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using System.Data;
 
 public class DbInitializer : IDbInitializer
 {
     // Keep original default permissions (will be added alongside page perms)
     public static readonly List<(string Name, string Description)> DefaultPermissions = new()
     {
-        ("ViewDashboard", "Access to view the dashboard"),
+        //("ViewDashboard", "Access to view the dashboard"),
         ("ManageUsers", "Permission to create, edit, and delete users"),
         ("ManageRoles", "Permission to create, edit, and delete roles"),
         ("ViewReports", "Access to view reports"),
@@ -31,11 +32,10 @@ public class DbInitializer : IDbInitializer
     // Pages for which we'll create View/Add/Edit/Delete permissions
     private static readonly string[] Pages = new[]
     {
-        "Admin",
+        "Dashboard",
         "Branches",
         "Categories",
         "Customers",
-        "Employees",
         "Groups",
         "Items",
         "ItemType",
@@ -49,10 +49,19 @@ public class DbInitializer : IDbInitializer
     // Actions for each page
     private static readonly string[] PageActions = new[] { "View", "Create", "Edit", "Delete" };
 
-    public DbInitializer(ApplicationDbContext db, RoleManager<IdentityRole> roleManager)
+    private readonly UserManager<ApplicationUser> _userManager;
+    private readonly IConfiguration _config;
+
+    public DbInitializer(
+        ApplicationDbContext db,
+        RoleManager<IdentityRole> roleManager,
+        UserManager<ApplicationUser> userManager,
+        IConfiguration config)
     {
         _db = db;
         _roleManager = roleManager;
+        _userManager = userManager;
+        _config = config;
     }
 
     public async Task InitializeAsync(CancellationToken cancellationToken)
@@ -89,9 +98,7 @@ public class DbInitializer : IDbInitializer
             }
         }
 
-        await _db.SaveChangesAsync(cancellationToken);
-
-        // 3. Ensure default roles exist ------------------------------------
+         // 3. Ensure default roles exist ------------------------------------
         foreach (var roleName in DefaultRoles)
         {
             if (!await _roleManager.RoleExistsAsync(roleName))
@@ -99,6 +106,7 @@ public class DbInitializer : IDbInitializer
                 await _roleManager.CreateAsync(new IdentityRole(roleName));
             }
         }
+        await _db.SaveChangesAsync(cancellationToken);
 
         // load permissions after creation
         var allPermissions = await _db.Permissions.ToListAsync(cancellationToken);
@@ -117,7 +125,14 @@ public class DbInitializer : IDbInitializer
         {
             foreach (var p in allPermissions)
             {
-                if (!await _db.RolePermissions.AnyAsync(rp => rp.RoleId == superAdminRole.Id && rp.PermissionId == p.Id, cancellationToken))
+                var existingRolePermissions = await _db.RolePermissions
+                                            .Select(rp => new { rp.RoleId, rp.PermissionId })
+                                            .ToListAsync(cancellationToken);
+
+                var rpSet = new HashSet<(string RoleId, int PermissionId)>(
+                    existingRolePermissions.Select(x => (x.RoleId, x.PermissionId))
+                );
+                if (rpSet.Add((superAdminRole.Id, p.Id)))
                 {
                     _db.RolePermissions.Add(new RolePermission
                     {
@@ -132,7 +147,14 @@ public class DbInitializer : IDbInitializer
         {
             foreach (var p in allPermissions)
             {
-                if (!await _db.RolePermissions.AnyAsync(rp => rp.RoleId == adminRole.Id && rp.PermissionId == p.Id, cancellationToken))
+                var existingRolePermissions = await _db.RolePermissions
+                                            .Select(rp => new { rp.RoleId, rp.PermissionId })
+                                            .ToListAsync(cancellationToken);
+
+                var rpSet = new HashSet<(string RoleId, int PermissionId)>(
+                    existingRolePermissions.Select(x => (x.RoleId, x.PermissionId))
+                );
+                if (rpSet.Add((adminRole.Id, p.Id)))
                 {
                     _db.RolePermissions.Add(new RolePermission
                     {
@@ -147,33 +169,22 @@ public class DbInitializer : IDbInitializer
         var managerRole = await GetRoleAsync("manager");
         if (managerRole != null)
         {
-            // page-level perms: View, Add, Edit
-            var managerPagePerms = allPermissions.Where(p =>
-                Pages.Any(page => p.Name == $"{page}.View" || p.Name == $"{page}.Add" || p.Name == $"{page}.Edit"));
-
-            foreach (var p in managerPagePerms)
+            foreach (var p in allPermissions)
             {
-                if (!await _db.RolePermissions.AnyAsync(rp => rp.RoleId == managerRole.Id && rp.PermissionId == p.Id, cancellationToken))
+
+                var existingRolePermissions = await _db.RolePermissions
+                                            .Select(rp => new { rp.RoleId, rp.PermissionId })
+                                            .ToListAsync(cancellationToken);
+
+                var rpSet = new HashSet<(string RoleId, int PermissionId)>(
+                    existingRolePermissions.Select(x => (x.RoleId, x.PermissionId))
+                );
+                if (rpSet.Add((managerRole.Id, p.Id)))
                 {
                     _db.RolePermissions.Add(new RolePermission
                     {
                         RoleId = managerRole.Id,
                         PermissionId = p.Id
-                    });
-                }
-            }
-
-            // include a few global perms for managers (adjust as you like)
-            var managerGlobal = new[] { "ViewDashboard", "ViewReports" };
-            foreach (var g in managerGlobal)
-            {
-                var gp = allPermissions.FirstOrDefault(x => x.Name == g);
-                if (gp != null && !await _db.RolePermissions.AnyAsync(rp => rp.RoleId == managerRole.Id && rp.PermissionId == gp.Id, cancellationToken))
-                {
-                    _db.RolePermissions.Add(new RolePermission
-                    {
-                        RoleId = managerRole.Id,
-                        PermissionId = gp.Id
                     });
                 }
             }
@@ -183,13 +194,16 @@ public class DbInitializer : IDbInitializer
         var userRole = await GetRoleAsync("user");
         if (userRole != null)
         {
-            // page-level perms: Add, View
-            var userPagePerms = allPermissions.Where(p =>
-                Pages.Any(page => p.Name == $"{page}.View" || p.Name == $"{page}.Add"));
-
-            foreach (var p in userPagePerms)
+            foreach (var p in allPermissions)
             {
-                if (!await _db.RolePermissions.AnyAsync(rp => rp.RoleId == userRole.Id && rp.PermissionId == p.Id, cancellationToken))
+                var existingRolePermissions = await _db.RolePermissions
+                                            .Select(rp => new { rp.RoleId, rp.PermissionId })
+                                            .ToListAsync(cancellationToken);
+
+                var rpSet = new HashSet<(string RoleId, int PermissionId)>(
+                    existingRolePermissions.Select(x => (x.RoleId, x.PermissionId))
+                );
+                if (rpSet.Add((userRole.Id, p.Id)))
                 {
                     _db.RolePermissions.Add(new RolePermission
                     {
@@ -198,23 +212,49 @@ public class DbInitializer : IDbInitializer
                     });
                 }
             }
-
-            // include small set of global perms (adjust as you like)
-            var userGlobal = new[] { "ViewDashboard" };
-            foreach (var g in userGlobal)
-            {
-                var gp = allPermissions.FirstOrDefault(x => x.Name == g);
-                if (gp != null && !await _db.RolePermissions.AnyAsync(rp => rp.RoleId == userRole.Id && rp.PermissionId == gp.Id, cancellationToken))
-                {
-                    _db.RolePermissions.Add(new RolePermission
-                    {
-                        RoleId = userRole.Id,
-                        PermissionId = gp.Id
-                    });
-                }
-            }
         }
 
         await _db.SaveChangesAsync(cancellationToken);
+
+        // 7. Create default SuperAdmin user -----------------------------
+        var adminSection = _config.GetSection("DefaultAdmin");
+
+        var adminUserName = adminSection["UserName"];
+        var adminEmail = adminSection["Email"];
+        var adminPassword = adminSection["Password"];
+
+        if (!string.IsNullOrWhiteSpace(adminUserName) &&
+            !string.IsNullOrWhiteSpace(adminPassword))
+        {
+            var superAdminUser =
+                await _userManager.FindByNameAsync(adminUserName);
+
+            if (superAdminUser == null)
+            {
+                superAdminUser = new ApplicationUser
+                {
+                    UserName = adminUserName,
+                    Email = adminEmail ?? adminUserName,
+                    EmailConfirmed = true
+                };
+
+                var createResult =
+                    await _userManager.CreateAsync(superAdminUser, adminPassword);
+
+                if (!createResult.Succeeded)
+                {
+                    throw new Exception(
+                        "Failed to create SuperAdmin user: " +
+                        string.Join(", ", createResult.Errors.Select(e => e.Description))
+                    );
+                }
+            }
+
+            // Ensure SuperAdmin role assignment
+            if (!await _userManager.IsInRoleAsync(superAdminUser, "superadmin"))
+            {
+                await _userManager.AddToRoleAsync(superAdminUser, "superadmin");
+            }
+        }
     }
 }

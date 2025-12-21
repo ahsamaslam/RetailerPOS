@@ -3,7 +3,6 @@ using System.ComponentModel.DataAnnotations;
 namespace Retailer.POS.Api.Entities;
 public class PurchaseMaster : BaseEntity
 {
-    public int Id { get; set; }
     public DateTime Date { get; set; }
     public DateTime CreateDate { get; set; } = DateTime.UtcNow;
     public int VendorID { get; set; }
@@ -12,8 +11,8 @@ public class PurchaseMaster : BaseEntity
     public decimal Discount { get; set; }
     public decimal TaxAmount { get; set; }
     public decimal Total { get; set; }
-    public int LoginId { get; set; }
-    public Login Login { get; set; }
+    public Guid UserId { get; set; }
+    public string UserName { get; set; }
     public int BranchId { get; set; }
     public Branch Branch { get; set; }
      

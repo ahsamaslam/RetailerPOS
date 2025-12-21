@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Retailer.Api.Infrastructure;
 using Retailer.POS.Api.Entities;
 using Retailer.POS.Api.Repositories;
 
@@ -6,18 +8,21 @@ namespace Retailer.POS.Api.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
+[Authorize]
 public class GroupsController : ControllerBase
 {
     private readonly IUnitOfWork _uow;
     public GroupsController(IUnitOfWork uow) => _uow = uow;
+    private Guid CompanyId => HttpContext.GetCompanyId();
+
 
     [HttpGet]
-    public async Task<IActionResult> GetAll() => Ok(await _uow.ItemGroups.GetAllAsync());
+    public async Task<IActionResult> GetAll() => Ok(await _uow.ItemGroups.GetAllAsync(b => b.CompanyId == CompanyId));
 
     [HttpGet("{id:int}")]
     public async Task<IActionResult> Get(int id)
     {
-        var entity = await _uow.ItemGroups.GetByIdAsync(id);
+        var entity = await _uow.ItemGroups.GetAsync(b=> b.Id == id);
         if (entity == null) return NotFound();
         return Ok(entity);
     }
@@ -32,6 +37,7 @@ public class GroupsController : ControllerBase
         if (exists)
             return Conflict(new { message = "Item Group already exists." });
 
+        model.CompanyId = CompanyId;
         await _uow.ItemGroups.AddAsync(model);
         await _uow.SaveChangesAsync();
         return CreatedAtAction(nameof(Get), new { id = model.Id }, model);
@@ -40,7 +46,7 @@ public class GroupsController : ControllerBase
     [HttpPut("{id:int}")]
     public async Task<IActionResult> Update(int id, [FromBody] ItemGroup model)
     {
-        var existing = await _uow.ItemGroups.GetByIdAsync(id);
+        var existing = await _uow.ItemGroups.GetAsync(b => b.Id == id);
         if (existing == null) return NotFound();
         existing.Name = model.Name;
         _uow.ItemGroups.Update(existing);
@@ -51,7 +57,7 @@ public class GroupsController : ControllerBase
     [HttpDelete("{id:int}")]
     public async Task<IActionResult> Delete(int id)
     {
-        var existing = await _uow.ItemGroups.GetByIdAsync(id);
+        var existing = await _uow.ItemGroups.GetAsync(b => b.Id == id);
         if (existing == null) return NotFound();
         _uow.ItemGroups.Remove(existing);
         await _uow.SaveChangesAsync();

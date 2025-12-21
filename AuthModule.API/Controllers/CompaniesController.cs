@@ -10,8 +10,6 @@ namespace AuthModule.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    // Optional: restrict to Admins. Remove or change as needed.
-    //[Authorize(Roles = "SuperAdmin")]
     public class CompaniesController : ControllerBase
     {
         private readonly ApplicationDbContext _db;
@@ -26,17 +24,25 @@ namespace AuthModule.API.Controllers
             $"{request?.Scheme}://{request?.Host}{request?.PathBase}";
         }
 
-        [Authorize]
-        [HttpGet("Scenerio/{companyID:guid?}")]
-        public async Task<IActionResult> GetScenarioCompany(Guid companyID ) 
+        [Authorize(Roles = "superadmin")]
+        [HttpGet("search")]
+        public async Task<IActionResult> SearchCompanies(string q)
         {
-            // Extract CompanyId from token
-            var companiesScnerio = await _db.CompanyScenario
-                .Include(cs => cs.ScenarioMaster)
-                .Include(cs => cs.Company)
-                .Where(cs => cs.CompanyId == companyID)
-                .ToListAsync(); 
-            return Ok(companiesScnerio);
+            if (string.IsNullOrWhiteSpace(q))
+                return Ok(Array.Empty<object>());
+
+            var companies = await _db.Companies
+                .Where(c => c.Name.Contains(q))
+                .OrderBy(c => c.Name)
+                .Select(c => new
+                {
+                    c.Id,
+                    c.Name
+                })
+                .Take(10)
+                .ToListAsync();
+
+            return Ok(companies);
         }
 
         // POST: api/companies
@@ -70,7 +76,7 @@ namespace AuthModule.API.Controllers
             await _db.Companies.AddAsync(company);
             await _db.SaveChangesAsync(); 
             var resp = ToResponseDto(company);
-            return CreatedAtAction(nameof(GetById), new { id = company.Id }, resp);
+            return CreatedAtAction(nameof(Get), new { id = company.Id }, resp);
         }
 
         // GET: api/companies
@@ -88,8 +94,7 @@ namespace AuthModule.API.Controllers
 
         // GET: api/companies/{id}
         [HttpGet("{id:guid}")]
-        [AllowAnonymous]
-        public async Task<ActionResult<CompanyResponseDto>> GetById(Guid id)
+        public async Task<ActionResult<CompanyResponseDto>> Get(Guid id)
         {
             var company = await _db.Companies.AsNoTracking().FirstOrDefaultAsync(c => c.Id == id);
             company.logoPath = string.IsNullOrEmpty(company.logoPath) ? "" : serverPath + company.logoPath;

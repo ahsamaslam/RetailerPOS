@@ -17,13 +17,15 @@ public class PurchaseService : IPurchaseService
         _mapper = mapper;
     }
 
-    public async Task<PurchaseMasterDto> CreatePurchaseAsync(CreatePurchaseDto dto)
+    public async Task<PurchaseMasterDto> CreatePurchaseAsync(CreatePurchaseDto dto, Guid CompanyId,Guid UserId)
     {
         var db = (_uow as UnitOfWork)!.GetDbContext();
         using var tx = await db.Database.BeginTransactionAsync();
         try
         {
             var pm = _mapper.Map<PurchaseMaster>(dto);
+            pm.UserId = UserId;
+            pm.CompanyId = CompanyId;
             await _uow.PurchaseMasters.AddAsync(pm);
             await _uow.SaveChangesAsync();
 
@@ -46,9 +48,9 @@ public class PurchaseService : IPurchaseService
         }
     }
 
-    public async  Task<IEnumerable<PurchaseMasterDto?>> GetAll()
+    public async  Task<IEnumerable<PurchaseMasterDto?>> GetAll(Guid CompanyId)
     {
-        var pm = await _uow.PurchaseMasters.Query().Include(p => p.Details).ToListAsync();
+        var pm = await _uow.PurchaseMasters.Query().Include(p => p.Details).Where(x => x.CompanyId == CompanyId).ToListAsync();
         return _mapper.Map<IEnumerable<PurchaseMasterDto>>(pm);
     }
 
@@ -59,9 +61,9 @@ public class PurchaseService : IPurchaseService
         return _mapper.Map<PurchaseMasterDto>(pm);
     }
 
-    public async Task<IEnumerable<PurchaseMasterDto?>> GetDateWiseAsync(DateTime sdate, DateTime edate)
+    public async Task<IEnumerable<PurchaseMasterDto?>> GetDateWiseAsync(DateTime sdate, DateTime edate, Guid CompanyId)
     {
-        var pm = await _uow.PurchaseMasters.Query().Include(p => p.Details).Where(p => p.Date.Date>=sdate.Date  &&  p.Date.Date<=edate.Date).ToListAsync();
+        var pm = await _uow.PurchaseMasters.Query().Include(p => p.Details).Where(p => p.CompanyId == CompanyId && p.Date.Date>=sdate.Date  &&  p.Date.Date<=edate.Date).ToListAsync();
         return _mapper.Map<IEnumerable<PurchaseMasterDto>>(pm);
     }
 

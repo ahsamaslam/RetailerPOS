@@ -1,4 +1,5 @@
-﻿using AuthModule.API.Models;
+﻿using AuthModule.API.Data;
+using AuthModule.API.Models;
 using AuthModule.API.Services;
 using Azure.Core;
 using Microsoft.AspNetCore.Identity;
@@ -21,18 +22,22 @@ namespace AuthModule.API.Controllers
         private readonly IConfiguration _config;
         private   string serverPath;
         private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly ApplicationDbContext _db;
+
 
         public AuthController(
             UserManager<ApplicationUser> userManager,
             RoleManager<IdentityRole> roleManager,
             IPermissionService permissionService,
-            IConfiguration config, 
+            IConfiguration config,
+            ApplicationDbContext db,
             IHttpContextAccessor httpContextAccessor)
         {
             _userManager = userManager;
             _roleManager = roleManager;
             _permissionService = permissionService;
             _config = config; 
+            _db = db;
             _httpContextAccessor = httpContextAccessor;
             var request = _httpContextAccessor.HttpContext?.Request;
 
@@ -43,7 +48,9 @@ namespace AuthModule.API.Controllers
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginRequestDto dto)
         {
-            var user = await _userManager.FindByNameAsync(dto.UserName);
+            var user = await _db.Users
+                            .Include(u => u.Company)
+                            .FirstOrDefaultAsync(u => u.UserName == dto.UserName);
             if (user == null || !await _userManager.CheckPasswordAsync(user, dto.Password))
                 return Unauthorized("Invalid username or password");
 
@@ -55,7 +62,6 @@ namespace AuthModule.API.Controllers
                 new Claim(ClaimTypes.NameIdentifier, user.Id),
                 new Claim(ClaimTypes.Name, user.UserName ?? string.Empty),
                 new Claim("sub", user.Id),
-                new Claim("companyId", user.CompanyId?.ToString() ?? string.Empty), // FIX: null-safe
                 new Claim("picture", !string.IsNullOrEmpty(user.picture)?  serverPath+ user.picture?.ToString() : string.Empty) // FIX: null-safe
 
             };
@@ -64,6 +70,15 @@ namespace AuthModule.API.Controllers
             //   ROLE CLAIMS
             // ============================
             var roles = await _userManager.GetRolesAsync(user);
+            var isSuperAdmin = roles.Contains("superadmin", StringComparer.OrdinalIgnoreCase);
+            if (!isSuperAdmin)
+            {
+                if (!user.CompanyId.HasValue)
+                    return BadRequest("User is not assigned to a company.");
+
+                claims.Add(new Claim("companyId", user.CompanyId.Value.ToString()));
+                claims.Add(new Claim("companyName", user.Company?.Name ?? string.Empty));
+            }
             foreach (var role in roles)
                 claims.Add(new Claim(ClaimTypes.Role, role));
 

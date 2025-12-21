@@ -1,5 +1,7 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Retailer.Api.Infrastructure;
 using Retailer.POS.Api.Entities;
 using Retailer.POS.Api.Repositories;
 
@@ -7,19 +9,22 @@ namespace Retailer.Api.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize]
     public class CustomersController : ControllerBase
     {
         private readonly IUnitOfWork _uow;
         public CustomersController(IUnitOfWork uow) => _uow = uow;
 
+        private Guid CompanyId => HttpContext.GetCompanyId();
+
         [HttpGet]
         public async Task<IActionResult> GetAll() =>
-            Ok(await _uow.Customers.GetAllAsync());
+            Ok(await _uow.Customers.GetAllAsync(b => b.CompanyId == CompanyId));
 
         [HttpGet("{id}")]
         public async Task<IActionResult> Get(int id)
         {
-            var c = await _uow.Customers.GetByIdAsync(id);
+            var c = await _uow.Customers.GetAsync(b => b.Id == id);
             if (c == null) return NotFound();
             return Ok(c);
         }
@@ -27,6 +32,7 @@ namespace Retailer.Api.Controllers
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] Customer model)
         {
+            model.CompanyId = CompanyId;    
             await _uow.Customers.AddAsync(model);
             await _uow.SaveChangesAsync();
             return CreatedAtAction(nameof(Get), new { id = model.Id }, model);
@@ -34,7 +40,7 @@ namespace Retailer.Api.Controllers
         [HttpPut("{id:int}")]
         public async Task<IActionResult> Update(int Id, [FromBody] Customer model)
         { 
-                var existing = await _uow.Customers.GetByIdAsync(Id);
+                var existing = await _uow.Customers.GetAsync(b => b.Id == Id);
                 if (existing == null) return NotFound();
                 existing.openDate =  model.openDate;
                 existing.Phone = model.Phone; 

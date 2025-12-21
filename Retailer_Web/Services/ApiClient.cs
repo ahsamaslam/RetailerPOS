@@ -1,3 +1,4 @@
+using Microsoft.Reporting.Map.WebForms.BingMaps;
 using Retailer.POS.Web.ApiDTOs;
 using Retailer.POS.Web.Models;
 using Retailer.Web;
@@ -12,15 +13,29 @@ public class ApiClient : IApiClient
 {
 
     private readonly HttpClient _http;
+    private readonly IHttpClientFactory _factory;        // Auth Module
     private readonly ILogger<ApiClient> _logger;
-    private readonly JsonSerializerOptions _jsonOptions = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
-    public ApiClient(HttpClient http)
+    private static readonly JsonSerializerOptions _jsonOptions = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+    public ApiClient(HttpClient http, IHttpClientFactory factory)
     {
         _http = http;
+        _factory = factory;
     }
+    private HttpClient AuthClient => _factory.CreateClient("AuthApi");
     public async Task<T> GetAsync<T>(string url)
     {
         using var resp = await _http.GetAsync(url);
+        if (resp.StatusCode == HttpStatusCode.Unauthorized)
+            throw new ApiUnauthorizedException();
+
+        resp.EnsureSuccessStatusCode();
+        // null for empty response will be handled by caller if T allows null
+        return await resp.Content.ReadFromJsonAsync<T>(_jsonOptions)
+               ?? throw new InvalidOperationException("Response content was empty.");
+    }
+    public async Task<T> GetAuthAsync<T>(string url)
+    {
+        using var resp = await AuthClient.GetAsync(url);
         if (resp.StatusCode == HttpStatusCode.Unauthorized)
             throw new ApiUnauthorizedException();
 
@@ -120,7 +135,7 @@ public class ApiClient : IApiClient
     // Companies
     public async Task<CompanyDto?> GetCompanyAsync() => await GetAsync<CompanyDto>("api/Companies");
 
-    public async Task<CompanyDto?> GetUserCompanyAsync() => await GetAsync<CompanyDto>("api/Companies/User");
+    public async Task<CompanyDto?> GetUserCompanyAsync() => await GetAuthAsync<CompanyDto>("api/Companies/User");
 
     public async Task<CompanyDto?> GetCompanybyIdAsync(string guid) => await GetAsync<CompanyDto>($"api/Companies/{guid}");
 
@@ -512,6 +527,7 @@ public class ApiClient : IApiClient
     public async Task<IEnumerable<MenuDto>> GetMenusForCurrentUserAsync()
     {
         using var resp = await _http.GetAsync("api/menus/me");
+        var body = await resp.Content.ReadAsStringAsync();
         if (resp.StatusCode == HttpStatusCode.Unauthorized) throw new ApiUnauthorizedException();
         resp.EnsureSuccessStatusCode();
         return await resp.Content.ReadFromJsonAsync<IEnumerable<MenuDto>>(_jsonOptions) ?? Array.Empty<MenuDto>();

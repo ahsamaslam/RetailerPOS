@@ -59,6 +59,9 @@ public class TokenDelegatingHandler : DelegatingHandler
                     request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
                     _logger.LogDebug("Attached Bearer token to outgoing request: {Method} {Uri}", request.Method, request.RequestUri);
                 }
+                var companyId = ctx.Session?.GetString("ImpersonatedCompanyId");
+                if (!string.IsNullOrEmpty(companyId))
+                    request.Headers.Add("X-Company-Id", companyId);
             }
             else
             {

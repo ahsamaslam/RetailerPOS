@@ -3,7 +3,7 @@ public class SalesMaster : BaseEntity
 {
     public DateTime Date { get; set; }
     public DateTime CreateDate { get; set; } = DateTime.UtcNow;
-    public int LoginId { get; set; }
+    public Guid UserId { get; set; }
     public int BranchId { get; set; }
     public string? CustomerName { get; set; }
     public string? hsCode { get; set; }
@@ -14,7 +14,6 @@ public class SalesMaster : BaseEntity
     public int? CustomerCode { get; set; }
     public int Year { get; set; } = 1;
     public int saleCode { get; set; } = 1;
-    public Guid companyID { get; set; }
     public ICollection<SalesDetail> Details { get; set; } = new List<SalesDetail>();
 }
 

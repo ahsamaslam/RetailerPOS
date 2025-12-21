@@ -1,0 +1,123 @@
+﻿@page
+@model Retailer.Web.Pages.SuperAdmin.SwitchCompanyModel
+@{
+    ViewData["Title"] = "Switch Company";
+}
+
+<div class="container-fluid py-4">
+    <div class="row g-4">
+        <div class="col-12">
+            <div class="alert @(Model.HasCompanyContext ? "alert-info" : "alert-warning") shadow-sm mb-0">
+                <div class="d-flex flex-column flex-lg-row justify-content-between gap-3">
+                    <div>
+                        <div class="fw-semibold">Current company</div>
+                        <div>@(Model.CurrentCompanyName ?? "Not selected")</div>
+                    </div>
+                    <div class="text-muted small">
+                        Selecting a company locks menus and data to that tenant.
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header">
+                    <h5 class="mb-0">Search companies</h5>
+                </div>
+                <div class="card-body">
+                    <form method="post"
+                          class="row g-3 align-items-end"
+                          data-company-picker="true">
+                        <div class="col-lg-6 position-relative">
+                            <label for="pageCompanySearch" class="form-label">Company name</label>
+                            <input id="pageCompanySearch"
+                                   type="text"
+                                   class="form-control form-control-lg"
+                                   placeholder="Start typing to search"
+                                   autocomplete="off"
+                                   data-company-search />
+                            <div class="list-group shadow-sm mt-1 d-none company-search-results"
+                                 data-company-results></div>
+                        </div>
+
+                        <input type="hidden" name="companyId" data-company-id />
+                        <input type="hidden" name="companyName" data-company-name />
+
+                        <div class="col-lg-3">
+                            <label class="form-label">Selected company</label>
+                            <div class="form-control-plaintext fw-semibold">
+                                @(Model.CurrentCompanyName ?? "None")
+                            </div>
+                        </div>
+
+                        <div class="col-lg-3 d-grid">
+                            <button type="submit"
+                                    class="btn btn-primary btn-lg"
+                                    data-company-submit
+                                    disabled>
+                                Use selection
+                            </button>
+                        </div>
+
+                        <div class="col-12">
+                            <div asp-validation-summary="ModelOnly" class="text-danger small"></div>
+                            <span class="text-danger small" data-company-error></span>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12">
+            <h5 class="fw-semibold">Browse companies</h5>
+            <div class="row g-3">
+                @if (Model.Companies?.Any() == true)
+                {
+                    foreach (var company in Model.Companies.OrderBy(c => c.Name).Take(12))
+                    {
+                        <div class="col-xl-3 col-lg-4 col-md-6">
+                            <div class="card h-100 border-secondary-subtle shadow-sm">
+                                <div class="card-body">
+                                    <h6 class="card-title mb-1">@company.Name</h6>
+                                    @if (!string.IsNullOrWhiteSpace(company.ShortName))
+                                    {
+                                        <p class="text-muted small mb-2">@company.ShortName</p>
+                                    }
+                                    <p class="text-muted small mb-0">
+                                        @(string.IsNullOrWhiteSpace(company.Address) ? "—" : company.Address)
+                                    </p>
+                                    @if (!string.IsNullOrWhiteSpace(company.Province))
+                                    {
+                                        <p class="text-muted small mb-0">@company.Province</p>
+                                    }
+                                    @if (!string.IsNullOrWhiteSpace(company.ContactPhone))
+                                    {
+                                        <p class="text-muted small mb-0">@company.ContactPhone</p>
+                                    }
+                                </div>
+                                <div class="card-footer bg-transparent border-0 pt-0">
+                                    <form method="post" class="d-grid">
+                                        <input type="hidden" name="companyId" value="@company.Id" />
+                                        <input type="hidden" name="companyName" value="@company.Name" />
+                                        <button type="submit" class="btn btn-outline-primary btn-sm">
+                                            Work as this company
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                }
+                else
+                {
+                    <div class="col-12">
+                        <div class="alert alert-secondary mb-0">
+                            No companies could be loaded. Use the search field above or try again later.
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>

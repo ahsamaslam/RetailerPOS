@@ -9,6 +9,7 @@ namespace Retailer.Api.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize]
     public class ScenarioMasterController : ControllerBase
     {
         private readonly IScenarioMaster _scenarioMaster;

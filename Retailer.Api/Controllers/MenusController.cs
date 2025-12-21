@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Retailer.Api.DTOs;
+using Retailer.Api.Infrastructure;
 using Retailer.Api.Services;
 using System.Security.Claims;
 
@@ -9,6 +10,7 @@ namespace Retailer.Api.Controllers
 {
     [ApiController]
     [Route("api/menus")]
+    [Authorize]
     public class MenusController : ControllerBase
     {
         private readonly IMenuService _menuService;

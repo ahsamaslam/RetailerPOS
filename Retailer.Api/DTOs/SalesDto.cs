@@ -4,7 +4,8 @@
     {
         public int Id { get; set; }
         public DateTime Date { get; set; }
-        public int LoginId { get; set; }
+        public Guid UserId { get; set; }
+        public string UserName { get; set; } = string.Empty;
         public int BranchId { get; set; }
         public string? CustomerName { get; set; }
         public decimal SubTotal { get; set; }

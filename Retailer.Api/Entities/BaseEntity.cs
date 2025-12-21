@@ -1,2 +1,5 @@
 namespace Retailer.POS.Api.Entities;
-public abstract class BaseEntity { public int Id { get; set; } }
+public abstract class BaseEntity { 
+    public int Id { get; set; }
+    public Guid CompanyId { get; set; }
+}

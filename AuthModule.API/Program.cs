@@ -1,5 +1,6 @@
 using AuthModule.API.Auth;
 using AuthModule.API.Data;
+using AuthModule.API.Middleware;
 using AuthModule.API.Models;
 using AuthModule.API.Repositories;
 using AuthModule.API.Services;
@@ -192,10 +193,10 @@ if (!app.Environment.IsDevelopment())
 {
     app.UseHsts();
 }
-
 // Swagger available in Development — change as you wish
 if (app.Environment.IsDevelopment())
 {
+    app.UseDeveloperExceptionPage();
     app.UseSwagger();
     app.UseSwaggerUI(c =>
     {
@@ -207,9 +208,34 @@ if (app.Environment.IsDevelopment())
 
 using (var scope = app.Services.CreateScope())
 {
-    var permService = scope.ServiceProvider.GetRequiredService<IDbInitializer>();
-    await permService.InitializeAsync();
+    var services = scope.ServiceProvider;
+    if (app.Environment.IsDevelopment())
+    {
+
+        var db = services.GetRequiredService<ApplicationDbContext>();
+        await db.Database.MigrateAsync();
+    }
+    var initializer = services.GetRequiredService<IDbInitializer>();
+    await initializer.InitializeAsync();
 }
+app.Use(async (context, next) =>
+{
+    try
+    {
+        await next();
+    }
+    catch (Exception ex)
+    {
+        var logger = context.RequestServices
+            .GetRequiredService<ILogger<Program>>();
+
+        logger.LogError(ex,
+            "Unhandled exception in AuthModule. Path: {Path}",
+            context.Request.Path);
+
+        throw;
+    }
+});
 
 app.UseHttpsRedirection();
 app.UseStaticFiles(); // MUST be before routing
@@ -217,7 +243,13 @@ app.UseStaticFiles(); // MUST be before routing
 app.UseRouting();
 
 app.UseAuthentication();
+app.UseMiddleware<CompanyContextMiddleware>(); // populates HttpContext.Items["CompanyId"]
 app.UseAuthorization();
+//app.Use(async (ctx, next) =>
+//{
+//    Console.WriteLine($"[AuthModule] {ctx.Request.Method} {ctx.Request.Path}");
+//    await next();
+//});
 
 app.MapControllers();
 

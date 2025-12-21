@@ -9,24 +9,57 @@
                     <i class="bi bi-list"></i>
                 </a>
             </li>
-            <li class="nav-item d-none d-md-block"><h4>@Model.companyName</h4></li>
+            <li class="nav-item d-none d-md-block">
+                @if (Model.IsSuperAdmin)
+                {
+                    <div class="d-flex flex-column flex-xl-row align-items-xl-center gap-2">
+                        <div class="d-flex align-items-center gap-2">
+                            <span class="badge text-bg-dark">Super admin</span>
+                            <span class="fw-semibold @(Model.HasCompanyContext ? "" : "text-warning")">
+                                @Model.CompanyDisplayName
+                            </span>
+                        </div>
+                        <a class="btn btn-sm @(Model.HasCompanyContext ? "btn-outline-primary" : "btn-warning text-dark")"
+                           asp-page="/SuperAdmin/SwitchCompany">
+                            @(Model.HasCompanyContext ? "Switch company" : "Select company")
+                        </a>
+                    </div>
+                }
+                else
+                {
+                    <h4 class="mb-0">@Model.companyName</h4>
+                }
+            </li>
         </ul>
 
         <ul class="navbar-nav ms-auto align-items-center">
-            <!-- notifications & fullscreen (kept minimal) -->
+            @if (Model.RequiresCompanySelection)
+            {
+                <li class="nav-item d-none d-lg-block me-2">
+                    <span class="badge text-bg-warning text-dark">
+                        Select a company to continue
+                    </span>
+                </li>
+            }
+
             <li class="nav-item">
                 <a class="nav-link" href="#" data-lte-toggle="fullscreen">
                     <i data-lte-icon="maximize" class="bi bi-arrows-fullscreen"></i>
                 </a>
             </li>
 
-
-            @* Avatar + Name, clicking avatar opens a small modal *@
             <li class="nav-item">
                 <div class="d-flex align-items-center">
-                    <button type="button" class="btn p-0 border-0 bg-transparent" data-bs-toggle="modal" data-bs-target="#userModal" aria-label="Open profile">
-                        <img src="@Model.AvatarUrl" onerror="this.src='@Url.Content("~/assets/img/user2-160x160.jpg")'"
-                             class="user-image rounded-circle shadow" alt="User Image" style="width:38px; height:38px; object-fit:cover;" />
+                    <button type="button"
+                            class="btn p-0 border-0 bg-transparent"
+                            data-bs-toggle="modal"
+                            data-bs-target="#userModal"
+                            aria-label="Open profile">
+                        <img src="@Model.AvatarUrl"
+                             onerror="this.src='@Url.Content("~/assets/img/user2-160x160.jpg")'"
+                             class="user-image rounded-circle shadow"
+                             alt="User Image"
+                             style="width:38px; height:38px; object-fit:cover;" />
                     </button>
                     <span class="ms-2 d-none d-md-inline">@Model.UserName</span>
                 </div>
@@ -35,14 +68,16 @@
     </div>
 </nav>
 
-@* Modal *@
 <div class="modal fade" id="userModal" tabindex="-1" aria-labelledby="userModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-sm modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
                 <div class="d-flex align-items-center">
-                    <img src="@Model.AvatarUrl" onerror="this.src='@Url.Content("~/assets/img/user2-160x160.jpg")'"
-                         class="rounded-circle shadow me-2" style="width:48px;height:48px;object-fit:cover" alt="User" />
+                    <img src="@Model.AvatarUrl"
+                         onerror="this.src='@Url.Content("~/assets/img/user2-160x160.jpg")'"
+                         class="rounded-circle shadow me-2"
+                         style="width:48px;height:48px;object-fit:cover"
+                         alt="User" />
                     <div>
                         <h6 class="mb-0">@Model.UserName</h6>
                         <small class="text-muted">Signed in</small>
@@ -56,17 +91,14 @@
                     <a class="list-group-item list-group-item-action" href="~/Setting/UserProfile">
                         <i class="bi bi-person-circle me-2"></i> Profile
                     </a>
-
                 </div>
             </div>
 
             <div class="modal-footer">
-                <form method="post" asp-page="/Index" asp-page-handler="Logout" class="w-100">
+                <form method="post" asp-page="/Home/Index" asp-page-handler="Logout" class="w-100">
                     <button type="submit" class="btn btn-outline-danger w-100">Sign out</button>
                 </form>
             </div>
         </div>
     </div>
 </div>
-
-<!--end::Header-->

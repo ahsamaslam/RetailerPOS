@@ -3,7 +3,6 @@ using Retailer.POS.Web.Services;
 using Retailer.Web.ApiDTOs;
 using Retailer.Web.Helpers;
 using Retailer.Web.Models;
-using System.IdentityModel.Claims;
 
 namespace Retailer.Web.Services.Layout
 {
@@ -36,43 +35,62 @@ namespace Retailer.Web.Services.Layout
             try
             {
                 var user = httpContext.User;
+                var session = httpContext.Session;
+
+                var companyNameClaim = user.FindFirst("companyName")?.Value;
+                var impersonatedName = session?.GetString("ImpersonatedCompanyName");
+                var impersonatedId = session?.GetString("ImpersonatedCompanyId");
+                var isSuperAdmin = user.IsInRole("superadmin");
 
                 var info = new LayoutUserInfo
                 {
-                    UserName =
-                        user.FindFirst("name")?.Value ??
-                        user.Identity?.Name ??
-                        "User",
-                    AvatarUrl = user.FindFirst("picture")?.Value,
-                    IsAdmin = user.IsInRole("admin")
+                    UserName = user.FindFirst("name")?.Value ??
+                               user.Identity?.Name ??
+                               "User",
+                    AvatarUrl = user.FindFirst("picture")?.Value ?? "/assets/img/user2-160x160.jpg",
+                    companyName = isSuperAdmin
+                        ? (string.IsNullOrWhiteSpace(impersonatedName) ? companyNameClaim : impersonatedName)
+                        : companyNameClaim,
+                    IsAdmin = user.IsInRole("admin"),
+                    IsSuperAdmin = isSuperAdmin,
+                    HasCompanyContext = !isSuperAdmin || !string.IsNullOrEmpty(impersonatedId),
+                    picture = user.FindFirst("picture")?.Value
                 };
-
-                var company = await _api.GetUserCompanyAsync();
-                info.companyName = company?.Name;
 
                 _userInfo = info;
                 return info;
             }
             catch (ApiUnauthorizedException)
             {
-                // token expired / invalid → force sign-out
                 httpContext.Response.Redirect("/Login");
                 return null;
             }
         }
+
         public async Task<IEnumerable<MenuDto>> GetMenusAsync()
         {
-
             if (_menus != null)
                 return _menus;
 
             var httpContext = _http.HttpContext;
 
             if (httpContext?.User?.Identity?.IsAuthenticated != true)
-                return null;
+            {
+                _menus = Enumerable.Empty<MenuDto>();
+                return _menus;
+            }
+
+            var sessionCompanyId = httpContext.Session?.GetString("ImpersonatedCompanyId");
+            var isSuperAdmin = httpContext.User.IsInRole("superadmin");
+
+            if (isSuperAdmin && string.IsNullOrEmpty(sessionCompanyId))
+            {
+                _menus = Enumerable.Empty<MenuDto>();
+                return _menus;
+            }
+
             try
             {
-
                 _menus = await _api.GetMenusForCurrentUserAsync()
                          ?? Enumerable.Empty<MenuDto>();
 
@@ -80,11 +98,10 @@ namespace Retailer.Web.Services.Layout
             }
             catch (ApiUnauthorizedException)
             {
-                // token expired / invalid → force sign-out
                 httpContext.Response.Redirect("/Login");
-                return null;
+                _menus = Enumerable.Empty<MenuDto>();
+                return _menus;
             }
-
         }
     }
 }

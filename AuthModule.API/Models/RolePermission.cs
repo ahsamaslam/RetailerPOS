@@ -1,4 +1,6 @@
-﻿namespace AuthModule.API.Models
+﻿using Microsoft.AspNetCore.Identity;
+
+namespace AuthModule.API.Models
 {
     public class RolePermission
     {
@@ -6,7 +8,7 @@
         public int PermissionId { get; set; }
 
 
-        public Microsoft.AspNetCore.Identity.IdentityRole? Role { get; set; }
+        public IdentityRole? Role { get; set; }
         public Permission? Permission { get; set; }
     }
 }

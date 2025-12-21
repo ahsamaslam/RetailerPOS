@@ -11,7 +11,6 @@ public class CreatePurchaseDto
     public decimal Discount { get; set; }
     public decimal TaxAmount { get; set; }
     public decimal Total { get; set; }
-    public int LoginId { get; set; }
     public string? LoginName { get; set; }
     public int BranchId { get; set; }
     public string? BranchName { get; set; }

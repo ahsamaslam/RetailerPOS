@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Retailer.Api.Entities;
 using Retailer.POS.Api.Entities;
@@ -8,6 +9,7 @@ namespace Retailer.Api.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class CitiesController : ControllerBase
     {
         private readonly IUnitOfWork _uow;
@@ -23,7 +25,7 @@ namespace Retailer.Api.Controllers
         [HttpGet("{id:int}")]
         public async Task<IActionResult> Get(int id)
         {
-            var entity = await _uow.Cities.GetByIdAsync(id);
+            var entity = await _uow.Cities.GetAsync(b => b.Id == id);
             if (entity == null) return NotFound();
             return Ok(entity);
         }
@@ -51,7 +53,7 @@ namespace Retailer.Api.Controllers
         [HttpPut("{id:int}")]
         public async Task<IActionResult> Update(int Id, [FromBody] ItemCategory model)
         {
-            var existing = await _uow.Cities.GetByIdAsync(Id);
+            var existing = await _uow.Cities.GetAsync(b => b.Id == Id);
             if (existing == null) return NotFound();
             existing.Name = model.Name;
             _uow.Cities.Update(existing);
@@ -62,7 +64,7 @@ namespace Retailer.Api.Controllers
         [HttpDelete("{id:int}")]
         public async Task<IActionResult> Delete(int id)
         {
-            var existing = await _uow.Cities.GetByIdAsync(id);
+            var existing = await _uow.Cities.GetAsync(b => b.Id == id);
             if (existing == null) return NotFound();
             _uow.Cities.Remove(existing);
             await _uow.SaveChangesAsync();

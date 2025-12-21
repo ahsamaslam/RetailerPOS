@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Retailer.Api.Infrastructure;
 using Retailer.POS.Api.Entities;
 using Retailer.POS.Api.Repositories; // namespace where IUnitOfWork lives
 
@@ -6,6 +8,7 @@ namespace Retailer.POS.Api.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize]
     public class BranchController : ControllerBase
     {
         private readonly IUnitOfWork _uow;
@@ -14,18 +17,19 @@ namespace Retailer.POS.Api.Controllers
         {
             _uow = uow;
         }
+        private Guid CompanyId => HttpContext.GetCompanyId();
 
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
-            var list = await _uow.Branches.GetAllAsync();
+            var list = await _uow.Branches.GetAllAsync(b=>b.CompanyId == CompanyId);
             return Ok(list);
         }
 
         [HttpGet("{id:int}")]
         public async Task<IActionResult> Get(int id)
         {
-            var entity = await _uow.Branches.GetByIdAsync(id);
+            var entity = await _uow.Branches.GetAsync(b => b.Id == id);
             if (entity == null) return NotFound();
             return Ok(entity);
         }
@@ -34,6 +38,8 @@ namespace Retailer.POS.Api.Controllers
         public async Task<IActionResult> Create([FromBody] Branch model)
         {
             if (model == null) return BadRequest();
+            
+            model.CompanyId = CompanyId;
             await _uow.Branches.AddAsync(model);
             await _uow.SaveChangesAsync();
             return CreatedAtAction(nameof(Get), new { id = model.Id }, model);
@@ -44,7 +50,7 @@ namespace Retailer.POS.Api.Controllers
         {
             if (model == null || id != model.Id) return BadRequest();
 
-            var existing = await _uow.Branches.GetByIdAsync(id);
+            var existing = await _uow.Branches.GetAsync(b => b.Id == id);
             if (existing == null) return NotFound();
 
             existing.Name = model.Name;
@@ -63,7 +69,7 @@ namespace Retailer.POS.Api.Controllers
         [HttpDelete("{id:int}")]
         public async Task<IActionResult> Delete(int id)
         {
-            var existing = await _uow.Branches.GetByIdAsync(id);
+            var existing = await _uow.Branches.GetAsync(b => b.Id == id);
             if (existing == null) return NotFound();
 
             _uow.Branches.Remove(existing);

@@ -1,0 +1,17 @@
+﻿
+@page
+@using System.Security.Claims
+@model Retailer.Web.Pages.DebugClaimsModel
+
+<h2>Claims Debug</h2>
+
+<p>Authenticated: @User.Identity?.IsAuthenticated</p>
+
+<p>IsInRole("superadmin"): @User.IsInRole("superadmin")</p>
+
+<hr />
+
+@foreach (var c in User.Claims)
+{
+    <div><b>@c.Type</b> = @c.Value</div>
+}

@@ -1,7 +1,6 @@
 using Retailer.Api.DTOs;
 using Retailer.Api.Entities;
 using Retailer.Api.Entities.Views;
-using Retailer.Api.Repositories;
 using Retailer.POS.Api.Data;
 using Retailer.POS.Api.Entities;
 using Retailer.POS.Api.Repositories;
@@ -14,70 +13,49 @@ namespace Retailer.POS.API.UnitOfWork
         public UnitOfWork(RetailerDbContext context)
         {
             _context = context;
-            _itemSubGroups = new ItemSubGroupRepository(_context); // use custom repository
-
         }
 
-        private IGenericRepository<Item> _items;
-        private IGenericRepository<PurchaseMaster> _purchaseMasters;
-        private IGenericRepository<PurchaseDetail> _purchaseDetails;
-        private IGenericRepository<Customer> _customers;
-        private IGenericRepository<Vendor> _vendors;
-        private IGenericRepository<Branch> _branches;
-        private IGenericRepository<Employee> _employees;
-        private IGenericRepository<SalesMaster> _salesMasters;
-        private IGenericRepository<SalesDetail> _salesDetails;
-        private IGenericRepository<StockTransfer> _stockTransfers;
-        private IGenericRepository<StockTransferDetail> _stockTransferDetails;
-        private IGenericRepository<vwStockLedger> _vwStockLedger;
-        private IGenericRepository<Login> _logins;
-        private IGenericRepository<ItemCategory>? _itemCategories;
-        private IGenericRepository<ItemGroup>? _itemGroups;
-        private IGenericRepository<ItemSubGroup>? _itemSubGroups;
-        private IGenericRepository<ItemType>? _ItemTypes;
-        private IGenericRepository<Scope>? _Scopes;
-        private IGenericRepository<Role>? _Role;
-        private IGenericRepository<RoleScope>? _RoleScopes;
-        private IGenericRepository<OpeningBalance>? _OpeningBalances;
-        private IGenericRepository<Cities>? _cities;
-        private IGenericRepository<Provience>? _provience;
-        private IGenericRepository<Banks>? _banks;
+        private IRepository<Item> _items;
+        private IRepository<PurchaseMaster> _purchaseMasters;
+        private IRepository<PurchaseDetail> _purchaseDetails;
+        private IRepository<Customer> _customers;
+        private IRepository<Vendor> _vendors;
+        private IRepository<Branch> _branches;
+        private IRepository<SalesMaster> _salesMasters;
+        private IRepository<SalesDetail> _salesDetails;
+        private IRepository<StockTransfer> _stockTransfers;
+        private IRepository<StockTransferDetail> _stockTransferDetails;
+        private IRepository<vwStockLedger> _vwStockLedger;
+        private IRepository<ItemCategory>? _itemCategories;
+        private IRepository<ItemGroup>? _itemGroups;
+        private IRepository<ItemSubGroup>? _itemSubGroups;
+        private IRepository<ItemType>? _ItemTypes;
+        private IRepository<OpeningBalance>? _OpeningBalances;
+        private IRepository<Cities>? _cities;
+        private IRepository<Provience>? _provience;
+        private IRepository<Banks>? _banks;
 
-        public IGenericRepository<Item> Items => _items ??= new GenericRepository<Item>(_context);
-        public IGenericRepository<vwStockLedger> VwStockLedger => _vwStockLedger ??= new GenericRepository<vwStockLedger>(_context);
-        public IGenericRepository<PurchaseMaster> PurchaseMasters => _purchaseMasters ??= new GenericRepository<PurchaseMaster>(_context);
-        public IGenericRepository<Cities> Cities => _cities ??= new GenericRepository<Cities>(_context);
-        public IGenericRepository<Banks> Banks => _banks ??= new GenericRepository<Banks>(_context);
-        public IGenericRepository<Provience> Proviences => _provience ??= new GenericRepository<Provience>(_context);
-        public IGenericRepository<PurchaseDetail> PurchaseDetails => _purchaseDetails ??= new GenericRepository<PurchaseDetail>(_context);
-        public IGenericRepository<Customer> Customers => _customers ??= new GenericRepository<Customer>(_context);
-        public IGenericRepository<Vendor> Vendors => _vendors ??= new GenericRepository<Vendor>(_context);
-        public IGenericRepository<Branch> Branches => _branches ??= new GenericRepository<Branch>(_context);
-        public IGenericRepository<Employee> Employees => _employees ??= new GenericRepository<Employee>(_context);
-        public IGenericRepository<SalesMaster> SalesMasters => _salesMasters ??= new GenericRepository<SalesMaster>(_context);
-        public IGenericRepository<SalesDetail> SalesDetails => _salesDetails ??= new GenericRepository<SalesDetail>(_context);
-        public IGenericRepository<StockTransfer> StockTransfers => _stockTransfers ??= new GenericRepository<StockTransfer>(_context);
-        public IGenericRepository<StockTransferDetail> StockTransferDetails => _stockTransferDetails ??= new GenericRepository<StockTransferDetail>(_context);
-        public IGenericRepository<Login> Logins => _logins ??= new GenericRepository<Login>(_context);
-        public IGenericRepository<ItemCategory> ItemCategories => _itemCategories ??= new GenericRepository<ItemCategory>(_context);
-        public IGenericRepository<ItemGroup> ItemGroups => _itemGroups ??= new GenericRepository<ItemGroup>(_context);
-        public IGenericRepository<ItemSubGroup> ItemSubGroups => _itemSubGroups ??= new GenericRepository<ItemSubGroup>(_context);
+        public IRepository<Item> Items => _items ??= new Repository<Item>(_context);
+        public IRepository<vwStockLedger> VwStockLedger => _vwStockLedger ??= new Repository<vwStockLedger>(_context);
+        public IRepository<PurchaseMaster> PurchaseMasters => _purchaseMasters ??= new Repository<PurchaseMaster>(_context);
+        public IRepository<Cities> Cities => _cities ??= new Repository<Cities>(_context);
+        public IRepository<Banks> Banks => _banks ??= new Repository<Banks>(_context);
+        public IRepository<Provience> Proviences => _provience ??= new Repository<Provience>(_context);
+        public IRepository<PurchaseDetail> PurchaseDetails => _purchaseDetails ??= new Repository<PurchaseDetail>(_context);
+        public IRepository<Customer> Customers => _customers ??= new Repository<Customer>(_context);
+        public IRepository<Vendor> Vendors => _vendors ??= new Repository<Vendor>(_context);
+        public IRepository<Branch> Branches => _branches ??= new Repository<Branch>(_context);
+        public IRepository<SalesMaster> SalesMasters => _salesMasters ??= new Repository<SalesMaster>(_context);
+        public IRepository<SalesDetail> SalesDetails => _salesDetails ??= new Repository<SalesDetail>(_context);
+        public IRepository<StockTransfer> StockTransfers => _stockTransfers ??= new Repository<StockTransfer>(_context);
+        public IRepository<StockTransferDetail> StockTransferDetails => _stockTransferDetails ??= new Repository<StockTransferDetail>(_context);
+        public IRepository<ItemCategory> ItemCategories => _itemCategories ??= new Repository<ItemCategory>(_context);
+        public IRepository<ItemGroup> ItemGroups => _itemGroups ??= new Repository<ItemGroup>(_context);
+        public IRepository<ItemSubGroup> ItemSubGroups => _itemSubGroups ??= new Repository<ItemSubGroup>(_context);
 
-        public IGenericRepository<ItemType> ItemTypes => _ItemTypes ??= new GenericRepository<ItemType>(_context);
-        public IGenericRepository<Scope> Scopes => _Scopes ??= new GenericRepository<Scope>(_context);
-        public IGenericRepository<Role> Roles => _Role ??= new GenericRepository<Role>(_context);
-        public IGenericRepository<RoleScope> RoleScopes => _RoleScopes ??= new GenericRepository<RoleScope>(_context);
+        public IRepository<ItemType> ItemTypes => _ItemTypes ??= new Repository<ItemType>(_context);
+        public IRepository<OpeningBalance> OpeningBalances => _OpeningBalances ??= new Repository<OpeningBalance>(_context);
 
-        public IGenericRepository<OpeningBalance> OpeningBalances => _OpeningBalances ??= new GenericRepository<OpeningBalance>(_context);
- 
-        public async Task<List<ItemSubGroupDto>> GetSubGroupsWithGroupAsync()
-        {
-            return await ((ItemSubGroupRepository)_itemSubGroups).GetAllWithGroupAsync();
-        }
-        public async Task<ItemSubGroupDto?> GetSubGroupByIdWithGroupAsync(int id)
-        {
-            return await ((ItemSubGroupRepository)_itemSubGroups).GetByIdWithGroupAsync(id);
-        }
         public RetailerDbContext GetDbContext()
         {
             return _context;

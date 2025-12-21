@@ -1,34 +1,31 @@
 using AuthModule.API.Auth;
+using AuthModule.API.Data;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Retailer.Api.Data;
+using Retailer.Api.Middleware;
 using Retailer.Api.Services;
-using Retailer.API.Services;
 using Retailer.POS.Api.Data;
 using Retailer.POS.Api.Mappings;
 using Retailer.POS.Api.Repositories;
 using Retailer.POS.Api.Services;
 using Retailer.POS.API.UnitOfWork;
-using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
-using System.Text;
-using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
- 
+
 // Add services to the container.
 builder.Services.AddControllers();
 builder.Configuration
     .SetBasePath(Directory.GetCurrentDirectory())
-    .AddJsonFile("Retailappsettings.json", optional: false, reloadOnChange: true)
+    .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
     .AddEnvironmentVariables();
-// DbContext
 builder.Services.AddDbContext<RetailerDbContext>(opts =>
     opts.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
 
 // AutoMapper
 builder.Services.AddAutoMapper(typeof(AutoMapperProfile).Assembly);
@@ -39,8 +36,7 @@ builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 // Services
 builder.Services.AddScoped<IItemService, ItemService>();
 builder.Services.AddScoped<IPurchaseService, PurchaseService>();
-builder.Services.AddScoped<IAuthService, AuthService>();
-builder.Services.AddScoped<IDbInitializer, Retailer.API.Services.DbInitializer>();
+builder.Services.AddScoped<Retailer.Api.Data.IDbInitializer, Retailer.Api.Data.DbInitializer>();
 
 // JWT Authentication
 var jwtSection = builder.Configuration.GetSection("Jwt");
@@ -115,7 +111,6 @@ builder.Services.AddHttpClient("AuthModule", client =>
 // Register MenuService expecting an HttpClientFactory (inject IHttpClientFactory or HttpClient via named client)
 builder.Services.AddScoped<IMenuService, MenuService>();
 builder.Services.AddScoped<ICompanyService, CompanyService>();
-builder.Services.AddScoped<IUserService, UserService>();
 
 // Swagger
 builder.Services.AddEndpointsApiExplorer();
@@ -161,16 +156,21 @@ app.UseSwaggerUI();
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
+    if (app.Environment.IsDevelopment())
+    {
 
-    var initializer = services.GetRequiredService<IDbInitializer>();
-    await initializer.InitializeAsync(services);
+        var db = services.GetRequiredService<RetailerDbContext>();
+        await db.Database.MigrateAsync();
+    }
+    var initializer = services.GetRequiredService<Retailer.Api.Data.IDbInitializer>();
+    await initializer.InitializeAsync();
 }
-
 // middleware order: Routing -> Auth -> AuthZ -> Endpoints
 app.UseHttpsRedirection();
 
 app.UseRouting();
 app.UseAuthentication();
+app.UseMiddleware<TenantResolutionMiddleware>();
 app.UseAuthorization();
 
 app.MapControllers();
