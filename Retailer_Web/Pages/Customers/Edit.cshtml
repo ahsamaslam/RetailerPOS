@@ -1,7 +1,10 @@
 @page "{id:int}"
 @model Retailer.POS.Web.Pages.Customers.EditModel
 @inject Retailer.POS.Web.Services.IApiClient ApiClient
- 
+@{
+    ViewData["Title"] = "Edit";
+    Layout = "_EmptyLayout";
+}
 <main class="app-main">
     <!--begin::App Content Header-->
     <div class="app-content-header">

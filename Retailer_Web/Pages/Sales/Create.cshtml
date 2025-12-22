@@ -1,15 +1,26 @@
-@page
+﻿@page
 @model Retailer.POS.Web.Pages.Sales.CreateModel
 @{
 	ViewData["Title"] = "Create Sale";
+	Layout = "_EmptyLayout";
 }
 <style>
 	.table-scroll-x {
-		overflow-x: auto; /* Enables horizontal scrollbar */
+		overflow-x: auto; /* Enables horizontals scrollbar */
 		white-space: nowrap; /* Prevent table from wrapping */
 		width: 100%; /* Responsive */
 		border: 1px solid #ddd; /* Optional */
 	}
+
+	.right-table th,
+	.right-table td {
+		padding: 4px 6px !important;
+		vertical-align: middle;
+	}
+	.right-table tr {
+    margin: 0 !important;
+    height: auto;
+} 
 </style>
 <main class="app-main">
 	<!--begin::App Content Header-->
@@ -18,24 +29,8 @@
 		<div class="container-fluid">
 			<!--begin::Row-->
 			<div class="row">
-				<div>
-					<h2 style="
-    display: inline-block;
-    background-color: #007bff;
-    color: white;
-    font-weight: bold;
-    text-align: center;
-    padding: 10px 20px;
-    border-radius: 4px;
-    margin: 20px auto;
-    position: relative;
-    left: 50%;
-    transform: translateX(-50%);
-">
-						Create Sale
-					</h2>
-				</div>
-
+				<div class="col-sm-6"><h3 class="mb-0">Create Sales</h3></div>
+				 
 			</div>
 			<!--end::Row-->
 		</div>
@@ -52,26 +47,21 @@
 			<input type="hidden" id="fedValue" asp-for="@Model.company.fedVal" />
 			<div class="row">
 				<div class="col-md-4 mb-2">
-					<div class="shop-profile">
-						<div class="media">
-							<div class="mb-2">
-								<label>Date</label>
+					 
+							<div class="mb-2"> 
 								<input asp-for="Sale.Date" type="date" class="form-control text-start" autofocus />
 							</div>
-							<div class="mb-2">
-								<label>Sale Type</label>
+							<div class="mb-2"> 
 								<select asp-for="Sale.SaleType" required asp-items="Model.SaleType" class="form-control">
 									<option value="">-- Select Type --</option>
 								</select>
 							</div>
-							<div class="mb-2">
-								<label>Select Customer</label>
+							<div class="mb-2"> 
 								<select asp-for="Sale.CustomerCode" required asp-items="Model.CustomersList" class="form-control">
 									<option value="">-- Select Customer --</option>
 								</select>
 							</div>
-						</div>
-					</div>
+					 
 					<table class="table table-sm right-table">
 
 						<tbody>
@@ -99,55 +89,53 @@
 					</table>
 				</div>
 				<div class="col-md-4 mb-2">
-					<table class="table table-sm right-table">
+				<table class="table table-sm right-table summary-table">
+    <tbody>
+        <tr class="summary-row sub-total">
+            <th>Sub total</th>
+            <td>0</td>
+        </tr>
 
-						<tbody>
-							<tr class="d-flex align-items-center justify-content-between sub-total">
-								<th class="border-0 font-size-h5 mb-0 font-size-bold text-dark">
-									<h4>Sub total</h4>
-								</th>
-								<td class="border-0 justify-content-end d-flex text-dark font-size-base"><h4>0</h4></td>
+        <tr class="summary-row total-tax gst-tax">
+            <th>Total GST</th>
+            <td>0</td>
+        </tr>
 
-							</tr>
-							<tr class="d-flex align-items-center justify-content-between total-tax gst-tax">
-								<th class="border-0 font-size-h5 mb-0 font-size-bold text-dark gst-tax">
-									<h4 class="gst-tax">Total GST</h4>
-								</th>
-								<td class="border-0 justify-content-end d-flex text-dark font-size-base"><h4 class="gst-tax">0</h4></td>
+        <tr class="summary-row total-edtax ed-tax">
+            <th>Total E-Tax</th>
+            <td>0</td>
+        </tr>
 
-							</tr>
-							<tr class="d-flex align-items-center justify-content-between total-edtax ed-tax">
-								<th class="border-0 font-size-h5 mb-0 font-size-bold text-dark ed-tax">
-									<h4 class="ed-tax">Total E-Tax</h4>
-								</th>
-								<td class="border-0 justify-content-end d-flex text-dark font-size-base"><h4 class="ed-tax">0</h4></td>
+        <tr class="summary-row total-fedtax fed-tax">
+            <th>Total F-Tax</th>
+            <td>0</td>
+        </tr>
 
-							</tr>
-							<tr class="d-flex align-items-center justify-content-between total-fedtax fed-tax">
-								<th class="border-0 font-size-h5 mb-0 font-size-bold text-dark fed-tax">
-									<h4 class="fed-tax">Total F-Tax</h4>
-								</th>
-								<td class="border-0 justify-content-end d-flex text-dark font-size-base"><h4 class="fed-tax">0</h4></td>
+        <!-- Divider above TOTAL -->
+        <tr class="summary-divider">
+            <td colspan="2"></td>
+        </tr>
 
-							</tr>
-							<tr class="d-flex align-items-center justify-content-between total-amount">
-								<th class="border-0 font-size-h5 mb-0 font-size-bold text-primary">
+        <tr class="summary-row total-amount">
+            <th class="total-label">TOTAL</th>
+            <td class="total-value">0</td>
+        </tr>
+    </tbody>
 
-									<h2>TOTAL</h2>
-								</th>
-								<td class="border-0 justify-content-end d-flex text-primary font-size-base"><h2>0</h2></td>
+    <tfoot>
+        <tr class="summary-actions">
+            <td colspan="2">
+                <button type="submit" class="btn btn-primary btn-sm" accesskey="s">
+                    Save Sale
+                </button>
+                <a asp-page="Index" class="btn btn-secondary btn-sm">
+                    Cancel
+                </a>
+            </td>
+        </tr>
+    </tfoot>
+</table>
 
-							</tr>
-
-
-						</tbody>
-						<tfoot>
-							<tr class="d-flex align-items-center justify-content-between total-amount">
-								<button type="submit" class="btn btn-primary" accesskey="s">Save Sale</button>
-								<a asp-page="Index" class="btn btn-secondary">Cancel</a>
-							</tr>
-						</tfoot>
-					</table>
 				</div>
 
 				<div class="col-md-12 mb-2">
@@ -194,10 +182,10 @@
 										<td><input asp-for="Sale.Details[i].Discount" min="0" max="100" type="number" step="0.01" class="form-control text-end" /></td>
 										<td class="gst-tax"><input asp-for="Sale.Details[i].TaxPercentage" min="0" max="100" type="number" step="0.01" class="form-control text-end" /></td>
 										<td class="gst-tax"><input asp-for="Sale.Details[i].TaxAmount" readonly type="number" step="0.01" class="form-control text-end" /></td>
-										<td class="ed-tax"><input asp-for="Sale.Details[i].extraTaxP" min="0" max="100" type="number" step="0.01" class="form-control text-end" /></td>
-										<td class="ed-tax"><input asp-for="Sale.Details[i].extraTax" type="number" step="0.01" class="form-control text-end" /></td>
-										<td class="fed-tax"><input asp-for="Sale.Details[i].furtherTaxP" min="0" max="100" type="number" step="0.01" class="form-control text-end" /></td>
-										<td class="fed-tax"><input asp-for="Sale.Details[i].furtherTax" type="number" step="0.01" class="form-control text-end" /></td>
+										<td class="ed-tax"><input asp-for="Sale.Details[i].extraTaxP" min="0" max="100" type="number" step="0.01" readonly class="form-control text-end" /></td>
+										<td class="ed-tax"><input asp-for="Sale.Details[i].extraTax" type="number" step="0.01" class="form-control readonly text-end" /></td>
+										<td class="fed-tax"><input asp-for="Sale.Details[i].furtherTaxP" min="0" max="100" type="number" step="0.01" readonly class="form-control text-end" /></td>
+										<td class="fed-tax"><input asp-for="Sale.Details[i].furtherTax" type="number" step="0.01" readonly class="form-control text-end" /></td>
 										<td><input asp-for="Sale.Details[i].Amount" readonly type="number" step="0.01" class="form-control text-end fw-bold" /></td>
 
 										<td><button type="button" class="btn btn-danger btn-sm remove-row">Remove</button></td>
@@ -219,7 +207,7 @@
 									<td><input name="Sale.Details[__index__].Discount" min="0" max="100" type="number" value="0" step="0.01" class="form-control text-end" /></td>
 									<td class="gst-tax"><input name="Sale.Details[__index__].TaxPercentage" min="0" max="100" type="number" value="0" step="0.01" class="form-control text-end" /></td>
 									<td class="gst-tax"><input name="Sale.Details[__index__].TaxAmount" readonly type="number" value="0" step="0.01" class="form-control text-end" /></td>
-									<td class="ed-tax"><input name="Sale.Details[__index__].extraTaxP" min="0" max="100" type="number" value="0" step="0.01" class="form-control text-end" /></td>
+									<td class="ed-tax"><input name="Sale.Details[__index__].extraTaxP" min="0" max="100"  type="number" value="0" step="0.01" class="form-control text-end" /></td>
 									<td class="ed-tax"><input name="Sale.Details[__index__].extraTax" readonly type="number" value="0" step="0.01" class="form-control text-end" /></td>
 									<td class="ed-tax"><input name="Sale.Details[__index__].furtherTaxP" min="0" max="100" type="number" value="0" step="0.01" class="form-control text-end" /></td>
 									<td class="ed-tax"><input name="Sale.Details[__index__].furtherTax" readonly type="number" value="0" step="0.01" class="form-control text-end" /></td>
@@ -415,15 +403,15 @@
 
 				const totalQtyCell = document.querySelector('.total-qty td');
 				if (totalQtyCell) totalQtyCell.textContent = `${Number(totalQty).toLocaleString()}`;
-				const totaltaxCell = document.querySelector('.total-tax td h4');
+				const totaltaxCell = document.querySelector('.total-tax td');
 				if (totaltaxCell) totaltaxCell.textContent = `${Number(totalTax).toLocaleString()}`;
 
-				const totaletaxCell = document.querySelector('.total-edtax td h4');
+				const totaletaxCell = document.querySelector('.total-edtax td');
 				if (totaletaxCell) totaletaxCell.textContent = `${Number(totaleTax).toLocaleString()}`;
 
-				const totalfedtaxCell = document.querySelector('.total-fedtax td h4');
+				const totalfedtaxCell = document.querySelector('.total-fedtax td');
 				if (totalfedtaxCell) totalfedtaxCell.textContent = `${Number(totaleFTax).toLocaleString()}`;
-				const subtotalCell = document.querySelector('.sub-total td h4');
+				const subtotalCell = document.querySelector('.sub-total td');
 				if (subtotalCell) subtotalCell.textContent = `${Number(subtotal).toLocaleString()}`;
 				// Update total in the summary table
 				const totalCell = document.querySelector('.total-amount td h2');

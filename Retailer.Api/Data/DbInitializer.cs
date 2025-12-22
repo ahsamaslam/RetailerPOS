@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Retailer.Api.DTOs;
 using Retailer.Api.Entities;
 using Retailer.POS.Api.Data;
 
@@ -7,10 +8,20 @@ namespace Retailer.Api.Data
     public class DbInitializer : IDbInitializer
     {
         // Pages and actions used to create menus/submenus
-        private static readonly string[] Pages = new[]
-        {
-            "Dashboard","Branches","Categories","Customers","Groups","Items","ItemType",
-            "OpeningBalances","Sales","Purchases","SubGroups","Vendors"
+        private static readonly List<MenuDto> Pages = new List<MenuDto>() { 
+            new MenuDto() { Title="Branches", Icon="fa fa-code-branch" },
+            new MenuDto() { Title="Categories", Icon="fa fa-list" },
+            new MenuDto() { Title="Customers", Icon="fa fa-users" },
+            new MenuDto() { Title="Groups", Icon="fa fa-layer-group" },
+            new MenuDto() { Title="Items", Icon="fa fa-boxes" },
+            new MenuDto() { Title="ItemType", Icon="fa fa-tags" },
+            new MenuDto() { Title="OpeningBalances", Icon="fa fa-balance-scale" },
+            new MenuDto() { Title="Sales", Icon="fa fa-shopping-cart" },
+            new MenuDto() { Title="Purchases", Icon="fa fa-shopping-bag" },
+            new MenuDto() { Title="SubGroups", Icon="fa fa-object-group" },
+            new MenuDto() { Title="Vendors", Icon="fa fa-truck" }
+
+
         };
 
         private static readonly string[] PageActions = new[] { "View", "Create", "Edit", "Delete" };
@@ -32,12 +43,12 @@ namespace Retailer.Api.Data
             var actionOrder = PageActions.Select((a, idx) => (Action: a, Order: idx))
                                          .ToDictionary(x => x.Action, x => x.Order, StringComparer.OrdinalIgnoreCase);
 
-            for (int pageIdx = 0; pageIdx < Pages.Length; pageIdx++)
+            for (int pageIdx = 0; pageIdx < Pages.Count; pageIdx++)
             {
                 cancellationToken.ThrowIfCancellationRequested();
 
                 var pageName = Pages[pageIdx];
-                var pageNameUpper = pageName.ToUpper(); // normalize once
+                var pageNameUpper = pageName.Title.ToUpper(); // normalize once
 
                 // find existing menu (case-insensitive) - avoid StringComparison overload
                 var menu = await apiDb.Menus
@@ -47,8 +58,8 @@ namespace Retailer.Api.Data
                 {
                     menu = new Menu
                     {
-                        Title = pageName,
-                        Icon = null,      // optionally set default icon or map per-page
+                        Title = pageName.Title,
+                        Icon = pageName.Icon,      // optionally set default icon or map per-page
                         SortOrder = pageIdx,
                         IsActive = true
                     };
@@ -68,11 +79,11 @@ namespace Retailer.Api.Data
                     // route mapping - adjust if your pages live elsewhere
                     string? route = action.ToLowerInvariant() switch
                     {
-                        "view" => $"/{pageName}",
-                        "create" => $"/{pageName}/Create",
-                        "edit" => $"/{pageName}/Edit",
+                        "view" => $"/{pageName.Title}",
+                        "create" => $"/{pageName.Title}/Create",
+                        "edit" => $"/{pageName.Title}/Edit",
                         "delete" => null, // typically delete is an action, not a page
-                        _ => $"/{pageName}/{action}"
+                        _ => $"/{pageName.Title}/{action}"
                     };
 
                     // Skip if submenu (by title) already exists for this menu

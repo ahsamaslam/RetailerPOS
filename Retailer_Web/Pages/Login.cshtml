@@ -1,51 +1,83 @@
 @page
 @model Retailer.Web.Pages.LoginModel
 @{
-    Layout = null;
+    Layout = "Shared/_IdentityLayout.cshtml";
 }
-<head>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Login Form</title>
-<link href="@Url.Content("~/css/loginstyle.css")" rel="stylesheet" />
+<!-- Table -->
+<div class="row justify-content-center">
+    <div class="col-lg-5 col-md-7">
+        <div class="card bg-secondary shadow border-0">
+            
+            <div class="card-body px-lg-5 py-lg-5">
+                
+                <form id="account" method="post">
+                    @if (!ViewData.ModelState.IsValid && ViewData.ModelState[string.Empty] != null)
+                    {
+                        @foreach (var error in @ViewData.ModelState[string.Empty]?.Errors)
+                        {
+                            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                <span>@error.ErrorMessage</span>
+                                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                    <span aria-hidden="true">×</span>
+                                </button>
+                            </div>
+                        }
+                    }
+                    <div class="form-group mb-3">
+                        <div class="input-group input-group-alternative">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text">
+                                    <i class="ni ni-email-83"></i>
+                                </span>
+                            </div>
+                            <input asp-for="UserName" class="form-control" placeholder="Username" type="text" />
+                        </div>
+                        <span asp-validation-for="UserName" class="invalid-feedback" style="display: block"></span>
+                    </div>
+                    <div class="form-group">
+                        <div class="input-group input-group-alternative">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text">
+                                    <i class="ni ni-lock-circle-open"></i>
+                                </span>
+                            </div>
+                            <input asp-for="Password" placeholder="Password" type="password" class="form-control" />
+                        </div>
+                        <span asp-validation-for="Password" class="invalid-feedback" style="display: block"></span>
+                    </div>
+                    
+                    <div class="text-center">
+                        <button class="btn btn-primary my-4" type="submit">Sign in</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+    </div>
+</div>
 
-</head> 
-<body>
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
 
-
-     <div class="container">
-        <div class="form-box login">
-          <form method="post">
-                <h1>Login</h1>
-                <div class="input-box">
-                    <input type="text" placeholder="Username"  asp-for="UserName"  required />
-                    <i class="bx bxs-user"></i>
+@section IdentityHeader
+{
+    <div class="header bg-gradient-primary py-7 py-lg-8 pt-lg-9">
+        <div class="container">
+            <div class="header-body text-center mb-7">
+                <div class="row justify-content-center">
+                    <div class="col-xl-5 col-lg-6 col-md-8 px-5">
+                        <img src="~/img/brand/blue.png" width="200" />
+                        <h1 class="text-white">Welcome!</h1>
+                        <p class="text-lead text-white">Use these awesome forms to login or create new account in your project for free.</p>
+                    </div>
                 </div>
-                <div class="input-box">
-                    <input type="password" asp-for="Password" placeholder="Password" required />
-                    <i class="bx bxs-lock-alt"></i>
-                </div>
-                <div class="forgot-link">
-                    <a href="#">Forgot Password?</a>
-                </div>
-                <button type="submit" class="btn">Login</button>
-
-            </form>
+            </div>
         </div>
-         <div class="toggle-box">
-        <div class="toggle-panel toggle-left">
-          <h1>Hello, Welcome!</h1> 
+        <div class="separator separator-bottom separator-skew zindex-100">
+            <svg x="0" y="0" viewBox="0 0 2560 100" preserveAspectRatio="none" version="1.1" xmlns="http://www.w3.org/2000/svg">
+                <polygon class="fill-default" points="2560 0 2560 100 0 100"></polygon>
+            </svg>
         </div>
-
-        <div class="toggle-panel toggle-right">
-          <h1>Welcome Back!</h1>
-          <p>Already have an account?</p>
-          <button class="btn login-btn">Login</button>
-        </div>
-      </div>
-        </div>
-
-    
-
-      
-       
-</body>
+    </div>
+}

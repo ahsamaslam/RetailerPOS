@@ -1,7 +1,10 @@
 @page "{id:int}"
 @model Retailer.POS.Web.Pages.Customers.DetailsModel
 @inject Retailer.POS.Web.Services.IApiClient ApiClient
-
+@{
+    ViewData["Title"] = "Detail";
+    Layout = "_EmptyLayout";
+}
 <h2>Customer Details</h2>
 
 <div>

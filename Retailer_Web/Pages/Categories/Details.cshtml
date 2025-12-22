@@ -1,6 +1,9 @@
 ﻿@page "{id:int}"
 @model Retailer.POS.Web.Pages.Categories.DetailsModel
-
+ 
+@{ 
+    Layout = "_EmptyLayout";
+}
 <h2>Category Details</h2>
 
 <p><strong>Id:</strong> @Model.Category.Id</p>

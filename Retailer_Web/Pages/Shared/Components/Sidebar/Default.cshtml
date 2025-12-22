@@ -35,92 +35,95 @@
         return Url.Page(route) ?? "#";
     }
 }
-<aside class="app-sidebar bg-body-secondary shadow" data-bs-theme="dark">
-    <div class="sidebar-brand">
-        <a asp-page="/Index" class="brand-link">
-            <img src="~/assets/img/AdminLTELogo.png"
-                 alt="Logo"
-                 class="brand-image opacity-75 shadow" />
-            <span class="brand-text fw-light">POS</span>
-        </a>
-    </div>
+<!-- Sidenav -->
+<nav class="sidenav navbar navbar-vertical fixed-left navbar-expand-xs navbar-light bg-white" id="sidenav-main">
+    <div class="scrollbar-inner">
 
-    <div class="sidebar-wrapper">
-        <nav class="mt-2" aria-label="Main navigation">
-            <ul class="nav sidebar-menu flex-column"
-                data-lte-toggle="treeview"
-                data-accordion="false"
-                id="navigation">
+        <!-- Brand -->
+        <div class="sidenav-header  align-items-center">
+            <a class="navbar-brand" href="/Index">
+                <img src="~/img/brand/blue.png" class="navbar-brand-img" alt="..." style="max-height:10rem; margin-top:-50px">
+            </a>
+        </div>
+        <div class="navbar-inner">
+            <!-- Collapse -->
+            <div class="collapse navbar-collapse" id="sidenav-collapse-main">
 
-                <!-- Dashboard -->
-                <li class="nav-item">
-                    <a asp-page="/Index"
-                       class="nav-link @(IsActive("/Index") ? "active" : "")">
-                        <i class="nav-icon bi bi-speedometer"></i>
-                        <p>Dashboard</p>
-                    </a>
-                </li>
+                <!-- Collapse header -->
+                <div class="navbar-collapse-header d-md-none">
+                    <div class="row">
+                        <div class="col-6 collapse-brand">
+                            <a href="/">
+                                <img src="~/img/brand/blue.png">
+                            </a>
+                        </div>
+                        <div class="col-6 collapse-close">
+                            <button type="button" class="navbar-toggler" data-toggle="collapse" data-target="#sidenav-collapse-main" aria-controls="sidenav-main" aria-expanded="false" aria-label="Toggle sidenav">
+                                <span></span>
+                                <span></span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
 
-                <!-- Dynamic menus -->
-                @foreach (var menu in Model.Menus
-                .Where(m => m.IsActive)
-                .OrderBy(m => m.SortOrder))
-                {
-                    var icon = string.IsNullOrWhiteSpace(menu.Icon)
-                    ? "bi bi-circle-fill"
-                    : menu.Icon;
-
-                    var firstRoute = menu.SubMenus?.FirstOrDefault()?.Route;
-
+                <!-- Navigation -->
+                <ul class="navbar-nav">
                     <li class="nav-item">
-                        <a class="nav-link @(IsActive(firstRoute) ? "active" : "")"
-                           href="@ResolveUrl(firstRoute)">
-                            <i class="nav-icon @icon"></i>
-                            <p>@menu.Title</p>
+                        <a class="nav-link @(Context.Request.Path == "/" ? "active" : "")" href="@ResolveUrl("/")">
+                            <i class="ni ni-tv-2 text-yellow"></i> Dashboard
                         </a>
                     </li>
-                }
+                    @foreach (var menu in Model.Menus
+                                        .Where(m => m.IsActive)
+                                        .OrderBy(m => m.SortOrder))
+                    {
+                        var icon = string.IsNullOrWhiteSpace(menu.Icon)
+                        ? "bi bi-circle-fill"
+                        : menu.Icon;
 
-                <!-- Admin section -->
-                @if (Model.Menus.Count() > 0 && (Model.User?.IsAdmin == true || Model.User?.IsSuperAdmin == true))
-                {
-                    <li class="nav-item @(isAdminSection ? "menu-open" : "")">
-                        <a href="#"
-                           class="nav-link @(isAdminSection ? "active" : "")"
-                           aria-expanded="@(isAdminSection.ToString().ToLower())">
-                            <i class="nav-icon bi bi-tools"></i>
-                            <p>
+                        var firstRoute = menu.SubMenus?.FirstOrDefault()?.Route;
+
+                        <li class="nav-item">
+                            <a class="nav-link @(IsActive(firstRoute) ? "active" : "")"
+                               href="@ResolveUrl(firstRoute)">
+                                <i class="@icon text-yellow"></i>@menu.Title
+                            </a>
+                        </li>
+                    }
+                    @if (Model.Menus.Count() > 0 && (Model.User?.IsAdmin == true || Model.User?.IsSuperAdmin == true))
+                    {
+                        <li class="nav-item @(isAdminSection ? "menu-open" : "")">
+                            <a href="#"
+                               class="nav-link @(isAdminSection ? "active" : "")"
+                               aria-expanded="@(isAdminSection.ToString().ToLower())">
+                                <i class="nav-icon fa fa-tools text-yellow"></i>
                                 Admin Panel
-                                <i class="nav-arrow bi @(isAdminSection ? "bi-chevron-down" : "bi-chevron-right")"></i>
-                            </p>
-                        </a>
+                            </a>
 
-                        <ul class="nav nav-treeview">
-                            <li class="nav-item">
-                                <a href="/admin/user"
-                                   class="nav-link @(isUsers ? "active" : "")">
-                                    <i class="nav-icon bi bi-circle"></i>
-                                    <p>Users</p>
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a href="/admin/roles"
-                                   class="nav-link @(isRoles ? "active" : "")">
-                                    <i class="nav-icon bi bi-circle"></i>
-                                    <p>Roles</p>
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a href="/admin/permissions"
-                                   class="nav-link @(isPermissions ? "active" : "")">
-                                    <i class="nav-icon bi bi-circle"></i>
-                                    <p>Permissions</p>
-                                </a>
-                            </li>
-                        </ul>
-                    </li>
-                }
-            </ul>
-        </nav>
+                            <ul class="nav nav-treeview">
+                                <li class="nav-item">
+                                    <a href="/admin/user"
+                                       class="nav-link @(isUsers ? "active" : "")">
+                                        <i class="nav-icon fa fa-user text-yellow"></i>Users
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="/admin/roles"
+                                       class="nav-link @(isRoles ? "active" : "")">
+                                        <i class="nav-icon fa fa-user-check text-yellow"></i>Roles
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="/admin/permissions"
+                                       class="nav-link @(isPermissions ? "active" : "")">
+                                        <i class="nav-icon fa fa-user-alt-slash text-yellow"></i>Permissions
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+                    }
+                </ul>
+            </div>
+        </div>
     </div>
-</aside>
+</nav>
