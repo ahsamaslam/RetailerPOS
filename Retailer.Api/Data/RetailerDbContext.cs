@@ -30,6 +30,7 @@ public class RetailerDbContext : DbContext
     public DbSet<SubMenu> SubMenus { get; set; } = default!;
     public DbSet<SubMenuPermission> SubMenuPermissions { get; set; } = default!;
     public DbSet<OpeningBalance> OpeningBalances { get; set; } = null!;
+    public DbSet<CustomerPayment> CustomerPayment { get; set; } = null!;
 
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)

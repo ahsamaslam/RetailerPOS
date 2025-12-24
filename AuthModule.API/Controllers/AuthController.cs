@@ -70,7 +70,7 @@ namespace AuthModule.API.Controllers
             //   ROLE CLAIMS
             // ============================
             var roles = await _userManager.GetRolesAsync(user);
-            var isSuperAdmin = roles.Contains("superadmin", StringComparer.OrdinalIgnoreCase);
+                        var isSuperAdmin = roles.Contains("superadmin", StringComparer.OrdinalIgnoreCase);
             if (!isSuperAdmin)
             {
                 if (!user.CompanyId.HasValue)

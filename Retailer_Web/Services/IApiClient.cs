@@ -30,7 +30,9 @@ namespace Retailer.POS.Web.Services
         Task<string?> LoginAsync(string username, string password);
         Task<List<EmployeeDto>> GetEmployeesAsync();
         Task<EmployeeDto?> GetEmployeeByIdAsync(int id);
+        Task<IEnumerable<CustomerPaymentDto>> GetAllCustomerPaymentDateWise(DateTime sdate, DateTime edate);
         Task<bool> CreateEmployeeAsync(EmployeeDto employee);
+        Task<bool> CreateCustomerPaymentAsync(CustomerPaymentViewModel customer);
         Task<bool> UpdateEmployeeAsync(EmployeeDto employee);
         Task<List<ProvienceDto>> GetProvienceAsync();
         Task<List<CustomerViewModel>> GetCustomersAsync();
@@ -51,11 +53,14 @@ namespace Retailer.POS.Web.Services
         Task<IEnumerable<SalesMasterDto>> GetAllSaleDateWise(DateTime sdate, DateTime edate);
         Task<IEnumerable<SalesMasterDto>> GetSalesAsync();
         Task<SalesMasterDto?> GetSaleByIdAsync(int id);
+        Task<CustomerPaymentViewModel?> GetCustomerpaymentByIdAsync(int id);
         Task<PurchaseMasterDto?> GetPurchaseByIdAsync(int id);
         Task<SalesMasterDto?> CreateSaleAsync(SalesMasterDto dto);
         Task<bool> UpdateSaleAsync(SalesMasterDto dto);
+        Task<bool> UpdateCustomerPaymentAsync(CustomerPaymentDto dto);
         Task<bool> UpdatePurchaseAsync(PurchaseMasterDto dto);
         Task<bool> DeleteSaleAsync(int id);
+        Task<bool> DeleteCustomerPaymentAsync(int id);
 
         // Category
         Task<List<ItemCategoryViewModel>> GetCategoriesAsync();

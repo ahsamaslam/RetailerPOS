@@ -6,6 +6,7 @@ namespace Retailer.POS.Api.Repositories;
 public interface IUnitOfWork : IDisposable
 {
     IRepository<Item> Items { get; }
+    IRepository<CustomerPayment> CustomerPayment { get; }
     IRepository<PurchaseMaster> PurchaseMasters { get; }
     IRepository<PurchaseDetail> PurchaseDetails { get; }
     IRepository<Customer> Customers { get; }

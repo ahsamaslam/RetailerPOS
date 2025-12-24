@@ -1,4 +1,6 @@
 using AutoMapper;
+using Retailer.Api.DTOs;
+using Retailer.Api.Entities;
 using Retailer.POS.Api.DTOs;
 using Retailer.POS.Api.Entities;
 
@@ -18,5 +20,6 @@ public class AutoMapperProfile : Profile
         CreateMap<CreatePurchaseDetailDto, PurchaseDetail>();
         CreateMap<PurchaseMaster, PurchaseMasterDto>();
         CreateMap<PurchaseDetail, PurchaseDetailDto>();
+        CreateMap<CustomerPayment, CustomerPaymentDto>();
     }
 }

@@ -46,6 +46,73 @@ namespace Retailer.Api.Migrations
                     b.ToTable("Cities");
                 });
 
+            modelBuilder.Entity("Retailer.Api.Entities.CustomerPayment", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<decimal>("Amount")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int?>("BankId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("BanksId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("CustomerId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("PaymentDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("PaymentMethodId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("int");
+
+                    b.Property<string>("bankName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid>("companyId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("status")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("taxAmount")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("taxPercent")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("userCode")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("whtAmount")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("whtPercent")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BanksId");
+
+                    b.HasIndex("CustomerId");
+
+                    b.HasIndex("PaymentMethodId");
+
+                    b.ToTable("CustomerPayment");
+                });
+
             modelBuilder.Entity("Retailer.Api.Entities.Menu", b =>
                 {
                     b.Property<int>("Id")
@@ -108,6 +175,23 @@ namespace Retailer.Api.Migrations
                         .HasDatabaseName("UX_OpeningBalance_Year_Product");
 
                     b.ToTable("OpeningBalances");
+                });
+
+            modelBuilder.Entity("Retailer.Api.Entities.PaymentMethod", b =>
+                {
+                    b.Property<int>("id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("id"));
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("id");
+
+                    b.ToTable("PaymentMethod");
                 });
 
             modelBuilder.Entity("Retailer.Api.Entities.Provience", b =>
@@ -894,6 +978,31 @@ namespace Retailer.Api.Migrations
                         .IsRequired();
 
                     b.Navigation("Provience");
+                });
+
+            modelBuilder.Entity("Retailer.Api.Entities.CustomerPayment", b =>
+                {
+                    b.HasOne("Retailer.POS.Api.Entities.Banks", "Banks")
+                        .WithMany()
+                        .HasForeignKey("BanksId");
+
+                    b.HasOne("Retailer.POS.Api.Entities.Customer", "Customer")
+                        .WithMany()
+                        .HasForeignKey("CustomerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Retailer.Api.Entities.PaymentMethod", "PaymentMethod")
+                        .WithMany()
+                        .HasForeignKey("PaymentMethodId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Banks");
+
+                    b.Navigation("Customer");
+
+                    b.Navigation("PaymentMethod");
                 });
 
             modelBuilder.Entity("Retailer.Api.Entities.SubMenu", b =>

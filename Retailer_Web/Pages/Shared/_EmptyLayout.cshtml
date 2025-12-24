@@ -1,0 +1,29 @@
+﻿@await Component.InvokeAsync("NToastNotify")
+<!DOCTYPE html>
+<html>
+<head>
+    <partial name="_PageHeadElement" />
+
+    @RenderSection("Styles", required: false)
+    @RenderSection("HeadScripts", required: false)
+</head>
+<body>
+    @await Component.InvokeAsync("Sidebar")
+    <div class="main-content" id="panel">
+
+        @await Component.InvokeAsync("TopBar")
+
+        
+        <!-- / Header -->
+        <!-- Page content -->
+        <div class="container-fluid mt-4 pt-4">
+            @RenderBody()
+            <partial name="_Footer" />
+        </div>
+    </div>
+
+    <partial name="_ThemeScripts" />
+
+    @RenderSection("Scripts", required: false)
+</body>
+</html>

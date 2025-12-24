@@ -1,12 +1,12 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 18
-VisualStudioVersion = 18.1.11312.151
+# Visual Studio Version 17
+VisualStudioVersion = 17.8.34322.80
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Retailer.Web", "Retailer_Web\Retailer.Web.csproj", "{2CFC5E73-14C0-4814-9B49-72F1AF3E50BD}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AuthModule.API", "AuthModule.API\AuthModule.API.csproj", "{929F0D72-BFEF-4C2D-BC51-C8F483DD4018}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Retailer.Api", "Retailer.Api\Retailer.Api.csproj", "{8CC4A708-7CBE-2C72-9332-705638272E46}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Retailer.Api", "Retailer.Api\Retailer.Api.csproj", "{8CC4A708-7CBE-2C72-9332-705638272E46}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

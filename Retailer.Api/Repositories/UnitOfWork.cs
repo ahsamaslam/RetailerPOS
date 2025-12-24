@@ -34,7 +34,8 @@ namespace Retailer.POS.API.UnitOfWork
         private IRepository<Cities>? _cities;
         private IRepository<Provience>? _provience;
         private IRepository<Banks>? _banks;
-
+        private IRepository<CustomerPayment>? _customerpayment; 
+        public IRepository<CustomerPayment> CustomerPayment => _customerpayment ??= new Repository<CustomerPayment>(_context);
         public IRepository<Item> Items => _items ??= new Repository<Item>(_context);
         public IRepository<vwStockLedger> VwStockLedger => _vwStockLedger ??= new Repository<vwStockLedger>(_context);
         public IRepository<PurchaseMaster> PurchaseMasters => _purchaseMasters ??= new Repository<PurchaseMaster>(_context);
