@@ -105,36 +105,38 @@
     </div>
     <!--end::App Content-->
 </main>
-<!--end::App Main-->
 @section Scripts {
     <script>
         $(function () {
-            // When either date changes, navigate to the same page with query params
-            $('#startDate, #endDate').on('change', function () {
+
+            // Build the handler URL from Razor
+            const filterHandlerUrl = '@Url.Page("/Ledger/Customer", "Filtered")';
+
+            function callFilter() {
                 const s = $('#startDate').val();
                 const e = $('#endDate').val();
+                const status = $('#status').val();
+                const customerId = $('#cid').val(); // correct variable
 
-                // If you want to require both dates set before fetching:
-                if (!s || !e) return;
+                // Build correct query string
+                const url = `${filterHandlerUrl}?sdate=${encodeURIComponent(s)}&edate=${encodeURIComponent(e)}&status=${encodeURIComponent(status)}&cid=${encodeURIComponent(customerId)}`;
 
-                // Build query string and reload page
-                const qs = new URLSearchParams({
-                    sdate: s,
-                    edate: e
-                }).toString();
+                fetch(url)
+                    .then(response => {
+                        if (!response.ok) throw new Error("Server error");
+                        return response.json();
+                    })
+                    .then(data => {
+                        console.log(data);
+                        // TODO: render data in your table
+                    })
+                    .catch(err => console.error("Fetch error:", err));
+            }
 
-                // Navigate (this calls OnGetAsync on server)
-                window.location.href = `${window.location.pathname}?${qs}`;
-            });
+            $('#startDate, #endDate, #status, #cid').on('change', callFilter);
 
-            // DataTable initialization (will run on full page load)
-            $('#myTable').DataTable({
-                "paging": true,
-                "searching": true,
-                "ordering": true,
-                "info": true
-            });
         });
     </script>
 }
+
 

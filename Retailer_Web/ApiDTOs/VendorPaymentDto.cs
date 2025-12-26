@@ -3,12 +3,12 @@ using Retailer.Web.Models;
 
 namespace Retailer.Web.ApiDTOs
 {
-    public class CustomerPaymentDto
+    public class VendorPaymentDto
     {
         public int Id { get; set; }
-        public int CustomerId { get; set; }
-        public string CustomerName { get; set; }
-        public CustomerDto? Customer { get; set; }
+        public int VendorId { get; set; }
+        public string VendorName { get; set; }
+        public VendorDto? Vendor { get; set; }
         public BankDto? Bank { get; set; }
         public string PaymentMethodName { get; set; }
         public int Type { get; set; }

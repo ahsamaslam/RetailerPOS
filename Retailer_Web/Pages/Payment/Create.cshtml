@@ -1,7 +1,8 @@
-﻿@page "{id:int}"
-@model Retailer.Web.Pages.Receipt.EditModel 
+﻿@page
+@model Retailer.Web.Pages.VendorPayment.CreateModel
+ 
 @{
-    ViewData["Title"] = "Edit Item"; 
+    ViewData["Title"] = "Create Sale";
     Layout = "_EmptyLayout";
 }
 <main class="app-main">
@@ -28,13 +29,12 @@
     </div>
     <div class="app-content">
         <form method="post" id="saleForm">
-            <input type="hidden" asp-for="CustomerPayment.Id" />
-            <input type="hidden" asp-for="CustomerPayment.totalAmount" />
+            <input type="hidden" asp-for="VendorPayment.totalAmount" />
             <div class="row">
                 <div class="col-md-4 mb-2">
                     <label>Date</label>
                     <div class="mb-2">
-                        <input asp-for="CustomerPayment.PaymentDate" type="date" class="form-control text-start" autofocus />
+                        <input asp-for="VendorPayment.PaymentDate" type="date" class="form-control text-start" autofocus />
                     </div>
 
 
@@ -46,9 +46,9 @@
                 <div class="col-md-12 mb-2">
                     <div class="row">
                         <div class="col-md-6 mb-4">
-                            <label>Select Customer</label>
-                            <select asp-for="CustomerPayment.CustomerId" id="customerSelect" required asp-items="Model.CustomersList" class="form-control">
-                                <option value="">-- Select Customer --</option>
+                            <label>Select Vendor</label>
+                            <select asp-for="VendorPayment.VendorId" id="vendorSelect" required asp-items="Model.vendorsList" class="form-control">
+                                <option value="">-- Select Vendor --</option>
                             </select>
                         </div>
                         <div class="col-md-3 mb-4 text-right">
@@ -61,7 +61,7 @@
             <div class="row">
                 <div class="col-md-4 mb-4">
                     <label>Payment Type</label>
-                    <select asp-for="CustomerPayment.PaymentMethodId" required asp-items="Model.PaymentMethods" class="form-control">
+                    <select asp-for="VendorPayment.PaymentMethodId" required asp-items="Model.PaymentMethods" class="form-control">
                         <option value="">-- Select Type --</option>
                     </select>
                 </div>
@@ -73,16 +73,16 @@
             <div class="row">
                 <div class="col-md-4 mb-4">
                     <div class="form-group">
-                        <label asp-for="CustomerPayment.remarks"></label>
-                        <textarea asp-for="CustomerPayment.remarks" class="form-control" rows="3"></textarea>
+                        <label asp-for="VendorPayment.remarks"></label>
+                        <textarea asp-for="VendorPayment.remarks" class="form-control" rows="3"></textarea>
                     </div>
                 </div>
             </div>
             <div class="row">
                 <div class="col-md-4 mb-4">
                     <div class="form-group">
-                        <label asp-for="CustomerPayment.Amount"></label>
-                        <input asp-for="CustomerPayment.Amount" type="number" class="form-control" id="amount" />
+                        <label asp-for="VendorPayment.Amount"></label>
+                        <input asp-for="VendorPayment.Amount" type="number" class="form-control" id="amount" />
                     </div>
                 </div>
 
@@ -91,14 +91,14 @@
                 <div class="col-md-3 mb-3">
                     <div class="form-group">
                         <label>Tax Amount</label>
-                        <input asp-for="CustomerPayment.taxAmount" type="number" class="form-control" id="taxAmount" />
+                        <input asp-for="VendorPayment.taxAmount" type="number" class="form-control" id="taxAmount" />
 
                     </div>
                 </div>
                 <div class="col-md-3 mb-3">
                     <div class="form-group">
                         <label> Withholding Amount</label>
-                        <input asp-for="CustomerPayment.whtAmount" type="number" class="form-control" id="whtAmount" />
+                        <input asp-for="VendorPayment.whtAmount" type="number" class="form-control" id="whtAmount" />
                     </div>
                 </div>
 
@@ -118,15 +118,15 @@
             reindexRows();
         });
     })();
-    document.getElementById("customerSelect").addEventListener("change", function () {
-        let customerId = this.value;
+    document.getElementById("vendorSelect").addEventListener("change", function () {
+        let vendorId = this.value;
 
-        if (!customerId) {
+        if (!vendorId) {
             document.getElementById("balance").value = "";
             return;
         }
 
-        fetch(`?handler=CustomerBalance&customerId=${customerId}`)
+        fetch(`?handler=vendorBalance&vendorId=${vendorId}`)
             .then(response => response.json())
             .then(balance => {
                 document.getElementById("balance").value = balance.toFixed(2);
@@ -143,7 +143,7 @@
         let total = amount + tax - wht;
         document.getElementById("totalAmountDisplay").innerText =
             total.toLocaleString();
-        document.querySelector("input[name='CustomerPayment.totalAmount']").value = total;
+        document.querySelector("input[name='VendorPayment.totalAmount']").value = total;
     }
 
     document.getElementById("amount").addEventListener("input", calculateTotal);
@@ -152,7 +152,7 @@
 
 
     const paymentMethodSelect = document.querySelector(
-        "select[name='CustomerPayment.PaymentMethodId']"
+        "select[name='VendorPayment.PaymentMethodId']"
     );
     const bankSection = document.getElementById("bankSection");
 

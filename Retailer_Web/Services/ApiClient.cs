@@ -5,6 +5,7 @@ using Retailer.Web;
 using Retailer.Web.ApiDTOs;
 using Retailer.Web.Helpers;
 using Retailer.Web.Models;
+using Retailer.Web.Models.Ledger;
 using System.Net;
 using System.Text.Json;
 using static QRCoder.PayloadGenerator;
@@ -212,6 +213,12 @@ public class ApiClient : IApiClient
     public async Task<bool> CreateCustomerPaymentAsync(CustomerPaymentViewModel customer)
     {
         using var resp = await _http.PostAsJsonAsync("api/CustomerPayment", customer, _jsonOptions);
+        if (resp.StatusCode == HttpStatusCode.Unauthorized) throw new ApiUnauthorizedException();
+        return resp.IsSuccessStatusCode;
+    }  
+    public async Task<bool> CreateVendorPaymentAsync(VendorPaymentViewModel vendor)
+    {
+        using var resp = await _http.PostAsJsonAsync("api/vendorPayment", vendor, _jsonOptions);
         if (resp.StatusCode == HttpStatusCode.Unauthorized) throw new ApiUnauthorizedException();
         return resp.IsSuccessStatusCode;
     }
@@ -455,6 +462,31 @@ public class ApiClient : IApiClient
         if (resp.StatusCode == HttpStatusCode.Unauthorized) throw new ApiUnauthorizedException();
         resp.EnsureSuccessStatusCode();
         return await resp.Content.ReadFromJsonAsync<IEnumerable<CustomerPaymentDto>>(_jsonOptions) ?? Array.Empty<CustomerPaymentDto>();
+    }
+    public async Task<IEnumerable<CustomerLedgerDto>> GetCustomerLedgerAsync(DateTime sdate, DateTime edate, int customerCode)
+    {
+        using var resp = await _http.GetAsync($"api/customerledger/Ledger/{sdate:yyyy-MM-dd}/{edate:yyyy-MM-dd}/{ customerCode}");
+        if (resp.StatusCode == HttpStatusCode.Unauthorized) throw new ApiUnauthorizedException();
+        resp.EnsureSuccessStatusCode();
+        return await resp.Content.ReadFromJsonAsync<IEnumerable<CustomerLedgerDto>>(_jsonOptions) ?? Array.Empty<CustomerLedgerDto>();
+    }
+    public async Task<IEnumerable<VendorPaymentDto>> GetAllVendorPaymentDateWise(DateTime sdate, DateTime edate)
+    {
+        try
+        {
+            
+            using var resp = await _http.GetAsync($"api/vendorpayment/GetAllDateWise/{sdate:yyyy-MM-dd}/{edate:yyyy-MM-dd}");
+            if (resp.StatusCode == HttpStatusCode.Unauthorized) throw new ApiUnauthorizedException();
+
+            string json = await resp.Content.ReadAsStringAsync();
+            resp.EnsureSuccessStatusCode();
+
+            return await resp.Content.ReadFromJsonAsync<IEnumerable<VendorPaymentDto>>(_jsonOptions) ?? Array.Empty<VendorPaymentDto>();
+        }
+        catch (Exception exx)
+        {
+          return  Array.Empty<VendorPaymentDto>();
+        }
     }
     public async Task<IEnumerable<SalesMasterDto>> GetAllSaleDateWise(DateTime sdate, DateTime edate)
     {

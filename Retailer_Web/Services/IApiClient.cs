@@ -4,6 +4,7 @@ using Retailer.POS.Web.Models;
 using Retailer.Web;
 using Retailer.Web.ApiDTOs;
 using Retailer.Web.Models;
+using Retailer.Web.Models.Ledger;
 
 namespace Retailer.POS.Web.Services
 {
@@ -19,6 +20,7 @@ namespace Retailer.POS.Web.Services
         Task DeleteAsync(string url);
         Task<List<ItemDto>> GetItemsAsync();
         Task<List<CitiesDto>> GetCitiesAsync();
+        Task<IEnumerable<CustomerLedgerDto>> GetCustomerLedgerAsync(DateTime sdate, DateTime edate, int customerCode);
         Task<CompanyDto?> GetCompanyAsync();
         Task<CompanyDto?> GetUserCompanyAsync();
         Task<CompanyDto?> GetCompanybyIdAsync(string guid);
@@ -31,8 +33,10 @@ namespace Retailer.POS.Web.Services
         Task<List<EmployeeDto>> GetEmployeesAsync();
         Task<EmployeeDto?> GetEmployeeByIdAsync(int id);
         Task<IEnumerable<CustomerPaymentDto>> GetAllCustomerPaymentDateWise(DateTime sdate, DateTime edate);
+        Task<IEnumerable<VendorPaymentDto>> GetAllVendorPaymentDateWise(DateTime sdate, DateTime edate);
         Task<bool> CreateEmployeeAsync(EmployeeDto employee);
         Task<bool> CreateCustomerPaymentAsync(CustomerPaymentViewModel customer);
+        Task<bool> CreateVendorPaymentAsync(VendorPaymentViewModel customer);
         Task<bool> UpdateEmployeeAsync(EmployeeDto employee);
         Task<List<ProvienceDto>> GetProvienceAsync();
         Task<List<CustomerViewModel>> GetCustomersAsync();
