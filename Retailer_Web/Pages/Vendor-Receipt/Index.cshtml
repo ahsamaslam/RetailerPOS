@@ -1,0 +1,121 @@
+﻿@page
+@model Retailer.Web.Pages.VendorPayment.IndexModel
+ 
+@{
+    ViewData["Title"] = "Vendor Payment";
+    Layout = "_EmptyLayout";
+}
+
+<h2>Vendor Payments</h2>
+
+<div class="row mb-3">
+    <div class="col-md-6">
+        <input id="searchBox" class="form-control" placeholder="Search by name..." />
+    </div>
+    <div class="col-md-6">
+        <a asp-page="Create" class="btn btn-primary mb-2">Create New Payment</a>
+    </div>
+</div>
+
+<main class="app-main">
+
+    <div class="app-content">
+        <!-- Anti-forgery token -->
+        <form id="antiForgeryForm">
+            @Html.AntiForgeryToken()
+        </form>
+
+        <div class="row mb-3">
+            <div class="col-md-3">
+                <label>Start Date</label>
+                <input asp-for="sdate" type="date" class="form-control" id="startDate" />
+            </div>
+            <div class="col-md-3">
+                <label>End Date</label>
+                <input asp-for="edate" type="date" class="form-control" id="endDate" />
+            </div>
+        </div>
+
+        <table id="myTable" class="table mt-2">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Vendor</th>
+                    <th>Payment Method</th>
+                    <th>Amount</th>
+                    <th>Tax</th>
+                    <th>WHT</th>
+                    <th>Total</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var s in Model.PaymentDetail)
+                {
+                    <tr>
+                        <td>@s.PaymentDate.ToShortDateString()</td>
+                        <td>@s.VendorName</td>
+                        <td>@s.PaymentMethodName</td>
+                        <td>@s.Amount</td>
+                        <td>@s.taxAmount</td>
+                        <td>@s.whtAmount</td>
+                        <td>@s.totalAmount</td>
+                        <td>
+                            <a asp-page="Edit" asp-route-id="@s.Id" class="btn btn-sm btn-warning">Edit</a>
+                            <a asp-page="Details" asp-route-id="@s.Id" class="btn btn-sm btn-info">Details</a>
+                            <a href="javascript:void(0);" class="btn btn-sm btn-danger delete-btn" data-id="@s.Id">Delete</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+</main>
+
+@section Scripts {
+    <script>
+        $(function () {
+            // Date filter
+            $('#startDate, #endDate').on('change', function () {
+                const s = $('#startDate').val();
+                const e = $('#endDate').val();
+                if (!s || !e) return;
+
+                const qs = new URLSearchParams({ sdate: s, edate: e }).toString();
+                window.location.href = `${window.location.pathname}?${qs}`;
+            });
+             
+            // Delete button
+       $(document).on('click', '.delete-btn', function () {
+
+                if (!confirm('Are you sure you want to delete this payment?')) return;
+
+                var id = $(this).data('id'); // get the payment id
+                if (!id) return;
+
+                var row = $(this).closest('tr');
+                var token = $('input[name="__RequestVerificationToken"]').val();
+
+                $.ajax({
+                    type: 'POST',
+                    url: '?handler=Delete', // Razor Page handler
+                    data: {
+                        __RequestVerificationToken: token,
+                        id: id
+                    },
+                    success: function (response) {
+                        if (response.success) {
+                            row.fadeOut(300, function () { row.remove(); });
+                        } else {
+                            alert('Failed to delete.');
+                        }
+                    },
+                    error: function () {
+                        alert('Error deleting record.');
+                    }
+                });
+            });
+        });
+    </script>
+}

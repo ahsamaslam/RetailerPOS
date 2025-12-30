@@ -39,7 +39,10 @@ namespace Retailer.POS.Web.Services
         Task<bool> CreateVendorPaymentAsync(VendorPaymentViewModel customer);
         Task<bool> UpdateEmployeeAsync(EmployeeDto employee);
         Task<List<ProvienceDto>> GetProvienceAsync();
+        Task<double> GetCustomersBalanceAsync(DateTime edate, int customerCode);
+        Task<double> GetVendorBalanceAsync(DateTime edate, int customerCode);
         Task<List<CustomerViewModel>> GetCustomersAsync();
+        Task<List<PaymentMethodDto>> GetPaymentMethodAsync();
         Task<List<BanksViewModel>> GetBanksAsync();
         Task<CustomerViewModel?> GetCustomerByIdAsync(int id);
         Task<BanksViewModel?> GetBankByIdAsync(int id);
@@ -55,16 +58,25 @@ namespace Retailer.POS.Web.Services
 
         // Sales
         Task<IEnumerable<SalesMasterDto>> GetAllSaleDateWise(DateTime sdate, DateTime edate);
+        Task<IEnumerable<SalesMasterReturnDto>> GetAllSaleReturnDateWise(DateTime sdate, DateTime edate);
         Task<IEnumerable<SalesMasterDto>> GetSalesAsync();
         Task<SalesMasterDto?> GetSaleByIdAsync(int id);
+        Task<SalesMasterReturnDto?> GetSaleReturnByIdAsync(int id);
         Task<CustomerPaymentViewModel?> GetCustomerpaymentByIdAsync(int id);
+        Task<VendorPaymentViewModel?> GetVendorpaymentByIdAsync(int id);
         Task<PurchaseMasterDto?> GetPurchaseByIdAsync(int id);
         Task<SalesMasterDto?> CreateSaleAsync(SalesMasterDto dto);
+        Task<SalesMasterReturnDto?> CreateSaleAsync(SalesMasterReturnDto dto);
         Task<bool> UpdateSaleAsync(SalesMasterDto dto);
+        Task<bool> UpdateSaleReturnAsync(SalesMasterReturnDto dto);
         Task<bool> UpdateCustomerPaymentAsync(CustomerPaymentDto dto);
+        Task<bool> UpdateVendorPaymentAsync(VendorPaymentDto dto);
         Task<bool> UpdatePurchaseAsync(PurchaseMasterDto dto);
         Task<bool> DeleteSaleAsync(int id);
+        Task<bool> DeleteSaleReturnAsync(int id);
         Task<bool> DeleteCustomerPaymentAsync(int id);
+        Task<bool> DeleteVendorPaymentAsync(int id);
+        Task<bool> DeletePurchaseAsync(int id);
 
         // Category
         Task<List<ItemCategoryViewModel>> GetCategoriesAsync();

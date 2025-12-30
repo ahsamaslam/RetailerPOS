@@ -10,11 +10,11 @@ public class DbInitializer : IDbInitializer
     public static readonly List<(string Name, string Description)> DefaultPermissions = new()
     {
         //("ViewDashboard", "Access to view the dashboard"),
-        ("ManageUsers", "Permission to create, edit, and delete users"),
-        ("ManageRoles", "Permission to create, edit, and delete roles"),
-        ("ViewReports", "Access to view reports"),
-        ("EditSettings", "Permission to modify application settings"),
-        ("AuditLogs", "Access to view audit logs"),
+        ("manageusers", "Permission to create, edit, and delete users"),
+        ("manageroles", "Permission to create, edit, and delete roles"),
+        ("viewreports", "Access to view reports"),
+        ("editsettings", "Permission to modify application settings"),
+        ("auditlogs", "Access to view audit logs"),
     };
 
     // Add Manager role and ensure SuperAdmin/Admin/User/Manager are present
@@ -32,17 +32,22 @@ public class DbInitializer : IDbInitializer
     // Pages for which we'll create View/Add/Edit/Delete permissions
     private static readonly string[] Pages = new[]
     {
-        "Branches",
-        "Categories",
-        "Customers",
-        "Groups",
-        "Items",
-        "ItemType",
-        "OpeningBalances",
-        "Sales",
-        "Purchases",
-        "SubGroups",
-        "Vendors"
+        "branches",
+        "categories",
+        "customers",
+        "groups",
+        "items",
+        "itemtype",
+        "openingbalances",
+        "sales",
+        "purchases",
+        "subGroups",
+        "vendors",
+        "sales-return",
+        "purchases-return",
+        "customer-receipt",
+        "vendor-receipt",
+        "bank-receipt"
     };
 
     // Actions for each page

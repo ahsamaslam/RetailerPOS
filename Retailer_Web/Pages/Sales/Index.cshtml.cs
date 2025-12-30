@@ -121,7 +121,22 @@ namespace Retailer.POS.Web.Pages.Sales
             #endregion
             // Sales = (await _api.GetAllSaleDateWise(sdate,edate)).ToList();
         }
+        public async Task< IActionResult> OnPostCancelSale(int id)
+        {
 
+            var aa = await _api.DeleteSaleAsync(id);
+            //// Find the sale by id
+            //var sale = Sales.FirstOrDefault(s => s.Id == id);
+            //if (sale != null)
+            //{
+            //    // Example: mark as canceled or delete
+            //    sale.Status = "Canceled";
+            //    // Or remove from list: Sales.Remove(sale);
+            //}
+
+            // Refresh the page to show updated data
+            return RedirectToPage();
+        }
 
         public async Task<IActionResult> OnGetPrint(int id)
         {

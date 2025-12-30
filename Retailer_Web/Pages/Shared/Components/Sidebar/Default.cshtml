@@ -1,4 +1,5 @@
 ﻿@using Retailer.Web.ViewComponents
+@using Retailer.Web.ApiDTOs
 @model SidebarViewModel
 @{
     var path = Context.Request.Path;
@@ -15,10 +16,11 @@
         if (string.IsNullOrWhiteSpace(route))
             return false;
 
-        var r = route.TrimEnd('/');
+        var normalized = "/" + route.Trim().Trim('/');
+        var current = string.IsNullOrEmpty(currentPath) ? "/" : currentPath;
 
-        return currentPath.Equals(r, StringComparison.OrdinalIgnoreCase)
-            || currentPath.StartsWith(r + "/", StringComparison.OrdinalIgnoreCase);
+        return current.Equals(normalized, StringComparison.OrdinalIgnoreCase)
+            || current.StartsWith(normalized + "/", StringComparison.OrdinalIgnoreCase);
     }
 
     string ResolveUrl(string? route)
@@ -26,104 +28,132 @@
         if (string.IsNullOrWhiteSpace(route))
             return "#";
 
-        if (route.StartsWith("http", StringComparison.OrdinalIgnoreCase))
-            return route;
+        var trimmed = route.Trim();
 
-        if (route.StartsWith("/"))
-            return route;
+        if (trimmed.StartsWith("http", StringComparison.OrdinalIgnoreCase))
+            return trimmed;
 
-        return Url.Page(route) ?? "#";
+        string? TryResolvePage(string candidate)
+        {
+            if (string.IsNullOrWhiteSpace(candidate))
+                return null;
+
+            var pageUrl = Url.Page(candidate);
+            return string.IsNullOrEmpty(pageUrl) ? null : pageUrl;
+        }
+
+        if (trimmed.StartsWith("/"))
+        {
+            return TryResolvePage(trimmed) ?? trimmed;
+        }
+
+        var normalized = $"/{trimmed.TrimStart('/')}";
+        return TryResolvePage(normalized) ?? normalized;
     }
 }
 <!-- Sidenav -->
-<nav class="sidenav navbar navbar-vertical fixed-left navbar-expand-xs navbar-light bg-white" id="sidenav-main">
-    <div class="scrollbar-inner">
+<nav class="sidebar-panel flex-shrink-0 p-3 bg-white" id="sidenav-main">
+    <a class="d-flex align-items-center pb-3 mb-3 link-dark text-decoration-none border-bottom" href="/">
+        <img src="~/img/brand/blue.png" alt="Brand" class="me-2" style="max-height:32px">
+        <span class="fs-5 fw-semibold">Control Panel</span>
+    </a>
 
-        <!-- Brand -->
-        <div class="sidenav-header  align-items-center">
-            <a class="navbar-brand" href="/Index">
-                <img src="~/img/brand/blue.png" class="navbar-brand-img" alt="..." style="max-height:10rem; margin-top:-50px">
+    <ul class="list-unstyled ps-0" data-sidebar-accordion="true">
+        <li class="mb-1">
+            <a class="btn btn-nav align-items-center rounded @(Context.Request.Path == "/" ? "active" : string.Empty)"
+               href="@ResolveUrl("/")">
+                <i class="ni ni-tv-2 text-yellow me-2"></i>
+                <span>Dashboard</span>
             </a>
-        </div>
-        <div class="navbar-inner">
-            <!-- Collapse -->
-            <div class="collapse navbar-collapse" id="sidenav-collapse-main">
+        </li>
 
-                <!-- Collapse header -->
-                <div class="navbar-collapse-header d-md-none">
-                    <div class="row">
-                        <div class="col-6 collapse-brand">
-                            <a href="/">
-                                <img src="~/img/brand/blue.png">
-                            </a>
-                        </div>
-                        <div class="col-6 collapse-close">
-                            <button type="button" class="navbar-toggler" data-toggle="collapse" data-target="#sidenav-collapse-main" aria-controls="sidenav-main" aria-expanded="false" aria-label="Toggle sidenav">
-                                <span></span>
-                                <span></span>
-                            </button>
-                        </div>
+        @foreach (var menu in Model.Menus
+                            .Where(m => m.IsActive)
+                            .OrderBy(m => m.SortOrder))
+        {
+            var icon = string.IsNullOrWhiteSpace(menu.Icon)
+                ? "fa fa-circle"
+                : menu.Icon;
+
+            var rawSubMenus = menu.SubMenus ?? new List<SubMenuDto>();
+            var subMenus = rawSubMenus
+                .Where(sm => sm.IsActive)
+                .OrderBy(sm => sm.SortOrder)
+                .ToList();
+
+            var hasChildren = subMenus.Any();
+            var defaultRoute = menu?.UrlTitle;
+            var sectionKey = $"menu-section-{menu.Id}";
+            var menuIsActive = hasChildren
+                ? subMenus.Any(sm => IsActive(sm.UrlTitle))
+                : IsActive(defaultRoute);
+
+            if (hasChildren)
+            {
+                <li class="mb-1 sidebar-section @(menuIsActive ? "menu-open" : string.Empty)">
+                    <button type="button"
+                            class="btn btn-toggle align-items-center rounded @(menuIsActive ? string.Empty : "collapsed")"
+                            data-sidebar-section-trigger="@sectionKey"
+                            aria-expanded="@(menuIsActive.ToString().ToLower())">
+                        <i class="nav-icon @icon text-yellow me-2"></i>
+                        <span>@menu.Title</span>
+                    </button>
+                    <div class="collapse @(menuIsActive ? "show" : string.Empty)"
+                         id="@sectionKey"
+                         data-sidebar-section="@sectionKey">
+                        <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
+                            @foreach (var sub in subMenus)
+                            {
+                                <li>
+                                    <a class="link-dark rounded @(IsActive(sub.UrlTitle) ? "active" : string.Empty)"
+                                       href="@ResolveUrl(sub.UrlTitle)">
+                                        @sub.Title
+                                    </a>
+                                </li>
+                            }
+                        </ul>
                     </div>
+                </li>
+            }
+            else
+            {
+                <li class="mb-1">
+                    <a class="btn btn-nav align-items-center rounded @(menuIsActive ? "active" : string.Empty)"
+                       href="@ResolveUrl(defaultRoute)">
+                        <i class="nav-icon @icon text-yellow me-2"></i>
+                        <span>@menu.Title</span>
+                    </a>
+                </li>
+            }
+        }
+
+        @if (Model.Menus.Any() && (Model.User?.IsAdmin == true || Model.User?.IsSuperAdmin == true))
+        {
+            <li class="border-top my-3"></li>
+            <li class="mb-1 sidebar-section @(isAdminSection ? "menu-open" : string.Empty)">
+                <button type="button"
+                        class="btn btn-toggle align-items-center rounded @(isAdminSection ? string.Empty : "collapsed")"
+                        data-sidebar-section-trigger="admin-panel"
+                        aria-expanded="@(isAdminSection.ToString().ToLower())">
+                    <i class="nav-icon fa fa-tools text-yellow me-2"></i>
+                    <span>Admin Panel</span>
+                </button>
+                <div class="collapse @(isAdminSection ? "show" : string.Empty)"
+                     id="admin-panel"
+                     data-sidebar-section="admin-panel">
+                    <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
+                        <li>
+                            <a class="link-dark rounded @(isUsers ? "active" : string.Empty)" href="/admin/user">Users</a>
+                        </li>
+                        <li>
+                            <a class="link-dark rounded @(isRoles ? "active" : string.Empty)" href="/admin/roles">Roles</a>
+                        </li>
+                        <li>
+                            <a class="link-dark rounded @(isPermissions ? "active" : string.Empty)" href="/admin/permissions">Permissions</a>
+                        </li>
+                    </ul>
                 </div>
-
-                <!-- Navigation -->
-                <ul class="navbar-nav">
-                    <li class="nav-item">
-                        <a class="nav-link @(Context.Request.Path == "/" ? "active" : "")" href="@ResolveUrl("/")">
-                            <i class="ni ni-tv-2 text-yellow"></i> Dashboard
-                        </a>
-                    </li>
-                    @foreach (var menu in Model.Menus
-                                        .Where(m => m.IsActive)
-                                        .OrderBy(m => m.SortOrder))
-                    {
-                        var icon = string.IsNullOrWhiteSpace(menu.Icon)
-                        ? "bi bi-circle-fill"
-                        : menu.Icon;
-
-                        var firstRoute = menu.SubMenus?.FirstOrDefault()?.Route;
-
-                        <li class="nav-item">
-                            <a class="nav-link @(IsActive(firstRoute) ? "active" : "")"
-                               href="@ResolveUrl(firstRoute)">
-                                <i class="@icon text-yellow"></i>@menu.Title
-                            </a>
-                        </li>
-                    }
-                    @if (Model.Menus.Count() > 0 && (Model.User?.IsAdmin == true || Model.User?.IsSuperAdmin == true))
-                    {
-                        <li class="nav-item @(isAdminSection ? "menu-open" : "")">
-                            <a href="#"
-                               class="nav-link @(isAdminSection ? "active" : "")"
-                               aria-expanded="@(isAdminSection.ToString().ToLower())">
-                                <i class="nav-icon fa fa-tools text-yellow"></i>
-                                Admin Panel
-                            </a>
-
-                            <ul class="nav nav-treeview">
-                                <li class="nav-item">
-                                    <a href="/admin/user"
-                                       class="nav-link @(isUsers ? "active" : "")">
-                                        <i class="nav-icon fa fa-user text-yellow"></i>Users
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a href="/admin/roles"
-                                       class="nav-link @(isRoles ? "active" : "")">
-                                        <i class="nav-icon fa fa-user-check text-yellow"></i>Roles
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a href="/admin/permissions"
-                                       class="nav-link @(isPermissions ? "active" : "")">
-                                        <i class="nav-icon fa fa-user-alt-slash text-yellow"></i>Permissions
-                                    </a>
-                                </li>
-                            </ul>
-                        </li>
-                    }
-                </ul>
-            </div>
-        </div>
-    </div>
+            </li>
+        }
+    </ul>
 </nav>

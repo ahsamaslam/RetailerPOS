@@ -23,5 +23,6 @@ namespace Retailer.Api.DTOs
         public Guid companyName { get; set; } 
         public int status { get; set; }
         public int userCode { get; set; }= 0;   
+        public string? remarks { get; set; }   
     }
 }

@@ -4,6 +4,7 @@
     {
         public int Id { get; set; }
         public string Title { get; set; } = string.Empty;
+        public string UrlTitle { get; set; } = string.Empty;
         public string? Icon { get; set; }        // optional icon class
         public int SortOrder { get; set; } = 0;
         public bool IsActive { get; set; } = true;

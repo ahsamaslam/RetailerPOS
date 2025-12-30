@@ -4,7 +4,9 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Retailer.Api.DTOs;
 using Retailer.Api.Infrastructure;
+using Retailer.Api.Migrations;
 using Retailer.Api.Services; // optional DTO namespace if you have
+using Retailer.POS.Api.Data;
 using Retailer.POS.Api.DTOs;
 using Retailer.POS.Api.Entities;
 using Retailer.POS.Api.Repositories; // your IUnitOfWork namespace
@@ -19,11 +21,13 @@ namespace Retailer.POS.Api.Controllers
         private readonly IUnitOfWork _uow;
         private readonly IFbrClient _fbrClient;
         private readonly ICompanyService _companyService;
-        public SalesController(IUnitOfWork uow, IFbrClient fbrClient, ICompanyService companyService)
+        private readonly RetailerDbContext _context;
+        public SalesController(IUnitOfWork uow, IFbrClient fbrClient, ICompanyService companyService, RetailerDbContext context)
         {
             _uow = uow;
             _fbrClient = fbrClient;
             _companyService = companyService;
+            _context = context;
         }
         private Guid CompanyId => HttpContext.GetCompanyId();
         private LoginDto CurrentUser => HttpContext.GetUserId();
@@ -36,7 +40,7 @@ namespace Retailer.POS.Api.Controllers
             var list = await _uow.SalesMasters
 
                 .Query()
-                .Where(r => r.CompanyId == CompanyId && r.Date.Date >= sdate.Date.Date && r.Date.Date <= edate.Date)
+                .Where(r => r.CompanyId == CompanyId && r.Date.Date >= sdate.Date.Date && r.Date.Date <= edate.Date && r.Active)
                 //.Include(s => s.Details)
                 .OrderByDescending(s => s.Date)
                 .ToListAsync();
@@ -51,7 +55,7 @@ namespace Retailer.POS.Api.Controllers
             var master = await _uow.SalesMasters
                 .Query()
                 .Include(s => s.Details)
-                .Where(s => s.Id == id)
+                .Where(s => s.Id == id  && s.Active)
                 .Select(s => new SalesMasterDto
                 {
                     Id = s.Id,
@@ -60,6 +64,7 @@ namespace Retailer.POS.Api.Controllers
                     UserName = CurrentUser.UserName,
                     BranchId = s.BranchId,
                     CustomerName = s.CustomerName,
+                    SaleType = s.SaleType,
                     SubTotal = s.SubTotal,
                     TotalDiscount = s.TotalDiscount,
                     TaxAmount = s.TaxAmount,
@@ -105,7 +110,19 @@ namespace Retailer.POS.Api.Controllers
                 }
                 //foreach (var d in model.Details) d.SalesMaster = null;
                 model.CompanyId = CompanyId;
+                model.Active = true;    
+                var customer = await _context.Customers
+             .Where(c => c.Id == model.CustomerCode)
+              
+             .FirstOrDefaultAsync();
+
+                if (customer.Name != null)
+                {
+                    model.CustomerName = customer.Name; // Assuming SaleMaster has CustomerName property
+                }
+
                 model.CreateDate = DateTime.UtcNow;
+                model.totalAmount =  model.BalanceAmount;
                 model.UserId = CurrentUser.Id;
                 await _uow.SalesMasters.AddAsync(model);
                 await _uow.SaveChangesAsync();
@@ -120,7 +137,7 @@ namespace Retailer.POS.Api.Controllers
                         // send invoice to FBR
                         try
                         {
-                            Customer customer = _uow.Customers.Query().Where(r => r.Id == model.CustomerCode).First(); ;
+                          
                             var fbrResult = await _fbrClient.SendInvoiceAsync(company, model, customer);
                             var created = model;
                             if (!fbrResult.Success)
@@ -146,6 +163,8 @@ namespace Retailer.POS.Api.Controllers
                 {
                     //_logger.LogDebug("No companyId claim present; skipping FBR send");
                 }
+            var ledgerService = new CustomerLedgerService(_context);
+                await ledgerService.PostLedgerAsync(model);
                 await _uow.UpdateQtys(itemids, year);
 
                 return Ok(model);
@@ -168,8 +187,18 @@ namespace Retailer.POS.Api.Controllers
                 .FirstOrDefaultAsync(s => s.Id == id);
 
             if (existing == null) return NotFound();
+            var customer = await _context.Customers
+              .Where(c => c.Id == model.CustomerCode)
+              .Select(c => new { c.Name })
+              .FirstOrDefaultAsync();
 
+            if (customer != null)
+            {
+                existing.CustomerName = customer.Name; // Assuming SaleMaster has CustomerName property
+            }
+            existing.totalAmount = model.SubTotal + model.TaxAmount - model.TotalDiscount; ;
             // update scalar properties
+            existing.Active = true;
             existing.Date = model.Date;
             existing.UserId = CurrentUser.Id;
             existing.BranchId = model.BranchId;
@@ -178,8 +207,8 @@ namespace Retailer.POS.Api.Controllers
             existing.TotalDiscount = model.TotalDiscount;
             existing.TaxAmount = model.TaxAmount;
             existing.BalanceAmount = model.BalanceAmount;
-            existing.CustomerCode = model.CustomerCode;
-
+           // existing.CustomerCode = model.CustomerCode;
+            existing.CustomerName = model.CustomerName;
             // --- synchronize details ---
             // remove details not present
             var toRemove = existing.Details.Where(ed => !model.Details.Any(d => d.Id == ed.Id)).ToList();
@@ -198,6 +227,7 @@ namespace Retailer.POS.Api.Controllers
                         existDetail.ItemName = d.ItemName;
                         existDetail.Rate = d.Rate;
                         existDetail.Qty = d.Qty;
+                        existDetail.CompanyId = existing.CompanyId;
                         existDetail.Discount = d.Discount;
                         existDetail.TaxPercentage = d.TaxPercentage;
                         existDetail.TaxAmount = d.TaxAmount;
@@ -226,6 +256,8 @@ namespace Retailer.POS.Api.Controllers
 
             _uow.SalesMasters.Update(existing);
             await _uow.SaveChangesAsync();
+            var ledgerService = new CustomerLedgerService(_context);
+            await ledgerService.UpdateLedgerAsync(existing);
             return NoContent();
         }
 
@@ -235,9 +267,12 @@ namespace Retailer.POS.Api.Controllers
         {
             var existing = await _uow.SalesMasters.GetAsync(b => b.Id == id);
             if (existing == null) return NotFound();
+            existing.Active = false;
+            _uow.SalesMasters.Update(existing);
 
-            _uow.SalesMasters.Remove(existing);
             await _uow.SaveChangesAsync();
+            var ledgerService = new CustomerLedgerService(_context);
+            await ledgerService.ReverseLedgerAsync(existing);
             return NoContent();
         }
     }

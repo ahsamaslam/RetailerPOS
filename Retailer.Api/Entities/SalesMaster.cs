@@ -6,14 +6,18 @@ public class SalesMaster : BaseEntity
     public Guid UserId { get; set; }
     public int BranchId { get; set; }
     public string? CustomerName { get; set; }
+    public string? SaleType { get; set; }
     public string? hsCode { get; set; }
     public decimal SubTotal { get; set; }
     public decimal TotalDiscount { get; set; }
     public decimal TaxAmount { get; set; }
     public decimal BalanceAmount { get; set; }
+    public decimal totalAmount { get; set; }
     public int? CustomerCode { get; set; }
+    public bool Active { get; set; } = true;
     public int Year { get; set; } = 1;
     public int saleCode { get; set; } = 1;
+    public string? remarks { get; set; }
     public ICollection<SalesDetail> Details { get; set; } = new List<SalesDetail>();
 }
 

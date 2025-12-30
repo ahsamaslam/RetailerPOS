@@ -21,5 +21,6 @@ public class AutoMapperProfile : Profile
         CreateMap<PurchaseMaster, PurchaseMasterDto>();
         CreateMap<PurchaseDetail, PurchaseDetailDto>();
         CreateMap<CustomerPayment, CustomerPaymentDto>();
+        CreateMap<VendorPayment, VendorPaymentDto>();
     }
 }

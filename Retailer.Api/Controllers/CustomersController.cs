@@ -1,7 +1,11 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using Retailer.Api.Entities.Ledger;
 using Retailer.Api.Infrastructure;
+using Retailer.Api.Services;
+using Retailer.POS.Api.Data;
 using Retailer.POS.Api.Entities;
 using Retailer.POS.Api.Repositories;
 
@@ -13,7 +17,12 @@ namespace Retailer.Api.Controllers
     public class CustomersController : ControllerBase
     {
         private readonly IUnitOfWork _uow;
-        public CustomersController(IUnitOfWork uow) => _uow = uow;
+        private readonly RetailerDbContext _context;
+        public CustomersController(IUnitOfWork uow, RetailerDbContext context)
+        {
+            _uow = uow;
+            _context = context;
+        }
 
         private Guid CompanyId => HttpContext.GetCompanyId();
 
@@ -35,6 +44,8 @@ namespace Retailer.Api.Controllers
             model.CompanyId = CompanyId;    
             await _uow.Customers.AddAsync(model);
             await _uow.SaveChangesAsync();
+            var ledgerService = new CustomerLedgerService(_context);
+            await ledgerService.PostLedgerAsync(model);
             return CreatedAtAction(nameof(Get), new { id = model.Id }, model);
         }
         [HttpPut("{id:int}")]
@@ -56,8 +67,9 @@ namespace Retailer.Api.Controllers
                  existing.Register =model.Register;
                 _uow.Customers.Update(existing);
                 await _uow.SaveChangesAsync();
-            
-           
+            var ledgerService = new CustomerLedgerService(_context);
+            await ledgerService.UpdateLedgerAsync(model);
+
             return NoContent();
         }
     }

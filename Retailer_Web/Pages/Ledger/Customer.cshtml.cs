@@ -32,14 +32,22 @@ namespace Retailer.Web.Pages.Ledger
 
             return Page();
         }
-        public async Task<IActionResult> OnGetFilteredAsync(DateTime? sdate, DateTime? edate, int status)
-        {
-             var data = await _api.GetCustomerLedgerAsync(sdate??DateTime.Now, edate ?? DateTime.Now, status);
-            ledgers = (List<CustomerLedgerDto>)data;
-            return new JsonResult(data);
-           //     return new JsonResult("");
-        }
+  //      public async Task<IActionResult> OnGetLoadDataAsync(DateTime? sdate, DateTime? edate, int status)
+  //      {
+  //           var data = await _api.GetCustomerLedgerAsync(sdate??DateTime.Now, edate ?? DateTime.Now, status);
+  //          ledgers = (List<CustomerLedgerDto>)data;
+  //          return new JsonResult(data);
+  //         //     return new JsonResult("");
+  //      }
+		//// Rename handler to LoadData
+		public async Task<IActionResult> OnGetLoadDataAsync(
+			int customerCode,
+			DateTime sdate,
+			DateTime edate)
+		{
+			var data = await _api.GetCustomerLedgerAsync( sdate, edate, customerCode);
+			return new JsonResult(data);
+		}
 
-
-    }
+	}
 }

@@ -3,8 +3,7 @@
 namespace Retailer.Api.Entities
 {
     public class CustomerPayment
-    {
-
+    { 
         public int Id { get; set; }
         public int CustomerId { get; set; }
         public DateTime CreatedDate { get; set; } = DateTime.Now;
@@ -12,7 +11,7 @@ namespace Retailer.Api.Entities
         public decimal Amount { get; set; }
         public DateTime PaymentDate { get; set; } 
         public Customer? Customer { get; set; }  
-        public Banks? Banks { get; set; }  
+        public Banks? Bank { get; set; }  
         public int? BankId { get; set; }  
         public PaymentMethod? PaymentMethod { get; set; }  
         public int PaymentMethodId { get; set; }    
@@ -24,5 +23,6 @@ namespace Retailer.Api.Entities
         public Guid companyId { get; set; }
         public int status { get; set; } = 1;
         public int userCode { get; set; }  
+        public string? remarks { get; set; }  
     } 
 }

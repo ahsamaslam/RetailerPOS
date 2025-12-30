@@ -78,7 +78,7 @@
                         <td>
                             <a asp-page="Edit" asp-route-id="@s.Id" class="btn btn-sm btn-warning">Edit</a>
                             <a asp-page="Details" asp-route-id="@s.Id" class="btn btn-sm btn-info">Details</a>
-                            <div class="dropdown">
+                            @* <div class="dropdown">
                                 <button class="btn btn-sm btn-success dropdown-toggle"
                                         type="button"
                                         data-bs-toggle="dropdown">
@@ -94,7 +94,12 @@
                                         </a>
                                     </li>
                                 </ul>
-                            </div>
+                            </div> *@
+                            <form method="post" class="d-inline">
+                                <button type="submit" asp-page-handler="CancelSale" asp-route-id="@s.Id" class="btn btn-sm btn-danger">
+                                    Cancel
+                                </button>
+                            </form>
                         </td>
                     </tr>
 

@@ -7,6 +7,7 @@ using Retailer.Web.Helpers;
 using Retailer.Web.Models;
 using Retailer.Web.Models.Ledger;
 using System.Net;
+using System.Net.Http;
 using System.Text.Json;
 using static QRCoder.PayloadGenerator;
 
@@ -194,7 +195,9 @@ public class ApiClient : IApiClient
         if (resp.StatusCode == HttpStatusCode.Unauthorized) throw new ApiUnauthorizedException();
         return resp.IsSuccessStatusCode;
     }
-
+    // Payment Method 
+    public async Task<List<PaymentMethodDto>> GetPaymentMethodAsync() =>
+       await GetAsync<List<PaymentMethodDto>>("api/paymentMethod") ?? new List<PaymentMethodDto>();
     // Customers
     public async Task<List<CustomerViewModel>> GetCustomersAsync() =>
         await GetAsync<List<CustomerViewModel>>("api/customers") ?? new List<CustomerViewModel>();
@@ -202,6 +205,8 @@ public class ApiClient : IApiClient
     public async Task<List<BanksViewModel>> GetBanksAsync() =>
         await GetAsync<List<BanksViewModel>>("api/banks") ?? new List<BanksViewModel>();
     public async Task<CustomerViewModel?> GetCustomerByIdAsync(int id) => await GetAsync<CustomerViewModel>($"api/customers/{id}");
+    public async Task<double> GetCustomersBalanceAsync(DateTime edate,int id) => await GetAsync<double>($"api/CustomerLedger/{edate.ToString("yyyy-MM-dd")}/{id}");
+    public async Task<double> GetVendorBalanceAsync(DateTime edate,int id) => await GetAsync<double>($"api/VendorLedger/{edate.ToString("yyyy-MM-dd")}/{id}");
     public async Task<BanksViewModel?> GetBankByIdAsync(int id) => await GetAsync<BanksViewModel>($"api/banks/{id}");
 
     public async Task<bool> CreateCustomerAsync(CustomerViewModel customer)
@@ -402,11 +407,32 @@ public class ApiClient : IApiClient
     public async Task<List<PurchaseViewModel>> GetPurchasesAsync() =>
         await GetAsync<List<PurchaseViewModel>>("api/Purchases") ?? new List<PurchaseViewModel>();
 
-    public async Task<PurchaseMasterDto?> GetPurchaseByIdAsync(int id) => await GetAsync<PurchaseMasterDto>($"api/Purchases/{id}");
+    public async Task<PurchaseMasterDto?> GetPurchaseByIdAsync(int id) {
+		try
+		{
+
+			var response = await _http.GetAsync($"api/Purchases/{id}");
+			string va = await response.Content.ReadAsStringAsync();
+			if (!response.IsSuccessStatusCode)
+				return null;
+        
+			return JsonSerializer.Deserialize<PurchaseMasterDto>(
+		  va,
+		  new JsonSerializerOptions { PropertyNameCaseInsensitive = true }
+	  );
+		}
+		catch(Exception ex)
+        {
+			return null;
+		}   
+    
+    }
 
     public async Task<bool> UpdatePurchaseAsync(PurchaseMasterDto dto)
     {
         if (dto == null) return false;
+
+        string json =  JsonSerializer.Serialize(dto);   
         using var resp = await _http.PutAsJsonAsync($"api/Purchases/{dto.Id}", dto, _jsonOptions);
         if (resp.StatusCode == HttpStatusCode.Unauthorized) throw new ApiUnauthorizedException();
         return resp.IsSuccessStatusCode;
@@ -446,6 +472,7 @@ public class ApiClient : IApiClient
         await GetAsync<IEnumerable<SalesMasterDto>>("api/sales") ?? Array.Empty<SalesMasterDto>();
 
     public async Task<SalesMasterDto?> GetSaleByIdAsync(int id) => await GetAsync<SalesMasterDto>($"api/sales/{id}");
+    public async Task<SalesMasterReturnDto?> GetSaleReturnByIdAsync(int id) => await GetAsync<SalesMasterReturnDto>($"api/salesreturn/{id}");
     public async Task<CustomerPaymentDto?> GetcustomerpaymentByIdAsync(int id) => await GetAsync<CustomerPaymentDto>($"api/customerpayment/{id}");
 
     public async Task<SalesMasterDto?> CreateSaleAsync(SalesMasterDto dto)
@@ -455,6 +482,14 @@ public class ApiClient : IApiClient
         if (resp.StatusCode == HttpStatusCode.Unauthorized) throw new ApiUnauthorizedException();
         if (!resp.IsSuccessStatusCode) return null;
         return await resp.Content.ReadFromJsonAsync<SalesMasterDto>(_jsonOptions);
+    }
+    public async Task<SalesMasterReturnDto?> CreateSaleAsync(SalesMasterReturnDto dto)
+    {
+        if (dto == null) return null;
+        using var resp = await _http.PostAsJsonAsync("api/salesreturn", dto, _jsonOptions);
+        if (resp.StatusCode == HttpStatusCode.Unauthorized) throw new ApiUnauthorizedException();
+        if (!resp.IsSuccessStatusCode) return null;
+        return await resp.Content.ReadFromJsonAsync<SalesMasterReturnDto>(_jsonOptions);
     }
     public async Task<IEnumerable<CustomerPaymentDto>> GetAllCustomerPaymentDateWise(DateTime sdate, DateTime edate)
     {
@@ -473,6 +508,7 @@ public class ApiClient : IApiClient
     public async Task<IEnumerable<VendorPaymentDto>> GetAllVendorPaymentDateWise(DateTime sdate, DateTime edate)
     {
         try
+        
         {
             
             using var resp = await _http.GetAsync($"api/vendorpayment/GetAllDateWise/{sdate:yyyy-MM-dd}/{edate:yyyy-MM-dd}");
@@ -495,11 +531,24 @@ public class ApiClient : IApiClient
         resp.EnsureSuccessStatusCode();
         return await resp.Content.ReadFromJsonAsync<IEnumerable<SalesMasterDto>>(_jsonOptions) ?? Array.Empty<SalesMasterDto>();
     }
-
+    public async Task<IEnumerable<SalesMasterReturnDto>> GetAllSaleReturnDateWise(DateTime sdate, DateTime edate)
+    {
+        using var resp = await _http.GetAsync($"api/salesreturn/GetAllDateWise/{sdate:yyyy-MM-dd}/{edate:yyyy-MM-dd}");
+        if (resp.StatusCode == HttpStatusCode.Unauthorized) throw new ApiUnauthorizedException();
+        resp.EnsureSuccessStatusCode();
+        return await resp.Content.ReadFromJsonAsync<IEnumerable<SalesMasterReturnDto>>(_jsonOptions) ?? Array.Empty<SalesMasterReturnDto>();
+    }
     public async Task<bool> UpdateSaleAsync(SalesMasterDto dto)
     {
         if (dto == null) return false;
         using var resp = await _http.PutAsJsonAsync($"api/sales/{dto.Id}", dto, _jsonOptions);
+        if (resp.StatusCode == HttpStatusCode.Unauthorized) throw new ApiUnauthorizedException();
+        return resp.IsSuccessStatusCode;
+    }
+    public async Task<bool> UpdateSaleReturnAsync(SalesMasterReturnDto dto)
+    {
+        if (dto == null) return false;
+        using var resp = await _http.PutAsJsonAsync($"api/salesreturn/{dto.Id}", dto, _jsonOptions);
         if (resp.StatusCode == HttpStatusCode.Unauthorized) throw new ApiUnauthorizedException();
         return resp.IsSuccessStatusCode;
     }
@@ -510,10 +559,24 @@ public class ApiClient : IApiClient
         if (resp.StatusCode == HttpStatusCode.Unauthorized) throw new ApiUnauthorizedException();
         return resp.IsSuccessStatusCode;
     }
+         public async Task<bool> UpdateVendorPaymentAsync(VendorPaymentDto dto)
+    {
+        if (dto == null) return false;
+        using var resp = await _http.PutAsJsonAsync($"api/vendorpayment/{dto.Id}", dto, _jsonOptions);
+        if (resp.StatusCode == HttpStatusCode.Unauthorized) throw new ApiUnauthorizedException();
+        return resp.IsSuccessStatusCode;
+    }
 
     public async Task<bool> DeleteSaleAsync(int id)
     {
         using var resp = await _http.DeleteAsync($"api/sales/{id}");
+        if (resp.StatusCode == HttpStatusCode.Unauthorized) throw new ApiUnauthorizedException();
+        return resp.IsSuccessStatusCode;
+    }
+
+    public async Task<bool> DeleteSaleReturnAsync(int id)
+    {
+        using var resp = await _http.DeleteAsync($"api/salesreturn/{id}");
         if (resp.StatusCode == HttpStatusCode.Unauthorized) throw new ApiUnauthorizedException();
         return resp.IsSuccessStatusCode;
     }
@@ -714,12 +777,55 @@ public class ApiClient : IApiClient
     }
 
     public async Task<CustomerPaymentViewModel?> GetCustomerpaymentByIdAsync(int id) => await GetAsync<CustomerPaymentViewModel>($"api/customerpayment/{id}");
+    public async Task<VendorPaymentViewModel?> GetVendorpaymentByIdAsync(int id) => await GetAsync<VendorPaymentViewModel>($"api/vendorpayment/{id}");
 
     public async Task<bool> DeleteCustomerPaymentAsync(int id)
     {
         try
         {
             using var resp = await _http.DeleteAsync($"api/customerpayment/{id}");
+            if (resp.StatusCode == HttpStatusCode.Unauthorized) throw new ApiUnauthorizedException();
+
+            if (resp.IsSuccessStatusCode) return (true);
+            if (resp.StatusCode == HttpStatusCode.NotFound) return (false);
+            var err = await resp.Content.ReadAsStringAsync();
+            return    (false);
+        }
+        catch (ApiUnauthorizedException) { throw; }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error deleting opening balance {Id}", id);
+            return (false);
+        }
+
+    }
+    
+    public async Task<bool> DeleteVendorPaymentAsync(int id)
+    {
+        try
+        {
+            using var resp = await _http.DeleteAsync($"api/vendorpayment/{id}");
+            if (resp.StatusCode == HttpStatusCode.Unauthorized) throw new ApiUnauthorizedException();
+
+            if (resp.IsSuccessStatusCode) return (true);
+            if (resp.StatusCode == HttpStatusCode.NotFound) return (false);
+            var err = await resp.Content.ReadAsStringAsync();
+            return    (false);
+        }
+        catch (ApiUnauthorizedException) { throw; }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error deleting opening balance {Id}", id);
+            return (false);
+        }
+
+    }
+    
+    public async Task<bool> DeletePurchaseAsync(int id)
+    {
+        try
+        {
+            using var resp = await _http.DeleteAsync($"api/purchases/{id}");
             if (resp.StatusCode == HttpStatusCode.Unauthorized) throw new ApiUnauthorizedException();
 
             if (resp.IsSuccessStatusCode) return (true);

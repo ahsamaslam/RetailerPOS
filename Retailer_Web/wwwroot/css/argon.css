@@ -29838,3 +29838,7 @@ input.datetimepicker[data-color='yellow'] + .bootstrap-datetimepicker-widget.dro
 {
     background: transparent;
 }
+/* site.css (after Bootstrap) */
+.navbar-toggler.always-visible {
+    display: inline-flex !important;
+}

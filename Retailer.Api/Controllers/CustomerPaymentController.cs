@@ -1,126 +1,126 @@
-﻿@page
-@model Retailer.Web.Pages.CustomerPayment.IndexModel
-@{
-    ViewData["Title"] = "Customer Payment";
-Layout = "_EmptyLayout";
-}
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using Retailer.Api.DTOs;
+using Retailer.Api.Entities;
+using Retailer.Api.Infrastructure;
+using Retailer.Api.Services;
+using Retailer.POS.Api.Data;
+using Retailer.POS.Api.Entities;
+using Retailer.POS.Api.Repositories;
 
-< h2 > Customer Payments </ h2 >
-
-< div class= "row mb-3" >
-    < div class= "col-md-6" >
-        < input id = "searchBox" class= "form-control" placeholder = "Search by name..." />
-    </ div >
-    < div class= "col-md-6" >
-        < a asp - page = "Create" class= "btn btn-primary mb-2" > Create New Payment</a>
-    </div>
-</div>
-
-<main class= "app-main" >
-
-    < div class= "app-content" >
-        < !--Anti - forgery token-- >
-        < form id = "antiForgeryForm" >
-            @Html.AntiForgeryToken()
-        </ form >
-
-        < div class= "row mb-3" >
-            < div class= "col-md-3" >
-                < label > Start Date </ label >
-                < input asp -for= "sdate" type = "date" class= "form-control" id = "startDate" />
-            </ div >
-            < div class= "col-md-3" >
-                < label > End Date </ label >
-                < input asp -for= "edate" type = "date" class= "form-control" id = "endDate" />
-            </ div >
-        </ div >
-
-        < table id = "myTable" class= "table mt-2" >
-            < thead >
-                < tr >
-                    < th > Date </ th >
-                    < th > Customer </ th >
-                    < th > Payment Method </ th >
-                    < th > Amount </ th >
-                    < th > Tax </ th >
-                    < th > WHT </ th >
-                    < th > Total </ th >
-                    < th > Actions </ th >
-                </ tr >
-            </ thead >
-            < tbody >
-                @foreach(var s in Model.PaymentDetail)
-                {
-                    < tr >
-                        < td > @s.PaymentDate.ToShortDateString() </ td >
-                        < td > @s.CustomerName </ td >
-                        < td > @s.PaymentMethodName </ td >
-                        < td > @s.Amount </ td >
-                        < td > @s.taxAmount </ td >
-                        < td > @s.whtAmount </ td >
-                        < td > @s.totalAmount </ td >
-                        < td >
-                            < a asp - page = "Edit" asp - route - id = "@s.Id" class= "btn btn-sm btn-warning" > Edit </ a >
-                            < a asp - page = "Details" asp - route - id = "@s.Id" class= "btn btn-sm btn-info" > Details </ a >
-                            < a href = "javascript:void(0);" class= "btn btn-sm btn-danger delete-btn" data - id = "@s.Id" > Delete </ a >
-                        </ td >
-                    </ tr >
-                }
-            </ tbody >
-        </ table >
-    </ div >
-
-</ main >
-
-@section Scripts {
-<script>
-    $(function () {
-        // Date filter
-        $('#startDate, #endDate').on('change', function () {
-            const s = $('#startDate').val();
-const e = $('#endDate').val();
-if (!s || !e) return;
-
-const qs = new URLSearchParams({ sdate: s, edate: e }).toString();
-window.location.href = `${ window.location.pathname}?${qs}`;
-        });
-
-        // Initialize DataTable
-        $('#myTable').DataTable();
-
-        // Delete button
-        $('.delete-btn').click(function() {
-    if (!confirm('Are you sure you want to delete this payment?')) return;
-
-    var id = $(this).data('id'); // get the payment id
-    if (!id) return;
-
-    var row = $(this).closest('tr');
-    var token = $('input[name="__RequestVerificationToken"]').val();
-
-            $.ajax({
-        type: 'POST',
-                url: '?handler=Delete', // Razor Page handler
-                data:
+namespace Retailer.Api.Controllers
+{
+    [ApiController]
+    [Route("api/[controller]")]
+    //[Authorize]
+    public class CustomerPaymentController : ControllerBase
+    {
+        private readonly IUnitOfWork _uow;
+        private readonly RetailerDbContext _context;
+        public CustomerPaymentController(IUnitOfWork uow, RetailerDbContext context)
         {
-            __RequestVerificationToken: token,
-                    id: id
-                },
-                success: function(response) {
-            if (response.success)
-            {
-                row.fadeOut(300, function() { row.remove(); });
-            }
-            else
-            {
-                alert('Failed to delete.');
-            }
-        },
-                error: function() {
-            alert('Error deleting record.');
+            _uow = uow; 
+            _context = context;
         }
-    });
-});
-    });
-</ script >
+        
+
+        private Guid CompanyId => HttpContext.GetCompanyId();
+
+        [HttpGet]
+        public async Task<IActionResult> GetAll(Guid companyID) =>
+            Ok(await _uow.CustomerPayment.GetAllAsync(b => b.companyId == companyID));
+
+        [HttpGet("{id}")]
+        public async Task<IActionResult> Get(int id)
+        {
+            var c = await _uow.CustomerPayment.GetAsync(b => b.Id == id );
+            if (c == null) return NotFound();
+            return Ok(c);
+        }
+        [HttpGet("GetAllDateWise/{sdate}/{edate}")]
+        public async Task<IActionResult> Get(DateTime sdate , DateTime edate)
+        {
+            try
+            {
+                var c = await _uow.CustomerPayment.Query()
+                    .Include(b => b.Customer)
+                    .Include(b => b.PaymentMethod)
+                    .Include(b => b.Bank)
+                    .Where(b => b.PaymentDate >= sdate && b.PaymentDate <= edate && b.companyId == CompanyId  && b.status==1).ToListAsync();
+                if (c == null) return NotFound();
+                return Ok(c);
+            }
+            catch (Exception exx)
+            { return BadRequest(exx.Message); }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Create([FromBody] CustomerPayment model)
+        {
+            try
+            {
+                model.status = 1;   
+                model.companyId = CompanyId;
+                await _uow.CustomerPayment.AddAsync(model);
+                await _uow.SaveChangesAsync();
+                var ledgerService = new CustomerLedgerService(_context);
+                await ledgerService.PostLedgerAsync(model);
+                return CreatedAtAction(nameof(Get), new { id = model.Id }, model);
+            }
+            catch (Exception ex)
+            { 
+            return BadRequest(ex.Message);  
+            }
+        }
+        [HttpPut("{id:int}")]
+        public async Task<IActionResult> Update(int Id, [FromBody] CustomerPayment model)
+        {  
+            var existing = await _uow.CustomerPayment.GetAsync(p => p.Id == model.Id);
+            if (existing == null)
+                return NotFound();
+
+            existing.CustomerId = model.CustomerId;
+            existing.Type = model.Type;
+            existing.Amount = model.Amount;
+            existing.PaymentDate = model.PaymentDate;
+            existing.PaymentMethodId = model.PaymentMethodId;
+            existing.status = 1;
+            existing.BankId = model.BankId;
+            existing.bankName = model.bankName;
+
+            existing.taxPercent = model.taxPercent;
+            existing.taxAmount = model.taxAmount;
+
+            existing.whtPercent = model.whtPercent;
+            existing.whtAmount = model.whtAmount;
+              
+
+            _uow.CustomerPayment.Update(existing);
+            await _uow.SaveChangesAsync();
+            var ledgerService = new CustomerLedgerService(_context);
+            await ledgerService.UpdateLedgerAsync(model);
+
+
+            return NoContent();
+        }
+        [HttpDelete("{id:int}")]
+        public async Task<IActionResult> SoftDelete(int id)
+        {
+            var existing = await _uow.CustomerPayment.GetAsync(p => p.Id == id);
+            if (existing == null)
+                return NotFound();
+
+            // ✅ Mark as deleted
+            existing.status = 0;
+
+            _uow.CustomerPayment.Update(existing);
+            await _uow.SaveChangesAsync();
+            var ledgerService = new CustomerLedgerService(_context);
+            await ledgerService.ReverseLedgerAsync(existing);
+            return NoContent();
+        }
+
+    }
 }

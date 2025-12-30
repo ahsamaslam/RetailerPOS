@@ -1,23 +1,18 @@
 <!-- Topnav -->
-<nav class="navbar navbar-top navbar-dark bg-default border-bottom">
-    <div class="container-fluid">
-
-        <!-- Always-visible toggler button -->
-        <button class="navbar-toggler" type="button"
-                data-bs-toggle="collapse"
-                data-bs-target="#mainnav"
-                aria-controls="mainnav"
-                aria-expanded="false"
-                aria-label="Toggle navigation">
+<nav class="navbar navbar-top navbar-expand navbar-light bg-white border-bottom" id="topbar-main">
+    <div class="container-fluid d-flex align-items-center justify-content-between">
+        <button class="navbar-toggler always-visible" type="button"
+                data-sidebar-toggle
+                data-target="#sidenav-main"
+                aria-controls="sidenav-main"
+                aria-expanded="true"
+                aria-label="Toggle sidebar">
             <span class="navbar-toggler-icon"></span>
         </button>
 
-        <div class="collapse navbar-collapse justify-content-end" id="navbarSupportedContent">
-            <div class="d-flex align-items-center gap-3 flex-wrap">
-                <partial name="~/Pages/Shared/Components/TopBar/_Search.cshtml" />
-                <partial name="~/Pages/Shared/Components/TopBar/_CurrentUser.cshtml" />
-            </div>
+        <div class="d-flex align-items-center gap-3 flex-wrap">
+            <partial name="~/Pages/Shared/Components/TopBar/_Search.cshtml" />
+            <partial name="~/Pages/Shared/Components/TopBar/_CurrentUser.cshtml" />
         </div>
-
     </div>
 </nav>

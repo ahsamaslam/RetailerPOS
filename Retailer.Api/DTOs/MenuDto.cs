@@ -4,9 +4,11 @@
     {
         public int Id { get; set; }
         public string Title { get; set; } = string.Empty;
+        public string UrlTitle { get; set; } = string.Empty;    
         public string? Icon { get; set; }
         public int SortOrder { get; set; }
         public bool IsActive { get; set; }
+        public List<string>? PermissionNames { get; set; }   // optionally populated
         public List<SubMenuDto> SubMenus { get; set; } = new();
     }
 }
