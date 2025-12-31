@@ -14,12 +14,26 @@ namespace Retailer.Api.Services
         {
             _context = context;
         }
-
-        public async Task PostLedgerAsync(object entity) 
+		public async Task<List<VendorLedger>> GetVendorLedgerAsync(
+	int vendorId,
+	DateTime sdate,
+	DateTime edate)
+		{
+			return await _context.VendorLedger
+				.Where(x =>
+					x.VendorId == vendorId &&
+					x.Date.Date >= sdate.Date &&
+					x.Date.Date <= edate.Date)
+				.OrderBy(x => x.Date)
+				.ThenBy(x => x.Id)
+				.ToListAsync();
+		}
+		public async Task PostLedgerAsync(object entity) 
         {
             int entityId;
             DateTime date;
-            decimal debit = 0, credit = 0;
+			TimeSpan currentTime = DateTime.Now.TimeOfDay;
+			decimal debit = 0, credit = 0;
             int referenceId;
             Guid companyId;
             string Type = ""; 
@@ -29,8 +43,8 @@ namespace Retailer.Api.Services
             {
                 case Vendor Vendor:
                     entityId = Vendor.Id  ;
-                    decimal openbal = (decimal)Vendor.openingBalance;
-                    date = Vendor.openDate??DateTime.Now;
+                    decimal openbal = (decimal)Vendor.openingBalance;  
+					date = (DateTime)(Vendor.openDate + currentTime); 
                     credit = openbal > 0? openbal:0;   // purchase increases Vendor balance
                     debit = openbal < 0 ? openbal*-1 : 0;   //
                     referenceId = Vendor.Id;
@@ -40,7 +54,8 @@ namespace Retailer.Api.Services
                     break;
                 case PurchaseMaster purchase:
                     entityId = purchase.VendorID;
-                    date = purchase.Date;
+				 
+					date = purchase.Date + currentTime; ;
                     credit = purchase.Total;   // purchase increases Vendor balance
                     debit = 0;
                     referenceId = purchase.Id;
@@ -193,7 +208,7 @@ namespace Retailer.Api.Services
           //  await _context.SaveChangesAsync();
         }
 
-        public async Task ReverseVendorLedgerEntryAsync(string referenceType, int referenceId, string cancelReason)
+        public async Task ReverseVendorLedgerEntryAsync(string referenceType, int referenceId, string cancelReason, int entityid)
         {
             using var transaction = await _context.Database.BeginTransactionAsync();
 
@@ -201,13 +216,21 @@ namespace Retailer.Api.Services
             {
                 // 1️⃣ Find the original ledger entry
                 var orig = await _context.VendorLedger
-                    .FirstOrDefaultAsync(x => x.ReferenceType == referenceType && x.ReferenceId == referenceId);
+                    .FirstOrDefaultAsync(x => x.ReferenceType == referenceType && x.ReferenceId == referenceId  && x.VendorId== entityid);
 
                 if (orig == null)
                     throw new InvalidOperationException("Original ledger entry not found.");
+				string cancelRefType = referenceType + "Cancel";
 
-                // 2️⃣ Prepare reversal amounts
-                decimal debit = orig.Credit;  // reversed
+				// 1️⃣ Check if reversal already exists
+				bool reversalExists = await _context.VendorLedger.AnyAsync(x =>
+					x.ReferenceType == cancelRefType &&
+					x.VendorId == entityid &&
+					x.ReferenceId == referenceId);
+
+			 
+				// 2️⃣ Prepare reversal amounts
+				decimal debit = orig.Credit;  // reversed
                 decimal credit = orig.Debit;  // reversed
 
                 // 3️⃣ Get last balance before reversal
@@ -230,8 +253,8 @@ namespace Retailer.Api.Services
                     Balance = lastBalance + debit - credit,
                     remarks = cancelReason
                 };
-
-                _context.VendorLedger.Add(reversal);
+				if (!reversalExists)
+					_context.VendorLedger.Add(reversal);
                 await _context.SaveChangesAsync();
 
                 // 5️⃣ Recalculate subsequent balances
@@ -249,29 +272,34 @@ namespace Retailer.Api.Services
         {
             try {
                 int referenceId = 0;
+                int entityId = 0;
 
                 switch (entity)
                 {
                     case Vendor Vendor:
                         referenceId = Vendor.Id;
+						entityId = Vendor.Id;
                         break;
                     case PurchaseMaster purchase:
                         referenceId = purchase.Id;
+                        entityId = purchase.VendorID;
                         break;
                     case PurchaseReturnMaster purchase:
                         referenceId = purchase.Id;
-                        break;
+						entityId = purchase.VendorID;
+						break;
                     case VendorPayment payment:
                         referenceId = payment.Id;
+                        entityId = payment.VendorId;
                         break;
                 }
                         string ReferenceType = entity.GetType().Name;
                 var ledgerEntry = await _context.VendorLedger
-                    .FirstOrDefaultAsync(x => x.ReferenceType == ReferenceType && x.ReferenceId == referenceId);
+                    .FirstOrDefaultAsync(x => x.ReferenceType == ReferenceType && x.ReferenceId == referenceId  && x.VendorId==entityId  );
 
                 if (ledgerEntry == null)
                     throw new InvalidOperationException("Ledger entry not found");
-await ReverseVendorLedgerEntryAsync(ReferenceType,referenceId, "Reversal Requested");   
+await ReverseVendorLedgerEntryAsync(ReferenceType,referenceId, "Reversal Requested", entityId);   
             }
             catch (Exception ex)
             {
@@ -296,6 +324,7 @@ await ReverseVendorLedgerEntryAsync(ReferenceType,referenceId, "Reversal Request
             { 
                 decimal diff = 0;
                 int referenceId= 0;
+                int entityId= 0;
                 decimal updatedDebit= 0;
                 decimal updatedCredit = 0;
                 string ReferenceType = entity.GetType().Name;
@@ -305,21 +334,26 @@ await ReverseVendorLedgerEntryAsync(ReferenceType,referenceId, "Reversal Request
                 {
                     case Vendor Vendor:
                         referenceId = Vendor.Id;
+                        entityId = Vendor.Id;
                         decimal openbal = (decimal)Vendor.openingBalance;
 						updatedCredit  = openbal > 0 ? openbal : 0;   // purchase increases Vendor balance
 						updatedDebit = openbal < 0 ? openbal * -1 : 0;   //
                         break;
                     case PurchaseMaster purchase:  
                         referenceId = purchase.Id;
+						entityId = purchase.VendorID;
 						updatedCredit = purchase.Total;   // purchase increases Vendor balance    
                         break;
                     case PurchaseReturnMaster purchase:  
                         referenceId = purchase.Id;
+                        entityId = purchase.VendorID;
 						updatedDebit = purchase.Total;   // purchase increases Vendor balance    
                         break;
                     case VendorPayment payment: 
                         referenceId = payment.Id;
-                        var totalAmount = payment.Amount + payment.whtAmount + payment.taxAmount;
+                        entityId = payment.VendorId;
+
+						var totalAmount = payment.Amount + payment.whtAmount + payment.taxAmount;
                         updatedDebit = totalAmount;
                         updatedCredit = 0;
                         break;
@@ -327,7 +361,7 @@ await ReverseVendorLedgerEntryAsync(ReferenceType,referenceId, "Reversal Request
                    
                 }
 				var ledgerEntry = await _context.VendorLedger
-				  .FirstOrDefaultAsync(x => x.ReferenceType == ReferenceType && x.ReferenceId == referenceId);
+				  .FirstOrDefaultAsync(x => x.ReferenceType == ReferenceType && x.ReferenceId == referenceId  && x.VendorId== entityId);
 				if (ledgerEntry == null)
 					throw new InvalidOperationException("Ledger entry not found");
 

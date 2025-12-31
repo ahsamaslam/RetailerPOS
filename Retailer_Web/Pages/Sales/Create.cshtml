@@ -377,10 +377,23 @@
 			});
 			detailsTbody.addEventListener('input', function (e) {
 				const row = e.target.closest('tr');
-				if (row) {
-					calculateRowAmount(row);
-					updateTotal();
-				}
+				 if (row) {
+        // Check if qty input changed
+        if (e.target.classList.contains('qty-input')) {
+            const selectedOption = row.querySelector('select.item-select')?.selectedOptions[0];
+            if (selectedOption) {
+                const maxQty = parseFloat(selectedOption.getAttribute('data-qty')) || 0;
+                let enteredQty = parseFloat(e.target.value) || 0;
+                if (enteredQty > maxQty) {
+                    alert(`Quantity cannot exceed available stock (${maxQty}).`);
+                    e.target.value = maxQty;
+                }
+            }
+        }
+
+        calculateRowAmount(row);
+        updateTotal();
+    }
 			});
 			function updateTotal() {
 				const rows = detailsTbody.querySelectorAll('tr[data-index]');

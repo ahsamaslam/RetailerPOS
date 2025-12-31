@@ -2,6 +2,50 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <style>
+        #spinner {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5); /* lighter overlay */
+    backdrop-filter: blur(3px); /* subtle blur */
+    z-index: 9999;
+    
+    /* Flexbox centering */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: opacity 0.3s ease;
+  }
+
+  #spinner.show {
+    display: flex;
+    opacity: 1;
+  }
+
+  #spinner .spinner-box {
+    background-color: rgba(255, 255, 255, 0.9); /* white box behind spinner */
+    padding: 20px 30px;
+    border-radius: 12px;
+    box-shadow: 0 0 15px rgba(0,0,0,0.3);
+    text-align: center;
+  }
+
+  #spinner img {
+    width: 80px;
+    height: 80px;
+  }
+
+  #spinner .loading-text {
+    margin-top: 10px;
+    font-weight: 600;
+    color: #333;
+    font-size: 1.2rem;
+  }
+  </style>
     <partial name="_PageHeadElement" />
 
     @RenderSection("Styles", required: false)

@@ -54,6 +54,7 @@
                     <thead>
                         <tr>
                             <th>Date</th>
+                            <th>Inv #</th>
                             <th>Ref</th>
                             <th>Remarks</th>
                             <th>Debit</th>
@@ -112,6 +113,7 @@
             tbody.innerHTML += `
                 <tr>
                     <td>${new Date(r.date).toLocaleDateString()}</td>
+                      <td>  <a href="#">${r.referenceId}</a></td>
                     <td>${r.referenceType}</td>
                     <td>${r.remarks ?? ''}</td>
                     <td>${r.debit}</td>

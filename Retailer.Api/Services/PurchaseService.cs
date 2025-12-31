@@ -14,12 +14,15 @@ public class PurchaseService : IPurchaseService
     private readonly IUnitOfWork _uow;
     private readonly IMapper _mapper;
     private readonly RetailerDbContext _context;
-
-    public PurchaseService(IUnitOfWork uow, IMapper mapper, RetailerDbContext context)
+	private readonly VendorLedgerService _vendorservice;
+	private readonly ItemLedgerService _itemservice;
+	public PurchaseService(IUnitOfWork uow, IMapper mapper, RetailerDbContext context)
     {
         _uow = uow;
         _mapper = mapper;
         _context = context;    
+        _vendorservice = new VendorLedgerService(_context);
+        _itemservice = new ItemLedgerService(_context);
     }
 
     public async Task<PurchaseMasterDto> CreatePurchaseAsync(CreatePurchaseDto dto, Guid CompanyId,Guid UserId)
@@ -34,14 +37,12 @@ public class PurchaseService : IPurchaseService
             pm.UserId = UserId;
             pm.UserName = dto.UserName ?? "";
             await _uow.PurchaseMasters.AddAsync(pm);
-            await _uow.SaveChangesAsync();
-            var ledgerService = new VendorLedgerService(_context);
-            await ledgerService.PostLedgerAsync(pm);
-            var itemService = new ItemLedgerService(_context);
+            await _uow.SaveChangesAsync(); 
+            await _vendorservice.PostLedgerAsync(pm); 
             foreach (var d in pm.Details)
             {
 
-                await itemService.PostLedgerAsync(d);
+                await _itemservice.PostLedgerAsync(d);
             }       
           
           

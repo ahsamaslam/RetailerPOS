@@ -27,22 +27,21 @@ namespace Retailer.Api.Controllers
         
 
         private Guid CompanyId => HttpContext.GetCompanyId();
+		 
+		[HttpGet("Ledger/{sdate}/{edate}/{vendorid}")]
+		public async Task<IActionResult> Get(DateTime sdate, DateTime edate, int vendorid)
+		{
+			try
+			{
+				var ledgerService = new VendorLedgerService(_context);
+				var balance = await ledgerService.GetVendorLedgerAsync(vendorid, sdate, edate);
+				return Ok(balance);
+			}
+			catch (Exception exx)
+			{ return BadRequest(exx.Message); }
+		}
 
-       
-        [HttpGet("{edate}/{id}")]
-        public async Task<IActionResult> Get( DateTime edate, int id)
-        {
-            try
-            {
-                var ledgerService = new VendorLedgerService(_context);
-            var balance=    await ledgerService.GetVendorClosingBalanceAsync(edate, id);
-                return Ok(balance);
-            }
-            catch (Exception exx)
-            { return BadRequest(exx.Message); }
-        }
 
-         
 
-    }
+	}
 }

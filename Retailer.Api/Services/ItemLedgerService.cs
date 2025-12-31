@@ -107,11 +107,11 @@ namespace Retailer.Api.Services
 
             _context.ItemLedger.Add(ledgerEntry);
             await _context.SaveChangesAsync();
+			await UpdateItemQtyInHandAsync(entityId);
 
-        
 
 
-            }
+		}
         private (string referenceType, int referenceId, int itemId, DateTime date, decimal debit, decimal credit, Guid companyId) GetLedgerInfo(object entity)
         {
             int itemId;
@@ -192,10 +192,11 @@ namespace Retailer.Api.Services
 
             await subsequentLedgers.ForEachAsync(x => x.Balance += balanceDiff);
 
-          //  await _context.SaveChangesAsync();
-        }
+			//  await _context.SaveChangesAsync();
+			await UpdateItemQtyInHandAsync(itemId);
+		}
 
-        public async Task ReverseItemLedgerEntryAsync(string referenceType, int referenceId, string cancelReason)
+        public async Task ReverseItemLedgerEntryAsync(string referenceType, int referenceId, string cancelReason  , int entityID)
         {
             using var transaction = await _context.Database.BeginTransactionAsync();
 
@@ -203,13 +204,20 @@ namespace Retailer.Api.Services
             {
                 // 1️⃣ Find the original ledger entry
                 var orig = await _context.ItemLedger
-                    .FirstOrDefaultAsync(x => x.ReferenceType == referenceType && x.ReferenceId == referenceId);
+                    .FirstOrDefaultAsync(x => x.ReferenceType == referenceType && x.ReferenceId == referenceId  && x.ItemId== entityID);
 
                 if (orig == null)
                     throw new InvalidOperationException("Original ledger entry not found.");
+				string cancelRefType = referenceType + "Cancel";
 
-                // 2️⃣ Prepare reversal amounts
-                decimal debit = orig.Credit;  // reversed
+				// 1️⃣ Check if reversal already exists
+				bool reversalExists = await _context.ItemLedger.AnyAsync(x =>
+					x.ReferenceType == cancelRefType &&
+					x.ItemId == entityID &&
+					x.ReferenceId == referenceId);
+                 
+				// 2️⃣ Prepare reversal amounts
+				decimal debit = orig.Credit;  // reversed
                 decimal credit = orig.Debit;  // reversed
 
                 // 3️⃣ Get last balance before reversal
@@ -232,8 +240,8 @@ namespace Retailer.Api.Services
                     Balance = lastBalance + debit - credit,
                     remarks = cancelReason
                 };
-
-                _context.ItemLedger.Add(reversal);
+				if (!reversalExists)
+					_context.ItemLedger.Add(reversal);
                 await _context.SaveChangesAsync();
 
                 // 5️⃣ Recalculate subsequent balances
@@ -251,29 +259,31 @@ namespace Retailer.Api.Services
         {
             try {
                 int referenceId = 0;
+                int entityid = 0;
 
                 switch (entity)
                 {
-                    case Customer customer:
-                        referenceId = customer.Id;
+                    case PurchaseDetail purchase:
+                        referenceId = purchase.PurchaseId;
+						entityid = purchase.ItemId;
                         break;
-                    case SalesMaster sale:
-                        referenceId = sale.Id;
+                    case SalesDetail sale:
+                        referenceId = sale.SalesMasterId;
+						entityid = sale.ItemCode;
+						break;
+                    case SalesReturnDetail sale:
+                        referenceId = sale.SalesReturnMasterId;
+						entityid = sale.ItemCode;
                         break;
-                    case SalesReturnMaster sale:
-                        referenceId = sale.Id;
-                        break;
-                    case CustomerPayment payment:
-                        referenceId = payment.Id;
-                        break;
+                 
                 }
                         string ReferenceType = entity.GetType().Name;
                 var ledgerEntry = await _context.ItemLedger
-                    .FirstOrDefaultAsync(x => x.ReferenceType == ReferenceType && x.ReferenceId == referenceId);
+                    .FirstOrDefaultAsync(x => x.ReferenceType == ReferenceType && x.ReferenceId == referenceId    && x.ItemId== entityid);
 
                 if (ledgerEntry == null)
                     throw new InvalidOperationException("Ledger entry not found");
-await ReverseItemLedgerEntryAsync(ReferenceType,referenceId, "Reversal Requested");   
+await ReverseItemLedgerEntryAsync(ReferenceType,referenceId, "Reversal Requested",entityid);   
             }
             catch (Exception ex)
             {
@@ -281,7 +291,24 @@ await ReverseItemLedgerEntryAsync(ReferenceType,referenceId, "Reversal Requested
                 throw;
             }
         }
-        public async Task<decimal> GetCustomerClosingBalanceAsync(DateTime edate,  int itemId)
+		public async Task UpdateItemQtyInHandAsync(int itemId)
+		{
+			// Get the latest balance from the ledger
+			var latestBalance = await _context.ItemLedger
+				.Where(x => x.ItemId == itemId)
+				.OrderByDescending(x => x.Id)
+				.Select(x => x.Balance)
+				.FirstOrDefaultAsync();
+
+			var item = await _context.Items.FindAsync(itemId);
+			if (item != null)
+			{
+				item.QtyInHand = latestBalance;
+				_context.Items.Update(item);
+				await _context.SaveChangesAsync();
+			}
+		}
+		public async Task<decimal> GetCustomerClosingBalanceAsync(DateTime edate,  int itemId)
         {
             // Get the last ledger entry for the customer
             var lastEntry = await _context.ItemLedger
@@ -298,25 +325,23 @@ await ReverseItemLedgerEntryAsync(ReferenceType,referenceId, "Reversal Requested
             { 
                 decimal diff = 0;
                 int referenceId= 0;
+                int entityId= 0;
                 decimal updatedDebit= 0;
                 decimal updatedCredit = 0;
                 string ReferenceType = entity.GetType().Name;
-                var ledgerEntry = await _context.ItemLedger
-                    .FirstOrDefaultAsync(x => x.ReferenceType == ReferenceType && x.ReferenceId == referenceId);
-
-                if (ledgerEntry == null)
-                    throw new InvalidOperationException("Ledger entry not found");
+            
                 switch (entity)
                 {
-                    case Customer customer:
-                        referenceId = customer.Id;
-                        decimal openbal = (decimal)customer.openingBalance;
-                        updatedDebit = openbal > 0 ? openbal : 0;   // Sale increases customer balance
-                        updatedCredit = openbal < 0 ? openbal * -1 : 0;   //
+                    case SalesDetail sale:
+                        referenceId = sale.SalesMaster.Id;
+						entityId = sale.ItemCode; 
+                        updatedDebit = 0;   // Sale increases customer balance
+                        updatedCredit = sale.Qty;   //
                         break;
-                    case SalesMaster sale:  
-                        referenceId = sale.Id;  
-                        updatedDebit = sale.totalAmount;   // Sale increases customer balance    
+                    case PurchaseDetail purchase:
+						entityId = purchase.ItemId;  
+                           referenceId = purchase.Purchase.Id;
+                        updatedDebit = purchase.Purchase.Details.Where(r=>r.ItemId== entityId).Sum(x=>x.Qty);   // Sale increases customer balance    
                         break;
                     case SalesReturnMaster sale:  
                         referenceId = sale.Id;  
@@ -332,8 +357,12 @@ await ReverseItemLedgerEntryAsync(ReferenceType,referenceId, "Reversal Requested
                    
                 }
 
+				var ledgerEntry = await _context.ItemLedger
+				.FirstOrDefaultAsync(x => x.ReferenceType == ReferenceType && x.ReferenceId == referenceId  && x.ItemId== entityId);
 
-                var oldDebit = ledgerEntry.Debit;
+				if (ledgerEntry == null)
+					throw new InvalidOperationException("Ledger entry not found");
+				var oldDebit = ledgerEntry.Debit;
                 var oldCredit = ledgerEntry.Credit;
                 var newDebit = updatedDebit;
                 var newCredit = updatedCredit;
@@ -355,8 +384,8 @@ await ReverseItemLedgerEntryAsync(ReferenceType,referenceId, "Reversal Requested
 
                 await _context.SaveChangesAsync();
 
-
-                await transaction.CommitAsync();
+				await UpdateItemQtyInHandAsync(entityId);
+				await transaction.CommitAsync();
             }
             catch(Exception ex)
             {

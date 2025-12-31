@@ -7,6 +7,7 @@ public class CreatePurchaseDto
     public DateTime Date { get; set; }
     public DateTime CreateDate { get; set; } = DateTime.UtcNow;
     public int VendorID { get; set; }
+    public int PurchaseType { get; set; }
     public string? VendorName { get; set; }
     public decimal SubTotal { get; set; }
     public decimal Discount { get; set; }

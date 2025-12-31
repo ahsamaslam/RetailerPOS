@@ -164,8 +164,15 @@ namespace Retailer.POS.Api.Controllers
                     //_logger.LogDebug("No companyId claim present; skipping FBR send");
                 }
             var ledgerService = new CustomerLedgerService(_context);
+            var itemService = new ItemLedgerService(_context);
+                model.CompanyId = CompanyId;
                 await ledgerService.PostLedgerAsync(model);
-                await _uow.UpdateQtys(itemids, year);
+                foreach (var item in model.Details)
+                {
+                 await   itemService.PostLedgerAsync(item);
+
+				}
+                // await _uow.UpdateQtys(itemids, year);
 
                 return Ok(model);
             }
@@ -253,7 +260,14 @@ namespace Retailer.POS.Api.Controllers
                     await _uow.SalesDetails.AddAsync(newDetail);
                 }
             }
+			var itemService = new ItemLedgerService(_context);
+			foreach (var i in existing.Details) 
+            {
+			 
+					await itemService.PostLedgerAsync(i);
+                 
 
+			}
             _uow.SalesMasters.Update(existing);
             await _uow.SaveChangesAsync();
             var ledgerService = new CustomerLedgerService(_context);

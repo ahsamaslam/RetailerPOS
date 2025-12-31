@@ -37,9 +37,11 @@
     <div class="app-content">
 
 
-        <div id="spinner" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background-color:rgba(255,255,255,0.7);z-index:9999; text-align:center;">
+        <div id="spinner" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background-color:rgba(0,0,0,0.7);z-index:9999; text-align:center;">
             <div style="position:absolute;top:50%;left:50%;transform:translate(-50%, -50%);">
                 <div class="spinner-border text-primary" role="status">
+                       <!-- Replace spinner with GIF image -->
+        <img src="~/img/Spinner.gif" alt="Loading..." width="100" />
                     <span class="visually-hidden">Loading...</span>
                 </div>
             </div>
@@ -98,6 +100,13 @@
 @section Scripts {
     <script>
         $(function () {
+             function showSpinner() {
+            $('#spinner').fadeIn(200);
+        }
+
+        function hideSpinner() {
+            $('#spinner').fadeOut(200);
+        }
             // When either date changes, navigate to the same page with query params
             $('#startDate, #endDate').on('change', function () {
                 const s = $('#startDate').val();
@@ -105,7 +114,7 @@
 
                 // If you want to require both dates set before fetching:
                 if (!s || !e) return;
-
+                    showSpinner();
                 // Build query string and reload page
                 const qs = new URLSearchParams({
                     sdate: s,
@@ -125,7 +134,7 @@
 
                 var row = $(this).closest('tr');
                 var token = $('input[name="__RequestVerificationToken"]').val();
-
+                    showSpinner();
                 $.ajax({
                     type: 'POST',
                     url: '?handler=Delete', // Razor Page handler
@@ -135,9 +144,11 @@
                     },
                     success: function (response) {
                         if (response.success) {
+                                showSpinner();
                             row.fadeOut(300, function () { row.remove(); });
                         } else {
                             alert('Failed to delete.');
+                             hideSpinner();
                         }
                     },
                     error: function () {

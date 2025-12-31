@@ -63,35 +63,7 @@
 							</div>
 						</div>
 					</div>
-					<table class="table table-sm right-table">
-
-						<tbody>
-
-
-							@* 	<tr class="d-flex align-items-center justify-content-between">
-							<th class="border-0 ">
-							<div class="d-flex align-items-center font-size-h5 mb-0 font-size-bold text-dark">
-							DISCOUNT(65%)
-
-
-							</div>
-							</th>
-							<td class="border-0 justify-content-end d-flex text-dark font-size-base">10%</td>
-
-							</tr>
-							<tr class="d-flex align-items-center justify-content-between">
-							<th class="border-0 font-size-h5 mb-0 font-size-bold text-dark">
-							Tax
-							</th>
-							<td class="border-0 justify-content-end d-flex text-dark font-size-base">$9</td>
-
-							</tr>
-							*@
-
-
-
-						</tbody>
-					</table>
+				 
 				</div>
 				<div class="col-md-4 mb-2">
 					<table class="table table-sm right-table">
@@ -196,7 +168,7 @@
 								</td>
 								<td>
 
-									<select name="Purchase.Details[__index__].ItemCode" asp-items="Model.ItemsList" class="form-control">
+									<select name="Purchase.Details[__index__].ItemId" asp-items="Model.ItemsList" class="form-control">
 										<option value="">-- Select Item --</option>
 									</select>
 								</td>
@@ -237,121 +209,131 @@
 			const detailsTbody = document.querySelector('#detailsTable tbody');
 			const templateRow = document.getElementById('templateRow');
 			const templateInnerHtml = templateRow.innerHTML;
+function reindexRows() {
+    const rows = detailsTbody.querySelectorAll('tr[data-index]');
+    rows.forEach((row, idx) => {
+        row.setAttribute('data-index', idx);
 
-			function reindexRows() {
-				const rows = detailsTbody.querySelectorAll('tr');
-				rows.forEach((row, idx) => {
-					row.setAttribute('data-index', idx);
-					row.querySelectorAll('input, select, textarea').forEach(inp => {
-						const nameAttr = inp.getAttribute('name');
-						if (nameAttr) {
-							const newName = nameAttr.replace(/Purchase\.Details\[\d+\]/, `Purchase.Details[${idx}]`);
-							inp.setAttribute('name', newName);
-						}
-						if (inp.id) {
-							inp.id = inp.id.replace(/_Details_\d+_/, `_Details_${idx}_`);
-						}
-					});
-				});
-			}
+        // Update Sr No
+        const srLabel = row.querySelector('.sr-no-label');
+        if (srLabel) srLabel.textContent = idx + 1;
 
-			document.getElementById('addRow').addEventListener('click', function () {
+        row.querySelectorAll('input, select, textarea').forEach(inp => {
+            const nameAttr = inp.getAttribute('name');
+            if (nameAttr) {
+                inp.setAttribute(
+                    'name',
+                    nameAttr.replace(/Purchase\.Details\[\d+\]/, `Purchase.Details[${idx}]`)
+                );
+            }
 
-				const index = detailsTbody.children.length;
-				const tr = document.createElement('tr');
-				tr.setAttribute('data-index', index);
-				tr.innerHTML = templateInnerHtml.replace(/__index__/g, index);
-				detailsTbody.appendChild(tr);
-				const itemSelect = tr.querySelector('select');
-				if (itemSelect) {
-					itemSelect.focus();
-				}
-			});
-			document.querySelector('#detailsTable').addEventListener('change', function (e) {
-				if (e.target && e.target.classList.contains('item-select')) {
-					var selectedOption = e.target.selectedOptions[0];
-					var rate = selectedOption.getAttribute('data-rate') || 0;
-					console.log(rate);
-					// Find the row and corresponding Rate input
-					var row = e.target.closest('tr');
-					var rateInput = row.querySelector('input[name*=".Rate"]');
-					if (rateInput) {
-						rateInput.value = parseFloat(rate).toFixed(2);
-					}
+            if (inp.id) {
+                inp.id = inp.id.replace(/_Details_\d+_/, `_Details_${idx}_`);
+            }
+        });
+    });
+}
+document.getElementById('addRow').addEventListener('click', function () {
 
-					// Optionally, trigger recalculation for subTotal/Amount
-					// calculateRowAmount(row);
-				}
-			});
+    const index = detailsTbody.querySelectorAll('tr[data-index]').length;
+
+    const tr = document.createElement('tr');
+    tr.setAttribute('data-index', index);
+    tr.innerHTML = templateInnerHtml.replace(/__index__/g, index);
+
+    detailsTbody.appendChild(tr);
+
+    reindexRows();
+    updateTotal();
+
+    const itemSelect = tr.querySelector('select');
+    itemSelect?.focus();
+});
+		   document.querySelector('#detailsTable').addEventListener('change', function (e) {
+			   if (e.target && e.target.classList.contains('item-select')) {
+				   var selectedOption = e.target.selectedOptions[0];
+				   var rate = selectedOption.getAttribute('data-rate') || 0;
+				   console.log(rate);
+				   // Find the row and corresponding Rate input
+				   var row = e.target.closest('tr');
+				   var rateInput = row.querySelector('input[name*=".Rate"]');
+				   if (rateInput) {
+					   rateInput.value = parseFloat(rate).toFixed(2);
+				   }
+
+				   // Optionally, trigger recalculation for subTotal/Amount
+				   // calculateRowAmount(row);
+			   }
+		   });
 			document.addEventListener('click', function (e) {
 				if (e.target && e.target.classList.contains('remove-row')) {
 					const row = e.target.closest('tr');
-					const elements = row.querySelectorAll('[data-index]');
-					console.log(elements);
+				   const elements = row.querySelectorAll('[data-index]');
+				   console.log(elements);
 					if (row) row.remove();
 					reindexRows();
 					updateTotal();
 				}
 			});
-			detailsTbody.addEventListener('input', function (e) {
-				const row = e.target.closest('tr');
-				if (row) {
-					calculateRowAmount(row);
-					updateTotal();
-				}
-			});
-			function updateTotal() {
-				const rows = detailsTbody.querySelectorAll('tr[data-index]');
-				let total = 0;
-				let subtotal = 0;
-				let totalTax = 0;
-				let totalQty = 0;
-				rows.forEach(row => {
-					//console.log(row);
-					const rowAmounts = calculateRowAmount(row);
-					total += rowAmounts.total;
-					subtotal += rowAmounts.amount;
-					totalTax += rowAmounts.taxAmount;
-					totalQty += rowAmounts.qty;
-				});
+		   detailsTbody.addEventListener('input', function (e) {
+			   const row = e.target.closest('tr');
+			   if (row) {
+				   calculateRowAmount(row);
+				   updateTotal();
+			   }
+		   });
+		   function updateTotal() {
+			   const rows = detailsTbody.querySelectorAll('tr[data-index]');
+			   let total = 0;
+			   let subtotal = 0;
+			   let totalTax = 0;
+			   let totalQty = 0;
+			   rows.forEach(row => {
+				   //console.log(row);
+				   const rowAmounts = calculateRowAmount(row);
+				   total += rowAmounts.total;
+				   subtotal += rowAmounts.amount;
+				   totalTax += rowAmounts.taxAmount;
+				   totalQty += rowAmounts.qty;
+			   });
 
-				const totalQtyCell = document.querySelector('.total-qty td');
-				if (totalQtyCell) totalQtyCell.textContent = `${Number(totalQty).toLocaleString()}`;
-				const totaltaxCell = document.querySelector('.total-tax td h4');
-				if (totaltaxCell) totaltaxCell.textContent = `${Number(totalTax).toLocaleString()}`;
-				const subtotalCell = document.querySelector('.sub-total td h4');
-				if (subtotalCell) subtotalCell.textContent = `${Number(subtotal).toLocaleString()}`;
-				// Update total in the summary table
-				const totalCell = document.querySelector('.total-amount td h2');
-				if (totalCell) totalCell.textContent = `${Number(total).toLocaleString()}`;
-			}
-			function calculateRowAmount(row) {
-				const rate = parseFloat(row.querySelector('input[name$=".Rate"]').value) || 0;
-				const qty = parseFloat(row.querySelector('input[name$=".Qty"]').value) || 0;
-				const discount = parseFloat(row.querySelector('input[name$=".Discount"]').value) || 0;
-				const tax = parseFloat(row.querySelector('input[name$=".TaxPercentage"]').value) || 0;
+			   const totalQtyCell = document.querySelector('.total-qty td');
+			   if (totalQtyCell) totalQtyCell.textContent = `${Number(totalQty).toLocaleString()}`;
+			   const totaltaxCell = document.querySelector('.total-tax td h4');
+			   if (totaltaxCell) totaltaxCell.textContent = `${Number(totalTax).toLocaleString()}`;
+			   const subtotalCell = document.querySelector('.sub-total td h4');
+			   if (subtotalCell) subtotalCell.textContent = `${Number(subtotal).toLocaleString()}`;
+			   // Update total in the summary table
+			   const totalCell = document.querySelector('.total-amount td h2');
+			   if (totalCell) totalCell.textContent = `${Number(total).toLocaleString()}`;
+		   }
+		   function calculateRowAmount(row) {
+			   const rate = parseFloat(row.querySelector('input[name$=".Rate"]').value) || 0;
+			   const qty = parseFloat(row.querySelector('input[name$=".Qty"]').value) || 0;
+			   const discount = parseFloat(row.querySelector('input[name$=".Discount"]').value) || 0;
+			   const tax = parseFloat(row.querySelector('input[name$=".TaxPercentage"]').value) || 0;
 
-				// Amount calculation: (Rate * Qty) - Discount + Tax%
-				let amount = (rate * qty);
-				const taxAmount = (amount * tax / 100);
-				let total = amount - discount;
+			   // Amount calculation: (Rate * Qty) - Discount + Tax%
+			   let amount = (rate * qty);
+			   const taxAmount = (amount * tax / 100);
+			   let total = amount - discount;
 
-				total += taxAmount;
-				console.log(amount);
+			   total += taxAmount;
+			   console.log(amount);
 
-				const subTotal = row.querySelector('input[name$=".subTotal"]');
-				subTotal.value = amount.toFixed(2);
-				const taxAmountInput = row.querySelector('input[name$=".TaxAmount"]');
-				taxAmountInput.value = taxAmount.toFixed(2);
-				const amountInput = row.querySelector('input[name$=".Amount"]');
-				amountInput.value = total.toFixed(2);
-				return {
-					amount,
-					taxAmount,
-					total,
-					qty
-				};
-			}
+			   const subTotal = row.querySelector('input[name$=".subTotal"]');
+			   subTotal.value = amount.toFixed(2);
+			   const taxAmountInput = row.querySelector('input[name$=".TaxAmount"]');
+			   taxAmountInput.value = taxAmount.toFixed(2);
+			   const amountInput = row.querySelector('input[name$=".Amount"]');
+			   amountInput.value = total.toFixed(2);
+			   return {
+				   amount,
+				   taxAmount,
+				   total,
+				   qty
+			   };
+		   }
 			const form = document.getElementById('PurchaseForm');
 			form?.addEventListener('submit', function () {
 				reindexRows();
@@ -361,4 +343,3 @@
 		})();
 	</script>
 }
-

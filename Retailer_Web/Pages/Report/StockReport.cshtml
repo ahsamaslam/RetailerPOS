@@ -2,56 +2,17 @@
 @model Retailer.Web.Pages.Report.StockReportModel
 @{
 }
-<main class="app-main">
-    <!--begin::App Content Header-->
-    <div class="app-content-header">
-        <!--begin::Container-->
-        <div class="container-fluid">
-            <!--begin::Row-->
-            <div class="row">
-                <div class="col-sm-10">
-                    <h3 class="mb-0">Stock Report</h3>
-                    
-                </div>
-                <div class="col-sm-2">
-                    <div class="btn-group">
-                        <button type="button"
-                                class="btn btn-primary dropdown-toggle"
-                                data-bs-toggle="dropdown"
-                                aria-expanded="false">
-                            Export
-                        </button>
-                        <ul class="dropdown-menu">
-                            <li><a class="dropdown-item" href="#">PDF</a></li>
-                            <li>
-                                <a class="dropdown-item" href="#">Excel</a>
-                            </li>
-                            <li>
-                                <a class="dropdown-item" href="#">Word</a>
-                            </li>
-                            
-                        </ul>
-                    </div>
-                </div>
-            </div>
-            <!--end::Row-->
-        </div>
-        <!--end::Container-->
+
+<!--begin::Row-->
+<div class="row mt-2">
+    <div class="col-sm-12">
+        <h3 class="mb-0">Stock Report</h3> 
     </div>
-    <div class="app-content">
-        <div class="row">
-            <!--begin::Quick Example-->
-            <div class="card card-primary card-outline mb-4">
-                <!--begin::Header-->
-                <div class="card-header">
-                    <div class="card-title">Filter</div>
-                </div>
-                <!--end::Header-->
-                <!--begin::Form-->
-              
-                    <!--begin::Body-->
-                    <div class="card-body">
-                        <div class="row">
+</div>
+
+<!--end::Row--> 
+<div class="row mb-3">
+      <div class="row">
                     <div class="col-md-6">
                         <label>Category</label>
                         <select id="categorySelect" asp-for="Input.CategoryId" asp-items="Model.Categories" class="form-control"></select>
@@ -62,20 +23,18 @@
                         <select id="groupSelect" asp-for="Input.GroupId" asp-items="Model.Groups" class="form-control"></select>
                     </div>
                     </div>
-                    </div>
-                    <!--end::Body-->
-                    <!--begin::Footer-->
-                    <div class="card-footer">
-                      
-                    </div>
-                    <!--end::Footer-->
+
+</div>
+
+
+<main class="app-main"> 
+    <div class="app-content container-fluid">
             
-                <!--end::Form-->
-            </div>
-            <!--end::Quick Example-->
-        </div>
-        <div class="row">
-            <table class="table" id="itemsTable">
+         
+
+        <div class="row mt-2">
+            <div class="col-12"> 
+           <table class="table table-striped mt-2"  id="itemsTable">
                 <thead style="position: sticky;top: 0" class="thead-dark">
                     <tr>
                         <th class="header" scope="col">#</th>
@@ -88,9 +47,9 @@
                 <tbody id="itemsTbody">
                     </tbody>
             </table>  
-          
-       
+
         </div>
+        </div> 
         </div>
         </main>
 @section Scripts {

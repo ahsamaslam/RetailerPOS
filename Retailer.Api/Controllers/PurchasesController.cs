@@ -18,7 +18,12 @@ namespace Retailer.Api.Controllers
     {
         private readonly IPurchaseService _svc;
         private readonly RetailerDbContext _context;
-        public PurchasesController(IPurchaseService svc, RetailerDbContext context) { _svc = svc; _context = context; }
+        private readonly VendorLedgerService _vendorservice;
+        private readonly ItemLedgerService _itemservice;
+        public PurchasesController(IPurchaseService svc, RetailerDbContext context) { _svc = svc; _context = context;
+			_vendorservice = new VendorLedgerService(context);
+			_itemservice = new ItemLedgerService(context); 
+		}
         private Guid CompanyId => HttpContext.GetCompanyId();
         private LoginDto CurrentUser => HttpContext.GetUserId();
 
@@ -134,12 +139,18 @@ namespace Retailer.Api.Controllers
 							TaxAmount = d.TaxAmount
 						});
 					}
+					
 				}
-
+				
 				await _context.SaveChangesAsync();
 
-				var ledgerService = new VendorLedgerService(_context);
-				await ledgerService.UpdateLedgerAsync(existing);
+				foreach (var i in existing.Details)
+				{
+
+					await _itemservice.UpdateLedgerAsync(i);
+				}
+				await _vendorservice.UpdateLedgerAsync(existing);
+			
 			}
 			catch (Exception exx)
 			{
@@ -153,14 +164,19 @@ namespace Retailer.Api.Controllers
 		[HttpDelete("{id:int}")]
         public async Task<IActionResult> Delete(int id)
         {
-            var existing = await _context.PurchaseMasters.FirstOrDefaultAsync(b => b.Id == id);
+            var existing = await _context.PurchaseMasters.Include(x=>x.Details).FirstOrDefaultAsync(b => b.Id == id);
             if (existing == null) return NotFound();
             existing.Active = 0;
             _context.PurchaseMasters.Update(existing);
+			foreach (var i in existing.Details)
+			{
 
-            await _context.SaveChangesAsync();
-            var ledgerService = new VendorLedgerService(_context);
-            await ledgerService.ReverseLedgerAsync(existing);
+				await _itemservice.ReverseLedgerAsync(i);
+			}
+			await _context.SaveChangesAsync(); 
+            await _vendorservice.ReverseLedgerAsync(existing);
+			
+			 
             return NoContent();
         }
     }

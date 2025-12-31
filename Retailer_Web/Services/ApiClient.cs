@@ -505,7 +505,14 @@ public class ApiClient : IApiClient
         resp.EnsureSuccessStatusCode();
         return await resp.Content.ReadFromJsonAsync<IEnumerable<CustomerLedgerDto>>(_jsonOptions) ?? Array.Empty<CustomerLedgerDto>();
     }
-    public async Task<IEnumerable<VendorPaymentDto>> GetAllVendorPaymentDateWise(DateTime sdate, DateTime edate)
+	public async Task<IEnumerable<VendorLedgerDto>> GetVendorLedgerAsync(DateTime sdate, DateTime edate, int vendorCode)
+	{
+		using var resp = await _http.GetAsync($"api/vendorledger/Ledger/{sdate:yyyy-MM-dd}/{edate:yyyy-MM-dd}/{vendorCode}");
+		if (resp.StatusCode == HttpStatusCode.Unauthorized) throw new ApiUnauthorizedException();
+		resp.EnsureSuccessStatusCode();
+		return await resp.Content.ReadFromJsonAsync<IEnumerable<VendorLedgerDto>>(_jsonOptions) ?? Array.Empty<VendorLedgerDto>();
+	}
+	public async Task<IEnumerable<VendorPaymentDto>> GetAllVendorPaymentDateWise(DateTime sdate, DateTime edate)
     {
         try
         

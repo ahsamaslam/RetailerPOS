@@ -23,8 +23,10 @@ public class IndexModel : BasePageModel
     public async Task<IActionResult> OnPostDeleteAsync(int id)
 	{
 		var payment = await _api.DeletePurchaseAsync(id);
+
 		if (!payment)
-			return NotFound();
-		return Page();
+			return new JsonResult(new { success = false });
+
+		return new JsonResult(new { success = true });
 	}
 	}

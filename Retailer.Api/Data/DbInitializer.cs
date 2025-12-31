@@ -39,6 +39,9 @@ namespace Retailer.Api.Data
                 new SubMenuDto() { UrlTitle="Ledger/Customer", Title="Customer Ledger" }, 
                 new SubMenuDto() { UrlTitle="Ledger/Vendor", Title="Vendor Ledger" }, 
             }},
+				 new MenuDto() { UrlTitle="#",Title="Report", Icon="fa fa-receipt",SubMenus = new List<SubMenuDto>(){
+				new SubMenuDto() { UrlTitle="Report/StockReport", Title="Stock Report Ledger" }, 
+			}},
 
             //new MenuDto() { UrlTitle="categories",Title="Categories", Icon="fa fa-list" },
             //new MenuDto() { UrlTitle="groups", Title = "Groups", Icon="fa fa-layer-group" },
