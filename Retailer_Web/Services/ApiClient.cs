@@ -136,30 +136,43 @@ public class ApiClient : IApiClient
     }
 
     // Companies
-    public async Task<CompanyDto?> GetCompanyAsync() => await GetAsync<CompanyDto>("api/Companies");
-
-    public async Task<CompanyDto?> GetUserCompanyAsync() => await GetAuthAsync<CompanyDto>("api/Companies/User");
-
-    public async Task<CompanyDto?> GetCompanybyIdAsync(string guid) => await GetAsync<CompanyDto>($"api/Companies/{guid}");
-
-    public async Task<(bool Success, string Message)> UpdateCompanyAsync(CompanyViewModel dto)
+     public async Task<IEnumerable<CompanyDto>> GetCompanyAsync() => await GetAuthAsync<IEnumerable<CompanyDto>>("api/Companies");
+ 
+     public async Task<CompanyDto?> GetUserCompanyAsync() => await GetAuthAsync<CompanyDto>("api/Companies/User");
+ 
+    public async Task<CompanyDto?> GetCompanyByIdAsync(Guid id)
     {
-        try
-        {
-            using var r = await _http.PutAsJsonAsync($"api/Companies/{dto.Id}", dto, _jsonOptions);
-            if (r.StatusCode == HttpStatusCode.Unauthorized) throw new ApiUnauthorizedException();
+        using var resp = await AuthClient.GetAsync($"api/Companies/{id}");
+        if (resp.StatusCode == HttpStatusCode.Unauthorized) throw new ApiUnauthorizedException();
+        if (resp.StatusCode == HttpStatusCode.NotFound) return null;
+        resp.EnsureSuccessStatusCode();
+        return await resp.Content.ReadFromJsonAsync<CompanyDto>(_jsonOptions);
+    }
 
-            if (r.IsSuccessStatusCode) return (true, "Company Updated successfully");
+    public async Task<(bool Success, string Message)> CreateCompanyAsync(CompanyDto dto)
+    {
+        if (dto == null) return (false, "Company information is required.");
 
-            var message = await ReadErrorMessageAsync(r);
-            return (false, message);
-        }
-        catch (ApiUnauthorizedException) { throw; }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error updating company");
-            return (false, "Unknown error");
-        }
+        using var resp = await AuthClient.PostAsJsonAsync("api/Companies", dto, _jsonOptions);
+        if (resp.StatusCode == HttpStatusCode.Unauthorized) throw new ApiUnauthorizedException();
+
+        if (resp.IsSuccessStatusCode) return (true, "Company created successfully");
+
+        var message = await ReadErrorMessageAsync(resp);
+        return (false, message);
+    }
+
+    public async Task<(bool Success, string Message)> UpdateCompanyAsync(Guid id, CompanyDto dto)
+    {
+        if (dto == null) return (false, "Company information is required.");
+
+        using var resp = await AuthClient.PutAsJsonAsync($"api/Companies/{id}", dto, _jsonOptions);
+        if (resp.StatusCode == HttpStatusCode.Unauthorized) throw new ApiUnauthorizedException();
+
+        if (resp.IsSuccessStatusCode) return (true, "Company updated successfully");
+
+        var message = await ReadErrorMessageAsync(resp);
+        return (false, message);
     }
 
     // Authentication
@@ -853,5 +866,4 @@ public class ApiClient : IApiClient
     //public async Task<PurchaseMasterDto?> GetPurchaseByIdAsync(int id) => await GetAsync<PurchaseMasterDto>($"api/Purchases/{id}");
 
     // Password & user-related
-
 }

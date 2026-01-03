@@ -5,6 +5,7 @@ using Retailer.Web;
 using Retailer.Web.ApiDTOs;
 using Retailer.Web.Models;
 using Retailer.Web.Models.Ledger;
+using System;
 
 namespace Retailer.POS.Web.Services
 {
@@ -22,9 +23,11 @@ namespace Retailer.POS.Web.Services
         Task<List<CitiesDto>> GetCitiesAsync();
         Task<IEnumerable<CustomerLedgerDto>> GetCustomerLedgerAsync(DateTime sdate, DateTime edate, int customerCode);
         Task<IEnumerable<VendorLedgerDto>> GetVendorLedgerAsync(DateTime sdate, DateTime edate, int customerCode);
-        Task<CompanyDto?> GetCompanyAsync();
+        Task<IEnumerable<CompanyDto>> GetCompanyAsync();
         Task<CompanyDto?> GetUserCompanyAsync();
-        Task<CompanyDto?> GetCompanybyIdAsync(string guid);
+        Task<CompanyDto?> GetCompanyByIdAsync(Guid id);
+        Task<(bool Success, string Message)> CreateCompanyAsync(CompanyDto dto);
+        Task<(bool Success, string Message)> UpdateCompanyAsync(Guid id, CompanyDto dto);
         Task<List<ItemDto>> GetStockItemsAsync(int categoryId = 0, int groupId = 0);
         Task<ItemDto?> GetItemAsync(int id);
         Task<(bool Success, string Message)> CreateItemAsync(CreateItemDto dto);

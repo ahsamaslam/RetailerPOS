@@ -4,119 +4,231 @@
     ViewData["Title"] = "Switch Company";
 }
 
+@section Styles {
+    <style>
+        .sa-hero {
+            background: linear-gradient(135deg, #0f172a, #2563eb);
+            border-radius: 1.25rem;
+            color: #fff;
+        }
+        .sa-hero h1 {
+            font-weight: 600;
+            letter-spacing: -0.02em;
+        }
+        .sa-hero .hero-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.45rem;
+            padding: 0.35rem 0.85rem;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.15);
+            font-size: 0.9rem;
+        }
+        .company-picker-card {
+            border-radius: 1rem;
+            border: 1px solid #e2e8f0;
+        }
+        .company-picker-card .form-control-lg {
+            border-radius: 0.85rem;
+            padding-block: 0.95rem;
+        }
+        .company-search-results {
+            position: absolute;
+            left: 0;
+            right: 0;
+            top: calc(100% + 0.35rem);
+            z-index: 1050;
+            max-height: 260px;
+            overflow-y: auto;
+            border-radius: 0.85rem;
+        }
+        .company-grid .card {
+            border-radius: 1rem;
+            border: 1px solid #e2e8f0;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .company-grid .card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 18px 30px rgba(15, 23, 42, 0.08);
+        }
+        .company-meta {
+            font-size: 0.88rem;
+            color: #475569;
+        }
+        .empty-state {
+            border-radius: 1rem;
+            border: 1px dashed #cbd5f5;
+            background: #f8fafc;
+        }
+        .directory-panel {
+            border-radius: 1rem;
+            border: 1px solid #e2e8f0;
+        }
+        .company-card {
+            border-radius: 1rem;
+            border: 1px solid #e2e8f0;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .company-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 18px 30px rgba(15, 23, 42, 0.08);
+        }
+        .company-card__icon {
+            font-size: 1.5rem;
+            color: #2563eb;
+        }
+    </style>
+}
+
 <div class="container-fluid py-4">
-    <div class="row g-4">
-        <div class="col-12">
-            <div class="alert @(Model.HasCompanyContext ? "alert-info" : "alert-warning") shadow-sm mb-0">
-                <div class="d-flex flex-column flex-lg-row justify-content-between gap-3">
-                    <div>
-                        <div class="fw-semibold">Current company</div>
-                        <div>@(Model.CurrentCompanyName ?? "Not selected")</div>
-                    </div>
-                    <div class="text-muted small">
-                        Selecting a company locks menus and data to that tenant.
-                    </div>
+    <div class="sa-hero p-4 p-lg-5 mb-4 shadow-sm">
+        <div class="row g-4 align-items-center">
+            <div class="col-lg-7">
+                <div class="hero-chip mb-3">
+                    <i class="bi bi-lightning-charge"></i>
+                    Super admin workspace
                 </div>
+                <h1 class="mb-2">Manage tenant access with confidence</h1>
+                <p class="mb-0 text-white-75">
+                    Switching companies instantly scopes menus, ledgers, and analytics to the selected tenant.
+                    Pick an organization below to start working in their environment.
+                </p>
+            </div>
+            <div class="col-lg-5 text-lg-end">
+                <div class="text-white-50 mb-2">Current company</div>
+                <div class="fs-4 fw-semibold">
+                    @(Model.CurrentCompanyName ?? "No company selected")
+                </div>
+                <a asp-page="/Index" class="btn btn-outline-light btn-lg mt-3">
+                    Go to dashboard
+                </a>
             </div>
         </div>
+    </div>
 
-        <div class="col-12">
-            <div class="card shadow-sm">
-                <div class="card-header">
-                    <h5 class="mb-0">Search companies</h5>
+    <div class="row g-4">
+        <div class="col-xxl-5">
+            <div class="card company-picker-card shadow-sm">
+                <div class="card-header bg-white border-0 pb-0">
+                    <p class="text-muted mb-1">Smart search</p>
+                    <h4 class="mb-0">Find a company</h4>
                 </div>
                 <div class="card-body">
                     <form method="post"
-                          class="row g-3 align-items-end"
+                          class="row g-4 align-items-end"
                           data-company-picker="true">
-                        <div class="col-lg-6 position-relative">
+                        <div class="col-12 position-relative">
                             <label for="pageCompanySearch" class="form-label">Company name</label>
                             <input id="pageCompanySearch"
                                    type="text"
                                    class="form-control form-control-lg"
-                                   placeholder="Start typing to search"
+                                   placeholder="Start typing to search by name"
                                    autocomplete="off"
                                    data-company-search />
-                            <div class="list-group shadow-sm mt-1 d-none company-search-results"
+                            <div class="list-group shadow-sm d-none company-search-results"
                                  data-company-results></div>
                         </div>
 
                         <input type="hidden" name="companyId" data-company-id />
                         <input type="hidden" name="companyName" data-company-name />
 
-                        <div class="col-lg-3">
-                            <label class="form-label">Selected company</label>
-                            <div class="form-control-plaintext fw-semibold">
+                        <div class="col-md-6 d-flex flex-column gap-2">
+                            <label class="form-label">Current selection</label>
+                            <div class="form-control bg-gray-100 flex-grow-1 d-flex align-items-center">
                                 @(Model.CurrentCompanyName ?? "None")
                             </div>
                         </div>
-
-                        <div class="col-lg-3 d-grid">
+                        <div class="col-md-6 d-flex justify-content-md-end">
                             <button type="submit"
-                                    class="btn btn-primary btn-lg"
+                                    class="btn btn-primary btn-lg w-100 w-md-auto"
                                     data-company-submit
                                     disabled>
                                 Use selection
                             </button>
                         </div>
-
                         <div class="col-12">
                             <div asp-validation-summary="ModelOnly" class="text-danger small"></div>
                             <span class="text-danger small" data-company-error></span>
                         </div>
                     </form>
                 </div>
+                <div class="card-footer bg-transparent border-0 pt-0">
+                    <small class="text-muted">
+                        Tip: You can also switch directly from the top bar using the quick picker.
+                    </small>
+                </div>
             </div>
         </div>
 
-        <div class="col-12">
-            <h5 class="fw-semibold">Browse companies</h5>
-            <div class="row g-3">
-                @if (Model.Companies?.Any() == true)
-                {
-                    foreach (var company in Model.Companies.OrderBy(c => c.Name).Take(12))
-                    {
-                        <div class="col-xl-3 col-lg-4 col-md-6">
-                            <div class="card h-100 border-secondary-subtle shadow-sm">
-                                <div class="card-body">
-                                    <h6 class="card-title mb-1">@company.Name</h6>
-                                    @if (!string.IsNullOrWhiteSpace(company.ShortName))
-                                    {
-                                        <p class="text-muted small mb-2">@company.ShortName</p>
-                                    }
-                                    <p class="text-muted small mb-0">
-                                        @(string.IsNullOrWhiteSpace(company.Address) ? "—" : company.Address)
-                                    </p>
-                                    @if (!string.IsNullOrWhiteSpace(company.Province))
-                                    {
-                                        <p class="text-muted small mb-0">@company.Province</p>
-                                    }
-                                    @if (!string.IsNullOrWhiteSpace(company.ContactPhone))
-                                    {
-                                        <p class="text-muted small mb-0">@company.ContactPhone</p>
-                                    }
+        <div class="col-xxl-7">
+            <div class="card directory-panel shadow-sm h-100">
+                <div class="card-header bg-white border-0 pb-0 d-flex flex-wrap align-items-center justify-content-between gap-3">
+                    <div>
+                        <p class="text-muted mb-1">Browse directory</p>
+                        <h4 class="mb-0">Recently active companies</h4>
+                    </div>
+@*                     <a asp-page="/SuperAdmin/SearchCompanies" class="btn btn-outline-secondary btn-sm">
+                        Advanced search
+                    </a> *@
+                </div>
+
+                <div class="card-body pt-3">
+                    <div class="row g-3 company-grid">
+                        @if (Model.Companies?.Any() == true)
+                        {
+                            foreach (var company in Model.Companies.OrderBy(c => c.Name).Take(12))
+                            {
+                                <div class="col-xl-4 col-md-6">
+                                    <div class="company-card h-100">
+                                        <div class="company-card__body">
+                                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                                <div>
+                                                    <h6 class="card-title mb-1">@company.Name</h6>
+                                                    @if (!string.IsNullOrWhiteSpace(company.ShortName))
+                                                    {
+                                                        <span class="badge bg-light text-dark">@company.ShortName</span>
+                                                    }
+                                                </div>
+                                                <span class="company-card__icon">
+                                                    <i class="bi bi-buildings"></i>
+                                                </span>
+                                            </div>
+                                            <div class="company-meta">
+                                                <div>@(string.IsNullOrWhiteSpace(company.Address) ? "—" : company.Address)</div>
+                                                @if (!string.IsNullOrWhiteSpace(company.Province))
+                                                {
+                                                    <div>@company.Province</div>
+                                                }
+                                                @if (!string.IsNullOrWhiteSpace(company.ContactPhone))
+                                                {
+                                                    <div>@company.ContactPhone</div>
+                                                }
+                                            </div>
+                                        </div>
+                                        <div class="company-card__footer">
+                                            <form method="post" class="d-grid">
+                                                <input type="hidden" name="companyId" value="@company.Id" />
+                                                <input type="hidden" name="companyName" value="@company.Name" />
+                                                <button type="submit" class="btn btn-outline-primary">
+                                                    Work as this company
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </div>
                                 </div>
-                                <div class="card-footer bg-transparent border-0 pt-0">
-                                    <form method="post" class="d-grid">
-                                        <input type="hidden" name="companyId" value="@company.Id" />
-                                        <input type="hidden" name="companyName" value="@company.Name" />
-                                        <button type="submit" class="btn btn-outline-primary btn-sm">
-                                            Work as this company
-                                        </button>
-                                    </form>
+                            }
+                        }
+                        else
+                        {
+                            <div class="col-12">
+                                <div class="empty-state p-4 text-center">
+                                    <h5 class="fw-semibold mb-1">No companies were returned</h5>
+                                    <p class="text-muted mb-0">Use the search above to look up any tenant by name.</p>
                                 </div>
                             </div>
-                        </div>
-                    }
-                }
-                else
-                {
-                    <div class="col-12">
-                        <div class="alert alert-secondary mb-0">
-                            No companies could be loaded. Use the search field above or try again later.
-                        </div>
+                        }
                     </div>
-                }
+                </div>
             </div>
         </div>
     </div>

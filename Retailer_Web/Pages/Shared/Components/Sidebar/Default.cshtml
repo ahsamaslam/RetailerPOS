@@ -66,7 +66,16 @@
                 <span>Dashboard</span>
             </a>
         </li>
-
+        @if (Model.User?.IsSuperAdmin == true)
+        {
+            <li class="mb-1">
+                <a class="btn btn-nav align-items-center rounded @(Context.Request.Path == "/companies" ? "active" : string.Empty)"
+                   href="@ResolveUrl("/companies")">
+                    <i class="ni ni-tv-2 text-yellow me-2"></i>
+                    <span>Companies</span>
+                </a>
+            </li>            
+        }
         @foreach (var menu in Model.Menus
                             .Where(m => m.IsActive)
                             .OrderBy(m => m.SortOrder))

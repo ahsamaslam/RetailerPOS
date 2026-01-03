@@ -48,6 +48,7 @@ namespace AuthModule.API.Controllers
             return Ok(companies);
         }
 
+        [Authorize(Roles = "superadmin")]
         // POST: api/companies
         [HttpPost]
         public async Task<ActionResult<CompanyResponseDto>> Create([FromBody] CompanyCreateDto dto)
@@ -82,9 +83,9 @@ namespace AuthModule.API.Controllers
             return CreatedAtAction(nameof(Get), new { id = company.Id }, resp);
         }
 
+        [Authorize(Roles = "superadmin")]
         // GET: api/companies
         [HttpGet]
-        [AllowAnonymous] // allow public listing — change if needed
         public async Task<ActionResult<IEnumerable<CompanyResponseDto>>> GetAll()
         {
             var companies = await _db.Companies
@@ -95,6 +96,7 @@ namespace AuthModule.API.Controllers
             return Ok(companies);
         }
 
+        [Authorize(Roles = "superadmin")]
         // GET: api/companies/{id}
         [HttpGet("{id:guid}")]
         public async Task<ActionResult<CompanyResponseDto>> Get(Guid id)
@@ -105,6 +107,7 @@ namespace AuthModule.API.Controllers
             return Ok(ToResponseDto(company));
         }
 
+        [Authorize(Roles = "superadmin")]
         // PUT: api/companies/{id}
         [HttpPut("{id:guid}")]
         public async Task<ActionResult<CompanyResponseDto>> Update(Guid id, [FromBody] CompanyUpdateDto dto)

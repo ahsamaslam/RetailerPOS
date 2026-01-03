@@ -137,7 +137,6 @@ builder.Services.AddSingleton<IAuthorizationPolicyProvider, DefaultAuthorization
 builder.Services.AddScoped<IAuthorizationHandler, PermissionHandler>();
 builder.Services.AddScoped<IClaimsTransformation, PermissionClaimsTransformer>();
 builder.Services.AddScoped<IDbInitializer, DbInitializer>();
-builder.WebHost.UseWebRoot("wwwroot");
 
 // MVC / Controllers
 builder.Services.AddControllers();
@@ -193,17 +192,14 @@ if (!app.Environment.IsDevelopment())
 {
     app.UseHsts();
 }
-// Swagger available in Development — change as you wish
-if (app.Environment.IsDevelopment())
+
+app.UseDeveloperExceptionPage();
+app.UseSwagger();
+app.UseSwaggerUI(c =>
 {
-    app.UseDeveloperExceptionPage();
-    app.UseSwagger();
-    app.UseSwaggerUI(c =>
-    {
-        c.SwaggerEndpoint("/swagger/v1/swagger.json", "AuthModule API v1");
-        c.RoutePrefix = "swagger"; // UI at /swagger
-    });
-}
+	c.SwaggerEndpoint("/swagger/v1/swagger.json", "AuthModule API v1");
+	c.RoutePrefix = "swagger"; // UI at /swagger
+});
 
 
 using (var scope = app.Services.CreateScope())

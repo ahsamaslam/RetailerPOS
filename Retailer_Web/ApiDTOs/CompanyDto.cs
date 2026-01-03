@@ -4,17 +4,18 @@
     public class CompanyDto
     {
         public Guid Id { get; set; }
-        public string Name { get; set; }  
-        public string ShortName { get; set; }  
-        public string Address { get; set; }  
-        public string ContactPerson { get; set; }  
-        public string NTN { get; set; }  
-        public string CNIC { get; set; }  
-        public string Province { get; set; }  
-        public string STRN { get; set; }  
+        public string Name { get; set; } = string.Empty; 
+        public string ShortName { get; set; } = string.Empty; 
+        public string Address { get; set; } = string.Empty; 
+        public string ContactPerson { get; set; } = string.Empty; 
+        public string NTN { get; set; } = string.Empty; 
+        public string CNIC { get; set; } = string.Empty; 
+        public string Province { get; set; } = string.Empty; 
+        public string STRN { get; set; } = string.Empty; 
         public string? logoPath { get; set; }  
-        public string ContactEmail { get; set; }  
-        public string ContactPhone { get; set; }
+        public string ContactEmail { get; set; } = string.Empty; 
+        public string ContactPhone { get; set; } = string.Empty;
+        public bool IsActive { get; set; } = true;
         public bool fbrActive { get; set; } = false;
         public string? pralToken { get; set; }
         public string? fbrToken { get; set; }
