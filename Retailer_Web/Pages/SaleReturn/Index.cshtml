@@ -1,0 +1,147 @@
+﻿@page
+@model Retailer.Web.Pages.SaleReturn.IndexModel
+@{
+    ViewData["Title"] = "Sales";
+    Layout = "_EmptyLayout";
+}
+<h2>Sales Return</h2>
+<div class="row mb-3">
+    <div class="col-md-6">
+        <input id="searchBox" class="form-control" placeholder="Search by name..." />
+    </div>
+    <div class="col-md-6">
+        <a asp-page="Create" class="btn btn-primary mb-2">Create New Sale Return</a>
+    </div>
+</div>
+
+
+<main class="app-main">
+    <!--begin::App Content Header-->
+    @* <div class="app-content-header">
+        <!--begin::Container-->
+        <div class="container-fluid">
+            <!--begin::Row-->
+            <div class="row mb-3">
+                <div class="col-sm-6"><h3 class="mb-0">Categories</h3>
+                    <input id="searchBox" class="form-control" placeholder="Search by name..." />
+                </div>
+                <div class="col-sm-6">
+                    <a asp-page="Create" class="btn btn-primary">Create New Item</a>
+                </div>
+            </div>
+            <!--end::Row-->
+        </div>
+        <!--end::Container-->
+    </div> *@
+    <div class="app-content">
+
+
+        <div id="spinner" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background-color:rgba(255,255,255,0.7);z-index:9999; text-align:center;">
+            <div style="position:absolute;top:50%;left:50%;transform:translate(-50%, -50%);">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-3">
+                <label>Start Date</label>
+                <input asp-for="sdate" type="date" class="form-control text-start" id="startDate" />
+            </div>
+            <div class="col-md-3">
+                <label>End Date</label>
+                <input asp-for="edate" type="date" class="form-control text-start" id="endDate" />
+            </div>
+        </div>
+        <div class="row"></div>
+        <table id="myTable" class="table mt-2">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Customer</th>
+                    <th>SubTotal</th>
+                    <th>Tax</th>
+                    <th>Balance</th>
+                    <th>Actions</th>
+
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var s in Model.Sales)
+                {
+                    <tr>
+                        <td>@s.Date.ToShortDateString()</td>
+                        <td>@s.CustomerName</td>
+                        <td>@s.SubTotal</td>
+                        <td>@s.TaxAmount</td>
+                        <td>@s.BalanceAmount</td>
+                        <td>
+                            <a asp-page="Edit" asp-route-id="@s.Id" class="btn btn-sm btn-warning">Edit</a>
+                            <a asp-page="Details" asp-route-id="@s.Id" class="btn btn-sm btn-info">Details</a>
+                            @* <div class="dropdown">
+                                <button class="btn btn-sm btn-success dropdown-toggle"
+                                        type="button"
+                                        data-bs-toggle="dropdown">
+                                    Actions
+                                </button>
+
+                                <ul class="dropdown-menu">
+                                    <li>
+                                        <a class="dropdown-item"
+                                           asp-page-handler="Print"
+                                           asp-route-id="@s.Id">
+                                            Print
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div> *@
+                            <form method="post" class="d-inline">
+                                <button type="submit" asp-page-handler="CancelSale" asp-route-id="@s.Id" class="btn btn-sm btn-danger">
+                                    Cancel
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+
+                }
+            </tbody>
+        </table>
+
+    </div>
+    <!--end::App Content-->
+</main>
+@section Scripts {
+    <script>
+        $(function () {
+
+            // Build the handler URL from Razor
+            const filterHandlerUrl = '@Url.Page("/Ledger/Customer", "Filtered")';
+
+            function callFilter() {
+                const s = $('#startDate').val();
+                const e = $('#endDate').val();
+                const status = $('#status').val();
+                const customerId = $('#cid').val(); // correct variable
+
+                // Build correct query string
+                const url = `${filterHandlerUrl}?sdate=${encodeURIComponent(s)}&edate=${encodeURIComponent(e)}&status=${encodeURIComponent(status)}&cid=${encodeURIComponent(customerId)}`;
+
+                fetch(url)
+                    .then(response => {
+                        if (!response.ok) throw new Error("Server error");
+                        return response.json();
+                    })
+                    .then(data => {
+                        console.log(data);
+                        // TODO: render data in your table
+                    })
+                    .catch(err => console.error("Fetch error:", err));
+            }
+
+            $('#startDate, #endDate, #status, #cid').on('change', callFilter);
+
+        });
+    </script>
+}
+
+

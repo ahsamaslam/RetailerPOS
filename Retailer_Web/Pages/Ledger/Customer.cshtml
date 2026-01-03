@@ -1,0 +1,126 @@
+﻿@page
+@model Retailer.Web.Pages.Ledger.CustomerModel
+@{
+}
+@{
+    ViewData["Title"] = "Customer Ledger";
+    Layout = "_EmptyLayout";
+}
+
+<!--begin::Row-->
+<div class="row mt-2">
+    <div class="col-sm-12">
+        <h3 class="mb-0">Banks</h3>
+    </div>
+</div>
+
+<!--end::Row-->
+<div class="row mb-3">
+   
+    <div class="col-md-6">
+        <a asp-page="Create" class="btn btn-primary mb-2">Customer Ledger</a>
+    </div>
+</div>
+
+
+<main class="app-main">
+    <div class="app-content container-fluid">
+
+
+
+        <div class="row mt-2">
+
+            <div class="col-md-3">
+                <label>Start Date</label>
+                <select asp-for="CustomerCode" id="customer" required asp-items="Model.CustomersList" class="form-control">
+                    <option value="">-- Select Customer --</option>
+                </select>
+            </div>
+    
+        <div class="col-md-3">
+            <label>Start Date</label>
+            <input asp-for="sdate" type="date" class="form-control" id="startDate" />
+        </div>
+        <div class="col-md-3">
+            <label>End Date</label>
+            <input asp-for="edate" type="date" class="form-control" id="endDate" />
+        </div>
+
+            </div>
+   
+        <div class="row mt-2">
+            <div class="col-12">
+            <table class="table table-striped"> 
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Inv #</th>
+                            <th>Ref</th>
+                            <th>Remarks</th>
+                            <th>Debit</th>
+                            <th>Credit</th>
+                            <th>Balance</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var s in Model.ledgers)
+                        {
+                            <tr>
+                                <td>@s.Date.ToShortDateString()</td>
+                                <td>@s.ReferenceType</td>
+                                <td>@s.remarks</td>
+                                <td>@s.Debit</td>
+                                <td>@s.Credit</td>
+                                <td>@s.Balance</td>
+
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+
+             
+            </div>
+        </div>
+    </div>
+</main>
+@section Scripts {
+<script>
+    document.getElementById('customer').addEventListener('change', loadLedger);
+    document.getElementById('startDate').addEventListener('change', loadLedger);
+    document.getElementById('endDate').addEventListener('change', loadLedger);
+
+    async function loadLedger() {
+        const customer = document.getElementById('customer').value;
+        const sdate = document.getElementById('startDate').value;
+        const edate = document.getElementById('endDate').value;
+
+        if (!customer || !sdate || !edate) return;
+
+        // Updated handler name: LoadData
+        const url = `?handler=LoadData&customerCode=${customer}&sdate=${sdate}&edate=${edate}`;
+
+        const response = await fetch(url);
+        const data = await response.json();
+
+        renderTable(data);
+    }
+
+    function renderTable(rows) {
+        const tbody = document.querySelector('table tbody');
+        tbody.innerHTML = '';
+
+        rows.forEach(r => {
+            tbody.innerHTML += `
+                <tr>
+                    <td>${new Date(r.date).toLocaleDateString()}</td>
+                      <td>  <a href="#">${r.referenceId}</a></td>
+                    <td>${r.referenceType}</td>
+                    <td>${r.remarks ?? ''}</td>
+                    <td>${r.debit}</td>
+                    <td>${r.credit}</td>
+                    <td>${r.balance}</td>
+                </tr>`;
+        });
+    }
+</script>
+}

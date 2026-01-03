@@ -1,4 +1,13 @@
 ﻿@using Microsoft.AspNetCore.Http
+
+@{
+    var session = Context.Session;
+    var impersonatedCompanyId = session?.GetString("ImpersonatedCompanyId");
+    var impersonatedCompanyName = session?.GetString("ImpersonatedCompanyName") ?? "Not selected";
+    var hasCompanyContext = !string.IsNullOrEmpty(impersonatedCompanyId);
+    var pickerCollapseClass = hasCompanyContext ? "collapse" : "collapse show";
+}
+@* @using Microsoft.AspNetCore.Http
 @await Component.InvokeAsync("NToastNotify")
 
 @{
@@ -74,6 +83,31 @@
                         </div>
                     </div>
 
+                    <div class="d-flex flex-column flex-lg-row align-items-lg-center gap-3">
+                        <div>
+                            <div class="fw-semibold text-uppercase text-muted small">Tenant context</div>
+                            <div class="fs-5 fw-semibold mb-1">
+                                @(hasCompanyContext ? impersonatedCompanyName : "No company selected")
+                            </div>
+                            <div class="text-muted small">
+                                @(hasCompanyContext ? "Switch to another company at any time." : "Choose a company to unlock tenant-specific data.")
+                            </div>
+                        </div>
+                        <div class="ms-lg-auto d-flex gap-2 flex-wrap">
+                            <button class="btn btn-outline-primary"
+                                    type="button"
+                                    data-bs-toggle="collapse"
+                                    data-bs-target="#companyPickerPanel"
+                                    aria-expanded="@(hasCompanyContext ? "false" : "true")"
+                                    aria-controls="companyPickerPanel">
+                                @(hasCompanyContext ? "Switch company" : "Choose company")
+                            </button>
+                            <a class="btn btn-link text-decoration-none" asp-page="/SuperAdmin/SwitchCompany">
+                                Open full picker
+                            </a>
+                        </div>
+                    </div>
+
                     <div class="@pickerCollapseClass mt-3" id="companyPickerPanel">
                         <form asp-page="/SuperAdmin/SwitchCompany"
                               method="post"
@@ -136,5 +170,40 @@
     <script src="~/js/company-picker.js" asp-append-version="true"></script>
 
     @RenderSection("Scripts", required: false)
+</body>
+</html>
+
+
+ *@
+
+@await Component.InvokeAsync("NToastNotify")
+<!DOCTYPE html>
+<html>
+<head>
+    <partial name="_PageHeadElement" />
+
+    @RenderSection("Styles", required: false)
+    @RenderSection("HeadScripts", required: false)
+</head>
+<body>
+    @await Component.InvokeAsync("Sidebar")
+    <div class="main-content" id="panel">
+
+        @await Component.InvokeAsync("SuperAdminTopBar")
+        <!-- / Header -->
+        <!-- Page content -->
+        <div class="container-fluid mt-4 pt-4">
+            <main role="main" class="pb-4">
+                @RenderBody()
+            </main>
+
+            <partial name="_Footer" />
+        </div>
+    </div>
+
+    <partial name="_ThemeScripts" />
+
+    @RenderSection("Scripts", required: false)
+     <script src="~/js/company-picker.js" asp-append-version="true"></script>
 </body>
 </html>

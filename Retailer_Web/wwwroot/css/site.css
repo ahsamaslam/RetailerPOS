@@ -1,0 +1,287 @@
+﻿/* Please see documentation at https://docs.microsoft.com/aspnet/core/client-side/bundling-and-minification
+for details on configuring this project to bundle and minify static web assets. */
+
+a.navbar-brand {
+  white-space: normal;
+  text-align: center;
+  word-break: break-all;
+}
+
+/* Sticky footer styles
+-------------------------------------------------- */
+html {
+  font-size: 14px;
+}
+@media (min-width: 768px) {
+  html {
+    font-size: 16px;
+  }
+}
+
+.border-top {
+  border-top: 1px solid #e5e5e5;
+}
+.border-bottom {
+  border-bottom: 1px solid #e5e5e5;
+}
+
+.box-shadow {
+  box-shadow: 0 .25rem .75rem rgba(0, 0, 0, .05);
+}
+
+button.accept-policy {
+  font-size: 1rem;
+  line-height: inherit;
+}
+
+/* Sticky footer styles
+-------------------------------------------------- */
+html {
+  position: relative;
+  min-height: 100%;
+}
+
+body {
+  /* Margin bottom by footer height */
+  margin-bottom: 60px;
+}
+.footer {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  white-space: nowrap;
+  /* Set the fixed height of the footer here */
+  height: 60px;
+  line-height: 60px; /* Vertically center the text there */
+}
+
+/* New sidebar styles with btn-toggle buttons and collapsible panels */
+body #sidenav-main {
+  transition: transform .3s ease;
+}
+body.g-sidenav-hidden #sidenav-main {
+  transform: translateX(-260px);
+  pointer-events: none;
+}
+body.g-sidenav-show #sidenav-main {
+  transform: translateX(0);
+  pointer-events: auto;
+}
+
+@media (min-width: 992px) {
+  body .main-content {
+    transition: margin-left .3s ease;
+  }
+  body.g-sidenav-show .main-content {
+    margin-left: 280px;
+  }
+  body.g-sidenav-hidden .main-content {
+    margin-left: 0;
+  }
+  body.g-sidenav-show .sidenav.fixed-left + .main-content {
+    margin-left: 280px;
+  }
+  body.g-sidenav-hidden .sidenav.fixed-left + .main-content {
+    margin-left: 0 !important;
+  }
+}
+
+.sidebar-panel {
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: 280px;
+  padding-bottom: 2rem;
+  overflow-y: auto;
+  border-right: 1px solid #f1f5f9;
+  background: #fff;
+  z-index: 1100;
+}
+
+.sidebar-panel .btn.btn-toggle {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  font-weight: 600;
+  color: #1f2937;
+  padding: 0.35rem 0.25rem;
+  background: transparent;
+  border: 0;
+  text-align: left;
+  transition: color 0.2s ease, background 0.2s ease;
+}
+
+.sidebar-panel .btn.btn-nav {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  font-weight: 600;
+  color: #475569;
+  padding: 0.35rem 0.25rem;
+  background: transparent;
+  border: 0;
+  text-align: left;
+  transition: color 0.2s ease, background 0.2s ease;
+}
+
+.sidebar-panel .btn.btn-nav.active {
+  color: #fff;
+  background: linear-gradient(135deg, #f97316, #fb923c);
+  border-radius: 0.65rem;
+}
+
+.sidebar-panel .btn.btn-toggle.collapsed {
+  color: #475569;
+}
+
+.sidebar-panel .btn.btn-toggle:not(.collapsed) {
+  color: #0f172a;
+  background-color: rgba(59, 130, 246, 0.08);
+}
+
+.sidebar-panel .btn.btn-toggle.active {
+  color: #fff;
+  background: linear-gradient(135deg, #f97316, #fb923c);
+  border-radius: 0.65rem;
+}
+
+.sidebar-panel .btn-toggle-nav a {
+  display: block;
+  padding: 0.35rem 0.75rem;
+  margin: 0.25rem 0;
+  color: #475569;
+  text-decoration: none;
+  border-radius: 0.5rem;
+  transition: color 0.2s ease, background 0.2s ease;
+}
+
+.sidebar-panel .btn-toggle-nav a:hover {
+  color: #0f172a;
+  background: rgba(59, 130, 246, 0.08);
+}
+
+.sidebar-panel .btn-toggle-nav a.active {
+  color: #f97316;
+  font-weight: 600;
+}
+
+.sidebar-panel .collapse {
+  display: none;
+}
+
+.sidebar-panel .collapse.show {
+  display: block;
+}
+
+.main-content {
+  margin-left: 280px;
+  min-height: 100vh;
+}
+
+@media (max-width: 991.98px) {
+  .sidebar-panel {
+    position: static;
+    width: 100%;
+    max-height: none;
+    border-right: 0;
+    border-bottom: 1px solid #f1f5f9;
+  }
+
+  .main-content {
+    margin-left: 0;
+  }
+}
+
+#topbar-main {
+  position: relative;
+  z-index: 1000;
+}
+
+.sa-topbar {
+  border-radius: 1rem;
+  border: 1px solid #edf2f7;
+  position: relative;
+  z-index: 1000;
+}
+
+.sa-chip {
+  background: #e0e7ff;
+  color: #312e81;
+  font-weight: 600;
+  padding: 0.35rem 0.85rem;
+  border-radius: 999px;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+}
+
+.sa-topbar .current-company-block {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  min-width: 240px;
+}
+
+.sa-topbar .company-actions .btn {
+  min-width: 110px;
+  justify-content: center;
+}
+
+.company-grid .card:hover {
+   transform: translateY(-4px);
+   box-shadow: 0 18px 30px rgba(15, 23, 42, 0.08);
+ }
+ .company-meta {
+   font-size: 0.88rem;
+   color: #475569;
+ }
+ .empty-state {
+   border-radius: 1rem;
+   border: 1px dashed #cbd5f5;
+   background: #f8fafc;
+ }
+
+.directory-panel {
+  border-radius: 1rem;
+  border: 1px solid #e2e8f0;
+}
+
+.company-card {
+  border: 1px solid #e2e8f0;
+  border-radius: 1rem;
+  padding: 1.25rem;
+  background: #fff;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.05);
+}
+
+.company-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 18px 30px rgba(15, 23, 42, 0.12);
+}
+
+.company-card__body {
+  flex: 1;
+}
+
+.company-card__footer {
+  border-top: 1px solid #edf2f7;
+  padding-top: 1rem;
+}
+
+.company-card__icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 0.85rem;
+  background: rgba(37, 99, 235, 0.08);
+  color: #2563eb;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+}

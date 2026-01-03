@@ -1,27 +1,39 @@
 ﻿@page
 @model Retailer.POS.Web.Pages.Categories.IndexModel
 @inject Retailer.POS.Web.Services.IApiClient ApiClient
+@{
+    Layout = "_EmptyLayout";
+}
+
+<h2>Categories</h2>
+<div class="row mb-3">
+    <div class="col-md-6">
+         <input id="searchBox" class="form-control" placeholder="Search by name..." />
+    </div>
+    <div class="col-md-6">
+        <a asp-page="Create" class="btn btn-primary mb-2">Create New Category</a>
+    </div>
+</div>
+
+
 <main class="app-main">
     <!--begin::App Content Header-->
-    <div class="app-content-header">
+    @* <div class="app-content-header">
         <!--begin::Container-->
         <div class="container-fluid">
             <!--begin::Row-->
-            <div class="row">
+            <div class="row mb-3">
                 <div class="col-sm-6"><h3 class="mb-0">Categories</h3>
-                    <a asp-page="Create" class="btn btn-primary">Create New Category</a>
+                    <input id="searchBox" class="form-control" placeholder="Search by name..." />
                 </div>
                 <div class="col-sm-6">
-                    <ol class="breadcrumb float-sm-end">
-                        <li class="breadcrumb-item"><a href="#">Home</a></li>
-                        <li class="breadcrumb-item active" aria-current="page">Dashboard</li>
-                    </ol>
+                    <a asp-page="Create" class="btn btn-primary">Create New Category</a>
                 </div>
             </div>
             <!--end::Row-->
         </div>
         <!--end::Container-->
-    </div>
+    </div> *@
     <div class="app-content">
          
 

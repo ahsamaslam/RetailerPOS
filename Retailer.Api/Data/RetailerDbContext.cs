@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Retailer.Api.Entities;
+using Retailer.Api.Entities.Ledger;
 using Retailer.Api.Entities.Views;
 using Retailer.POS.Api.Entities;
 
@@ -24,12 +25,20 @@ public class RetailerDbContext : DbContext
     public DbSet<PurchaseDetail> PurchaseDetails => Set<PurchaseDetail>();
     public DbSet<StockTransfer> StockTransfers => Set<StockTransfer>();
     public DbSet<StockTransferDetail> StockTransferDetails => Set<StockTransferDetail>();
+    public DbSet<SalesReturnMaster> SalesReturnMasters => Set<SalesReturnMaster>();
     public DbSet<SalesMaster> SalesMasters => Set<SalesMaster>();
     public DbSet<SalesDetail> SalesDetails => Set<SalesDetail>();
+    public DbSet<SalesReturnDetail> SalesReturnDetails => Set<SalesReturnDetail>();
     public DbSet<Menu> Menus { get; set; } = default!;
     public DbSet<SubMenu> SubMenus { get; set; } = default!;
-    public DbSet<SubMenuPermission> SubMenuPermissions { get; set; } = default!;
     public DbSet<OpeningBalance> OpeningBalances { get; set; } = null!;
+    public DbSet<CustomerPayment> CustomerPayment { get; set; } = null!;
+    public DbSet<VendorPayment> VendorPayment { get; set; } = null!;
+    public DbSet<CustomerLedger> CustomerLedger { get; set; } = null!;
+    public DbSet<ItemLedger> ItemLedger { get; set; } = null!;
+    public DbSet<VendorLedger> VendorLedger { get; set; } = null!;
+    public DbSet<BankLedger> BankLedger { get; set; } = null!;
+    public DbSet<PaymentMethod> PaymentMethods { get; set; } = null!;
 
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -55,22 +64,32 @@ public class RetailerDbContext : DbContext
         {
             b.HasKey(s => s.Id);
             b.Property(s => s.Title).IsRequired().HasMaxLength(200);
-            b.Property(s => s.Route).HasMaxLength(500);
+            b.Property(s => s.UrlTitle).HasMaxLength(500);
             b.Property(s => s.Icon).HasMaxLength(200);
         });
+        modelBuilder.Entity<VendorPayment>()
+    .Property(x => x.bankName)
+    .IsRequired(false);
+
+        modelBuilder.Entity<VendorPayment>()
+            .HasOne(vp => vp.Vendor)
+            .WithMany()
+            .HasForeignKey(vp => vp.VendorId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<VendorPayment>()
+            .HasOne(vp => vp.Bank)
+            .WithMany()
+            .HasForeignKey(vp => vp.BankId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<CustomerPayment>()
+            .HasOne(cp => cp.Bank)
+            .WithMany()
+            .HasForeignKey(cp => cp.BankId)
+            .OnDelete(DeleteBehavior.Restrict);
 
         // SubMenuPermission (many-to-many)
-        modelBuilder.Entity<SubMenuPermission>(b =>
-        {
-            b.HasKey(sp => new { sp.SubMenuId });
-
-            b.HasOne(sp => sp.SubMenu)
-             .WithMany(s => s.SubMenuPermissions)
-             .HasForeignKey(sp => sp.SubMenuId)
-             .OnDelete(DeleteBehavior.Cascade);
-
-            // no b.HasOne(...Permission...) since Permission type is not in this DbContext
-        });
         modelBuilder.Entity<OpeningBalance>()
           .HasIndex(ob => new { ob.Year, ob.ProductID })
           .IsUnique()

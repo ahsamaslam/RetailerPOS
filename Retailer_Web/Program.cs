@@ -1,6 +1,7 @@
- using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Retailer.POS.Web.Services;
+using Retailer.Web.Filters;
 using Retailer.Web.Helpers;
 using Retailer.Web.Services.Layout;
 using System.Security.Claims;
@@ -12,12 +13,19 @@ internal class Program
     {
         var builder = WebApplication.CreateBuilder(args);
 
+        builder.Services.AddScoped<ApiUnauthorizedRedirectFilter>();
+
         // Razor pages (only once)
         builder.Services.AddRazorPages(options =>
         {
             options.Conventions.AuthorizeFolder("/");
             options.Conventions.AllowAnonymousToPage("/Login");
-        }).AddNToastNotifyNoty();
+        })
+        .AddMvcOptions(options =>
+        {
+            options.Filters.Add<ApiUnauthorizedRedirectFilter>();
+        })
+        .AddNToastNotifyNoty();
 
         builder.Services.AddHttpContextAccessor();
         builder.Services.AddTransient<TokenDelegatingHandler>();

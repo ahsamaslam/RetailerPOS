@@ -1,0 +1,180 @@
+﻿@page
+@model Retailer.Web.Pages.Payment.EditModel
+
+@{
+    ViewData["Title"] = "Edit Payment";
+    Layout = "_EmptyLayout";
+}
+<main class="app-main">
+    <!--begin::App Content Header-->
+    <div class="app-content-header">
+        <!--begin::Container-->
+        <div class="container-fluid">
+            <!--begin::Row-->
+            <div class="row">
+                <div class="col-sm-6"><h3 class="mb-0">Edit Payment</h3></div>
+                <div class="col-sm-6 text-right">
+                    <h1 class="mb-0">
+                        Total: <span id="totalAmountDisplay">0.00</span>
+                    </h1>
+                </div>
+
+
+            </div>
+
+
+            <!--end::Row-->
+        </div>
+        <!--end::Container-->
+    </div>
+    <div class="app-content">
+        <form method="post" id="saleForm"> 
+             <input type="hidden" asp-for="VendorPayment.Id" />
+            <input type="hidden" asp-for="VendorPayment.totalAmount" />
+            <div class="row">
+                <div class="col-md-4 mb-2">
+                    <label>Date</label>
+                    <div class="mb-2">
+                        <input asp-for="VendorPayment.PaymentDate" type="date" class="form-control text-start" autofocus />
+                    </div>
+
+
+
+                </div>
+
+            </div>
+            <div class="row">
+                <div class="col-md-12 mb-2">
+                    <div class="row">
+                        <div class="col-md-6 mb-4">
+                            <label>Select Vendor</label>
+                            <select asp-for="VendorPayment.VendorId" id="vendorSelect" required asp-items="Model.vendorsList" class="form-control">
+                                <option value="">-- Select Vendor --</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3 mb-4 text-right">
+                            <label class="fw-bold"> Balance</label>
+                            <input id="balance" type="number" asp-items="Model.balance" readonly class="form-control text-end fw-bold" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-4 mb-4">
+                    <label>Payment Type</label>
+                    <select asp-for="VendorPayment.PaymentMethodId" required asp-items="Model.PaymentMethods" class="form-control">
+                        <option value="">-- Select Type --</option>
+                    </select>
+                </div>
+                <div class="col-md-6 mb-6" id="bankSection" style="display:none;">
+                    <label>Select Bank</label>
+
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-4 mb-4">
+                    <div class="form-group">
+                        <label asp-for="VendorPayment.remarks"></label>
+                        <textarea asp-for="VendorPayment.remarks" class="form-control" rows="3"></textarea>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-4 mb-4">
+                    <div class="form-group">
+                        <label asp-for="VendorPayment.Amount"></label>
+                        <input asp-for="VendorPayment.Amount" type="number" class="form-control" id="amount" />
+                    </div>
+                </div>
+
+
+
+                <div class="col-md-3 mb-3">
+                    <div class="form-group">
+                        <label>Tax Amount</label>
+                        <input asp-for="VendorPayment.taxAmount" type="number" class="form-control" id="taxAmount" />
+
+                    </div>
+                </div>
+                <div class="col-md-3 mb-3">
+                    <div class="form-group">
+                        <label> Withholding Amount</label>
+                        <input asp-for="VendorPayment.whtAmount" type="number" class="form-control" id="whtAmount" />
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="row">
+                <button type="submit" class="btn btn-primary">Save</button>
+            </div>
+
+        </form>
+    </div>
+</main>
+<script>
+    (function () {
+        const form = document.getElementById('saleForm');
+        form?.addEventListener('submit', function () {
+            reindexRows();
+        });
+    })();
+    document.getElementById("vendorSelect").addEventListener("change", function () {
+        let vendorId = this.value;
+
+        if (!vendorId) {
+            document.getElementById("balance").value = "";
+            return;
+        }
+
+        fetch(`?handler=vendorBalance&vendorId=${vendorId}`)
+            .then(response => response.json())
+            .then(balance => {
+                document.getElementById("balance").value = balance.toFixed(2);
+            })
+            .catch(error => {
+                console.error("Error fetching balance:", error);
+            });
+    });
+    function calculateTotal() {
+        let amount = parseFloat(document.getElementById("amount").value) || 0;
+        let tax = parseFloat(document.getElementById("taxAmount").value) || 0;
+        let wht = parseFloat(document.getElementById("whtAmount").value) || 0;
+
+        let total = amount + tax - wht;
+        document.getElementById("totalAmountDisplay").innerText =
+            total.toLocaleString();
+        document.querySelector("input[name='VendorPayment.totalAmount']").value = total;
+    }
+
+    document.getElementById("amount").addEventListener("input", calculateTotal);
+    document.getElementById("taxAmount").addEventListener("input", calculateTotal);
+    document.getElementById("whtAmount").addEventListener("input", calculateTotal);
+
+
+    const paymentMethodSelect = document.querySelector(
+        "select[name='VendorPayment.PaymentMethodId']"
+    );
+    const bankSection = document.getElementById("bankSection");
+
+    function toggleBank() {
+        const value = paymentMethodSelect.value;
+
+        // 2 = Bank Transfer, 3 = Credit Card
+        if (value === "2" || value === "3") {
+            bankSection.style.display = "block";
+        } else {
+            bankSection.style.display = "none";
+
+            // reset bank selection
+            const bankSelect = bankSection.querySelector("select");
+            if (bankSelect) bankSelect.value = "";
+        }
+    }
+
+    paymentMethodSelect.addEventListener("change", toggleBank);
+
+    // run once on page load
+    toggleBank();
+
+</script>

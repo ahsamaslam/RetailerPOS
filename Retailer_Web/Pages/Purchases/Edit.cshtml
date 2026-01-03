@@ -1,8 +1,10 @@
 ﻿@page
-@model Retailer.POS.Web.Pages.Purchases.CreateModel
+@model Retailer.Web.Pages.Purchases.EditModel
 @{
-	ViewData["Title"] = "Create Purchase";
+	ViewData["Title"] = "Create";
+	Layout = "_EmptyLayout";
 }
+
 
 <main class="app-main">
 	<!--begin::App Content Header-->
@@ -37,7 +39,8 @@
 	<div class="app-content">
 
 		<form method="post" id="PurchaseForm">
-
+				<input type="hidden" asp-for="Purchase.Id" />
+				<input type="hidden" asp-for="Purchase.BranchId" />
 			<div class="row">
 				<div class="col-md-4 mb-2">
 					<div class="shop-profile">
@@ -60,35 +63,7 @@
 							</div>
 						</div>
 					</div>
-					<table class="table table-sm right-table">
-
-						<tbody>
-
-
-							@* 	<tr class="d-flex align-items-center justify-content-between">
-						<th class="border-0 ">
-							<div class="d-flex align-items-center font-size-h5 mb-0 font-size-bold text-dark">
-								DISCOUNT(65%)
-
-
-							</div>
-						</th>
-						<td class="border-0 justify-content-end d-flex text-dark font-size-base">10%</td>
-
-					</tr>
-					<tr class="d-flex align-items-center justify-content-between">
-						<th class="border-0 font-size-h5 mb-0 font-size-bold text-dark">
-							Tax
-						</th>
-						<td class="border-0 justify-content-end d-flex text-dark font-size-base">$9</td>
-
-					</tr>
-					  *@
-
-
-
-						</tbody>
-					</table>
+				 
 				</div>
 				<div class="col-md-4 mb-2">
 					<table class="table table-sm right-table">
@@ -193,7 +168,7 @@
 								</td>
 								<td>
 
-									<select name="Purchase.Details[__index__].ItemCode" asp-items="Model.ItemsList" class="form-control">
+									<select name="Purchase.Details[__index__].ItemId" asp-items="Model.ItemsList" class="form-control">
 										<option value="">-- Select Item --</option>
 									</select>
 								</td>
@@ -234,36 +209,46 @@
 			const detailsTbody = document.querySelector('#detailsTable tbody');
 			const templateRow = document.getElementById('templateRow');
 			const templateInnerHtml = templateRow.innerHTML;
+function reindexRows() {
+    const rows = detailsTbody.querySelectorAll('tr[data-index]');
+    rows.forEach((row, idx) => {
+        row.setAttribute('data-index', idx);
 
-			function reindexRows() {
-				const rows = detailsTbody.querySelectorAll('tr');
-				rows.forEach((row, idx) => {
-					row.setAttribute('data-index', idx);
-					row.querySelectorAll('input, select, textarea').forEach(inp => {
-						const nameAttr = inp.getAttribute('name');
-						if (nameAttr) {
-							const newName = nameAttr.replace(/Purchase\.Details\[\d+\]/, `Purchase.Details[${idx}]`);
-							inp.setAttribute('name', newName);
-						}
-						if (inp.id) {
-							inp.id = inp.id.replace(/_Details_\d+_/, `_Details_${idx}_`);
-						}
-					});
-				});
-			}
+        // Update Sr No
+        const srLabel = row.querySelector('.sr-no-label');
+        if (srLabel) srLabel.textContent = idx + 1;
 
-			document.getElementById('addRow').addEventListener('click', function () {
+        row.querySelectorAll('input, select, textarea').forEach(inp => {
+            const nameAttr = inp.getAttribute('name');
+            if (nameAttr) {
+                inp.setAttribute(
+                    'name',
+                    nameAttr.replace(/Purchase\.Details\[\d+\]/, `Purchase.Details[${idx}]`)
+                );
+            }
 
-				const index = detailsTbody.children.length;
-				const tr = document.createElement('tr');
-				tr.setAttribute('data-index', index);
-				tr.innerHTML = templateInnerHtml.replace(/__index__/g, index);
-				detailsTbody.appendChild(tr);
-			   const itemSelect = tr.querySelector('select');
-			   if (itemSelect) {
-				   itemSelect.focus();
-			   }
-			});
+            if (inp.id) {
+                inp.id = inp.id.replace(/_Details_\d+_/, `_Details_${idx}_`);
+            }
+        });
+    });
+}
+document.getElementById('addRow').addEventListener('click', function () {
+
+    const index = detailsTbody.querySelectorAll('tr[data-index]').length;
+
+    const tr = document.createElement('tr');
+    tr.setAttribute('data-index', index);
+    tr.innerHTML = templateInnerHtml.replace(/__index__/g, index);
+
+    detailsTbody.appendChild(tr);
+
+    reindexRows();
+    updateTotal();
+
+    const itemSelect = tr.querySelector('select');
+    itemSelect?.focus();
+});
 		   document.querySelector('#detailsTable').addEventListener('change', function (e) {
 			   if (e.target && e.target.classList.contains('item-select')) {
 				   var selectedOption = e.target.selectedOptions[0];

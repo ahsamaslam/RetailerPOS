@@ -2,9 +2,17 @@
 @model Retailer.POS.Web.Pages.Branches.IndexModel
 @{
     ViewData["Title"] = "Branches";
+    Layout = "_EmptyLayout";
 }
 <h2>Branches</h2>
-<a asp-page="Create" class="btn btn-primary mb-2">Create New Branch</a>
+<div class="row mb-3">
+    <div class="col-md-6">
+        <input id="searchBox" class="form-control" placeholder="Search by name..." />
+    </div>
+    <div class="col-md-6">
+        <a asp-page="Create" class="btn btn-primary mb-2">Create New Branch</a>
+    </div>
+</div>
 
 <table class="table table-striped">
     <thead>

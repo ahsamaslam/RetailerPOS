@@ -37,7 +37,7 @@
 	<div class="app-content">
 
 		<form method="post" id="saleForm">
-
+			<input type="hidden" asp-for="Sale.Id" />
 			<div class="row">
 				<div class="col-md-4 mb-2">
 					<div class="shop-profile">
@@ -54,7 +54,7 @@
 							</div>
 							<div class="mb-2">
 								<label>Select Customer</label>
-								<select asp-for="Sale.CustomerCode" required asp-items="Model.CustomersList" class="form-control">
+								<select asp-for="Sale.CustomerCode" disabled asp-items="Model.CustomersList" class="form-control">
 									<option value="">-- Select Customer --</option>
 								</select>
 							</div>

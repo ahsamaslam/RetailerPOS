@@ -8,6 +8,7 @@
         public string UserName { get; set; } = string.Empty;
         public int BranchId { get; set; }
         public string? CustomerName { get; set; }
+        public string? SaleType { get; set; }
         public decimal SubTotal { get; set; }
         public decimal TotalDiscount { get; set; }
         public decimal TaxAmount { get; set; }

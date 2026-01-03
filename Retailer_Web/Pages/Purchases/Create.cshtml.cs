@@ -38,6 +38,7 @@ public class CreateModel : BasePageModel
         Input.VendorID = Purchase.VendorID; 
         Input.SubTotal = Purchase.SubTotal;
         Input.Total = Purchase.Total;
+        Input.PurchaseType = Purchase.PurchaseType;
         Input.BranchId = 1;
        Input.LoginId = 2;
         Input.Details = Purchase.Details.Select(x=> new CreatePurchaseDetailDto { ItemId = x.ItemId, Discount =0, ItemName=x.ItemName ,Rate=x.Rate, Qty=x.Qty, TaxPercentage=0}).ToList();

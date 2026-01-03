@@ -1,0 +1,93 @@
+﻿@page
+@model Retailer.Web.Pages.Banks.DetailsModel
+@{
+}
+
+<main class="app-main">
+
+
+
+    <!-- Content -->
+    <div class="app-content">
+        <div class="container-fluid">
+            <div class="row g-3">
+                <div class="col-sm-6">
+                    <h1 class="mb-0">View Banks</h1>
+                </div>
+            </div>
+                <div class="col-12">
+
+                    <!-- Bank Information -->
+                    <div class="row g-3">
+
+                        <div class="col-md-8">
+                            <label class="form-label">Name</label>
+                            <input asp-for="Bank.AccountName" class="form-control" readonly />
+                        </div>
+
+                        <div class="col-md-4">
+                            <label class="form-label">Account Number</label>
+                            <input asp-for="Bank.AccountNumber" class="form-control" readonly />
+                        </div>
+
+                        <div class="col-md-4">
+                            <label class="form-label">Branch Code</label>
+                            <input asp-for="Bank.BranchCode" class="form-control" readonly />
+                        </div>
+
+                        <div class="col-md-4">
+                            <label class="form-label">Branch Name</label>
+                            <input asp-for="Bank.BrnchName" class="form-control" readonly />
+                        </div>
+
+                        <div class="col-md-4">
+                            <label class="form-label">Mobile</label>
+                            <input asp-for="Bank.Mobile" class="form-control" readonly />
+                        </div>
+
+                        <div class="col-md-4">
+                            <label class="form-label">Phone</label>
+                            <input asp-for="Bank.Phone" class="form-control" readonly />
+                        </div>
+
+                    <div class="col-md-4">
+                        <label>Province</label>
+                        <select asp-for="Bank.Province"   asp-items="Model.Provience" class="form-control">
+                            <option value="">-- Select Provience --</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label>City</label>
+                        <select asp-for="Bank.CityId"  asp-items="Model.Cities"  class="form-control">
+                            <option value="">-- Select City --</option>
+                        </select>
+                    </div>
+
+                        <div class="col-md-12">
+                            <label class="form-label">Address</label>
+                            <input asp-for="Bank.Address" class="form-control" readonly />
+                        </div>
+                    </div>
+
+                    <!-- Opening Balance -->
+                    <hr class="my-4" />
+                    <h4>Opening Balance</h4>
+
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <label class="form-label">Opening Date</label>
+                            <input asp-for="Bank.openDate" class="form-control" readonly />
+                        </div>
+
+                        <div class="col-md-4">
+                            <label class="form-label">Opening Balance</label>
+                            <input asp-for="Bank.openingBalance" class="form-control" readonly />
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+        </div> 
+
+</main>

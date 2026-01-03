@@ -29,7 +29,6 @@ namespace Retailer.Api.Services
         {
             var menus = await _db.Menus
                 .Include(m => m.SubMenus)
-                  .ThenInclude(s => s.SubMenuPermissions)
                 .OrderBy(m => m.SortOrder)
                 .ToListAsync();
 
@@ -40,7 +39,6 @@ namespace Retailer.Api.Services
         {
             var m = await _db.Menus
                 .Include(x => x.SubMenus)
-                  .ThenInclude(s => s.SubMenuPermissions)
                 .FirstOrDefaultAsync(x => x.Id == id);
 
             return m == null ? null : MapToDto(m);
@@ -59,21 +57,12 @@ namespace Retailer.Api.Services
                 {
                     MenuId = m.Id,
                     Title = sm.Title,
-                    Route = sm.Route,
+                    UrlTitle = sm.UrlTitle,
                     SortOrder = sm.SortOrder,
                     IsActive = sm.IsActive
                 };
                 _db.SubMenus.Add(s);
                 await _db.SaveChangesAsync();
-
-                if (sm.PermissionNames?.Any() == true)
-                {
-                    foreach (var pid in sm.PermissionNames)
-                    {
-                        _db.SubMenuPermissions.Add(new SubMenuPermission { SubMenuId = s.Id, PermissionName = pid });
-                    }
-                    await _db.SaveChangesAsync();
-                }
             }
 
             return await GetMenuByIdAsync(m.Id) ?? throw new InvalidOperationException("Failed to load created menu");
@@ -83,7 +72,6 @@ namespace Retailer.Api.Services
         {
             var m = await _db.Menus
                 .Include(x => x.SubMenus)
-                    .ThenInclude(s => s.SubMenuPermissions)
                 .FirstOrDefaultAsync(x => x.Id == id);
             if (m == null) return false;
 
@@ -102,34 +90,20 @@ namespace Retailer.Api.Services
                     {
                         MenuId = m.Id,
                         Title = smDto.Title,
-                        Route = smDto.Route,
+                        UrlTitle = smDto.UrlTitle,
                         SortOrder = smDto.SortOrder,
                         IsActive = smDto.IsActive
                     };
                     _db.SubMenus.Add(newSm);
                     await _db.SaveChangesAsync();
-
-                    if (smDto.PermissionNames?.Any() == true)
-                    {
-                        foreach (var pid in smDto.PermissionNames)
-                            _db.SubMenuPermissions.Add(new SubMenuPermission { SubMenuId = newSm.Id, PermissionName = pid });
-                    }
                 }
                 else
                 {
                     existing.Title = smDto.Title;
-                    existing.Route = smDto.Route;
+                    existing.UrlTitle = smDto.UrlTitle;
                     existing.SortOrder = smDto.SortOrder;
                     existing.IsActive = smDto.IsActive;
 
-                    // Replace permissions list simply
-                    var existingPerms = existing.SubMenuPermissions.ToList();
-                    if (existingPerms.Any())
-                        _db.SubMenuPermissions.RemoveRange(existingPerms);
-
-                    if (smDto.PermissionNames?.Any() == true)
-                        foreach (var pid in smDto.PermissionNames)
-                            _db.SubMenuPermissions.Add(new SubMenuPermission { SubMenuId = existing.Id, PermissionName = pid });
                 }
             }
 
@@ -179,7 +153,6 @@ namespace Retailer.Api.Services
             // 2. Fetch all menus/submenus
             var menus = await _db.Menus
                 .Include(m => m.SubMenus)
-                    .ThenInclude(sm => sm.SubMenuPermissions)
                 .OrderBy(m => m.SortOrder)
                 .ToListAsync();
 
@@ -187,34 +160,44 @@ namespace Retailer.Api.Services
             var result = new List<MenuDto>();
             foreach (var menu in menus)
             {
-                var allowedSubs = menu.SubMenus
-                    .Where(sm => sm.IsActive)
-                    .Where(sm => sm.SubMenuPermissions.Any()
-                        ? sm.SubMenuPermissions.Any(sp => effectivePermissions.Contains(sp.PermissionName))
-                        : true) // Show submenu if no permissions assigned
-                    .OrderBy(sm => sm.SortOrder)
-                    .ToList();
 
-                if (!allowedSubs.Any()) continue;
 
-                result.Add(new MenuDto
+                if(menu.SubMenus.Count > 0)
                 {
-                    Id = menu.Id,
-                    Title = menu.Title,
-                    Icon = menu.Icon,
-                    SortOrder = menu.SortOrder,
-                    IsActive = menu.IsActive,
-                    SubMenus = allowedSubs.Select(sm => new SubMenuDto
+                    result.Add(new MenuDto
                     {
-                        Id = sm.Id,
-                        MenuId = sm.MenuId,
-                        Title = sm.Title,
-                        Route = sm.Route,
-                        SortOrder = sm.SortOrder,
-                        IsActive = sm.IsActive,
-                        PermissionNames = sm.SubMenuPermissions.Select(sp => sp.PermissionName).ToList()
-                    }).ToList()
-                });
+                        Id = menu.Id,
+                        Title = menu.Title,
+                        UrlTitle = menu.UrlTitle,
+                        Icon = menu.Icon,
+                        SortOrder = menu.SortOrder,
+                        IsActive = menu.IsActive,
+                        SubMenus = menu.SubMenus.Select(sm => new SubMenuDto
+                        {
+                            Id = sm.Id,
+                            MenuId = sm.MenuId,
+                            Title = sm.Title,
+                            UrlTitle = sm.UrlTitle,
+                            SortOrder = sm.SortOrder,
+                            IsActive = sm.IsActive,
+                            PermissionNames = effectivePermissions.Select(x => x).Where(x => x.Contains(sm.UrlTitle)).ToList()
+                        }).ToList()
+                    });
+                }
+                else
+                {
+                    result.Add(new MenuDto
+                    {
+                        Id = menu.Id,
+                        Title = menu.Title,
+                        UrlTitle = menu.UrlTitle,
+                        Icon = menu.Icon,
+                        SortOrder = menu.SortOrder,
+                        IsActive = menu.IsActive,
+                        PermissionNames = effectivePermissions.Select(x => x).Where(x => x.Contains(menu.UrlTitle)).ToList()
+                    });
+                }
+                
             }
 
             return result;
@@ -233,7 +216,7 @@ namespace Retailer.Api.Services
             {
                 MenuId = menuId,
                 Title = dto.Title,
-                Route = dto.Route,
+                UrlTitle = dto.UrlTitle,
                 SortOrder = dto.SortOrder,
                 IsActive = dto.IsActive
             };
@@ -247,7 +230,7 @@ namespace Retailer.Api.Services
                 Id = sub.Id,
                 MenuId = sub.MenuId,
                 Title = sub.Title,
-                Route = sub.Route,
+                UrlTitle = sub.UrlTitle,
                 SortOrder = sub.SortOrder,
                 IsActive = sub.IsActive
             };
@@ -282,11 +265,9 @@ namespace Retailer.Api.Services
                     Id = s.Id,
                     MenuId = s.MenuId,
                     Title = s.Title,
-                    Route = s.Route,
+                    UrlTitle = s.UrlTitle,
                     SortOrder = s.SortOrder,
-                    IsActive = s.IsActive,
-                    PermissionNames = s.SubMenuPermissions.Select(sp => sp.PermissionName).ToList(),
-                    PermissionIds = null // cannot resolve here without AuthModule call
+                    IsActive = s.IsActive
                 }).ToList()
             };
         }

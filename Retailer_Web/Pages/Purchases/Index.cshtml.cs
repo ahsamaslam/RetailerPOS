@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages; 
 using Retailer.POS.Web.Services;
@@ -18,4 +18,15 @@ public class IndexModel : BasePageModel
     public DateTime edate { get; set; } = DateTime.Now;
     public List<PurchaseViewModel> Purchase { get; set; } = new();
     public async Task OnGetAsync() => Purchase = await _api.GetPurchaseDateWiseAsync(sdate,edate);
-}
+
+    // ✅ AJAX Soft Delete Handler
+    public async Task<IActionResult> OnPostDeleteAsync(int id)
+	{
+		var payment = await _api.DeletePurchaseAsync(id);
+
+		if (!payment)
+			return new JsonResult(new { success = false });
+
+		return new JsonResult(new { success = true });
+	}
+	}

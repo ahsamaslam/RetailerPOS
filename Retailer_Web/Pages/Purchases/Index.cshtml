@@ -2,30 +2,50 @@
 @model Retailer.POS.Web.Pages.Purchases.IndexModel
 @{
     ViewData["Title"] = "Purchase";
+    Layout = "_EmptyLayout";
 }
+
+<h2>Purchases</h2>
+<div class="row mb-3">
+    <div class="col-md-6">
+        <input id="searchBox" class="form-control" placeholder="Search by name..." />
+    </div>
+    <div class="col-md-6">
+        <a asp-page="Create" class="btn btn-primary mb-2">Create New Purchase</a>
+    </div>
+</div>
+
+
 <main class="app-main">
     <!--begin::App Content Header-->
-    <div class="app-content-header">
+    @* <div class="app-content-header">
         <!--begin::Container-->
         <div class="container-fluid">
             <!--begin::Row-->
-            <div class="row">
-                <div class="col-sm-6">
-                    <h3 class="mb-0">Purchase</h3>
-                    <a asp-page="Create">Create New</a>
+            <div class="row mb-3">
+                <div class="col-sm-6"><h3 class="mb-0">Categories</h3>
+                    <input id="searchBox" class="form-control" placeholder="Search by name..." />
                 </div>
                 <div class="col-sm-6">
-                    <ol class="breadcrumb float-sm-end">
-                        <li class="breadcrumb-item"><a href="#">Home</a></li>
-                        <li class="breadcrumb-item active" aria-current="page">Dashboard</li>
-                    </ol>
+                    <a asp-page="Create" class="btn btn-primary">Create New Category</a>
                 </div>
             </div>
             <!--end::Row-->
         </div>
         <!--end::Container-->
-    </div>
+    </div> *@
     <div class="app-content">
+
+
+        <div id="spinner" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background-color:rgba(0,0,0,0.7);z-index:9999; text-align:center;">
+            <div style="position:absolute;top:50%;left:50%;transform:translate(-50%, -50%);">
+                <div class="spinner-border text-primary" role="status">
+                       <!-- Replace spinner with GIF image -->
+        <img src="~/img/Spinner.gif" alt="Loading..." width="100" />
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+            </div>
+        </div>
 
         <div class="row">
             <div class="col-md-3">
@@ -63,6 +83,7 @@
                             <a asp-page="Edit" asp-route-id="@s.Id" class="btn btn-sm btn-warning">Edit</a>
                             <a asp-page="Details" asp-route-id="@s.Id" class="btn btn-sm btn-info">Details</a>
                             <a asp-page="Print" asp-route-id="@s.Id" class="btn btn-sm btn-success">Print</a>
+                            <a href="javascript:void(0);" class="btn btn-sm btn-danger delete-btn" data-id="@s.Id">Delete</a>
                         </td>
                     </tr>
 
@@ -70,13 +91,22 @@
             </tbody>
         </table>
 
+
+
     </div>
     <!--end::App Content-->
-</main>
+</main> 
 <!--end::App Main-->
 @section Scripts {
     <script>
         $(function () {
+             function showSpinner() {
+            $('#spinner').fadeIn(200);
+        }
+
+        function hideSpinner() {
+            $('#spinner').fadeOut(200);
+        }
             // When either date changes, navigate to the same page with query params
             $('#startDate, #endDate').on('change', function () {
                 const s = $('#startDate').val();
@@ -84,7 +114,7 @@
 
                 // If you want to require both dates set before fetching:
                 if (!s || !e) return;
-
+                    showSpinner();
                 // Build query string and reload page
                 const qs = new URLSearchParams({
                     sdate: s,
@@ -95,13 +125,37 @@
                 window.location.href = `${window.location.pathname}?${qs}`;
             });
 
-            // DataTable initialization (will run on full page load)
-            $('#myTable').DataTable({
-                "paging": true,
-                "searching": true,
-                "ordering": true,
-                "info": true
-            });
+             $(document).on('click', '.delete-btn', function () {
+
+                if (!confirm('Are you sure you want to delete this Purchase?')) return;
+
+                var id = $(this).data('id'); // get the payment id
+                if (!id) return;
+
+                var row = $(this).closest('tr');
+                var token = $('input[name="__RequestVerificationToken"]').val();
+                    showSpinner();
+                $.ajax({
+                    type: 'POST',
+                    url: '?handler=Delete', // Razor Page handler
+                    data: {
+                        __RequestVerificationToken: token,
+                        id: id
+                    },
+                    success: function (response) {
+                        if (response.success) {
+                                showSpinner();
+                            row.fadeOut(300, function () { row.remove(); });
+                        } else {
+                            alert('Failed to delete.');
+                             hideSpinner();
+                        }
+                    },
+                    error: function () {
+                        alert('Error deleting record.');
+                    }
+                });
+                });
         });
     </script>
 }

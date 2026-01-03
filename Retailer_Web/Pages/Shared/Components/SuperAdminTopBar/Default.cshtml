@@ -1,0 +1,43 @@
+﻿@model Retailer.Web.Models.SuperAdminTopBarViewModel
+
+<nav class="sa-topbar navbar navbar-expand bg-white shadow-sm py-3 mb-2">
+    <div class="container-fluid align-items-center gap-4 flex-wrap">
+        <div class="d-flex flex-wrap align-items-center flex-grow-1 gap-4">
+            <div class="current-company-block me-auto">
+                <small class="text-muted text-uppercase">Current company</small>
+                <div class="fs-5 fw-semibold">
+                    @(Model.HasCompanyContext ? Model.CompanyName : "No company selected")
+                </div>
+                <div class="text-muted small">
+                    @(Model.HasCompanyContext
+                        ? "Switch anytime to impersonate another tenant"
+                        : "Select a company to unlock tenant data")
+                </div>
+            </div>
+
+            <div class="btn-group company-actions mx-auto" role="group" aria-label="Switch company actions">
+                <button type="button"
+                        class="btn btn-sm btn-outline-primary d-flex align-items-center gap-1"
+                        data-bs-toggle="collapse"
+                        data-bs-target="#companyPickerPanel"
+                        aria-controls="companyPickerPanel"
+                        aria-expanded="@(Model.HasCompanyContext ? "false" : "true")">
+                    <i class="bi bi-arrow-repeat"></i>
+                    @(Model.HasCompanyContext ? "Switch" : "Choose")
+                </button>
+                <a class="btn btn-sm btn-primary d-flex align-items-center gap-1"
+                   asp-page="/SuperAdmin/SwitchCompany">
+                    <i class="bi bi-columns-gap"></i>
+                    Full picker
+                </a>
+            </div>
+        </div>
+
+        <div class="d-flex align-items-center gap-2 flex-wrap ms-auto">
+            <partial name="~/Pages/Shared/Components/TopBar/_Search.cshtml"
+                     model="Model.UserInfo" />
+            <partial name="~/Pages/Shared/Components/TopBar/_CurrentUser.cshtml"
+                     model="Model.UserInfo" />
+        </div>
+    </div>
+</nav>

@@ -1,0 +1,45 @@
+﻿using System.ComponentModel.DataAnnotations.Schema;
+
+namespace Retailer.POS.Web.ApiDTOs
+{
+    public class SalesMasterReturnDto
+    {
+        public int Id { get; set; }
+        public DateTime Date { get; set; } = DateTime.Now;
+        public DateTime CreateDate { get; set; } = DateTime.UtcNow;
+        public int LoginId { get; set; }
+        public int BranchId { get; set; }
+        public string? SaleType { get; set; }
+        public string? CustomerName { get; set; }
+        public decimal SubTotal { get; set; }
+        public decimal TotalDiscount { get; set; }
+        public decimal TaxAmount { get; set; }
+        public decimal BalanceAmount { get; set; }
+        public int? CustomerCode { get; set; }
+        public List<SalesReturnDetailDto> Details { get; set; } = new();
+    }
+
+    public class SalesReturnDetailDto
+    {
+        public int Id { get; set; }
+        public int SalesReturnMasterId { get; set; }
+        public int ItemCode { get; set; }    // <- must be string
+        public string ItemName { get; set; } = string.Empty;   // <- must be string
+        public string HsCode { get; set; } = string.Empty;   // <- must be string
+        public string UOM { get; set; } = string.Empty;   // <- must be string
+        public string SaleType { get; set; } = string.Empty;   // <- must be string
+        public decimal Rate { get; set; }
+        public decimal Qty { get; set; }
+        public decimal subTotal { get; set; }
+        public decimal Discount { get; set; }
+        public decimal TaxPercentage { get; set; }
+		public decimal extraTax { get; set; }
+		public decimal extraTaxP { get; set; }
+		public decimal furtherTaxP { get; set; }
+		public decimal furtherTax { get; set; }
+		public decimal TaxAmount { get; set; }
+        public decimal Amount { get; set; }
+        [NotMapped]
+        public decimal Stock { get; set; }
+    }
+}

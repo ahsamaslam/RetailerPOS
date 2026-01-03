@@ -1,5 +1,8 @@
 using AutoMapper;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
+using Retailer.Api.Services;
+using Retailer.POS.Api.Data;
 using Retailer.POS.Api.DTOs;
 using Retailer.POS.Api.Entities;
 using Retailer.POS.Api.Repositories;
@@ -10,11 +13,16 @@ public class PurchaseService : IPurchaseService
 {
     private readonly IUnitOfWork _uow;
     private readonly IMapper _mapper;
-
-    public PurchaseService(IUnitOfWork uow, IMapper mapper)
+    private readonly RetailerDbContext _context;
+	private readonly VendorLedgerService _vendorservice;
+	private readonly ItemLedgerService _itemservice;
+	public PurchaseService(IUnitOfWork uow, IMapper mapper, RetailerDbContext context)
     {
         _uow = uow;
         _mapper = mapper;
+        _context = context;    
+        _vendorservice = new VendorLedgerService(_context);
+        _itemservice = new ItemLedgerService(_context);
     }
 
     public async Task<PurchaseMasterDto> CreatePurchaseAsync(CreatePurchaseDto dto, Guid CompanyId,Guid UserId)
@@ -26,9 +34,18 @@ public class PurchaseService : IPurchaseService
             var pm = _mapper.Map<PurchaseMaster>(dto);
             pm.UserId = UserId;
             pm.CompanyId = CompanyId;
+            pm.UserId = UserId;
+            pm.UserName = dto.UserName ?? "";
             await _uow.PurchaseMasters.AddAsync(pm);
-            await _uow.SaveChangesAsync();
+            await _uow.SaveChangesAsync(); 
+            await _vendorservice.PostLedgerAsync(pm); 
+            foreach (var d in pm.Details)
+            {
 
+                await _itemservice.PostLedgerAsync(d);
+            }       
+          
+          
             //foreach (var d in dto.Details)
             //{
             //    var pd = _mapper.Map<PurchaseDetail>(d);
@@ -41,7 +58,7 @@ public class PurchaseService : IPurchaseService
 
             return _mapper.Map<PurchaseMasterDto>(pm);
         }
-        catch
+        catch(Exception e)
         {
             await tx.RollbackAsync();
             throw;
@@ -50,52 +67,21 @@ public class PurchaseService : IPurchaseService
 
     public async  Task<IEnumerable<PurchaseMasterDto?>> GetAll(Guid CompanyId)
     {
-        var pm = await _uow.PurchaseMasters.Query().Include(p => p.Details).Where(x => x.CompanyId == CompanyId).ToListAsync();
+        var pm = await _uow.PurchaseMasters.Query().Include(p => p.Details).Where(x => x.CompanyId == CompanyId  && x.Active==1).ToListAsync();
         return _mapper.Map<IEnumerable<PurchaseMasterDto>>(pm);
     }
 
-    public async Task<PurchaseMasterDto?> GetByIdAsync(int id)
+    public async Task<PurchaseMasterDto?> GetByIdAsync(int id ,Guid companyID)
     {
-        var pm = await _uow.PurchaseMasters.Query().Include(p => p.Details).FirstOrDefaultAsync(p => p.Id == id);
+        var pm = await _uow.PurchaseMasters.Query().Include(p => p.Details).FirstOrDefaultAsync(p => p.Id == id  && p.CompanyId== companyID);
         if (pm == null) return null;
         return _mapper.Map<PurchaseMasterDto>(pm);
     }
 
     public async Task<IEnumerable<PurchaseMasterDto?>> GetDateWiseAsync(DateTime sdate, DateTime edate, Guid CompanyId)
     {
-        var pm = await _uow.PurchaseMasters.Query().Include(p => p.Details).Where(p => p.CompanyId == CompanyId && p.Date.Date>=sdate.Date  &&  p.Date.Date<=edate.Date).ToListAsync();
+        var pm = await _uow.PurchaseMasters.Query().Include(p => p.Details).Where(p => p.CompanyId == CompanyId && p.Date.Date>=sdate.Date  &&  p.Date.Date<=edate.Date  && p.Active==1).ToListAsync();
         return _mapper.Map<IEnumerable<PurchaseMasterDto>>(pm);
     }
-
-    public async Task<bool> UpdateQtys(List<int> productIDs, int year)
-    {
-        try
-        {
-            var query =await _uow.VwStockLedger.Query().Where(r => productIDs.Contains(r.ProductID) && r.Year == year)
-                .GroupBy(x => x.ProductID).Select(x => new Item { Id = x.Key, QtyInHand = x.Sum(x => x.Qty) }).ToListAsync(); ;
-
-
-            var itemsToUpdate = _uow.Items.Query().Where(i => productIDs.Contains(i.Id)).ToList();
-
-            // Step 3: Update Qty in Item table
-            foreach (var item in itemsToUpdate)
-            {
-                var stock = query.FirstOrDefault(s => s.Id == item.Id);
-                if (stock != null)
-                {
-                    item.QtyInHand = stock.QtyInHand;
-                }
-            }
-
-            // Step 4: Save changes
-            await _uow.SaveChangesAsync();
-            return true;
-        }
-        catch (Exception ex)
-        {
-            return false;
-        }
-
-
-    }
+     
 }

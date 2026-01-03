@@ -1,0 +1,40 @@
+﻿@page "{id:guid}"
+@model Retailer.POS.Web.Pages.Companies.DetailsModel
+@{
+    ViewData["Title"] = "Company Details";
+}
+
+<h2 class="mb-4">@ViewData["Title"]</h2>
+
+@if (Model.Company == null)
+{
+    <div class="alert alert-warning">Company could not be found.</div>
+}
+else
+{
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <table class="table table-borderless mb-0">
+                <tbody>
+                    <tr><th class="w-25">Name</th><td>@Model.Company.Name</td></tr>
+                    <tr><th>Short Name</th><td>@Model.Company.ShortName</td></tr>
+                    <tr><th>Address</th><td>@Model.Company.Address</td></tr>
+                    <tr><th>Province</th><td>@Model.Company.Province</td></tr>
+                    <tr><th>Contact Person</th><td>@Model.Company.ContactPerson</td></tr>
+                    <tr><th>Contact Email</th><td>@Model.Company.ContactEmail</td></tr>
+                    <tr><th>Contact Phone</th><td>@Model.Company.ContactPhone</td></tr>
+                    <tr><th>CNIC</th><td>@Model.Company.CNIC</td></tr>
+                    <tr><th>NTN</th><td>@Model.Company.NTN</td></tr>
+                    <tr><th>STRN</th><td>@Model.Company.STRN</td></tr>
+                    <tr><th>Is Active</th><td>@Model.Company.IsActive</td></tr>
+                    <tr><th>FBR Active</th><td>@Model.Company.fbrActive</td></tr>
+                    <tr><th>GST Enabled</th><td>@Model.Company.isGst (@Model.Company.gstVal)</td></tr>
+                    <tr><th>ED Enabled</th><td>@Model.Company.isEd (@Model.Company.edVal)</td></tr>
+                    <tr><th>FED Enabled</th><td>@Model.Company.isFed (@Model.Company.fedVal)</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+}
+
+<a asp-page="Index" class="btn btn-secondary mt-3">Back</a>

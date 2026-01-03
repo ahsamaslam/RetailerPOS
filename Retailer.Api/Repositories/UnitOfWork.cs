@@ -1,5 +1,6 @@
 using Retailer.Api.DTOs;
 using Retailer.Api.Entities;
+using Retailer.Api.Entities.Ledger;
 using Retailer.Api.Entities.Views;
 using Retailer.POS.Api.Data;
 using Retailer.POS.Api.Entities;
@@ -22,7 +23,9 @@ namespace Retailer.POS.API.UnitOfWork
         private IRepository<Vendor> _vendors;
         private IRepository<Branch> _branches;
         private IRepository<SalesMaster> _salesMasters;
+        private IRepository<SalesReturnMaster> _salesReturnMasters;
         private IRepository<SalesDetail> _salesDetails;
+        private IRepository<SalesReturnDetail> _salesReturnDetails;
         private IRepository<StockTransfer> _stockTransfers;
         private IRepository<StockTransferDetail> _stockTransferDetails;
         private IRepository<vwStockLedger> _vwStockLedger;
@@ -34,7 +37,16 @@ namespace Retailer.POS.API.UnitOfWork
         private IRepository<Cities>? _cities;
         private IRepository<Provience>? _provience;
         private IRepository<Banks>? _banks;
-
+        private IRepository<CustomerPayment>? _customerpayment; 
+        private IRepository<VendorPayment>? _vendorpayment; 
+        private IRepository<CustomerLedger>? _customerledger; 
+        private IRepository<VendorLedger>? _vendorledger; 
+        private IRepository<BankLedger>? _bankledger; 
+        public IRepository<CustomerLedger> CustomerLedger => _customerledger ??= new Repository<CustomerLedger>(_context);
+        public IRepository<VendorLedger> VendorLedger => _vendorledger ??= new Repository<VendorLedger>(_context);
+        public IRepository<BankLedger> BankLedger => _bankledger ??= new Repository<BankLedger>(_context);
+        public IRepository<VendorPayment> VendorPayment => _vendorpayment ??= new Repository<VendorPayment>(_context);
+        public IRepository<CustomerPayment> CustomerPayment => _customerpayment ??= new Repository<CustomerPayment>(_context);
         public IRepository<Item> Items => _items ??= new Repository<Item>(_context);
         public IRepository<vwStockLedger> VwStockLedger => _vwStockLedger ??= new Repository<vwStockLedger>(_context);
         public IRepository<PurchaseMaster> PurchaseMasters => _purchaseMasters ??= new Repository<PurchaseMaster>(_context);
@@ -46,7 +58,9 @@ namespace Retailer.POS.API.UnitOfWork
         public IRepository<Vendor> Vendors => _vendors ??= new Repository<Vendor>(_context);
         public IRepository<Branch> Branches => _branches ??= new Repository<Branch>(_context);
         public IRepository<SalesMaster> SalesMasters => _salesMasters ??= new Repository<SalesMaster>(_context);
+        public IRepository<SalesReturnMaster> SalesReturnMaster => _salesReturnMasters ??= new Repository<SalesReturnMaster>(_context);
         public IRepository<SalesDetail> SalesDetails => _salesDetails ??= new Repository<SalesDetail>(_context);
+        public IRepository<SalesReturnDetail> SalesReturnDetails => _salesReturnDetails ??= new Repository<SalesReturnDetail>(_context);
         public IRepository<StockTransfer> StockTransfers => _stockTransfers ??= new Repository<StockTransfer>(_context);
         public IRepository<StockTransferDetail> StockTransferDetails => _stockTransferDetails ??= new Repository<StockTransferDetail>(_context);
         public IRepository<ItemCategory> ItemCategories => _itemCategories ??= new Repository<ItemCategory>(_context);

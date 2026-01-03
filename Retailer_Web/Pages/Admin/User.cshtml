@@ -2,29 +2,8 @@
 @model Retailer.Web.Pages.Admin.UsersModel
 @{
     ViewData["Title"] = "Manage Users";
+    Layout = "_EmptyLayout";
 }
-<style>
-    .modal-overlay {
-        display: none;
-        position: fixed;
-        inset: 0;
-        background: rgba(0,0,0,0.5);
-        z-index: 9999;
-    }
-
-        .modal-overlay.show {
-            display: block;
-        }
-
-    .modal-box {
-        background: #fff;
-        width: 600px;
-        max-width: 95%;
-        margin: 10% auto;
-        padding: 1rem;
-        border-radius: 6px;
-    }
-</style>
 <!-- Page header -->
 <div class="d-flex align-items-center justify-content-between mb-4">
     <h1 class="h3 mb-0">Users</h1>
@@ -43,7 +22,7 @@
 <!-- Search & filters -->
 <div class="row mb-3">
     <div class="col-md-6">
-        <input id="searchBox" class="form-control" placeholder="Search by username or email..." />
+        <input id="searchBox" class="form-control" placeholder="Search by name..." />
     </div>
     <div class="col-md-6">
         <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createuserModalpopup" data-mode="create">
@@ -88,72 +67,81 @@
                         }
                     </td>
                     <td>
-                        <div class="d-inline-flex">
-
-                            <!-- Edit -->
-                            <button class="btn btn-outline-primary btn-sm btn-icon action-btn"
-                                    data-bs-toggle="modal" data-bs-target="#createuserModalpopup"
+                        <div class="d-inline-flex gap-1">
+                            <button class="btn btn-sm btn-outline-primary d-inline-flex align-items-center justify-content-center"
+                                    style="width:2.2rem;height:2.2rem;"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#createuserModalpopup"
                                     data-mode="edit"
                                     data-userid="@user.Id"
                                     data-username="@user.UserName"
                                     data-email="@user.Email"
                                     data-currentroles="@string.Join(",", user.Roles)"
                                     title="Edit">
-                                <i class="bi bi-pencil"></i>
+                                <i class="fa fa-solid fa-edit"></i>
                             </button>
 
-                            <!-- Assign Roles -->
-                            <button class="btn btn-outline-secondary btn-sm btn-icon action-btn"
-                                    data-bs-toggle="modal" data-bs-target="#rolesModal"
+                            <button class="btn btn-sm btn-outline-primary d-inline-flex align-items-center justify-content-center"
+                                    style="width:2.2rem;height:2.2rem;"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#rolesModal"
                                     data-userid="@user.Id"
                                     data-username="@user.UserName"
                                     data-currentroles="@string.Join(",", user.Roles)"
                                     title="Manage Roles">
-                                <i class="bi bi-person-plus"></i>
+                                <i class="fa fa-solid fa-user-plus"></i>
                             </button>
+
                             <form method="post"
                                   asp-page-handler="LoadUserPermissions"
-                                  class="d-inline action-btn">
+                                  class="d-inline">
                                 <input type="hidden" name="userId" value="@user.Id" />
                                 <input type="hidden" name="userName" value="@user.UserName" />
-
                                 <button type="submit"
-                                        class="btn btn-outline-info btn-sm btn-icon"
+                                        class="btn btn-sm btn-outline-info d-inline-flex align-items-center justify-content-center"
+                                        style="width:2.2rem;height:2.2rem;"
                                         title="Manage Permissions">
-                                    <i class="bi bi-shield-check"></i>
+                                    <i class="fa fa-solid fa-user-shield"></i>
                                 </button>
                             </form>
 
-                            <!-- Block / Unblock -->
                             @if (user.IsBlocked)
                             {
-                                <form method="post" asp-page-handler="Unblock" class="d-inline action-btn">
+                                <form method="post" asp-page-handler="Unblock" class="d-inline">
                                     <input type="hidden" name="UserId" value="@user.Id" />
-                                    <button class="btn btn-warning btn-sm btn-icon" title="Unblock user">
-                                        <i class="bi bi-unlock"></i>
+                                    <button class="btn btn-sm btn-outline-warning d-inline-flex align-items-center justify-content-center"
+                                            style="width:2.2rem;height:2.2rem;"
+                                            title="Unblock user">
+                                        <i class="fa fa-solid fa-unlock"></i>
                                     </button>
                                 </form>
                             }
                             else
                             {
-                                <form method="post" asp-page-handler="Block" class="d-inline action-btn"
+                                <form method="post"
+                                      asp-page-handler="Block"
+                                      class="d-inline"
                                       onsubmit="return confirm('Block user @user.UserName?');">
                                     <input type="hidden" name="UserId" value="@user.Id" />
-                                    <button class="btn btn-outline-warning btn-sm btn-icon" title="Block user">
-                                        <i class="bi bi-lock"></i>
+                                    <button class="btn btn-sm btn-outline-warning d-inline-flex align-items-center justify-content-center"
+                                            style="width:2.2rem;height:2.2rem;"
+                                            title="Block user">
+                                        <i class="fa fa-solid fa-lock"></i>
                                     </button>
                                 </form>
                             }
 
-                            <!-- Delete -->
-                            <form method="post" asp-page-handler="Delete" class="d-inline action-btn"
+                            <form method="post"
+                                  asp-page-handler="Delete"
+                                  class="d-inline"
                                   onsubmit="return confirm('Delete user @user.UserName? This cannot be undone.');">
                                 <input type="hidden" name="UserId" value="@user.Id" />
-                                <button class="btn btn-outline-danger btn-sm btn-icon" title="Delete user">
-                                    <i class="bi bi-trash"></i>
+                                <button class="btn btn-sm btn-outline-danger d-inline-flex align-items-center justify-content-center"
+                                        style="width:2.2rem;height:2.2rem;"
+                                        title="Delete user">
+                                    <i class="fa fa-solid fa-trash"></i>
                                 </button>
                             </form>
-
                         </div>
                     </td>
 

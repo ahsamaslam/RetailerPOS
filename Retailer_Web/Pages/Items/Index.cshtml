@@ -2,29 +2,47 @@
 @model Retailer.POS.Web.Pages.Items.IndexModel
 @{
     ViewData["Title"] = "Items";
+    Layout = "_EmptyLayout";
 }
+<h2>Items</h2>
+<div class="row mb-3">
+    <div class="col-md-6">
+        <input id="searchBox" class="form-control" placeholder="Search by name..." />
+    </div>
+    <div class="col-md-6">
+        <a asp-page="Create" class="btn btn-primary mb-2">Create New Item</a>
+    </div>
+</div>
+
+
 <main class="app-main">
     <!--begin::App Content Header-->
-    <div class="app-content-header">
+    @* <div class="app-content-header">
         <!--begin::Container-->
         <div class="container-fluid">
             <!--begin::Row-->
-            <div class="row">
-                <div class="col-sm-6"><h3 class="mb-0">Items</h3>
-                    <a asp-page="Create">Create New</a>
+            <div class="row mb-3">
+                <div class="col-sm-6"><h3 class="mb-0">Categories</h3>
+                    <input id="searchBox" class="form-control" placeholder="Search by name..." />
                 </div>
                 <div class="col-sm-6">
-                    <ol class="breadcrumb float-sm-end">
-                        <li class="breadcrumb-item"><a href="#">Home</a></li>
-                        <li class="breadcrumb-item active" aria-current="page">Dashboard</li>
-                    </ol>
+                    <a asp-page="Create" class="btn btn-primary">Create New Item</a>
                 </div>
             </div>
             <!--end::Row-->
         </div>
         <!--end::Container-->
-    </div>
-    <div class="app-content" >
+    </div> *@
+    <div class="app-content">
+
+
+        <div id="spinner" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background-color:rgba(255,255,255,0.7);z-index:9999; text-align:center;">
+            <div style="position:absolute;top:50%;left:50%;transform:translate(-50%, -50%);">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+            </div>
+        </div>
         <table id="myTable" class="table mt-2">
             <thead>
                 <tr>
@@ -60,10 +78,12 @@
             </tbody>
         </table>
 
+
+
     </div>
     <!--end::App Content-->
 </main>
-<!--end::App Main--> 
+<!--end::App Main-->
 @section Scripts {
     <script>
         $(document).ready(function () {
@@ -76,4 +96,3 @@
         });
     </script>
 }
-
