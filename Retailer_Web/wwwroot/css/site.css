@@ -285,3 +285,89 @@ body.g-sidenav-show #sidenav-main {
   justify-content: center;
   font-size: 1.1rem;
 }
+
+/* Identity layout overrides */
+body.bg-default {
+  min-height: 100vh;
+  margin-bottom: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+body.bg-default .main-content {
+  margin-left: 0;
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.identity-shell {
+  width: 100%;
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.identity-shell .identity-hero,
+.identity-shell .identity-content {
+  flex: 1 1 0;
+  min-width: 0;
+  min-height: 0;
+}
+
+.identity-shell .identity-hero {
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+.identity-shell .identity-content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: clamp(2rem, 4vw, 5rem);
+  background-color: #f8f9fe;
+}
+
+.identity-hero-surface {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  padding: clamp(2rem, 4vw, 5rem);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.identity-hero-surface .header-body {
+  margin-bottom: 0;
+}
+
+.identity-hero-surface .separator {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+}
+
+.identity-card {
+  width: 100%;
+  max-width: 420px;
+}
+
+@media (min-width: 768px) {
+  .identity-card {
+    max-width: 480px;
+  }
+}
+
+@media (min-width: 992px) {
+  .identity-shell {
+    flex-direction: row;
+  }
+
+  .identity-shell .identity-content {
+    padding: clamp(3rem, 4vw, 6rem);
+  }
+}

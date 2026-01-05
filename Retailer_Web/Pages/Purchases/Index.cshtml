@@ -16,86 +16,50 @@
 </div>
 
 
-<main class="app-main">
-    <!--begin::App Content Header-->
-    @* <div class="app-content-header">
-        <!--begin::Container-->
-        <div class="container-fluid">
-            <!--begin::Row-->
-            <div class="row mb-3">
-                <div class="col-sm-6"><h3 class="mb-0">Categories</h3>
-                    <input id="searchBox" class="form-control" placeholder="Search by name..." />
-                </div>
-                <div class="col-sm-6">
-                    <a asp-page="Create" class="btn btn-primary">Create New Category</a>
-                </div>
-            </div>
-            <!--end::Row-->
-        </div>
-        <!--end::Container-->
-    </div> *@
-    <div class="app-content">
-
-
-        <div id="spinner" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background-color:rgba(0,0,0,0.7);z-index:9999; text-align:center;">
-            <div style="position:absolute;top:50%;left:50%;transform:translate(-50%, -50%);">
-                <div class="spinner-border text-primary" role="status">
-                       <!-- Replace spinner with GIF image -->
-        <img src="~/img/Spinner.gif" alt="Loading..." width="100" />
-                    <span class="visually-hidden">Loading...</span>
-                </div>
-            </div>
-        </div>
-
-        <div class="row">
-            <div class="col-md-3">
-                <label>Start Date</label>
-                <input asp-for="sdate" type="date" class="form-control text-start" id="startDate" />
-            </div>
-            <div class="col-md-3">
-                <label>End Date</label>
-                <input asp-for="edate" type="date" class="form-control text-start" id="endDate" />
-            </div>
-        </div>
-        <div class="row"></div>
-        <table id="myTable" class="table mt-2">
-            <thead>
-                <tr>
-                    <th>Date</th>
-                    <th>Vendor</th>
-                    <th>SubTotal</th>
-                    <th>Tax</th>
-                    <th>Balance</th>
-                    <th>Actions</th>
-
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var s in Model.Purchase)
-                {
-                    <tr>
-                        <td>@s.Date.ToShortDateString()</td>
-                        <td>@s.vendorName</td>
-                        <td>@s.SubTotal</td>
-                        <td>@s.TaxAmount</td>
-                        <td>@s.BalanceAmount</td>
-                        <td>
-                            <a asp-page="Edit" asp-route-id="@s.Id" class="btn btn-sm btn-warning">Edit</a>
-                            <a asp-page="Details" asp-route-id="@s.Id" class="btn btn-sm btn-info">Details</a>
-                            <a asp-page="Print" asp-route-id="@s.Id" class="btn btn-sm btn-success">Print</a>
-                            <a href="javascript:void(0);" class="btn btn-sm btn-danger delete-btn" data-id="@s.Id">Delete</a>
-                        </td>
-                    </tr>
-
-                }
-            </tbody>
-        </table>
-
-
-
+<div class="row">
+    <div class="col-md-3">
+        <label>Start Date</label>
+        <input asp-for="sdate" type="date" class="form-control text-start" id="startDate" />
     </div>
-    <!--end::App Content-->
-</main> 
+    <div class="col-md-3">
+        <label>End Date</label>
+        <input asp-for="edate" type="date" class="form-control text-start" id="endDate" />
+    </div>
+</div>
+<div class="row"></div>
+<table id="myTable" class="table mt-2">
+    <thead>
+        <tr>
+            <th>Date</th>
+            <th>Vendor</th>
+            <th>SubTotal</th>
+            <th>Tax</th>
+            <th>Balance</th>
+            <th>Actions</th>
+
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var s in Model.Purchase)
+        {
+            <tr>
+                <td>@s.Date.ToShortDateString()</td>
+                <td>@s.vendorName</td>
+                <td>@s.SubTotal</td>
+                <td>@s.TaxAmount</td>
+                <td>@s.BalanceAmount</td>
+                <td>
+                    <a asp-page="Edit" asp-route-id="@s.Id" class="btn btn-sm btn-warning">Edit</a>
+                    <a asp-page="Details" asp-route-id="@s.Id" class="btn btn-sm btn-info">Details</a>
+                    <a asp-page="Print" asp-route-id="@s.Id" class="btn btn-sm btn-success">Print</a>
+                    <a href="javascript:void(0);" class="btn btn-sm btn-danger delete-btn" data-id="@s.Id">Delete</a>
+                </td>
+            </tr>
+
+        }
+    </tbody>
+</table>
+
 <!--end::App Main-->
 @section Scripts {
     <script>

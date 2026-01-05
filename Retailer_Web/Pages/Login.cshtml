@@ -3,56 +3,51 @@
 @{
     Layout = "Shared/_IdentityLayout.cshtml";
 }
-<!-- Table -->
-<div class="row justify-content-center">
-    <div class="col-lg-5 col-md-7">
-        <div class="card bg-secondary shadow border-0">
-            
-            <div class="card-body px-lg-5 py-lg-5">
-                
-                <form id="account" method="post">
-                    @if (!ViewData.ModelState.IsValid && ViewData.ModelState[string.Empty] != null)
-                    {
-                        @foreach (var error in @ViewData.ModelState[string.Empty]?.Errors)
-                        {
-                            <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                                <span>@error.ErrorMessage</span>
-                                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                                    <span aria-hidden="true">×</span>
-                                </button>
-                            </div>
-                        }
-                    }
-                    <div class="form-group mb-3">
-                        <div class="input-group input-group-alternative">
-                            <div class="input-group-prepend">
-                                <span class="input-group-text">
-                                    <i class="ni ni-email-83"></i>
-                                </span>
-                            </div>
-                            <input asp-for="UserName" class="form-control" placeholder="Username" type="text" />
-                        </div>
-                        <span asp-validation-for="UserName" class="invalid-feedback" style="display: block"></span>
+
+<div class="identity-card card bg-secondary shadow border-0">
+    <div class="card-body px-lg-5 py-lg-5">
+        <form id="account" method="post">
+            @if (!ViewData.ModelState.IsValid && ViewData.ModelState[string.Empty] != null)
+            {
+                foreach (var error in ViewData.ModelState[string.Empty]?.Errors!)
+                {
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        <span>@error.ErrorMessage</span>
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">×</span>
+                        </button>
                     </div>
-                    <div class="form-group">
-                        <div class="input-group input-group-alternative">
-                            <div class="input-group-prepend">
-                                <span class="input-group-text">
-                                    <i class="ni ni-lock-circle-open"></i>
-                                </span>
-                            </div>
-                            <input asp-for="Password" placeholder="Password" type="password" class="form-control" />
-                        </div>
-                        <span asp-validation-for="Password" class="invalid-feedback" style="display: block"></span>
+                }
+            }
+
+            <div class="form-group mb-3">
+                <div class="input-group input-group-alternative">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text">
+                            <i class="ni ni-email-83"></i>
+                        </span>
                     </div>
-                    
-                    <div class="text-center">
-                        <button class="btn btn-primary my-4" type="submit">Sign in</button>
-                    </div>
-                </form>
+                    <input asp-for="UserName" class="form-control" placeholder="Username" type="text" />
+                </div>
+                <span asp-validation-for="UserName" class="invalid-feedback" style="display: block"></span>
             </div>
-        </div>
-        
+
+            <div class="form-group">
+                <div class="input-group input-group-alternative">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text">
+                            <i class="ni ni-lock-circle-open"></i>
+                        </span>
+                    </div>
+                    <input asp-for="Password" placeholder="Password" type="password" class="form-control" />
+                </div>
+                <span asp-validation-for="Password" class="invalid-feedback" style="display: block"></span>
+            </div>
+                    
+            <div class="text-center">
+                <button class="btn btn-primary my-4" type="submit">Sign in</button>
+            </div>
+        </form>
     </div>
 </div>
 
@@ -62,14 +57,16 @@
 
 @section IdentityHeader
 {
-    <div class="header bg-gradient-primary py-7 py-lg-8 pt-lg-9">
-        <div class="container">
-            <div class="header-body text-center mb-7">
+    <div class="header identity-hero-surface bg-gradient-primary text-white">
+        <div class="container h-100">
+            <div class="header-body text-center text-lg-left d-flex flex-column justify-content-center h-100">
                 <div class="row justify-content-center">
                     <div class="col-xl-5 col-lg-6 col-md-8 px-5">
-                        <img src="~/img/brand/blue.png" width="200" />
-                        <h1 class="text-white">Welcome!</h1>
-                        <p class="text-lead text-white">Use these awesome forms to login or create new account in your project for free.</p>
+                        <img src="~/img/brand/blue.png" width="200" alt="Brand" />
+                        <h1 class="text-white mt-4">Welcome!</h1>
+                        <p class="text-lead text-white mb-0">
+                            Use these awesome forms to login or create a new account in your project for free.
+                        </p>
                     </div>
                 </div>
             </div>

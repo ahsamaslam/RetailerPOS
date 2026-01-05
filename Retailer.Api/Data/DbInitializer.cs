@@ -12,17 +12,17 @@ namespace Retailer.Api.Data
         // Pages and actions used to create menus/submenus
         private static readonly List<MenuDto> Pages = new List<MenuDto>() { 
             new MenuDto() { UrlTitle="branches",Title = "Branches" , Icon="fa fa-code-branch" },
-            new MenuDto() { UrlTitle="#",Title="Products", Icon="fa fa-boxes",SubMenus = new List<SubMenuDto>(){ 
+            new MenuDto() { UrlTitle="customers", Icon="fa fa-users",Title="Customers" },
+            new MenuDto() { UrlTitle="vendors", Icon="fa fa-truck", Title = "Vendors" },
+            new MenuDto() { UrlTitle="Banks", Icon="fa fa-truck", Title = "Bank" },
+            new MenuDto() { UrlTitle="openingbalances", Icon="fa fa-balance-scale", Title = "Opening Balances"  },
+            new MenuDto() { UrlTitle="#",Title="Products", Icon="fa fa-boxes",SubMenus = new List<SubMenuDto>(){
                 new SubMenuDto() { UrlTitle="categories", Title="Categories" },
                 new SubMenuDto() { UrlTitle="groups", Title = "Groups" },
                 new SubMenuDto() { UrlTitle="itemtype", Title= "Item Type" },
                 new SubMenuDto() { UrlTitle="subgroups", Title="Sub Groups" },
                 new SubMenuDto() { UrlTitle="items", Title="Items" },
             }},
-            new MenuDto() { UrlTitle="customers", Icon="fa fa-users",Title="Customers" },
-            new MenuDto() { UrlTitle="vendors", Icon="fa fa-truck", Title = "Vendors" },
-            new MenuDto() { UrlTitle="Banks", Icon="fa fa-truck", Title = "Bank" },
-            new MenuDto() { UrlTitle="openingbalances", Icon="fa fa-balance-scale", Title = "Opening Balances"  },
             new MenuDto() { UrlTitle="#",Title="Sales", Icon="fa fa-shopping-cart",SubMenus = new List<SubMenuDto>(){
                 new SubMenuDto() { UrlTitle="sales", Title="Sales" },
                 new SubMenuDto() { UrlTitle="saleReturn", Title="Sales Return" },

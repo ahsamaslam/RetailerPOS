@@ -25,8 +25,11 @@
         <input id="searchBox" class="form-control" placeholder="Search by name..." />
     </div>
     <div class="col-md-6">
-        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createuserModalpopup" data-mode="create">
-            <i class="bi bi-plus-lg"></i> Create User
+        <button class="btn btn-primary"
+                data-toggle="modal"
+                data-target="#createuserModalpopup"
+                data-mode="create">
+            <i class="fa fa-plus"></i> Create User
         </button>
     </div>
 </div>
@@ -70,21 +73,21 @@
                         <div class="d-inline-flex gap-1">
                             <button class="btn btn-sm btn-outline-primary d-inline-flex align-items-center justify-content-center"
                                     style="width:2.2rem;height:2.2rem;"
-                                    data-bs-toggle="modal"
-                                    data-bs-target="#createuserModalpopup"
+                                    data-toggle="modal"
+                                    data-target="#createuserModalpopup"
                                     data-mode="edit"
                                     data-userid="@user.Id"
                                     data-username="@user.UserName"
                                     data-email="@user.Email"
                                     data-currentroles="@string.Join(",", user.Roles)"
                                     title="Edit">
-                                <i class="fa fa-solid fa-edit"></i>
+                                <i class="fa fa-edit"></i>
                             </button>
 
                             <button class="btn btn-sm btn-outline-primary d-inline-flex align-items-center justify-content-center"
                                     style="width:2.2rem;height:2.2rem;"
-                                    data-bs-toggle="modal"
-                                    data-bs-target="#rolesModal"
+                                    data-toggle="modal"
+                                    data-target="#rolesModal"
                                     data-userid="@user.Id"
                                     data-username="@user.UserName"
                                     data-currentroles="@string.Join(",", user.Roles)"
@@ -183,7 +186,7 @@
                     </h5>
                     <button type="button"
                             class="btn-close"
-                            data-bs-dismiss="modal"></button>
+                            data-dismiss="modal"></button>
                 </div>
 
                 <div class="modal-body">
@@ -215,7 +218,7 @@
                 <div class="modal-footer">
                     <button type="button"
                             class="btn btn-secondary"
-                            data-bs-dismiss="modal">
+                            data-dismiss="modal">
                         Close
                     </button>
 
@@ -240,7 +243,7 @@
             <form method="post" id="userForm">
                 <div class="modal-header">
                     <h5 class="modal-title" id="userModalTitle">Create User</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     <input type="hidden" asp-for="EditUser.Id" id="EditUser_Id" />
@@ -276,7 +279,7 @@
                 </div>
 
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
                     <button id="userFormSubmit" type="submit" class="btn btn-primary">Save</button>
                 </div>
             </form>
@@ -291,7 +294,7 @@
             <form method="post" asp-page-handler="AssignRoles" id="rolesForm">
                 <div class="modal-header">
                     <h5 class="modal-title">Manage Roles for <span id="rolesModalUserName"></span></h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    <button type="button" class="btn-close" data-dismiss="modal"></button>
                 </div>
 
                 <div class="modal-body">
@@ -319,7 +322,7 @@
                 </div>
 
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
                     <button type="submit" class="btn btn-success">Save Roles</button>
                 </div>
             </form>
@@ -332,40 +335,67 @@
     <script>
         (function () {
             const userModalEl = document.getElementById('createuserModalpopup');
-            userModalEl?.addEventListener('show.bs.modal', function (e) {
-                const trigger = e.relatedTarget;
-                const mode = trigger?.getAttribute('data-mode') || 'create';
-                const title = document.getElementById('userModalTitle');
-                const passwordRow = document.getElementById('passwordRow');
-                const currentRolesRow = document.getElementById('currentRoleRow');
+            if (userModalEl) {
+                $(userModalEl).on('show.bs.modal', function (e) {
+                    const trigger = e.relatedTarget;
+                    const mode = trigger?.getAttribute('data-mode') || 'create';
+                    const title = document.getElementById('userModalTitle');
+                    const passwordRow = document.getElementById('passwordRow');
+                    const currentRolesRow = document.getElementById('currentRoleRow');
 
-                // clear form values if create
-                if (mode === 'create') {
-                    title.textContent = 'Create User';
-                    document.getElementById('EditUser_Id').value = '';
-                    document.getElementById('EditUser_UserName').value = '';
-                    document.getElementById('EditUser_Email').value = '';
-                    document.getElementById('EditUser_Password').value = '';
-                    //passwordRow.style.display = 'block';
-                    currentRolesRow.style.display = 'none';
-                    // set form action to create handler
-                    document.getElementById('userForm').setAttribute('action', '?handler=Create');
-                } else {
-                    title.textContent = 'Edit User';
-                    const id = trigger.getAttribute('data-userid');
-                    const username = trigger.getAttribute('data-username');
-                    const email = trigger.getAttribute('data-email');
+                    if (mode === 'create') {
+                        title.textContent = 'Create User';
+                        document.getElementById('EditUser_Id').value = '';
+                        document.getElementById('EditUser_UserName').value = '';
+                        document.getElementById('EditUser_Email').value = '';
+                        document.getElementById('EditUser_Password').value = '';
+                        currentRolesRow.style.display = 'none';
+                        document.getElementById('userForm').setAttribute('action', '?handler=Create');
+                    } else {
+                        title.textContent = 'Edit User';
+                        const id = trigger.getAttribute('data-userid');
+                        const username = trigger.getAttribute('data-username');
+                        const email = trigger.getAttribute('data-email');
+                        const currentRolesRaw = trigger?.getAttribute('data-currentroles') || '';
+                        const currentRoles = currentRolesRaw ? currentRolesRaw.split(',') : [];
+
+                        document.getElementById('EditUser_Id').value = id;
+                        document.getElementById('EditUser_UserName').value = username ?? '';
+                        document.getElementById('EditUser_Email').value = email ?? '';
+                        document.getElementById('EditUser_Password').value = '';
+                        currentRolesRow.style.display = 'block';
+
+                        const container = document.getElementById('EditUser_CurrentRole');
+                        container.innerHTML = '';
+                        if (currentRoles.length) {
+                            currentRoles.forEach(r => {
+                                const s = document.createElement('span');
+                                s.className = 'badge bg-secondary me-1';
+                                s.textContent = r;
+                                container.appendChild(s);
+                            });
+                        } else {
+                            container.innerHTML = '<small class="text-muted">No roles assigned</small>';
+                        }
+
+                        document.getElementById('userForm').setAttribute('action', '?handler=Edit');
+                    }
+                });
+            }
+
+            const rolesModalEl = document.getElementById('rolesModal');
+            if (rolesModalEl) {
+                $(rolesModalEl).on('show.bs.modal', function (e) {
+                    const trigger = e.relatedTarget;
+                    const userId = trigger?.getAttribute('data-userid');
+                    const username = trigger?.getAttribute('data-username');
                     const currentRolesRaw = trigger?.getAttribute('data-currentroles') || '';
                     const currentRoles = currentRolesRaw ? currentRolesRaw.split(',') : [];
 
-                    document.getElementById('EditUser_Id').value = id;
-                    document.getElementById('EditUser_UserName').value = username ?? '';
-                    document.getElementById('EditUser_Email').value = email ?? '';
-                    document.getElementById('EditUser_Password').value = '';
-                    currentRolesRow.style.display = 'block';
-                    //document.getElementById('EditUser_CurrentRole').innerHTML = "<span class='badge bg-secondary me-1'>" + currentRoles + "</span>"
+                    document.getElementById('rolesModalUserName').textContent = username || '';
+                    document.getElementById('rolesForm_UserId').value = userId || '';
 
-                    const container = document.getElementById('EditUser_CurrentRole');
+                    const container = document.getElementById('currentRolesContainer');
                     container.innerHTML = '';
                     if (currentRoles.length) {
                         currentRoles.forEach(r => {
@@ -378,48 +408,15 @@
                         container.innerHTML = '<small class="text-muted">No roles assigned</small>';
                     }
 
-                    // hide password unless explicitly changing it
-                    //passwordRow.style.display = 'none';
-                    // set form action to edit handler
-                    document.getElementById('userForm').setAttribute('action', '?handler=Edit');
-                }
-            });
-
-            // Roles modal populate
-            const rolesModalEl = document.getElementById('rolesModal');
-            rolesModalEl?.addEventListener('show.bs.modal', function (e) {
-                const trigger = e.relatedTarget;
-                const userId = trigger?.getAttribute('data-userid');
-                const username = trigger?.getAttribute('data-username');
-                const currentRolesRaw = trigger?.getAttribute('data-currentroles') || '';
-                const currentRoles = currentRolesRaw ? currentRolesRaw.split(',') : [];
-
-                document.getElementById('rolesModalUserName').textContent = username || '';
-                document.getElementById('rolesForm_UserId').value = userId || '';
-
-                // show current roles as badges
-                const container = document.getElementById('currentRolesContainer');
-                container.innerHTML = '';
-                if (currentRoles.length) {
-                    currentRoles.forEach(r => {
-                        const s = document.createElement('span');
-                        s.className = 'badge bg-secondary me-1';
-                        s.textContent = r;
-                        container.appendChild(s);
+                    document.querySelectorAll('.role-checkbox').forEach(cb => {
+                        cb.checked = currentRoles.includes(cb.value);
                     });
-                } else {
-                    container.innerHTML = '<small class="text-muted">No roles assigned</small>';
-                }
 
-                // set checkboxes state according to current roles
-                document.querySelectorAll('.role-checkbox').forEach(cb => {
-                    cb.checked = currentRoles.includes(cb.value);
+                    document.getElementById('rolesForm').setAttribute('action', '?handler=AssignRoles');
                 });
+            }
 
-                // ensure form posts to handler AssignRoles
-                document.getElementById('rolesForm').setAttribute('action', '?handler=AssignRoles');
-            });
-                    // User Permissions modal populate
+            // User Permissions modal populate
                 // User Permissions modal populate
         const userPermModalEl = document.getElementById('userPermissionsModal');
 
