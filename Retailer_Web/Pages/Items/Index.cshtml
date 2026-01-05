@@ -15,74 +15,40 @@
 </div>
 
 
-<main class="app-main">
-    <!--begin::App Content Header-->
-    @* <div class="app-content-header">
-        <!--begin::Container-->
-        <div class="container-fluid">
-            <!--begin::Row-->
-            <div class="row mb-3">
-                <div class="col-sm-6"><h3 class="mb-0">Categories</h3>
-                    <input id="searchBox" class="form-control" placeholder="Search by name..." />
-                </div>
-                <div class="col-sm-6">
-                    <a asp-page="Create" class="btn btn-primary">Create New Item</a>
-                </div>
-            </div>
-            <!--end::Row-->
-        </div>
-        <!--end::Container-->
-    </div> *@
-    <div class="app-content">
-
-
-        <div id="spinner" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background-color:rgba(255,255,255,0.7);z-index:9999; text-align:center;">
-            <div style="position:absolute;top:50%;left:50%;transform:translate(-50%, -50%);">
-                <div class="spinner-border text-primary" role="status">
-                    <span class="visually-hidden">Loading...</span>
-                </div>
-            </div>
-        </div>
-        <table id="myTable" class="table mt-2">
-            <thead>
-                <tr>
-                    <th>Name</th>
-                    <th>Barcode</th>
-                    <th>Rate</th>
-                    <th>Cost</th>
-                    <th>Category</th>
-                    <th>Group</th>
-                    <th>SubGroup</th>
-                    <th>Type</th>
-                    <th>Action</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var it in Model.Items)
-                {
-                    <tr>
-                        <td>@it.Name</td>
-                        <td>@it.Barcode</td>
-                        <td>@it.Rate</td>
-                        <td>@it.Cost</td>
-                        <td>@it.CategoryName</td>
-                        <td>@it.GroupName</td>
-                        <td>@it.SubGroupName</td>
-                        <td>@it.ItemTypeName</td>
-                        <td>
-                            <a asp-page="Edit" asp-route-id="@it.Id" class="btn btn-sm btn-warning">Edit</a>
-                            <a asp-page="Details" asp-route-id="@it.Id" class="btn btn-sm btn-info">Details</a>
-                        </td>
-                    </tr>
-                }
-            </tbody>
-        </table>
-
-
-
-    </div>
-    <!--end::App Content-->
-</main>
+<table id="myTable" class="table mt-2">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Barcode</th>
+            <th>Rate</th>
+            <th>Cost</th>
+            <th>Category</th>
+            <th>Group</th>
+            <th>SubGroup</th>
+            <th>Type</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var it in Model.Items)
+        {
+            <tr>
+                <td>@it.Name</td>
+                <td>@it.Barcode</td>
+                <td>@it.Rate</td>
+                <td>@it.Cost</td>
+                <td>@it.CategoryName</td>
+                <td>@it.GroupName</td>
+                <td>@it.SubGroupName</td>
+                <td>@it.ItemTypeName</td>
+                <td>
+                    <a asp-page="Edit" asp-route-id="@it.Id" class="btn btn-sm btn-warning">Edit</a>
+                    <a asp-page="Details" asp-route-id="@it.Id" class="btn btn-sm btn-info">Details</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
 <!--end::App Main-->
 @section Scripts {
     <script>

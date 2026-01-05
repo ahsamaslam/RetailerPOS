@@ -8,15 +8,31 @@
 </head>
 <body class="bg-default">
 
-    <div class="main-content">
+    @{
+        var hasIdentityHeader = IsSectionDefined("IdentityHeader");
+    }
+
+    <div class="main-content d-flex flex-column min-vh-100">
         <partial name="Auth/_Navbar"/>
        
-        <!-- Page content -->
-        <div class="container-fluid mt-4 pt-4">
-            <!-- Page content -->
-            @RenderBody()
-        </div>
-        @RenderSection("IdentityHeader", false)
+        @if (hasIdentityHeader)
+        {
+            <section class="identity-shell flex-fill d-flex flex-column flex-lg-row">
+                <div class="identity-hero position-relative d-flex flex-column">
+                    @RenderSection("IdentityHeader", false)
+                </div>
+                <div class="identity-content d-flex align-items-center justify-content-center">
+                    @RenderBody()
+                </div>
+            </section>
+        }
+        else
+        {
+            <div class="container-fluid mt-4 pt-4 flex-fill">
+                @RenderBody()
+            </div>
+        }
+
         <partial name="_Footer"/>
     </div>
 

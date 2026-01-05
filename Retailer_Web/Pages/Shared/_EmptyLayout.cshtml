@@ -52,6 +52,7 @@
     @RenderSection("HeadScripts", required: false)
 </head>
 <body>
+    <partial name="_GlobalLoader" />
     @await Component.InvokeAsync("Sidebar")
     <div class="main-content" id="panel">
 

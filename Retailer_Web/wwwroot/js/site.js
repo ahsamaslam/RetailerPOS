@@ -14,10 +14,21 @@
     const SIDENAV_SHOW = 'g-sidenav-show';
     const SIDENAV_HIDDEN = 'g-sidenav-hidden';
     const SIDENAV_PINNED = 'g-sidenav-pinned';
+    const DESKTOP_BREAKPOINT = 992; // Bootstrap lg breakpoint
 
-    function showSidebar() {
+    function isDesktop() {
+        return window.innerWidth >= DESKTOP_BREAKPOINT;
+    }
+
+    function setPinnedState(forcePinned) {
+        const shouldPin = forcePinned ?? isDesktop();
+        body.classList.toggle(SIDENAV_PINNED, shouldPin);
+    }
+
+    function showSidebar(forcePinned) {
         body.classList.remove(SIDENAV_HIDDEN);
-        body.classList.add(SIDENAV_SHOW, SIDENAV_PINNED);
+        body.classList.add(SIDENAV_SHOW);
+        setPinnedState(forcePinned);
         if (sidenav) {
             sidenav.classList.add('show');
         }
@@ -48,12 +59,38 @@
         }
     }
 
+    let lastViewportIsDesktop = isDesktop();
+
+    function applyViewportDefaults(forceApply) {
+        const desktopNow = isDesktop();
+        if (!forceApply && desktopNow === lastViewportIsDesktop) {
+            return;
+        }
+
+        lastViewportIsDesktop = desktopNow;
+        if (desktopNow) {
+            showSidebar(true);
+        } else {
+            hideSidebar();
+        }
+    }
+
     toggler.addEventListener('click', toggleSidebar);
 
-    // Keep initial state consistent with desktop layout expectations.
+    // Keep initial state consistent with layout expectations.
     if (!body.classList.contains(SIDENAV_SHOW) && !body.classList.contains(SIDENAV_HIDDEN)) {
-        showSidebar();
+        applyViewportDefaults(true);
+    } else {
+        setPinnedState();
     }
+
+    let resizeTimeout;
+    window.addEventListener('resize', () => {
+        clearTimeout(resizeTimeout);
+        resizeTimeout = setTimeout(() => {
+            applyViewportDefaults(false);
+        }, 150);
+    });
 })();
 
 (function () {
@@ -121,5 +158,120 @@
 
             setSectionState(section, true);
         });
+    });
+})();
+
+(function () {
+    const loaderElement = document.getElementById('global-loader');
+    if (!loaderElement) {
+        window.__globalLoader = null;
+        return;
+    }
+
+    let inflight = 0;
+    const setVisibility = (show) => {
+        loaderElement.classList.toggle('is-visible', show);
+        loaderElement.setAttribute('aria-hidden', (!show).toString());
+    };
+
+    const controller = {
+        begin: () => {
+            inflight += 1;
+            if (inflight === 1) {
+                setVisibility(true);
+            }
+        },
+        end: () => {
+            inflight = Math.max(0, inflight - 1);
+            if (inflight === 0) {
+                setVisibility(false);
+            }
+        },
+        reset: () => {
+            inflight = 0;
+            setVisibility(false);
+        }
+    };
+
+    controller.reset();
+    window.__globalLoader = controller;
+
+    const originalFetch = window.fetch;
+    if (originalFetch) {
+        window.fetch = function (...args) {
+            controller.begin();
+            return originalFetch.apply(this, args)
+                .then(response => {
+                    controller.end();
+                    return response;
+                })
+                .catch(error => {
+                    controller.end();
+                    throw error;
+                });
+        };
+    }
+
+    const originalSend = XMLHttpRequest.prototype.send;
+    XMLHttpRequest.prototype.send = function (...args) {
+        controller.begin();
+        this.addEventListener('loadend', controller.end, { once: true });
+        return originalSend.apply(this, args);
+    };
+})();
+
+(function () {
+    const controller = window.__globalLoader;
+    if (!controller) {
+        return;
+    }
+
+    const shouldIgnore = (element) => element && element.dataset && element.dataset.loader === 'ignore';
+
+    document.addEventListener('submit', event => {
+        if (event.defaultPrevented) {
+            return;
+        }
+
+        const form = event.target;
+        if (!(form instanceof HTMLFormElement)) {
+            return;
+        }
+
+        if (shouldIgnore(form)) {
+            return;
+        }
+
+        controller.begin();
+    }, true);
+
+    document.addEventListener('click', event => {
+        if (event.defaultPrevented) {
+            return;
+        }
+
+        const anchor = event.target.closest('a[href]');
+        if (!anchor || shouldIgnore(anchor)) {
+            return;
+        }
+
+        const href = anchor.getAttribute('href');
+        if (!href || href.startsWith('#') || href.startsWith('javascript:')) {
+            return;
+        }
+
+        if (anchor.target && anchor.target !== '_self') {
+            return;
+        }
+
+        controller.begin();
+    }, true);
+
+    window.addEventListener('beforeunload', () => {
+        controller.begin();
+    });
+
+    window.addEventListener('pageshow', () => {
+        controller.reset();
     });
 })();
