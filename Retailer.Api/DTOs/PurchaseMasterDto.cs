@@ -8,6 +8,7 @@ public class PurchaseMasterDto
 	public DateTime Date { get; set; }
 	public DateTime CreateDate { get; set; } = DateTime.UtcNow;
 	public int VendorID { get; set; } 
+	public string? VendorName { get; set; } 
 	public decimal TotalDiscount { get; set; }
 	public decimal BalanceAmount { get; set; }
 	public decimal SubTotal { get; set; }

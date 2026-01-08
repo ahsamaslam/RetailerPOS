@@ -23,6 +23,8 @@ public class RetailerDbContext : DbContext
     public DbSet<Customer> Customers => Set<Customer>();
     public DbSet<PurchaseMaster> PurchaseMasters => Set<PurchaseMaster>();
     public DbSet<PurchaseDetail> PurchaseDetails => Set<PurchaseDetail>();
+    public DbSet<PurchaseReturnMaster> PurchaseReturnMasters => Set<PurchaseReturnMaster>();
+    public DbSet<PurchaseReturnDetail> PurchaseReturnDetails => Set<PurchaseReturnDetail>();
     public DbSet<StockTransfer> StockTransfers => Set<StockTransfer>();
     public DbSet<StockTransferDetail> StockTransferDetails => Set<StockTransferDetail>();
     public DbSet<SalesReturnMaster> SalesReturnMasters => Set<SalesReturnMaster>();

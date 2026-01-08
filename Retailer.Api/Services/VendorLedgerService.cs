@@ -1,7 +1,9 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Castle.Core.Resource;
+using Microsoft.EntityFrameworkCore;
 using Retailer.Api.Entities.Ledger;
 using Retailer.POS.Api.Data;
 using Retailer.POS.Api.Entities;
+using System.Collections.Generic;
 using VendorPayment = Retailer.Api.Entities.VendorPayment;
 
 namespace Retailer.Api.Services
@@ -19,7 +21,7 @@ namespace Retailer.Api.Services
 	DateTime sdate,
 	DateTime edate)
 		{
-			return await _context.VendorLedger
+		List<VendorLedger>  lst =  await _context.VendorLedger
 				.Where(x =>
 					x.VendorId == vendorId &&
 					x.Date.Date >= sdate.Date &&
@@ -27,7 +29,26 @@ namespace Retailer.Api.Services
 				.OrderBy(x => x.Date)
 				.ThenBy(x => x.Id)
 				.ToListAsync();
-		}
+
+            if (lst.Count == 0)
+            {
+
+
+                VendorLedger ledger = await _context.VendorLedger
+               .Where(x =>
+                   x.VendorId == vendorId
+                 )
+               .OrderBy(x => x.Date)
+               .ThenBy(x => x.Id)
+               .LastAsync();
+
+                if (ledger != null)
+                    return new List<VendorLedger> { ledger };
+
+
+            }
+            return lst;
+        }
 		public async Task PostLedgerAsync(object entity) 
         {
             int entityId;
@@ -147,6 +168,17 @@ namespace Retailer.Api.Services
                     referenceId = purchase.Id;
                     companyId = purchase.CompanyId;
                     referenceType = nameof(PurchaseMaster);
+                    break;
+
+
+                case PurchaseReturnMaster purchase:
+                    VendorId = purchase.VendorID;
+                    date = purchase.Date;
+                    credit =0 ;
+                    debit = purchase.Total;
+                    referenceId = purchase.Id;
+                    companyId = purchase.CompanyId;
+                    referenceType = nameof(PurchaseReturnMaster);
                     break;
 
                 case VendorPayment payment:

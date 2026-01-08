@@ -29,20 +29,41 @@ namespace Retailer.Api.Data
             }},
             new MenuDto() { UrlTitle="#",Title="Purchases", Icon="fa fa-shopping-bag",SubMenus = new List<SubMenuDto>(){
                 new SubMenuDto() { UrlTitle="purchases", Title="Purchases" },
-                new SubMenuDto() { UrlTitle="purchases-return", Title="Purchases Return" }
+                new SubMenuDto() { UrlTitle="PurchaseReturn", Title="Purchases Return" }
             }},
             new MenuDto() { UrlTitle="#",Title="Receipts", Icon="fa fa-receipt",SubMenus = new List<SubMenuDto>(){ 
                 new SubMenuDto() { UrlTitle="customer-receipt", Title="Customer Receipt" },
                 new SubMenuDto() { UrlTitle="vendor-receipt", Title="Vendor Receipt" }, 
             }},
-             new MenuDto() { UrlTitle="#",Title="Ledger", Icon="fa fa-receipt",SubMenus = new List<SubMenuDto>(){
+            new MenuDto() { UrlTitle="#",Title="Ledger", Icon="fa fa-receipt",SubMenus = new List<SubMenuDto>(){
                 new SubMenuDto() { UrlTitle="Ledger/Customer", Title="Customer Ledger" }, 
                 new SubMenuDto() { UrlTitle="Ledger/Vendor", Title="Vendor Ledger" }, 
+                new SubMenuDto() { UrlTitle="Ledger/Item", Title="Item Ledger" }, 
             }},
-				 new MenuDto() { UrlTitle="#",Title="Report", Icon="fa fa-receipt",SubMenus = new List<SubMenuDto>(){
-				new SubMenuDto() { UrlTitle="Report/StockReport", Title="Stock Report Ledger" }, 
-			}},
+            new MenuDto() { UrlTitle="Reports", Icon="fa fa-receipt", Title = "Report"  },
 
+            new MenuDto() { UrlTitle="#",Title="Purchase", Icon="fa fa-receipt",SubMenus = new List<SubMenuDto>(){
+                new SubMenuDto() { UrlTitle="purchase/report-date-wise-purchase", Title="Report Date Wise Purchase" },
+                new SubMenuDto() { UrlTitle="purchase/report-item-wise-purchase", Title="Report Item Wise Purchase" },
+                new SubMenuDto() { UrlTitle="purchase/report-vendor-wise-purchase", Title="Report Vendor Wise Purchase" }
+            }},
+            new MenuDto() { UrlTitle="#",Title="Purchase Return", Icon="fa fa-receipt",SubMenus = new List<SubMenuDto>(){
+                new SubMenuDto() { UrlTitle="purchase-return/report-date-wise-purchase-return", Title="Report Date Wise Purchase Return" },
+                new SubMenuDto() { UrlTitle="purchase-return/report-item-wise-purchase-return", Title="Report Item Wise Purchase Return" },
+                new SubMenuDto() { UrlTitle="purchase-return/report-vendor-wise-purchase-return", Title="Report Vendor Wise Purchase Return" },
+            }},
+            new MenuDto() { UrlTitle="#",Title="Sale", Icon="fa fa-receipt",SubMenus = new List<SubMenuDto>(){
+                new SubMenuDto() { UrlTitle="sales/report-date-wise-sales", Title="Report Date Wise Sales" },
+                new SubMenuDto() { UrlTitle="sales/report-item-wise-sales", Title="Report Item Wise Sales" },
+                new SubMenuDto() { UrlTitle="sales/report-customer-wise-sales", Title="Report Customer Wise Sales" }
+            }},
+            new MenuDto() { UrlTitle="#",Title="Sale Return", Icon="fa fa-receipt",SubMenus = new List<SubMenuDto>(){
+                new SubMenuDto() { UrlTitle="sales-return/report-date-wise-sales-return", Title="Report Date Wise Sales Return" },
+                new SubMenuDto() { UrlTitle="sales-return/report-item-wise-sales-return", Title="Report Item Wise Sales Return" },
+                new SubMenuDto() { UrlTitle="sales-return/report-customer-wise-sales-return", Title="Report Customer Wise Sales Return" },
+            }}
+
+            
             //new MenuDto() { UrlTitle="categories",Title="Categories", Icon="fa fa-list" },
             //new MenuDto() { UrlTitle="groups", Title = "Groups", Icon="fa fa-layer-group" },
             //new MenuDto() { UrlTitle="itemType", Icon="fa fa-tags" },

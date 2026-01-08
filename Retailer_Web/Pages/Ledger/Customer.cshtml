@@ -10,18 +10,12 @@
 <!--begin::Row-->
 <div class="row mt-2">
     <div class="col-sm-12">
-        <h3 class="mb-0">Banks</h3>
+        <h3 class="mb-0">Customer Ledger</h3>
     </div>
 </div>
 
 <!--end::Row-->
-<div class="row mb-3">
-   
-    <div class="col-md-6">
-        <a asp-page="Create" class="btn btn-primary mb-2">Customer Ledger</a>
-    </div>
-</div>
-
+ 
 
 <main class="app-main">
     <div class="app-content container-fluid">
@@ -36,21 +30,21 @@
                     <option value="">-- Select Customer --</option>
                 </select>
             </div>
-    
-        <div class="col-md-3">
-            <label>Start Date</label>
-            <input asp-for="sdate" type="date" class="form-control" id="startDate" />
-        </div>
-        <div class="col-md-3">
-            <label>End Date</label>
-            <input asp-for="edate" type="date" class="form-control" id="endDate" />
+
+            <div class="col-md-3">
+                <label>Start Date</label>
+                <input asp-for="sdate" type="date" class="form-control" id="startDate" />
+            </div>
+            <div class="col-md-3">
+                <label>End Date</label>
+                <input asp-for="edate" type="date" class="form-control" id="endDate" />
+            </div>
+
         </div>
 
-            </div>
-   
         <div class="row mt-2">
             <div class="col-12">
-            <table class="table table-striped"> 
+                <table class="table table-striped">
                     <thead>
                         <tr>
                             <th>Date</th>
@@ -72,55 +66,99 @@
                                 <td>@s.Debit</td>
                                 <td>@s.Credit</td>
                                 <td>@s.Balance</td>
-
+                                    
                             </tr>
                         }
                     </tbody>
                 </table>
 
-             
+
             </div>
         </div>
     </div>
 </main>
 @section Scripts {
-<script>
-    document.getElementById('customer').addEventListener('change', loadLedger);
-    document.getElementById('startDate').addEventListener('change', loadLedger);
-    document.getElementById('endDate').addEventListener('change', loadLedger);
+    <script>
+        const ledgerDetailResolvers = Object.freeze({
+            SalesMaster: id => `/Sales/Details/${id}`,
+            SaleMaster: id => `/Sales/Details/${id}`,
+            SalesReturnMaster: id => `/SaleReturn/Details/${id}`,
+            SaleReturnMaster: id => `/SaleReturn/Details/${id}`,
+            PurchaseMaster: id => `/Purchases/Details/${id}`,
+            PurchaseReturnMaster: id => `/PurchaseReturn/Details/${id}`,
+            PurchaseReturn: id => `/PurchaseReturn/Details/${id}`,
+            CustomerPayment: id => `/Customer-Receipt/Details/${id}`,
+            VendorPayment: id => `/Vendor-Receipt/Details/${id}`,
+            Customer: id => `/Customers/Details/${id}`,
+            OpeningBalance: id => `/Customers/Details/${id}`
+        });
 
-    async function loadLedger() {
-        const customer = document.getElementById('customer').value;
-        const sdate = document.getElementById('startDate').value;
-        const edate = document.getElementById('endDate').value;
+        ['customer', 'startDate', 'endDate'].forEach(id => {
+            document.getElementById(id)?.addEventListener('change', loadLedger);
+        });
 
-        if (!customer || !sdate || !edate) return;
+        async function loadLedger() {
+            const customer = document.getElementById('customer')?.value;
+            const sdate = document.getElementById('startDate')?.value;
+            const edate = document.getElementById('endDate')?.value;
 
-        // Updated handler name: LoadData
-        const url = `?handler=LoadData&customerCode=${customer}&sdate=${sdate}&edate=${edate}`;
+            if (!customer || !sdate || !edate) {
+                return;
+            }
 
-        const response = await fetch(url);
-        const data = await response.json();
+            const url = `?handler=LoadData&customerCode=${customer}&sdate=${sdate}&edate=${edate}`;
 
-        renderTable(data);
-    }
+            try {
+                const response = await fetch(url, { headers: { Accept: 'application/json' } });
+                if (!response.ok) {
+                    throw new Error('Unable to load ledger details.');
+                }
 
-    function renderTable(rows) {
-        const tbody = document.querySelector('table tbody');
-        tbody.innerHTML = '';
+                const data = await response.json();
+                renderTable(data);
+            }
+            catch (error) {
+                console.error(error);
+            }
+        }
 
-        rows.forEach(r => {
-            tbody.innerHTML += `
+        function getLedgerDetailUrl(referenceType, referenceId) {
+            if (!referenceType || !referenceId) {
+                return null;
+            }
+
+            const resolver = ledgerDetailResolvers[referenceType.trim()];
+            return resolver ? resolver(referenceId) : null;
+        }
+
+        function formatAmount(value) {
+            return Number(value ?? 0).toLocaleString(undefined, {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            });
+        }
+
+        function renderTable(rows) {
+            const tbody = document.querySelector('table tbody');
+            tbody.innerHTML = '';
+
+            rows.forEach(r => {
+                const detailUrl = getLedgerDetailUrl(r.referenceType, r.referenceId);
+                const referenceCell = detailUrl
+                    ? `<a href="${detailUrl}" class="ledger-link" data-type="${r.referenceType}" data-ref="${r.referenceId}">${r.referenceId}</a>`
+                    : `<span class="text-muted" title="No detail view available">${r.referenceId ?? '-'}</span>`;
+
+                tbody.innerHTML += `
                 <tr>
                     <td>${new Date(r.date).toLocaleDateString()}</td>
-                      <td>  <a href="#">${r.referenceId}</a></td>
-                    <td>${r.referenceType}</td>
+                    <td>${referenceCell}</td>
+                    <td>${r.referenceType ?? ''}</td>
                     <td>${r.remarks ?? ''}</td>
-                    <td>${r.debit}</td>
-                    <td>${r.credit}</td>
-                    <td>${r.balance}</td>
+                    <td class="text-end">${formatAmount(r.debit)}</td>
+                    <td class="text-end">${formatAmount(r.credit)}</td>
+                    <td class="text-end">${formatAmount(r.balance)}</td>
                 </tr>`;
-        });
-    }
-</script>
+            });
+        }
+    </script>
 }

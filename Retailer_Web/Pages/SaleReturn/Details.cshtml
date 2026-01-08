@@ -1,0 +1,55 @@
+@page "{id:int}"
+@model Retailer.Web.Pages.SaleReturn.DetailsModel
+@{
+    ViewData["Title"] = "Sale Return Details";
+}
+
+<h2>Sale Return Details</h2>
+
+<div>
+    <p><strong>Date:</strong> @Model.SaleReturn.Date.ToShortDateString()</p>
+    <p><strong>Customer:</strong> @Model.SaleReturn.CustomerName</p>
+    <p><strong>Sale Type:</strong> @Model.SaleReturn.SaleType</p>
+    <p><strong>Subtotal:</strong> @Model.SaleReturn.SubTotal</p>
+    <p><strong>Total Discount:</strong> @Model.SaleReturn.TotalDiscount</p>
+    <p><strong>Tax:</strong> @Model.SaleReturn.TaxAmount</p>
+    <p><strong>Balance:</strong> @Model.SaleReturn.BalanceAmount</p>
+</div>
+
+<h4>Items</h4>
+<table class="table">
+    <thead>
+        <tr>
+            <th>Item</th>
+            <th>Rate</th>
+            <th>Qty</th>
+            <th>Discount</th>``
+            <th>Tax</th>
+            <th>Amount</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (Model.SaleReturn.Details.Any())
+        {
+            foreach (var detail in Model.SaleReturn.Details)
+            {
+                <tr>
+                    <td>@detail.ItemName</td>
+                    <td>@detail.Rate</td>
+                    <td>@detail.Qty</td>
+                    <td>@detail.Discount</td>
+                    <td>@detail.TaxAmount (@detail.TaxPercentage%)</td>
+                    <td>@detail.Amount</td>
+                </tr>
+            }
+        }
+        else
+        {
+            <tr>
+                <td colspan="6" class="text-center text-muted">No return line items available.</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<a asp-page="Index" class="btn btn-secondary">Back</a>

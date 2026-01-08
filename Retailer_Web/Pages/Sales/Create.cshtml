@@ -6,10 +6,9 @@
 }
 <style>
 	.table-scroll-x {
-		overflow-x: auto; /* Enables horizontals scrollbar */
-		white-space: nowrap; /* Prevent table from wrapping */
-		width: 100%; /* Responsive */
-		border: 1px solid #ddd; /* Optional */
+		white-space: nowrap;
+		width: 100%;
+		border: 1px solid #ddd;
 	}
 
 	.right-table th,
@@ -17,10 +16,20 @@
 		padding: 4px 6px !important;
 		vertical-align: middle;
 	}
+
 	.right-table tr {
-    margin: 0 !important;
-    height: auto;
-} 
+		margin: 0 !important;
+		height: auto;
+	}
+
+	.item-search .dropdown-menu {
+		max-height: 260px;
+		overflow-y: auto;
+	}
+
+	.item-search .empty-state {
+		cursor: default;
+	}
 </style>
 <main class="app-main">
 	<!--begin::App Content Header-->
@@ -168,16 +177,25 @@
 											<label class="sr-no-label">1</label>
 										</td>
 										<td>
-											<select asp-for="Sale.Details[i].ItemCode" class="form-control item-select" data-index="@i">
-												<option value="">-- Select Item --</option>
-												@foreach (var item in Model.ItemsList)
-												{
-													<option value="@item.Value" data-rate="@item.rate" data-qty="@item.qty">@item.Text</option>
-												}
-											</select>
+											<div class="item-search" data-index="@i">
+												<input asp-for="Sale.Details[i].ItemCode" type="hidden" class="item-code-input" />
+												<input asp-for="Sale.Details[i].ItemName" type="hidden" class="item-name-input" />
+												<div class="dropdown w-100">
+													<input type="text"
+														   class="form-control item-search-input"
+														   placeholder="Search item..."
+														   autocomplete="off"
+														   value="@Model.Sale.Details[i].ItemName"
+														   aria-expanded="false" />
+													<div class="dropdown-menu w-100 p-0">
+														<div class="list-group list-group-flush search-results"></div>
+														<div class="dropdown-item text-muted small py-2 empty-state">Start typing to search</div>
+													</div>
+												</div>
+											</div>
 										</td>
 										<td><input asp-for="Sale.Details[i].Rate" min="0" type="number" step="0.01" class="form-control text-end" /></td>
-										<td><input asp-for="Sale.Details[i].Qty" min="0" type="number" step="0.01" class="form-control text-end" /></td>
+										<td><input asp-for="Sale.Details[i].Qty" min="0" type="number" step="0.01" class="form-control text-end qty-input" data-max-qty="@Model.Sale.Details[i].Stock" /></td>
 										<td><input asp-for="Sale.Details[i].subTotal" type="number" step="0.01" class="form-control text-end fw-bold" /></td>
 										<td><input asp-for="Sale.Details[i].Discount" min="0" max="100" type="number" step="0.01" class="form-control text-end" /></td>
 										<td class="gst-tax"><input asp-for="Sale.Details[i].TaxPercentage" min="0" max="100" type="number" step="0.01" class="form-control text-end" /></td>
@@ -196,21 +214,28 @@
 										<label class="sr-no-label">__index__</label>
 									</td>
 									<td>
-
-										<select name="Sale.Details[__index__].ItemCode" asp-items="Model.ItemsList" class="form-control">
-											<option value="">-- Select Item --</option>
-										</select>
+										<div class="item-search" data-index="__index__">
+											<input type="hidden" name="Sale.Details[__index__].ItemCode" class="item-code-input" value="0" />
+											<input type="hidden" name="Sale.Details[__index__].ItemName" class="item-name-input" value="" />
+											<div class="dropdown w-100">
+												<input type="text" class="form-control item-search-input" placeholder="Search item..." autocomplete="off" aria-expanded="false" />
+												<div class="dropdown-menu w-100 p-0">
+													<div class="list-group list-group-flush search-results"></div>
+													<div class="dropdown-item text-muted small py-2 empty-state">Start typing to search</div>
+												</div>
+											</div>
+										</div>
 									</td>
 									<td><input name="Sale.Details[__index__].Rate" min="0" value="0" type="number" step="0.01" class="form-control text-end" /></td>
-									<td><input name="Sale.Details[__index__].Qty" min="0" type="number" value="0" step="0.01" class="form-control text-end" /></td>
+									<td><input name="Sale.Details[__index__].Qty" min="0" type="number" value="0" step="0.01" class="form-control text-end qty-input" data-max-qty="0" /></td>
 									<td><input name="Sale.Details[__index__].subTotal" type="number" value="0" step="0.01" class="form-control text-end fw-bold" /></td>
 									<td><input name="Sale.Details[__index__].Discount" min="0" max="100" type="number" value="0" step="0.01" class="form-control text-end" /></td>
 									<td class="gst-tax"><input name="Sale.Details[__index__].TaxPercentage" min="0" max="100" type="number" value="0" step="0.01" class="form-control text-end" /></td>
 									<td class="gst-tax"><input name="Sale.Details[__index__].TaxAmount" readonly type="number" value="0" step="0.01" class="form-control text-end" /></td>
-									<td class="ed-tax"><input name="Sale.Details[__index__].extraTaxP" min="0" max="100"  type="number" value="0" step="0.01" class="form-control text-end" /></td>
+									<td class="ed-tax"><input name="Sale.Details[__index__].extraTaxP" min="0" max="100" type="number" value="0" step="0.01" class="form-control text-end" /></td>
 									<td class="ed-tax"><input name="Sale.Details[__index__].extraTax" readonly type="number" value="0" step="0.01" class="form-control text-end" /></td>
-									<td class="ed-tax"><input name="Sale.Details[__index__].furtherTaxP" min="0" max="100" type="number" value="0" step="0.01" class="form-control text-end" /></td>
-									<td class="ed-tax"><input name="Sale.Details[__index__].furtherTax" readonly type="number" value="0" step="0.01" class="form-control text-end" /></td>
+									<td class="fed-tax"><input name="Sale.Details[__index__].furtherTaxP" min="0" max="100" type="number" value="0" step="0.01" class="form-control text-end" /></td>
+									<td class="fed-tax"><input name="Sale.Details[__index__].furtherTax" readonly type="number" value="0" step="0.01" class="form-control text-end" /></td>
 
 									<td><input name="Sale.Details[__index__].Amount" type="number" value="0" step="0.01" class="form-control text-end fw-bold" /></td>
 									<td><button type="button" class="btn btn-danger btn-sm remove-row">Remove</button></td>
@@ -240,6 +265,134 @@
 @section Scripts {
 	<script>
 		(function () {
+
+				const searchEndpoint = '@Url.Page("/Sales/Create", "ItemLookup")';
+				const MAX_RESULTS = 20;
+				const searchDebounce = new WeakMap();
+				const searchControllers = new WeakMap();
+
+				function ensureParts(input) {
+					const dropdown = input.closest('.dropdown');
+					return {
+						menu: dropdown.querySelector('.dropdown-menu'),
+						list: dropdown.querySelector('.search-results'),
+						state: dropdown.querySelector('.empty-state')
+					};
+				}
+
+				function handleSearchInput(input) {
+					const term = input.value.trim();
+					const parts = ensureParts(input);
+					if (!parts.list || !parts.state) return;
+
+					parts.list.innerHTML = '';
+					parts.menu.classList.add('show');
+					input.setAttribute('aria-expanded', 'true');
+
+					if (term.length < 2) {
+						parts.state.textContent = 'Type at least 2 characters';
+						parts.state.classList.remove('d-none');
+						searchControllers.get(input)?.abort();
+						return;
+					}
+
+					parts.state.textContent = 'Searching...';
+					parts.state.classList.remove('d-none');
+
+					clearTimeout(searchDebounce.get(input));
+					searchDebounce.set(input, setTimeout(() => performLookup(input, term), 250));
+				}
+
+				async function performLookup(input, term) {
+					searchControllers.get(input)?.abort();
+					const controller = new AbortController();
+					searchControllers.set(input, controller);
+
+					try {
+						const url = new URL('@Url.Page("/Sales/Create", "ItemLookup")', window.location.origin);
+						url.searchParams.set('take', MAX_RESULTS);
+						url.searchParams.set('term', term);
+						const response = await fetch(url, { signal: controller.signal });
+						if (!response.ok) throw new Error();
+						const items = await response.json();
+						renderResults(input, items);
+					} catch (err) {
+						if (err.name !== 'AbortError') renderError(input);
+					}
+				}
+
+				function renderResults(input, items) {
+					const { list, state } = ensureParts(input);
+					list.innerHTML = '';
+					if (!items.length) {
+						state.textContent = 'No items found';
+						state.classList.remove('d-none');
+						return;
+					}
+					state.classList.add('d-none');
+
+					items.forEach(item => {
+						const button = document.createElement('button');
+						button.type = 'button';
+						button.className = 'list-group-item list-group-item-action item-result';
+						button.dataset.id = item.id;
+						button.dataset.name = item.name;
+						button.dataset.rate = item.rate;
+						button.dataset.qty = item.qtyInHand ?? 0;
+						button.innerHTML = `<div class="fw-semibold">${item.name}</div>
+							<div class="small text-muted">Rate: ${Number(item.rate).toLocaleString()} • Stock: ${Number(item.qtyInHand ?? 0).toLocaleString()}</div>`;
+						list.appendChild(button);
+					});
+						 calculateRowAmount(row);
+						 updateTotal();
+				}
+
+				function renderError(input) {
+					const { state } = ensureParts(input);
+					state.textContent = 'Unable to load items';
+					state.classList.remove('d-none');
+				}
+
+				function selectItem(button) {
+					const row = button.closest('tr');
+					row.querySelector('.item-code-input').value = button.dataset.id;
+					row.querySelector('.item-name-input').value = button.dataset.name;
+					const searchInput = row.querySelector('.item-search-input');
+					searchInput.value = button.dataset.name;
+					row.querySelector('input[name$=".Rate"]').value = Number(button.dataset.rate).toFixed(2);
+					const qtyInput = row.querySelector('.qty-input');
+					if (qtyInput) {
+						qtyInput.dataset.maxQty = button.dataset.qty ?? '0';
+						if (!qtyInput.value || Number(qtyInput.value) === 0) qtyInput.value = 1;
+					}
+					ensureParts(searchInput).menu.classList.remove('show');
+					calculateRowAmount(row);
+					updateTotal();
+				}
+
+				document.querySelector('#detailsTable').addEventListener('input', e => {
+					if (e.target.classList.contains('item-search-input')) {
+						handleSearchInput(e.target);
+					}
+				});
+
+				document.querySelector('#detailsTable').addEventListener('click', e => {
+					if (e.target.closest('.item-result')) {
+						selectItem(e.target.closest('.item-result'));
+					}
+				});
+
+				document.addEventListener('click', e => {
+					if (!e.target.closest('.item-search')) {
+						document.querySelectorAll('.item-search-input').forEach(inp => {
+							ensureParts(inp).menu.classList.remove('show');
+							inp.setAttribute('aria-expanded', 'false');
+						});
+					}
+				});
+
+
+
 			const detailsTbody = document.querySelector('#detailsTable tbody');
 			const templateRow = document.getElementById('templateRow');
 			const templateInnerHtml = templateRow.innerHTML;
@@ -375,26 +528,26 @@
 					updateTotal();
 				}
 			});
-			detailsTbody.addEventListener('input', function (e) {
-				const row = e.target.closest('tr');
-				 if (row) {
-        // Check if qty input changed
-        if (e.target.classList.contains('qty-input')) {
-            const selectedOption = row.querySelector('select.item-select')?.selectedOptions[0];
-            if (selectedOption) {
-                const maxQty = parseFloat(selectedOption.getAttribute('data-qty')) || 0;
-                let enteredQty = parseFloat(e.target.value) || 0;
-                if (enteredQty > maxQty) {
-                    alert(`Quantity cannot exceed available stock (${maxQty}).`);
-                    e.target.value = maxQty;
-                }
-            }
-        }
+			// detailsTbody.addEventListener('input', function (e) {
+			// 	const row = e.target.closest('tr');
+			// 	 if (row) {
+   //      // Check if qty input changed
+   //      if (e.target.classList.contains('qty-input')) {
+   //          const selectedOption = row.querySelector('select.item-select')?.selectedOptions[0];
+   //          if (selectedOption) {
+   //              const maxQty = parseFloat(selectedOption.getAttribute('data-qty')) || 0;
+   //              let enteredQty = parseFloat(e.target.value) || 0;
+   //              if (enteredQty > maxQty) {
+   //                  alert(`Quantity cannot exceed available stock (${maxQty}).`);
+   //                  e.target.value = maxQty;
+   //              }
+   //          }
+   //      }
 
-        calculateRowAmount(row);
-        updateTotal();
-    }
-			});
+			 // calculateRowAmount(row);
+			 // updateTotal();
+   //  }
+			// });
 			function updateTotal() {
 				const rows = detailsTbody.querySelectorAll('tr[data-index]');
 				let total = 0;

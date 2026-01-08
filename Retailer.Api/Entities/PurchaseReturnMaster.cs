@@ -17,5 +17,6 @@ public class PurchaseReturnMaster : BaseEntity
     public Branch Branch { get; set; }
     public string? remarks { get; set; }
     public int Year { get; set; } = 1;
+    public int Active { get; set; } = 1;
     public ICollection<PurchaseReturnDetail> Details { get; set; } = new List<PurchaseReturnDetail>();
 }

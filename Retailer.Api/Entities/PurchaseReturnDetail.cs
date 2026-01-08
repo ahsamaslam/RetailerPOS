@@ -9,4 +9,5 @@ public class PurchaseReturnDetail : BaseEntity
     public decimal Qty { get; set; }
     public decimal Discount { get; set; }
     public decimal TaxPercentage { get; set; }
+    public decimal TaxAmount { get; set; }
 }

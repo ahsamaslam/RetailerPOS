@@ -16,7 +16,7 @@ public class ItemService : IItemService
         _mapper = mapper;
     }
 
-    public async Task<ItemDto> CreateAsync(CreateItemDto dto,Guid CompanyId)
+    public async Task<ItemDto> CreateAsync(CreateItemDto dto, Guid CompanyId)
     {
 
         var entity = _mapper.Map<Item>(dto);
@@ -37,20 +37,20 @@ public class ItemService : IItemService
     {
 
         var items = await _uow.Items.Query()
-            .Include(x=>x.Category)
-            .Include(x=>x.Group)
-            .Include(x=>x.SubGroup)
-    .Where(r => r.QtyInHand > 0
-             && (categoryId == 0 || r.CategoryId == categoryId)
-             && (groupId == 0 || r.GroupId == groupId))
-    .ToListAsync();
+            .Include(x => x.Category)
+            .Include(x => x.Group)
+            .Include(x => x.SubGroup)
+            .Where(r => r.QtyInHand > 0
+                     && (categoryId == 0 || r.CategoryId == categoryId)
+                     && (groupId == 0 || r.GroupId == groupId))
+            .ToListAsync();
         return _mapper.Map<IEnumerable<ItemDto>>(items);
     }
-        public async Task<IEnumerable<ItemDto>> GetAllAsync(Guid CompanyId)
+    public async Task<IEnumerable<ItemDto>> GetAllAsync(Guid CompanyId)
     {
 
 
-        var items = await _uow.Items.Query() // IQueryable<Item>
+        var items = await _uow.Items.Query()
          .Include(i => i.Category)
          .Include(i => i.Group)
          .Include(i => i.SubGroup)
@@ -106,5 +106,36 @@ public class ItemService : IItemService
         _mapper.Map(dto, e);
         _uow.Items.Update(e);
         await _uow.SaveChangesAsync();
+    }
+
+    public async Task<IEnumerable<ItemDto>> SearchAsync(Guid companyId, string? term, int take = 20)
+    {
+        var sanitized = term?.Trim() ?? string.Empty;
+        var query = _uow.Items.Query()
+            .Where(i => i.CompanyId == companyId);
+
+        if (!string.IsNullOrWhiteSpace(sanitized))
+        {
+            var likeValue = $"%{sanitized}%";
+            query = query.Where(i =>
+                EF.Functions.Like(i.Name, likeValue) ||
+                (i.Barcode != null && EF.Functions.Like(i.Barcode, likeValue)));
+        }
+
+        var size = Math.Clamp(take, 1, 50);
+
+        return await query
+            .OrderBy(i => i.Name)
+            .Take(size)
+            .Select(i => new ItemDto
+            {
+                Id = i.Id,
+                Name = i.Name,
+                Barcode = i.Barcode,
+                Rate = i.Rate,
+                Cost = i.Cost,
+                QtyInHand = i.QtyInHand
+            })
+            .ToListAsync();
     }
 }

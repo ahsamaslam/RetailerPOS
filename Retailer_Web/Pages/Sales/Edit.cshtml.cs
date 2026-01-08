@@ -1,10 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Retailer.POS.Web.ApiDTOs;
-using Retailer.POS.Web.Models;
 using Retailer.POS.Web.Services;
-using Retailer.Web.Pages;
-using Retailer.Web.Services.Layout;
 
 namespace Retailer.POS.Web.Pages.Sales;
 public class EditModel : PageModel
@@ -15,30 +13,57 @@ public class EditModel : PageModel
     [BindProperty]
     public SalesMasterDto Sale { get; set; } = new();
 
+    public List<SelectListItem> SaleType { get; private set; } = BuildSaleTypeOptions();
+    public List<SelectListItem> CustomersList { get; private set; } = new();
+
     public async Task<IActionResult> OnGetAsync(int id)
     {
-        Sale = await _api.GetSaleByIdAsync(id); // fetch DTO from API
+        Sale = await _api.GetSaleByIdAsync(id);
         if (Sale == null) return NotFound();
+
+        Sale.Details ??= new List<SalesDetailDto>();
+        await PopulateCustomersAsync();
         return Page();
     }
 
+    public async Task<IActionResult> OnGetItemLookupAsync(string term = "", int take = 20)
+        => new JsonResult(await _api.SearchItemsAsync(term, take));
+
     public async Task<IActionResult> OnPostAsync()
     {
+        SaleType = BuildSaleTypeOptions();
+        await PopulateCustomersAsync();
+
         if (!ModelState.IsValid) return Page();
 
-        // recompute totals server-side
+        Sale.Details ??= new List<SalesDetailDto>();
         Sale.SubTotal = Sale.Details.Sum(d => d.Amount);
         Sale.TaxAmount = Sale.Details.Sum(d => d.TaxAmount);
         Sale.TotalDiscount = Sale.Details.Sum(d => d.Discount);
         Sale.BalanceAmount = Sale.SubTotal - Sale.TotalDiscount + Sale.TaxAmount;
 
-        var success = await _api.UpdateSaleAsync(Sale); // call Update API
+        var success = await _api.UpdateSaleAsync(Sale);
         if (!success)
         {
-            ModelState.AddModelError("", "Unable to update sale.");
+            ModelState.AddModelError(string.Empty, "Unable to update sale.");
             return Page();
         }
 
         return RedirectToPage("Index");
     }
+
+    private async Task PopulateCustomersAsync()
+    {
+        var customers = await _api.GetCustomersAsync();
+        CustomersList = customers
+            .Select(c => new SelectListItem { Value = c.Id.ToString(), Text = c.Name })
+            .ToList();
+    }
+
+    private static List<SelectListItem> BuildSaleTypeOptions() =>
+        new()
+        {
+            new SelectListItem { Value = "1", Text = "Cash" },
+            new SelectListItem { Value = "1", Text = "Credit" }
+        };
 }

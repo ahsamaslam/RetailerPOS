@@ -1,41 +1,48 @@
 @page
-@model Retailer.POS.Web.Pages.Sales.CreateModel
+@model Retailer.POS.Web.Pages.Sales.EditModel
 @{
 	ViewData["Title"] = "Edit Sale";
 }
+<style>
+	.table-scroll-x {
+		white-space: nowrap;
+		width: 100%;
+		border: 1px solid #ddd;
+	}
+
+	.right-table th,
+	.right-table td {
+		padding: 4px 6px !important;
+		vertical-align: middle;
+	}
+
+	.right-table tr {
+		margin: 0 !important;
+		height: auto;
+	}
+
+	.item-search .dropdown-menu {
+		max-height: 260px;
+		overflow-y: auto;
+	}
+
+	.item-search .empty-state {
+		cursor: default;
+	}
+
+</style>
 
 <main class="app-main">
-	<!--begin::App Content Header-->
 	<div class="app-content-header">
-		<!--begin::Container-->
 		<div class="container-fluid">
-			<!--begin::Row-->
 			<div class="row">
 				<div>
-					<h2 style="
-    display: inline-block;
-    background-color: #007bff;
-    color: white;
-    font-weight: bold;
-    text-align: center;
-    padding: 10px 20px;
-    border-radius: 4px;
-    margin: 20px auto;
-    position: relative;
-    left: 50%;
-    transform: translateX(-50%);
-">
-						Create Sale
-					</h2>
+					<h2 class="text-center text-white fw-bold bg-primary px-4 py-2 rounded">Edit Sale</h2>
 				</div>
-
 			</div>
-			<!--end::Row-->
 		</div>
-		<!--end::Container-->
 	</div>
 	<div class="app-content">
-
 		<form method="post" id="saleForm">
 			<input type="hidden" asp-for="Sale.Id" />
 			<div class="row">
@@ -61,249 +68,389 @@
 						</div>
 					</div>
 					<table class="table table-sm right-table">
-
-						<tbody>
-
-
-							@* 	<tr class="d-flex align-items-center justify-content-between">
-							<th class="border-0 ">
-							<div class="d-flex align-items-center font-size-h5 mb-0 font-size-bold text-dark">
-							DISCOUNT(65%)
-
-
-							</div>
-							</th>
-							<td class="border-0 justify-content-end d-flex text-dark font-size-base">10%</td>
-
-							</tr>
-							<tr class="d-flex align-items-center justify-content-between">
-							<th class="border-0 font-size-h5 mb-0 font-size-bold text-dark">
-							Tax
-							</th>
-							<td class="border-0 justify-content-end d-flex text-dark font-size-base">$9</td>
-
-							</tr>
-							*@
-
-
-
-						</tbody>
+						<tbody></tbody>
 					</table>
 				</div>
 				<div class="col-md-4 mb-2">
 					<table class="table table-sm right-table">
-
 						<tbody>
-
-
 							<tr class="d-flex align-items-center justify-content-between">
-								<th class="border-0 ">
+								<th class="border-0">
 									<div class="d-flex align-items-center font-size-h5 mb-0 font-size-bold text-dark">
 										Closing Balance
-
-
 									</div>
 								</th>
 								<td class="border-0 justify-content-end d-flex text-dark font-size-base">10%</td>
-
 							</tr>
 						</tbody>
 					</table>
 				</div>
 				<div class="col-md-4 mb-2">
 					<table class="table table-sm right-table">
-
 						<tbody>
 							<tr class="d-flex align-items-center justify-content-between sub-total">
 								<th class="border-0 font-size-h5 mb-0 font-size-bold text-dark">
 									<h4>Sub total</h4>
 								</th>
 								<td class="border-0 justify-content-end d-flex text-dark font-size-base"><h4>0</h4></td>
-
 							</tr>
 							<tr class="d-flex align-items-center justify-content-between total-tax">
 								<th class="border-0 font-size-h5 mb-0 font-size-bold text-dark">
 									<h4>Total Tax</h4>
 								</th>
 								<td class="border-0 justify-content-end d-flex text-dark font-size-base"><h4>0</h4></td>
-
 							</tr>
 							<tr class="d-flex align-items-center justify-content-between total-amount">
 								<th class="border-0 font-size-h5 mb-0 font-size-bold text-primary">
-
 									<h2>TOTAL</h2>
 								</th>
 								<td class="border-0 justify-content-end d-flex text-primary font-size-base"><h2>0</h2></td>
-
 							</tr>
-
-
 						</tbody>
 						<tfoot>
 							<tr class="d-flex align-items-center justify-content-between total-amount">
-								<button type="submit" class="btn btn-primary" accesskey="s">Save Sale</button>
-								<a asp-page="Index" class="btn btn-secondary">Cancel</a>
+								<td>
+									<button type="submit" class="btn btn-primary" accesskey="s">Save Sale</button>
+									<a asp-page="Index" class="btn btn-secondary">Cancel</a>
+								</td>
 							</tr>
 						</tfoot>
 					</table>
 				</div>
 
 				<div class="col-md-12 mb-2">
-					<table class="table table-sm" id="detailsTable">
-						<thead class="table-light">
-							<tr>
-								<th width="5%">Sr</th>
-								<th width="30%">Item</th>
-								<th width="10%">Rate</th>
-								<th width="7%">Qty</th>
-								<th width="10%">Sub Total</th>
-								<th width="7%">Discount</th>
-								<th width="7%">Tax %</th>
-								<th width="10%">Tax </th>
-								<th width="20%">Total</th>
-								<th></th>
-							</tr>
-						</thead>
-						<tbody>
-							@for (int i = 0; i < Model.Sale.Details.Count; i++)
-							{
-								<tr data-index="@i">
+					<div class="table-scroll-x">
+						<table class="table table-sm" id="detailsTable">
+							<thead class="table-light">
+								<tr>
+									<th width="5%">Sr</th>
+									<th width="30%">Item</th>
+									<th width="10%">Rate</th>
+									<th width="7%">Qty</th>
+									<th width="10%">Sub Total</th>
+									<th width="7%">Discount</th>
+									<th width="7%">Tax %</th>
+									<th width="10%">Tax</th>
+									<th width="20%">Total</th>
+									<th></th>
+								</tr>
+							</thead>
+							<tbody>
+								@for (int i = 0; i < Model.Sale.Details.Count; i++)
+								{
+									<tr data-index="@i">
+										<td><label class="sr-no-label">1</label></td>
+										<td>
+											<div class="item-search" data-index="@i">
+												<input asp-for="Sale.Details[i].ItemCode" type="hidden" class="item-code-input" />
+												<input asp-for="Sale.Details[i].ItemName" type="hidden" class="item-name-input" />
+												<div class="dropdown w-100">
+													<input type="text"
+														   class="form-control item-search-input"
+														   placeholder="Search item..."
+														   autocomplete="off"
+														   value="@(Model.Sale.Details[i].ItemName ?? string.Empty)"
+														   aria-expanded="false" />
+													<div class="dropdown-menu w-100 p-0">
+														<div class="list-group list-group-flush search-results"></div>
+														<div class="dropdown-item text-muted small py-2 empty-state">Start typing to search</div>
+													</div>
+												</div>
+											</div>
+										</td>
+										<td><input asp-for="Sale.Details[i].Rate" min="0" type="number" step="0.01" class="form-control text-end" /></td>
+										<td><input asp-for="Sale.Details[i].Qty" min="0" type="number" step="0.01" class="form-control text-end qty-input" data-max-qty="@Model.Sale.Details[i].Stock" /></td>
+										<td><input asp-for="Sale.Details[i].subTotal" type="number" step="0.01" class="form-control text-end fw-bold" /></td>
+										<td><input asp-for="Sale.Details[i].Discount" min="0" max="100" type="number" step="0.01" class="form-control text-end" /></td>
+										<td><input asp-for="Sale.Details[i].TaxPercentage" min="0" max="100" type="number" step="0.01" class="form-control text-end" /></td>
+										<td><input asp-for="Sale.Details[i].TaxAmount" readonly type="number" step="0.01" class="form-control text-end" /></td>
+										<td><input asp-for="Sale.Details[i].Amount" readonly type="number" step="0.01" class="form-control text-end fw-bold" /></td>
+										<td><button type="button" class="btn btn-danger btn-sm remove-row">Remove</button></td>
+									</tr>
+								}
+								<tr id="templateRow" style="display:none">
+									<td><label class="sr-no-label">__index__</label></td>
 									<td>
-										<label class="sr-no-label">1</label>
+										<div class="item-search" data-index="__index__">
+										    <input type="hidden" name="Sale.Details[__index__].ItemCode" class="item-code-input" value="0" />
+										    <input type="hidden" name="Sale.Details[__index__].ItemName" class="item-name-input" value="" />
+										    <div class="dropdown w-100">
+										        <input type="text" class="form-control item-search-input" placeholder="Search item..." autocomplete="off" aria-expanded="false" />
+										        <div class="dropdown-menu w-100 p-0">
+											        <div class="list-group list-group-flush search-results"></div>
+											        <div class="dropdown-item text-muted small py-2 empty-state">Start typing to search</div>
+										        </div>
+										    </div>
+									    </div>
 									</td>
-									<td>
-										<select asp-for="Sale.Details[i].ItemCode" asp-items="Model.ItemsList" class="form-control">
-											<option value="Sale.Details[i].ItemCode" data-rate="Sale.Details[i].Rate">-- Select Item --</option>
-										</select>
-									</td>
-									<td><input asp-for="Sale.Details[i].Rate" min="0" type="number" step="0.01" class="form-control text-end" /></td>
-									<td><input asp-for="Sale.Details[i].Qty" min="0" type="number" step="0.01" class="form-control text-end" /></td>
-									<td><input asp-for="Sale.Details[i].subTotal" type="number" step="0.01" class="form-control text-end fw-bold" /></td>
-									<td><input asp-for="Sale.Details[i].Discount" min="0" max="100" type="number" step="0.01" class="form-control text-end" /></td>
-									<td><input asp-for="Sale.Details[i].TaxPercentage" min="0" max="100" type="number" step="0.01" class="form-control text-end" /></td>
-									<td><input asp-for="Sale.Details[i].TaxAmount" readonly type="number" step="0.01" class="form-control text-end" /></td>
-									<td><input asp-for="Sale.Details[i].Amount" readonly type="number" step="0.01" class="form-control text-end fw-bold" /></td>
+									<td><input name="Sale.Details[__index__].Rate" min="0" value="0" type="number" step="0.01" class="form-control text-end" /></td>
+									<td><input name="Sale.Details[__index__].Qty" min="0" value="0" type="number" step="0.01" class="form-control text-end qty-input" data-max-qty="0" /></td>
+									<td><input name="Sale.Details[__index__].subTotal" type="number" value="0" step="0.01" class="form-control text-end fw-bold" /></td>
+									<td><input name="Sale.Details[__index__].Discount" min="0" max="100" type="number" value="0" step="0.01" class="form-control text-end" /></td>
+									<td><input name="Sale.Details[__index__].TaxPercentage" min="0" type="number" value="0" step="0.01" class="form-control text-end" /></td>
+									<td><input name="Sale.Details[__index__].TaxAmount" readonly type="number" value="0" step="0.01" class="form-control text-end" /></td>
+									<td><input name="Sale.Details[__index__].Amount" type="number" value="0" step="0.01" class="form-control text-end fw-bold" /></td>
 									<td><button type="button" class="btn btn-danger btn-sm remove-row">Remove</button></td>
 								</tr>
-							}
-							<tr id="templateRow" style="display:none">
-								<td>
-									<label class="sr-no-label">__index__</label>
-								</td>
-								<td>
-
-									<select name="Sale.Details[__index__].ItemCode" asp-items="Model.ItemsList" class="form-control">
-										<option value="">-- Select Item --</option>
-									</select>
-								</td>
-								<td><input name="Sale.Details[__index__].Rate" min="0" value="0" type="number" step="0.01" class="form-control text-end" /></td>
-								<td><input name="Sale.Details[__index__].Qty" min="0" type="number" value="0" step="0.01" class="form-control text-end" /></td>
-								<td><input name="Sale.Details[__index__].subTotal" type="number" value="0" step="0.01" class="form-control text-end fw-bold" /></td>
-								<td><input name="Sale.Details[__index__].Discount" min="0" max="100" type="number" value="0" step="0.01" class="form-control text-end" /></td>
-								<td><input name="Sale.Details[__index__].TaxPercentage" min="0" max="0" type="number" value="0" step="0.01" class="form-control text-end" /></td>
-								<td><input name="Sale.Details[__index__].TaxAmount" readonly type="number" value="0" step="0.01" class="form-control text-end" /></td>
-								<td><input name="Sale.Details[__index__].Amount" type="number" value="0" step="0.01" class="form-control text-end fw-bold" /></td>
-								<td><button type="button" class="btn btn-danger btn-sm remove-row">Remove</button></td>
-							</tr>
-
-						</tbody>
-						<tfoot>
-							<tr class="d-flex align-items-center justify-content-between total-qty">
-
-								<th class="border-0 font-size-h5 mb-0 font-size-bold text-dark">
-									Total Items
-								</th>
-								<td class="border-0 justify-content-end d-flex text-dark font-size-base">0</td>
-
-							</tr>
-						</tfoot>
-					</table>
+							</tbody>
+							<tfoot>
+								<tr class="d-flex align-items-center justify-content-between total-qty">
+									<th class="border-0 font-size-h5 mb-0 font-size-bold text-dark">Total Items</th>
+									<td class="border-0 justify-content-end d-flex text-dark font-size-base">0</td>
+								</tr>
+							</tfoot>
+						</table>
+					</div>
 					<button type="button" id="addRow" class="btn btn-sm btn-secondary mb-2" accesskey="a">Add Item</button>
 				</div>
-
 			</div>
-
 		</form>
 	</div>
 </main>
+
 @section Scripts {
 	<script>
 		(function () {
 			const detailsTbody = document.querySelector('#detailsTable tbody');
 			const templateRow = document.getElementById('templateRow');
 			const templateInnerHtml = templateRow.innerHTML;
+			const searchEndpoint = '@Url.Page("/Sales/Edit", "ItemLookup")';
+			const MAX_SEARCH_RESULTS = 20;
+			const searchDebounce = new WeakMap();
+			const searchControllers = new WeakMap();
+
+			function dataRows() {
+				return Array.from(detailsTbody.querySelectorAll('tr')).filter(r => r.id !== 'templateRow');
+			}
+
+			function ensureDropdownParts(input) {
+				const dropdown = input?.closest('.dropdown');
+				return {
+					menu: dropdown?.querySelector('.dropdown-menu'),
+					list: dropdown?.querySelector('.search-results'),
+					state: dropdown?.querySelector('.empty-state')
+				};
+			}
+
+			function showDropdown(input) {
+				const { menu } = ensureDropdownParts(input);
+				if (menu) menu.classList.add('show');
+				input.setAttribute('aria-expanded', 'true');
+			}
+
+			function closeDropdown(input) {
+				const { menu } = ensureDropdownParts(input);
+				if (menu) menu.classList.remove('show');
+				input.setAttribute('aria-expanded', 'false');
+			}
+
+			function closeAllDropdowns() {
+				document.querySelectorAll('.item-search-input').forEach(closeDropdown);
+			}
+
+			function handleItemSearchInput(input) {
+				const term = input.value.trim();
+				const parts = ensureDropdownParts(input);
+				if (!parts.list || !parts.state) return;
+
+				parts.list.innerHTML = '';
+				showDropdown(input);
+
+				if (term.length < 2) {
+					parts.state.textContent = 'Type at least 2 characters';
+					parts.state.classList.remove('d-none');
+					if (searchControllers.has(input)) {
+						searchControllers.get(input).abort();
+						searchControllers.delete(input);
+					}
+					return;
+				}
+
+				parts.state.textContent = 'Searching...';
+				parts.state.classList.remove('d-none');
+
+				if (searchDebounce.has(input)) {
+					clearTimeout(searchDebounce.get(input));
+				}
+
+				searchDebounce.set(input, setTimeout(() => performLookup(input, term), 250));
+			}
+
+			async function performLookup(input, term) {
+				if (searchControllers.has(input)) {
+					searchControllers.get(input).abort();
+				}
+
+				const controller = new AbortController();
+				searchControllers.set(input, controller);
+
+				try {
+					const url = `${searchEndpoint}&take=${MAX_SEARCH_RESULTS}&term=${encodeURIComponent(term)}`;
+					const response = await fetch(url, { signal: controller.signal });
+					if (!response.ok) throw new Error('Search failed');
+					const items = await response.json();
+					renderLookupResults(input, items);
+				} catch (error) {
+					if (error.name === 'AbortError') return;
+					renderLookupError(input);
+				}
+			}
+
+			function renderLookupResults(input, items) {
+				const { list, state } = ensureDropdownParts(input);
+				if (!list || !state) return;
+
+				list.innerHTML = '';
+				if (!items || !items.length) {
+					state.textContent = 'No items found';
+					state.classList.remove('d-none');
+				} else {
+					state.classList.add('d-none');
+					items.forEach(item => {
+						const button = document.createElement('button');
+						button.type = 'button';
+						button.className = 'list-group-item list-group-item-action item-result';
+						button.dataset.id = item.id;
+						button.dataset.name = item.name;
+						button.dataset.rate = item.rate;
+						button.dataset.qty = item.qtyInHand ?? 0;
+						button.innerHTML = `<div class="fw-semibold">${item.name}</div>
+							<div class="small text-muted">Rate: ${Number(item.rate).toLocaleString()} • Stock: ${Number(item.qtyInHand ?? 0).toLocaleString()}</div>`;
+						list.appendChild(button);
+					});
+					calculateRowAmount(row);
+					updateTotal();
+				}
+			}
+
+			function renderLookupError(input) {
+				const { state } = ensureDropdownParts(input);
+				if (!state) return;
+				state.textContent = 'Unable to load items';
+				state.classList.remove('d-none');
+			}
+
+			function selectItem(button) {
+				const row = button.closest('tr');
+				if (!row) return;
+				const codeInput = row.querySelector('.item-code-input');
+				const nameInput = row.querySelector('.item-name-input');
+				const searchInput = row.querySelector('.item-search-input');
+				const rateInput = row.querySelector('input[name$=".Rate"]');
+				const qtyInput = row.querySelector('.qty-input');
+
+				codeInput.value = button.dataset.id;
+				nameInput.value = button.dataset.name;
+				searchInput.value = button.dataset.name;
+				rateInput.value = Number(button.dataset.rate).toFixed(2);
+				if (qtyInput) {
+					qtyInput.dataset.maxQty = button.dataset.qty ?? '0';
+					if (!qtyInput.value || Number(qtyInput.value) === 0) {
+						qtyInput.value = 1;
+					}
+				}
+
+				closeDropdown(searchInput);
+				calculateRowAmount(row);
+				updateTotal();
+			}
+
+			function enforceQtyLimit(input) {
+				const maxQty = parseFloat(input.dataset.maxQty || '0');
+				const current = parseFloat(input.value || '0');
+				if (maxQty > 0 && current > maxQty) {
+					alert(`Quantity cannot exceed available stock (${maxQty}).`);
+					input.value = maxQty;
+				}
+			}
 
 			function reindexRows() {
-				const rows = detailsTbody.querySelectorAll('tr');
+				const rows = dataRows();
 				rows.forEach((row, idx) => {
 					row.setAttribute('data-index', idx);
 					row.querySelectorAll('input, select, textarea').forEach(inp => {
 						const nameAttr = inp.getAttribute('name');
 						if (nameAttr) {
-							const newName = nameAttr.replace(/Sale\.Details\[\d+\]/, `Sale.Details[${idx}]`);
-							inp.setAttribute('name', newName);
+							inp.setAttribute('name', nameAttr.replace(/Sale\.Details\[(?:\d+|__index__)\]/g, `Sale.Details[${idx}]`));
 						}
 						if (inp.id) {
-							inp.id = inp.id.replace(/_Details_\d+_/, `_Details_${idx}_`);
+							inp.id = inp.id.replace(/_Details_\d+_/g, `_Details_${idx}_`);
 						}
 					});
+					const srLabel = row.querySelector('.sr-no-label');
+					if (srLabel) srLabel.textContent = (idx + 1).toString();
 				});
-				updateTotal();
 			}
 
 			document.getElementById('addRow').addEventListener('click', function () {
-
-				const index = detailsTbody.children.length;
+				const index = dataRows().length;
 				const tr = document.createElement('tr');
 				tr.setAttribute('data-index', index);
 				tr.innerHTML = templateInnerHtml.replace(/__index__/g, index);
 				detailsTbody.appendChild(tr);
-				const itemSelect = tr.querySelector('select');
-				if (itemSelect) {
-					itemSelect.focus();
-				}
+				reindexRows();
+				updateTotal();
+				const input = tr.querySelector('.item-search-input');
+				if (input) input.focus();
 			});
-			document.querySelector('#detailsTable').addEventListener('change', function (e) {
-				if (e.target && e.target.classList.contains('item-select')) {
-					var selectedOption = e.target.selectedOptions[0];
-					var rate = selectedOption.getAttribute('data-rate') || 0;
-					console.log(rate);
-					// Find the row and corresponding Rate input
-					var row = e.target.closest('tr');
-					var rateInput = row.querySelector('input[name*=".Rate"]');
-					if (rateInput) {
-						rateInput.value = parseFloat(rate).toFixed(2);
-					}
 
-					// Optionally, trigger recalculation for subTotal/Amount
-					// calculateRowAmount(row);
+			// detailsTbody.addEventListener('input', function (e) {
+			// 	if (e.target.classList.contains('item-search-input')) {
+			// 		handleItemSearchInput(e.target);
+			// 		return;
+			// 	}
+
+			// 	if (e.target.classList.contains('qty-input')) {
+			// 		enforceQtyLimit(e.target);
+			// 	}
+
+			// 	const row = e.target.closest('tr[data-index]');
+			// 	if (row) {
+			// 		calculateRowAmount(row);
+			// 		updateTotal();
+			// 	}
+			// });
+
+			detailsTbody.addEventListener('click', function (e) {
+				const result = e.target.closest('.item-result');
+				if (result) {
+					selectItem(result);
+					return;
 				}
-			});
-			document.addEventListener('click', function (e) {
-				if (e.target && e.target.classList.contains('remove-row')) {
-					const row = e.target.closest('tr');
-					const elements = row.querySelectorAll('[data-index]');
-					console.log(elements);
+				if (e.target.classList.contains('remove-row')) {
+					const row = e.target.closest('tr[data-index]');
 					if (row) row.remove();
 					reindexRows();
 					updateTotal();
 				}
 			});
-			detailsTbody.addEventListener('input', function (e) {
-				const row = e.target.closest('tr');
-				if (row) {
-					calculateRowAmount(row);
-					updateTotal();
+
+			detailsTbody.addEventListener('keydown', function (e) {
+				if (e.key === 'Escape' && e.target.classList.contains('item-search-input')) {
+					closeDropdown(e.target);
 				}
 			});
+
+			document.addEventListener('click', function (e) {
+				if (!e.target.closest('.item-search')) {
+					closeAllDropdowns();
+				}
+			});
+
+			const form = document.getElementById('saleForm');
+			form?.addEventListener('submit', function () {
+				reindexRows();
+				closeAllDropdowns();
+			});
+
 			function updateTotal() {
-				const rows = detailsTbody.querySelectorAll('tr[data-index]');
+				const rows = dataRows();
 				let total = 0;
 				let subtotal = 0;
 				let totalTax = 0;
 				let totalQty = 0;
+
 				rows.forEach(row => {
-					//console.log(row);
 					const rowAmounts = calculateRowAmount(row);
 					total += rowAmounts.total;
 					subtotal += rowAmounts.amount;
@@ -312,28 +459,24 @@
 				});
 
 				const totalQtyCell = document.querySelector('.total-qty td');
-				if (totalQtyCell) totalQtyCell.textContent = `${Number(totalQty).toLocaleString()}`;
-				const totaltaxCell = document.querySelector('.total-tax td h4');
-				if (totaltaxCell) totaltaxCell.textContent = `${Number(totalTax).toLocaleString()}`;
+				if (totalQtyCell) totalQtyCell.textContent = Number(totalQty).toLocaleString();
+				const totalTaxCell = document.querySelector('.total-tax td h4');
+				if (totalTaxCell) totalTaxCell.textContent = Number(totalTax).toLocaleString();
 				const subtotalCell = document.querySelector('.sub-total td h4');
-				if (subtotalCell) subtotalCell.textContent = `${Number(subtotal).toLocaleString()}`;
-				// Update total in the summary table
+				if (subtotalCell) subtotalCell.textContent = Number(subtotal).toLocaleString();
 				const totalCell = document.querySelector('.total-amount td h2');
-				if (totalCell) totalCell.textContent = `${Number(total).toLocaleString()}`;
+				if (totalCell) totalCell.textContent = Number(total).toLocaleString();
 			}
+
 			function calculateRowAmount(row) {
 				const rate = parseFloat(row.querySelector('input[name$=".Rate"]').value) || 0;
 				const qty = parseFloat(row.querySelector('input[name$=".Qty"]').value) || 0;
 				const discount = parseFloat(row.querySelector('input[name$=".Discount"]').value) || 0;
 				const tax = parseFloat(row.querySelector('input[name$=".TaxPercentage"]').value) || 0;
 
-				// Amount calculation: (Rate * Qty) - Discount + Tax%
-				let amount = (rate * qty);
-				const taxAmount = (amount * tax / 100);
-				let total = amount - discount;
-
-				total += taxAmount;
-				console.log(amount);
+				let amount = rate * qty;
+				const taxAmount = amount * tax / 100;
+				let total = amount - discount + taxAmount;
 
 				const subTotal = row.querySelector('input[name$=".subTotal"]');
 				subTotal.value = amount.toFixed(2);
@@ -341,19 +484,13 @@
 				taxAmountInput.value = taxAmount.toFixed(2);
 				const amountInput = row.querySelector('input[name$=".Amount"]');
 				amountInput.value = total.toFixed(2);
-				return {
-					amount,
-					taxAmount,
-					total,
-					qty
-				};
+
+				return { amount, taxAmount, total, qty };
 			}
-			const form = document.getElementById('saleForm');
-			form?.addEventListener('submit', function () {
-				reindexRows();
-			});
 
 			reindexRows();
+			updateTotal();
+			closeAllDropdowns();
 		})();
 	</script>
 }

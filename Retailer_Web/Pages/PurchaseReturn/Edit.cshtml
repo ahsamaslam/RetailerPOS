@@ -1,0 +1,345 @@
+﻿@page
+@model Retailer.Web.Pages.PurchaseReturn.EditModel
+@{
+	ViewData["Title"] = "Create";
+	Layout = "_EmptyLayout";
+}
+
+
+<main class="app-main">
+	<!--begin::App Content Header-->
+	<div class="app-content-header">
+		<!--begin::Container-->
+		<div class="container-fluid">
+			<!--begin::Row-->
+			<div class="row">
+				<div>
+					<h2 style="
+    display: inline-block;
+    background-color: #007bff;
+    color: white;
+    font-weight: bold;
+    text-align: center;
+    padding: 10px 20px;
+    border-radius: 4px;
+    margin: 20px auto;
+    position: relative;
+    left: 50%;
+    transform: translateX(-50%);
+">
+						Create Purchase
+					</h2>
+				</div>
+
+			</div>
+			<!--end::Row-->
+		</div>
+		<!--end::Container-->
+	</div>
+	<div class="app-content">
+
+		<form method="post" id="PurchaseForm">
+			<input type="hidden" asp-for="Purchase.Id" />
+			<input type="hidden" asp-for="Purchase.BranchId" />
+			<div class="row">
+				<div class="col-md-4 mb-2">
+					<div class="shop-profile">
+						<div class="media">
+							<div class="mb-2">
+								<label>Date</label>
+								<input asp-for="Purchase.Date" type="date" class="form-control text-start" autofocus />
+							</div>
+							<div class="mb-2">
+								<label>Purchase Type</label>
+								<select asp-for="Purchase.PurchaseType" required asp-items="Model.PurchaseType" class="form-control">
+									<option value="">-- Select Type --</option>
+								</select>
+							</div>
+							<div class="mb-2">
+								<label>Select Vendor</label>
+								<select asp-for="Purchase.VendorID" required asp-items="Model.vendorList" class="form-control">
+									<option value="">-- Select Vendor --</option>
+								</select>
+							</div>
+						</div>
+					</div>
+
+				</div>
+				<div class="col-md-4 mb-2">
+					<table class="table table-sm right-table">
+
+						<tbody>
+
+
+							<tr class="d-flex align-items-center justify-content-between">
+								<th class="border-0 ">
+									<div class="d-flex align-items-center font-size-h5 mb-0 font-size-bold text-dark">
+										Closing Balance
+
+
+									</div>
+								</th>
+								<td class="border-0 justify-content-end d-flex text-dark font-size-base">10%</td>
+
+							</tr>
+						</tbody>
+					</table>
+				</div>
+				<div class="col-md-4 mb-2">
+					<table class="table table-sm right-table">
+
+						<tbody>
+							<tr class="d-flex align-items-center justify-content-between sub-total">
+								<th class="border-0 font-size-h5 mb-0 font-size-bold text-dark">
+									<h4>Sub total</h4>
+								</th>
+								<td class="border-0 justify-content-end d-flex text-dark font-size-base"><h4>0</h4></td>
+
+							</tr>
+							<tr class="d-flex align-items-center justify-content-between total-tax">
+								<th class="border-0 font-size-h5 mb-0 font-size-bold text-dark">
+									<h4>Total Tax</h4>
+								</th>
+								<td class="border-0 justify-content-end d-flex text-dark font-size-base"><h4>0</h4></td>
+
+							</tr>
+							<tr class="d-flex align-items-center justify-content-between total-amount">
+								<th class="border-0 font-size-h5 mb-0 font-size-bold text-primary">
+
+									<h2>TOTAL</h2>
+								</th>
+								<td class="border-0 justify-content-end d-flex text-primary font-size-base"><h2>0</h2></td>
+
+							</tr>
+
+
+						</tbody>
+						<tfoot>
+							<tr class="d-flex align-items-center justify-content-between total-amount">
+								<button type="submit" class="btn btn-primary" accesskey="s">Save </button>
+								<a asp-page="Index" class="btn btn-secondary">Cancel</a>
+							</tr>
+						</tfoot>
+					</table>
+				</div>
+
+				<div class="col-md-12 mb-2">
+					<table class="table table-sm" id="detailsTable">
+						<thead class="table-light">
+							<tr>
+								<th width="5%">Sr</th>
+								<th width="30%">Item</th>
+								<th width="10%">Rate</th>
+								<th width="7%">Qty</th>
+								<th width="10%">Sub Total</th>
+								<th width="7%">Discount</th>
+								<th width="7%">Tax %</th>
+								<th width="10%">Tax </th>
+								<th width="20%">Total</th>
+								<th></th>
+							</tr>
+						</thead>
+						<tbody>
+							@for (int i = 0; i < Model.Purchase.Details.Count; i++)
+							{
+								<tr data-index="@i">
+									<td>
+										<label class="sr-no-label">1</label>
+									</td>
+									<td>
+										<select asp-for="Purchase.Details[i].ItemId" asp-items="Model.ItemsList" class="form-control">
+											<option value="Purchase.Details[i].ItemId" data-rate="Purchase.Details[i].Rate">-- Select Item --</option>
+										</select>
+									</td>
+									<td><input asp-for="Purchase.Details[i].Rate" min="0" type="number" step="0.01" class="form-control text-end" /></td>
+									<td><input asp-for="Purchase.Details[i].Qty" min="0" type="number" step="0.01" class="form-control text-end" /></td>
+									<td><input asp-for="Purchase.Details[i].subTotal" type="number" step="0.01" class="form-control text-end fw-bold" /></td>
+									<td><input asp-for="Purchase.Details[i].Discount" min="0" max="100" type="number" step="0.01" class="form-control text-end" /></td>
+									<td><input asp-for="Purchase.Details[i].TaxPercentage" min="0" max="100" type="number" step="0.01" class="form-control text-end" /></td>
+									<td><input asp-for="Purchase.Details[i].TaxAmount" readonly type="number" step="0.01" class="form-control text-end" /></td>
+									<td><input asp-for="Purchase.Details[i].Amount" readonly type="number" step="0.01" class="form-control text-end fw-bold" /></td>
+									<td><button type="button" class="btn btn-danger btn-sm remove-row">Remove</button></td>
+								</tr>
+							}
+
+							<tr id="templateRow" style="display:none">
+								<td>
+									<label class="sr-no-label">__index__</label>
+								</td>
+								<td>
+
+									<select name="Purchase.Details[__index__].ItemId" asp-items="Model.ItemsList" class="form-control">
+										<option value="">-- Select Item --</option>
+									</select>
+								</td>
+								<td><input name="Purchase.Details[__index__].Rate" min="0" value="0" type="number" step="0.01" class="form-control text-end" /></td>
+								<td><input name="Purchase.Details[__index__].Qty" min="0" type="number" value="0" step="0.01" class="form-control text-end" /></td>
+								<td><input name="Purchase.Details[__index__].subTotal" type="number" value="0" step="0.01" class="form-control text-end fw-bold" /></td>
+								<td><input name="Purchase.Details[__index__].Discount" min="0" max="100" type="number" value="0" step="0.01" class="form-control text-end" /></td>
+								<td><input name="Purchase.Details[__index__].TaxPercentage" min="0" max="0" type="number" value="0" step="0.01" class="form-control text-end" /></td>
+								<td><input name="Purchase.Details[__index__].TaxAmount" readonly type="number" value="0" step="0.01" class="form-control text-end" /></td>
+								<td><input name="Purchase.Details[__index__].Amount" type="number" value="0" step="0.01" class="form-control text-end fw-bold" /></td>
+								<td><button type="button" class="btn btn-danger btn-sm remove-row">Remove</button></td>
+							</tr>
+
+						</tbody>
+						<tfoot>
+							<tr class="d-flex align-items-center justify-content-between total-qty">
+
+								<th class="border-0 font-size-h5 mb-0 font-size-bold text-dark">
+									Total Items
+								</th>
+								<td class="border-0 justify-content-end d-flex text-dark font-size-base">0</td>
+
+							</tr>
+						</tfoot>
+					</table>
+					<button type="button" id="addRow" class="btn btn-sm btn-secondary mb-2" accesskey="a">Add Item</button>
+				</div>
+
+			</div>
+
+		</form>
+	</div>
+</main>
+@section Scripts {
+	<script>
+
+				(function () {
+					const detailsTbody = document.querySelector('#detailsTable tbody');
+					const templateRow = document.getElementById('templateRow');
+					const templateInnerHtml = templateRow.innerHTML;
+		function reindexRows() {
+			const rows = detailsTbody.querySelectorAll('tr[data-index]');
+			rows.forEach((row, idx) => {
+				row.setAttribute('data-index', idx);
+
+				// Update Sr No
+				const srLabel = row.querySelector('.sr-no-label');
+				if (srLabel) srLabel.textContent = idx + 1;
+
+				row.querySelectorAll('input, select, textarea').forEach(inp => {
+					const nameAttr = inp.getAttribute('name');
+					if (nameAttr) {
+						inp.setAttribute(
+							'name',
+							nameAttr.replace(/Purchase\.Details\[\d+\]/, `Purchase.Details[${idx}]`)
+						);
+					}
+
+					if (inp.id) {
+						inp.id = inp.id.replace(/_Details_\d+_/, `_Details_${idx}_`);
+					}
+				});
+			});
+		}
+		document.getElementById('addRow').addEventListener('click', function () {
+
+			const index = detailsTbody.querySelectorAll('tr[data-index]').length;
+
+			const tr = document.createElement('tr');
+			tr.setAttribute('data-index', index);
+			tr.innerHTML = templateInnerHtml.replace(/__index__/g, index);
+
+			detailsTbody.appendChild(tr);
+
+			reindexRows();
+			updateTotal();
+
+			const itemSelect = tr.querySelector('select');
+			itemSelect?.focus();
+		});
+				   document.querySelector('#detailsTable').addEventListener('change', function (e) {
+					   if (e.target && e.target.classList.contains('item-select')) {
+						   var selectedOption = e.target.selectedOptions[0];
+						   var rate = selectedOption.getAttribute('data-rate') || 0;
+						   console.log(rate);
+						   // Find the row and corresponding Rate input
+						   var row = e.target.closest('tr');
+						   var rateInput = row.querySelector('input[name*=".Rate"]');
+						   if (rateInput) {
+							   rateInput.value = parseFloat(rate).toFixed(2);
+						   }
+
+						   // Optionally, trigger recalculation for subTotal/Amount
+						   // calculateRowAmount(row);
+					   }
+				   });
+					document.addEventListener('click', function (e) {
+						if (e.target && e.target.classList.contains('remove-row')) {
+							const row = e.target.closest('tr');
+						   const elements = row.querySelectorAll('[data-index]');
+						   console.log(elements);
+							if (row) row.remove();
+							reindexRows();
+							updateTotal();
+						}
+					});
+				   detailsTbody.addEventListener('input', function (e) {
+					   const row = e.target.closest('tr');
+					   if (row) {
+						   calculateRowAmount(row);
+						   updateTotal();
+					   }
+				   });
+				   function updateTotal() {
+					   const rows = detailsTbody.querySelectorAll('tr[data-index]');
+					   let total = 0;
+					   let subtotal = 0;
+					   let totalTax = 0;
+					   let totalQty = 0;
+					   rows.forEach(row => {
+						   //console.log(row);
+						   const rowAmounts = calculateRowAmount(row);
+						   total += rowAmounts.total;
+						   subtotal += rowAmounts.amount;
+						   totalTax += rowAmounts.taxAmount;
+						   totalQty += rowAmounts.qty;
+					   });
+
+					   const totalQtyCell = document.querySelector('.total-qty td');
+					   if (totalQtyCell) totalQtyCell.textContent = `${Number(totalQty).toLocaleString()}`;
+					   const totaltaxCell = document.querySelector('.total-tax td h4');
+					   if (totaltaxCell) totaltaxCell.textContent = `${Number(totalTax).toLocaleString()}`;
+					   const subtotalCell = document.querySelector('.sub-total td h4');
+					   if (subtotalCell) subtotalCell.textContent = `${Number(subtotal).toLocaleString()}`;
+					   // Update total in the summary table
+					   const totalCell = document.querySelector('.total-amount td h2');
+					   if (totalCell) totalCell.textContent = `${Number(total).toLocaleString()}`;
+				   }
+				   function calculateRowAmount(row) {
+					   const rate = parseFloat(row.querySelector('input[name$=".Rate"]').value) || 0;
+					   const qty = parseFloat(row.querySelector('input[name$=".Qty"]').value) || 0;
+					   const discount = parseFloat(row.querySelector('input[name$=".Discount"]').value) || 0;
+					   const tax = parseFloat(row.querySelector('input[name$=".TaxPercentage"]').value) || 0;
+
+					   // Amount calculation: (Rate * Qty) - Discount + Tax%
+					   let amount = (rate * qty);
+					   const taxAmount = (amount * tax / 100);
+					   let total = amount - discount;
+
+					   total += taxAmount;
+					   console.log(amount);
+
+					   const subTotal = row.querySelector('input[name$=".subTotal"]');
+					   subTotal.value = amount.toFixed(2);
+					   const taxAmountInput = row.querySelector('input[name$=".TaxAmount"]');
+					   taxAmountInput.value = taxAmount.toFixed(2);
+					   const amountInput = row.querySelector('input[name$=".Amount"]');
+					   amountInput.value = total.toFixed(2);
+					   return {
+						   amount,
+						   taxAmount,
+						   total,
+						   qty
+					   };
+				   }
+					const form = document.getElementById('PurchaseForm');
+					form?.addEventListener('submit', function () {
+						reindexRows();
+					});
+
+					reindexRows();
+				})();
+	</script>
+}

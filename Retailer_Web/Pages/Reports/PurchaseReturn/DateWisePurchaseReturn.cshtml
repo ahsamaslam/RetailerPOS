@@ -1,0 +1,74 @@
+@page "/purchase-return/report-date-wise-purchase-return"
+@model Retailer.Web.Pages.Report.PurchaseReturn.DateWisePurchaseReturnModel
+@{
+    Layout = "_EmptyLayout";
+}
+
+<link href="~/css/reports.css" rel="stylesheet" />
+
+<div class="bookings-page">
+    <div class="page-header">
+        <h2>Date Wise Purchase Return Report</h2>
+
+        <form method="get" class="filters">
+            <input asp-for="sdate" type="date" class="form-control text-start" onchange="this.form.submit()" />
+            <input asp-for="edate" type="date" class="form-control text-start" onchange="this.form.submit()" />
+            <div class="dropdown">
+                <button class="btn btn-sm btn-primary dropdown-toggle" type="button"
+                        data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    Actions
+                </button>
+
+                <div class="dropdown-menu dropdown-menu-right shadow">
+                    @foreach (var action in Model.Actions)
+                    {
+                        <button class="dropdown-item" type="submit"
+                                asp-page-handler="Get"
+                                name="action" value="@action">
+                            @action
+                        </button>
+                    }
+                </div>
+            </div>
+
+        </form>
+    </div>
+
+    <div class="bookings-table">
+        <div class="table-header">
+            <span class="text-left">Return ID</span>
+            <span class="text-left">Date</span>
+            <span class="text-left">Vendor name</span>
+            <span class="text-right">Subtotal</span>
+            <span class="text-right">Discount</span>
+            <span class="text-right">Tax</span>
+            <span class="text-right">Net Total</span>
+        </div>
+
+
+        @foreach (var item in Model.PurchaseReturns)
+        {
+            <div class="table-row">
+                <span class="text-left">@item.Id</span>
+                <span class="text-left">@item.Date.ToString("dd MMM yyyy")</span>
+                <span class="text-left">@item.vendorName</span>
+                <span class="text-right">@item.SubTotal.ToString("N2")</span>
+                <span class="text-right">0.00</span>
+                <span class="text-right">@item.TaxAmount.ToString("N2")</span>
+                <span class="text-right">@item.Total.ToString("N2")</span>
+            </div>
+
+        }
+        <div class="table-footer">
+            <span></span>
+            <span></span>
+            <span class="text-left"><strong>Total</strong></span>
+            <span class="text-right"><strong>@Model.PurchaseReturns.Sum(x => x.SubTotal).ToString("N2")</strong></span>
+            <span class="text-right"><strong>0.00</strong></span>
+            <span class="text-right"><strong>@Model.PurchaseReturns.Sum(x => x.TaxAmount).ToString("N2")</strong></span>
+            <span class="text-right"><strong>@Model.PurchaseReturns.Sum(x => x.Total).ToString("N2")</strong></span>
+        </div>
+
+
+    </div>
+</div>

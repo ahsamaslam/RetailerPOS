@@ -2,8 +2,7 @@
 using Retailer.Api.Entities.Ledger;
 using Retailer.Api.Migrations;
 using Retailer.POS.Api.Data;
-using Retailer.POS.Api.Entities;
-using CustomerPayment = Retailer.Api.Entities.CustomerPayment;
+using Retailer.POS.Api.Entities; 
 
 namespace Retailer.Api.Services
 {
@@ -14,8 +13,43 @@ namespace Retailer.Api.Services
         public ItemLedgerService(RetailerDbContext context)
         {
             _context = context;
-        }
+        } 
+        public async Task<List<ItemLedger>> GetItemLedgerAsync(
+    int ItemId,
+    DateTime sdate,
+    DateTime edate)
+        {
 
+            List<ItemLedger> lst =
+             await _context.ItemLedger
+                .Where(x =>
+                    x.ItemId == ItemId &&
+                    x.Date.Date >= sdate.Date &&
+                    x.Date.Date <= edate.Date)
+                .OrderBy(x => x.Date)
+                .ThenBy(x => x.Id)
+                .ToListAsync();
+            if (lst.Count == 0)
+            {
+
+
+                ItemLedger ledger = await _context.ItemLedger
+               .Where(x =>
+                   x.ItemId == ItemId
+                 )
+               .OrderBy(x => x.Id)
+               .LastAsync();
+
+                if (ledger != null)
+                    return new List<ItemLedger> { ledger };
+
+
+            }
+
+
+            return lst;
+
+        }
         public async Task PostLedgerAsync(object entity) 
         {
             int entityId;
@@ -28,21 +62,21 @@ namespace Retailer.Api.Services
             // Detect object type and extract values
             switch (entity)
             {
-                //case Customer customer:
-                //    entityId = customer.Id  ;
-                //    decimal openbal = (decimal)customer.openingBalance;
-                //    date = customer.openDate??DateTime.Now;
-                //    debit = openbal > 0? openbal:0;   // Sale increases customer balance
+                //case Item Item:
+                //    entityId = Item.Id  ;
+                //    decimal openbal = (decimal)Item.openingBalance;
+                //    date = Item.openDate??DateTime.Now;
+                //    debit = openbal > 0? openbal:0;   // Sale increases Item balance
                 //    credit = openbal < 0 ? openbal*-1 : 0;   //
-                //    referenceId = customer.Id;
-                //    companyId = customer.CompanyId;
+                //    referenceId = Item.Id;
+                //    companyId = Item.CompanyId;
                 //    Type = "Opening Balance";
                 //    remarks = "Opening Balance";
                 //    break;
                 case SalesDetail sale:
                     entityId = sale.ItemCode;
                     date = sale.SalesMaster.Date;
-                    debit =0 ;   // Sale increases customer balance
+                    debit =0 ;   // Sale increases Item balance
                     credit = sale.SalesMaster.Details.Where(r => r.ItemCode == entityId).Sum(x => x.Qty);
                     referenceId = sale.Id;
                     companyId = sale.CompanyId;
@@ -50,9 +84,9 @@ namespace Retailer.Api.Services
                     remarks = sale.SalesMaster.remarks??"";
                     break;
                 case SalesReturnMaster sale:
-                    entityId = sale.CustomerCode ?? 0;
+                    entityId = sale.Id ;
                     date = sale.Date;
-                    credit = sale.totalAmount;   // Sale increases customer balance
+                    credit = sale.totalAmount;   // Sale increases Item balance
                     debit = 0;
                     referenceId = sale.Id;
                     companyId = sale.CompanyId;
@@ -63,17 +97,27 @@ namespace Retailer.Api.Services
                 case PurchaseDetail purchase:
                     entityId = purchase.ItemId;
                     date = purchase.Purchase.Date;
-                    debit = purchase.Purchase.Details.Where(r => r.ItemId == entityId).Sum(x => x.Qty);   // Sale increases customer balance
+                    debit = purchase.Purchase.Details.Where(r => r.ItemId == entityId).Sum(x => x.Qty);   // Sale increases Item balance
                     credit = 0;
                     referenceId = purchase.Purchase.Id;
                     companyId = purchase.Purchase.CompanyId;
                     Type = "Purchase Invoice";
                     remarks = purchase.Purchase.remarks ?? "";
                     break;
+                case PurchaseReturnDetail preturn:
+                    entityId = preturn.ItemId;
+                    date = preturn.Purchase.Date;
+                    debit = 0;   // Sale increases Item balance
+                    credit = preturn.Purchase.Details.Where(r => r.ItemId == entityId).Sum(x => x.Qty);
+                    referenceId = preturn.PurchaseReturnId;
+                    companyId = preturn.Purchase.CompanyId ;
+                    Type = "Purchase Return";
+                    remarks = preturn.Purchase.remarks ?? "";
+                    break;
                 //case SalesReturnMaster sale:
-                //    entityId = sale.CustomerCode ?? 0;
+                //    entityId = sale.ItemCode ?? 0;
                 //    date = sale.Date;
-                //    credit = sale.totalAmount;   // Sale increases customer balance
+                //    credit = sale.totalAmount;   // Sale increases Item balance
                 //    debit = 0;
                 //    referenceId = sale.Id;
                 //    companyId = sale.CompanyId;
@@ -123,15 +167,15 @@ namespace Retailer.Api.Services
 
             switch (entity)
             {
-                //case Customer customer:
-                //    itemId = customer.Id;
-                //    decimal openbal = (decimal)customer.openingBalance;
-                //    date = customer.openDate ?? DateTime.Now;
+                //case Item Item:
+                //    itemId = Item.Id;
+                //    decimal openbal = (decimal)Item.openingBalance;
+                //    date = Item.openDate ?? DateTime.Now;
                 //    debit = openbal > 0 ? openbal : 0;
                 //    credit = openbal < 0 ? Math.Abs(openbal) : 0;
-                //    referenceId = customer.Id;
-                //    companyId = customer.CompanyId;
-                //    referenceType = nameof(Customer);
+                //    referenceId = Item.Id;
+                //    companyId = Item.CompanyId;
+                //    referenceType = nameof(Item);
                 //    break;
 
                 case SalesDetail sale:
@@ -151,7 +195,7 @@ namespace Retailer.Api.Services
 
             return (referenceType, referenceId, itemId, date, debit, credit, companyId);
         }
-        public async Task UpdateCustomerBalanceAsync(object entity)
+        public async Task UpdateItemBalanceAsync(object entity)
         {
             using var transaction = await _context.Database.BeginTransactionAsync();
             try
@@ -276,6 +320,11 @@ namespace Retailer.Api.Services
 						entityid = sale.ItemCode;
                         break;
                  
+                    case PurchaseReturnDetail sale:
+                        referenceId = sale.PurchaseReturnId;
+						entityid = sale.ItemId;
+                        break;
+                 
                 }
                         string ReferenceType = entity.GetType().Name;
                 var ledgerEntry = await _context.ItemLedger
@@ -308,9 +357,9 @@ await ReverseItemLedgerEntryAsync(ReferenceType,referenceId, "Reversal Requested
 				await _context.SaveChangesAsync();
 			}
 		}
-		public async Task<decimal> GetCustomerClosingBalanceAsync(DateTime edate,  int itemId)
+		public async Task<decimal> GetItemClosingBalanceAsync(DateTime edate,  int itemId)
         {
-            // Get the last ledger entry for the customer
+            // Get the last ledger entry for the Item
             var lastEntry = await _context.ItemLedger
                 .Where(x => x.ItemId == itemId  && x.Date<=edate.Date)
                 .OrderByDescending(x => x.Id) // latest entry by Id
@@ -335,24 +384,26 @@ await ReverseItemLedgerEntryAsync(ReferenceType,referenceId, "Reversal Requested
                     case SalesDetail sale:
                         referenceId = sale.SalesMaster.Id;
 						entityId = sale.ItemCode; 
-                        updatedDebit = 0;   // Sale increases customer balance
+                        updatedDebit = 0;   // Sale increases Item balance
                         updatedCredit = sale.Qty;   //
                         break;
                     case PurchaseDetail purchase:
 						entityId = purchase.ItemId;  
                            referenceId = purchase.Purchase.Id;
-                        updatedDebit = purchase.Purchase.Details.Where(r=>r.ItemId== entityId).Sum(x=>x.Qty);   // Sale increases customer balance    
+                        updatedDebit = purchase.Purchase.Details.Where(r=>r.ItemId== entityId).Sum(x=>x.Qty);   // Sale increases Item balance    
+                        break;
+                    case PurchaseReturnDetail purchase:
+						entityId = purchase.ItemId;  
+                           referenceId = purchase.Purchase.Id;
+                        updatedCredit = purchase.Purchase.Details.Where(r=>r.ItemId== entityId).Sum(x=>x.Qty);   // Sale increases Item balance
+                                                                                                                 // 
+                        updatedDebit = 0;
                         break;
                     case SalesReturnMaster sale:  
                         referenceId = sale.Id;  
-                        updatedCredit = sale.totalAmount;   // Sale increases customer balance    
+                        updatedCredit = sale.totalAmount;   // Sale increases Item balance    
                         break;
-                    case CustomerPayment payment: 
-                        referenceId = payment.Id;
-                        var totalAmount = payment.Amount + payment.whtAmount + payment.taxAmount;
-                        updatedCredit = totalAmount;
-                        updatedDebit = 0;
-                        break;
+                   
                     // Add cases for other entity types as needed
                    
                 }

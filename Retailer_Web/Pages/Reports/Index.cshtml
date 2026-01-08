@@ -1,0 +1,131 @@
+﻿@page
+@model Retailer.POS.Web.Pages.Reports.ReportsModel
+@{
+    ViewData["Title"] = "Reports";
+}
+
+<div class="reports-container">
+
+    <div class="top-menu">
+        @foreach (var tab in Model.TopTabs)
+        {
+            <a asp-page="./Index"
+               asp-route-tab="@tab"
+               class="top-tab @(string.Equals(tab, Model.SelectedTab, System.StringComparison.OrdinalIgnoreCase) ? "active" : string.Empty)">
+                @tab
+            </a>
+        }
+    </div>
+
+    <div class="reports-grid">
+        @if (Model.Reports.Count == 0)
+        {
+            <div class="reports-empty">
+                No reports are available for the selected tab.
+            </div>
+        }
+        else
+        {
+            foreach (var report in Model.Reports)
+            {
+                <a class="report-row" href="@report.Url">
+                    <span class="code">@report.Code</span>
+                    <span class="name">@report.Name</span>
+                    <span class="star @(report.IsFavorite ? "favorite" : string.Empty)">
+                        @(report.IsFavorite ? "★" : "☆")
+                    </span>
+                </a>
+            }
+        }
+    </div>
+</div>
+
+@section Styles {
+    <style>
+        .reports-container {
+            padding: 20px;
+            font-family: Segoe UI;
+        }
+
+        .top-menu {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 10px;
+        }
+
+        .top-tab {
+            padding: 6px 16px;
+            border-radius: 20px;
+            color: #555;
+            text-decoration: none;
+            background: #f5f5f5;
+            transition: background .2s ease;
+        }
+
+        .top-tab:hover {
+            background: #e2e6ea;
+        }
+
+        .top-tab.active {
+            background: #e6f4ee;
+            color: #198754;
+            font-weight: 600;
+        }
+
+        .reports-grid {
+            margin-top: 20px;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 16px;
+        }
+
+        .report-row {
+            background: #eef8f6;
+            padding: 14px 16px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+            color: inherit;
+            border: 1px solid transparent;
+            transition: border-color .2s ease, transform .2s ease;
+        }
+
+        .report-row:hover {
+            border-color: #19875433;
+            transform: translateY(-2px);
+        }
+
+        .code {
+            min-width: 48px;
+            font-weight: 600;
+            color: #198754;
+        }
+
+        .name {
+            flex: 1;
+        }
+
+        .star {
+            font-size: 18px;
+            color: #bbb;
+        }
+
+        .star.favorite {
+            color: #f0ad4e;
+        }
+
+        .reports-empty {
+            grid-column: 1 / -1;
+            padding: 32px;
+            text-align: center;
+            border: 1px dashed #ced4da;
+            border-radius: 12px;
+            color: #6c757d;
+            background: #fafafa;
+        }
+    </style>
+}

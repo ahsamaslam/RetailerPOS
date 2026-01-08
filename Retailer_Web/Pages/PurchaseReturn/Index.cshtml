@@ -1,0 +1,126 @@
+﻿@page
+@model Retailer.Web.Pages.PurchaseReturn.IndexModel
+@{
+    ViewData["Title"] = "Purchase";
+    Layout = "_EmptyLayout";
+}
+
+<h2>Purchases</h2>
+<div class="row mb-3">
+    <div class="col-md-6">
+        <input id="searchBox" class="form-control" placeholder="Search by name..." />
+    </div>
+    <div class="col-md-6">
+        <a asp-page="Create" class="btn btn-primary mb-2">Create New Return</a>
+    </div>
+</div>
+
+
+<div class="row">
+    <div class="col-md-3">
+        <label>Start Date</label>
+        <input asp-for="sdate" type="date" class="form-control text-start" id="startDate" />
+    </div>
+    <div class="col-md-3">
+        <label>End Date</label>
+        <input asp-for="edate" type="date" class="form-control text-start" id="endDate" />
+    </div>
+</div>
+<div class="row"></div>
+<table id="myTable" class="table mt-2">
+    <thead>
+        <tr>
+            <th>Date</th>
+            <th>Vendor</th>
+            <th>SubTotal</th>
+            <th>Tax</th>
+            <th>Balance</th>
+            <th>Actions</th>
+
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var s in Model.Purchase)
+        {
+            <tr>
+                <td>@s.Date.ToShortDateString()</td>
+                <td>@s.vendorName</td>
+                <td>@s.SubTotal</td>
+                <td>@s.TaxAmount</td>
+                <td>@s.BalanceAmount</td>
+                <td>
+                    <a asp-page="Edit" asp-route-id="@s.Id" class="btn btn-sm btn-warning">Edit</a>
+                    <a asp-page="Details" asp-route-id="@s.Id" class="btn btn-sm btn-info">Details</a>
+                    <a asp-page="Print" asp-route-id="@s.Id" class="btn btn-sm btn-success">Print</a>
+                    <a href="javascript:void(0);" class="btn btn-sm btn-danger delete-btn" data-id="@s.Id">Delete</a>
+                </td>
+            </tr>
+
+        }
+    </tbody>
+</table>
+
+<!--end::App Main-->
+@section Scripts {
+    <script>
+        $(function () {
+             function showSpinner() {
+            $('#spinner').fadeIn(200);
+        }
+
+        function hideSpinner() {
+            $('#spinner').fadeOut(200);
+        }
+            // When either date changes, navigate to the same page with query params
+            $('#startDate, #endDate').on('change', function () {
+                const s = $('#startDate').val();
+                const e = $('#endDate').val();
+
+                // If you want to require both dates set before fetching:
+                if (!s || !e) return;
+                    showSpinner();
+                // Build query string and reload page
+                const qs = new URLSearchParams({
+                    sdate: s,
+                    edate: e
+                }).toString();
+
+                // Navigate (this calls OnGetAsync on server)
+                window.location.href = `${window.location.pathname}?${qs}`;
+            });
+
+             $(document).on('click', '.delete-btn', function () {
+
+                if (!confirm('Are you sure you want to delete this Purchase?')) return;
+
+                var id = $(this).data('id'); // get the payment id
+                if (!id) return;
+
+                var row = $(this).closest('tr');
+                var token = $('input[name="__RequestVerificationToken"]').val();
+                    showSpinner();
+                $.ajax({
+                    type: 'POST',
+                    url: '?handler=Delete', // Razor Page handler
+                    data: {
+                        __RequestVerificationToken: token,
+                        id: id
+                    },
+                    success: function (response) {
+                        if (response.success) {
+                                showSpinner();
+                            row.fadeOut(300, function () { row.remove(); });
+                        } else {
+                            alert('Failed to delete.');
+                             hideSpinner();
+                        }
+                    },
+                    error: function () {
+                        alert('Error deleting record.');
+                    }
+                });
+                });
+        });
+    </script>
+}
+

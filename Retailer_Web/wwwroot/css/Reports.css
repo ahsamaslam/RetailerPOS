@@ -1,0 +1,77 @@
+﻿.bookings-page {
+    background: #f5f6fa;
+}
+
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.filters {
+    display: flex;
+    gap: 8px;
+}
+
+    .filters input,
+    .filters select {
+        padding: 6px 8px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+    }
+
+.btn-primary {
+    background: #ff5a3c;
+    color: #fff;
+    padding: 8px 12px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.bookings-table {
+    margin-top: 15px;
+    background: #fff;
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+/* Header, rows and footer use same grid */
+.table-header,
+.table-row,
+.table-footer {
+    display: grid;
+    grid-template-columns: 2fr 1.5fr 1.2fr 1.2fr 1fr 1fr 1fr;
+    padding: 10px;
+    border-bottom: 1px solid #eee;
+    align-items: center;
+}
+
+.table-header {
+    background: #fafafa;
+    font-weight: 600;
+}
+
+.table-row:hover {
+    background: #f9f9f9;
+}
+
+/* Footer styling */
+.table-footer {
+    background: #f3f4f6;
+    border-top: 2px solid #ccc;
+    font-weight: 700;
+}
+
+    .table-footer span {
+        text-align: right;
+    }
+
+        .table-footer span:nth-child(-n+3) {
+            text-align: left;
+        }
+
+.status.pending {
+    color: orange;
+    font-weight: 600;
+}
