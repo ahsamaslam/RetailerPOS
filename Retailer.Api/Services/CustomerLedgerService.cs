@@ -39,7 +39,7 @@ namespace Retailer.Api.Services
                     remarks = "Opening Balance";
                     break;
                 case SalesMaster sale:
-                    entityId = sale.CustomerCode??0;
+                    entityId = sale.CustomerID;
                     date = sale.Date;
                     debit = sale.totalAmount;   // Sale increases customer balance
                     credit = 0;
@@ -125,7 +125,7 @@ namespace Retailer.Api.Services
                     break;
 
                 case SalesMaster sale:
-                    customerId = sale.CustomerCode ?? 0;
+                    customerId = sale.CustomerID ;
                     date = sale.Date;
                     debit = sale.totalAmount;
                     credit = 0;

@@ -1,22 +1,18 @@
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Retailer.POS.Web.ApiDTOs;
 using Retailer.POS.Web.Services;
 
-namespace Retailer.Web.Pages.Report
+namespace Retailer.Web.Pages.Reports.Stock
 {
-    [Authorize]
-    public class StockReportModel : BasePageModel
+    public class ReportModel : PageModel
     {
-        private readonly IApiClient _api;
 
-        public StockReportModel(IApiClient api) => _api = api;
-
+        private readonly IApiClient _api; 
+        public ReportModel(IApiClient api) => _api = api; 
         [BindProperty]
-        public CreateItemDto Input { get; set; } = new();
-
+        public CreateItemDto Input { get; set; } = new(); 
         public IEnumerable<SelectListItem> Categories { get; set; } = new List<SelectListItem>();
         public IEnumerable<SelectListItem> Groups { get; set; } = new List<SelectListItem>();
 
@@ -44,9 +40,9 @@ namespace Retailer.Web.Pages.Report
         public async Task<IActionResult> OnGetItemsAsync(int categoryId = 0, int groupId = 0)
         {
             // Interpret 0 as "All"
-            IEnumerable<ItemDto> items = await _api.GetStockItemsAsync(  categoryId  , groupId ); // implement this on API client
-      
-          
+            IEnumerable<ItemDto> items = await _api.GetStockItemsAsync(categoryId, groupId); // implement this on API client
+
+
             // Map or select only the fields you want to return in the JSON
             var result = items.Select(i => new {
                 i.Id,
@@ -60,4 +56,4 @@ namespace Retailer.Web.Pages.Report
         }
     }
 }
- 
+

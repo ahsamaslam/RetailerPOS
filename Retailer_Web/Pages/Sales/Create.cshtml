@@ -10,7 +10,7 @@
 		width: 100%;
 		border: 1px solid #ddd;
 	}
-
+		
 	.right-table th,
 	.right-table td {
 		padding: 4px 6px !important;
@@ -25,6 +25,13 @@
 	.item-search .dropdown-menu {
 		max-height: 260px;
 		overflow-y: auto;
+		min-width: 100%;
+		width: max-content;
+		max-width: calc(100vw - 2rem);
+	}
+
+	.item-search .dropdown-menu .item-result {
+		white-space: normal;
 	}
 
 	.item-search .empty-state {
@@ -57,19 +64,19 @@
 			<div class="row">
 				<div class="col-md-4 mb-2">
 					 
-							<div class="mb-2"> 
-								<input asp-for="Sale.Date" type="date" class="form-control text-start" autofocus />
-							</div>
-							<div class="mb-2"> 
-								<select asp-for="Sale.SaleType" required asp-items="Model.SaleType" class="form-control">
-									<option value="">-- Select Type --</option>
-								</select>
-							</div>
-							<div class="mb-2"> 
-								<select asp-for="Sale.CustomerCode" required asp-items="Model.CustomersList" class="form-control">
-									<option value="">-- Select Customer --</option>
-								</select>
-							</div>
+						<div class="mb-2"> 
+							<input asp-for="Sale.Date" type="date" class="form-control text-start" autofocus />
+						</div>
+						<div class="mb-2"> 
+							<select asp-for="Sale.SaleType" required asp-items="Model.SaleType" class="form-control">
+								<option value="">-- Select Type --</option>
+							</select>
+						</div>
+						<div class="mb-2"> 
+							<select asp-for="Sale.CustomerCode" required asp-items="Model.CustomersList" class="form-control">
+								<option value="">-- Select Customer --</option>
+							</select>
+						</div>
 					 
 					<table class="table table-sm right-table">
 
@@ -182,12 +189,12 @@
 												<input asp-for="Sale.Details[i].ItemName" type="hidden" class="item-name-input" />
 												<div class="dropdown w-100">
 													<input type="text"
-														   class="form-control item-search-input"
-														   placeholder="Search item..."
-														   autocomplete="off"
-														   value="@Model.Sale.Details[i].ItemName"
-														   aria-expanded="false" />
-													<div class="dropdown-menu w-100 p-0">
+													   class="form-control item-search-input"
+													   placeholder="Search item..."
+													   autocomplete="off"
+													   value="@Model.Sale.Details[i].ItemName"
+													   aria-expanded="false" />
+													<div class="dropdown-menu p-0">
 														<div class="list-group list-group-flush search-results"></div>
 														<div class="dropdown-item text-muted small py-2 empty-state">Start typing to search</div>
 													</div>
@@ -219,7 +226,7 @@
 											<input type="hidden" name="Sale.Details[__index__].ItemName" class="item-name-input" value="" />
 											<div class="dropdown w-100">
 												<input type="text" class="form-control item-search-input" placeholder="Search item..." autocomplete="off" aria-expanded="false" />
-												<div class="dropdown-menu w-100 p-0">
+												<div class="dropdown-menu p-0">
 													<div class="list-group list-group-flush search-results"></div>
 													<div class="dropdown-item text-muted small py-2 empty-state">Start typing to search</div>
 												</div>
@@ -364,6 +371,10 @@
 					if (qtyInput) {
 						qtyInput.dataset.maxQty = button.dataset.qty ?? '0';
 						if (!qtyInput.value || Number(qtyInput.value) === 0) qtyInput.value = 1;
+
+						console.log('Max Qty', qtyInput.dataset.maxQty);
+							 console.log('Cur Qty', qtyInput.value);
+
 					}
 					ensureParts(searchInput).menu.classList.remove('show');
 					calculateRowAmount(row);
@@ -374,6 +385,25 @@
 					if (e.target.classList.contains('item-search-input')) {
 						handleSearchInput(e.target);
 					}
+
+						  if (!e.target.classList.contains('qty-input')) return;
+
+		 const row = e.target.closest('tr');
+		 if (!row) return;
+
+		 const maxQty = parseFloat(e.target.dataset.maxQty) || 0;
+		 let enteredQty = parseFloat(e.target.value) || 0;
+
+		 if (enteredQty > maxQty && maxQty > 0) {
+			 alert(`Quantity cannot exceed available stock (${maxQty}).`);
+			 e.target.value = maxQty;
+			 enteredQty = maxQty;
+		 }
+
+		 if (enteredQty < 0) {
+			 e.target.value = 0;
+			 enteredQty = 0;
+		 }
 				});
 
 				document.querySelector('#detailsTable').addEventListener('click', e => {

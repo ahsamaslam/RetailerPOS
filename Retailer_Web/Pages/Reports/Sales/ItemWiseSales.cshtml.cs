@@ -49,7 +49,7 @@ public class ItemWiseSalesModel : PageModel
             return new JsonResult(new List<ItemSalesReport>());
         }
 
-        var data = await _api.GetSalesReturnItemWiseAsync(itemCode.Value, sdate.Value, edate.Value);
+        var data = await _api.GetSalesItemWiseAsync(itemCode.Value, sdate.Value, edate.Value);
         return new JsonResult(data);
     }
 
@@ -65,7 +65,7 @@ public class ItemWiseSalesModel : PageModel
             return BadRequest("Item required.");
         }
 
-        var bytes = await _api.ExportSalesReturnItemWiseAsync(ItemCode.Value, export, sdate.Value, edate.Value);
+        var bytes = await _api.ExportSalesItemWiseAsync(ItemCode.Value, export, sdate.Value, edate.Value);
         var file = ExportFileResolver.Resolve(export, "SalesReturnReport");
         return File(bytes, file.ContentType, file.FileName);
     }

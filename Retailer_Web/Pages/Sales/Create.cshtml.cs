@@ -49,11 +49,15 @@ namespace Retailer.POS.Web.Pages.Sales
         public async Task<IActionResult> OnPostAsync()
         {
             if (!ModelState.IsValid) return Page();
-
+            Sale.CustomerID = Sale.CustomerCode??0;
             // Recalculate totals
             Sale.SubTotal = Sale.Details.Sum(d => d.Amount);
             Sale.TaxAmount = Sale.Details.Sum(d => d.TaxAmount);
             Sale.TotalDiscount = Sale.Details.Sum(d => d.Discount);
+            foreach (var item in Sale.Details)
+            {
+                item.ItemID = item.ItemCode;
+            }
             Sale.BalanceAmount = Sale.SubTotal - Sale.TotalDiscount + Sale.TaxAmount;
 
             bool success = false;

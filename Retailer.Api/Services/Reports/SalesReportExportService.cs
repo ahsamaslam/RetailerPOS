@@ -56,7 +56,7 @@ namespace Retailer.Api.Services
                     { "edate", edate.ToString("dd MMM yyyy") },
                     { "Name", ven.Name }
                 };
-                return await _reportS.GenerateAsync("DateWiseSalesI.rdlc", datasets, parameters, export);
+                return await _reportS.GenerateAsync("DateWiseSaleI.rdlc", datasets, parameters, export);
             }
             catch (Exception exx)
             {
@@ -79,7 +79,7 @@ namespace Retailer.Api.Services
                     { "sdate",  sdate.ToString("dd MMM yyyy") },
                     { "edate", edate .ToString("dd MMM yyyy")},
                 };
-                return await _reportS.GenerateAsync("DateWiseSales.rdlc", datasets, parameters, export);
+                return await _reportS.GenerateAsync("DateWiseSale.rdlc", datasets, parameters, export);
             }
             catch (Exception exx)
             {
@@ -92,7 +92,7 @@ namespace Retailer.Api.Services
             try
             {
 
-                Vendor ven = await _db.Vendors.Where(r => r.Id == customer).FirstOrDefaultAsync();
+                Customer ven = await _db.Customers.Where(r => r.Id == customer).FirstOrDefaultAsync();
                 var company = await _companyService.GetCompanyByIdAsync((CompanyId));
                 var Saless = await _SalesService.GetCustomerWiseAsync(customer, sdate, edate, CompanyId);
 
@@ -105,9 +105,9 @@ namespace Retailer.Api.Services
                 {
                     { "sdate", sdate.ToString("dd MMM yyyy") },
                     { "edate", edate.ToString("dd MMM yyyy") },
-                    { "vendorName", ven.Name }
+                    { "Name", ven.Name }
                 };
-                return await _reportS.GenerateAsync("DateWiseSalesV.rdlc", datasets, parameters, export);
+                return await _reportS.GenerateAsync("DateWiseSaleC.rdlc", datasets, parameters, export);
 
             }
             catch (Exception exx)

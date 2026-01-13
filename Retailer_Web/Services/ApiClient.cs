@@ -461,7 +461,7 @@ public class ApiClient : IApiClient
         await GetAsync<List<ItemSalesReturnReport>>($"api/SalesReturn/ItemWise/{itemID}/{sdate:yyyy-MM-dd}/{edate:yyyy-MM-dd}") ?? new List<ItemSalesReturnReport>();
 
     public async Task<List<SalesViewModel>> GetSalesDateWiseAsync(DateTime sdate, DateTime edate) =>
-        await GetAsync<List<SalesViewModel>>($"api/Sales/{sdate:yyyy-MM-dd}/{edate:yyyy-MM-dd}") ?? new List<SalesViewModel>();
+        await GetAsync<List<SalesViewModel>>($"api/Sales/GetAllDateWise/{sdate:yyyy-MM-dd}/{edate:yyyy-MM-dd}") ?? new List<SalesViewModel>();
 
     public async Task<List<SalesViewModel>> GetSalesCustomerWiseAsync(int customerID, DateTime sdate, DateTime edate) =>
         await GetAsync<List<SalesViewModel>>($"api/Sales/CustomerWise/{customerID}/{sdate:yyyy-MM-dd}/{edate:yyyy-MM-dd}") ?? new List<SalesViewModel>();
@@ -573,6 +573,8 @@ public class ApiClient : IApiClient
     public async Task<SalesMasterDto?> CreateSaleAsync(SalesMasterDto dto)
     {
         if (dto == null) return null;
+
+        string json = JsonSerializer.Serialize(dto);
         using var resp = await _http.PostAsJsonAsync("api/sales", dto, _jsonOptions);
         if (resp.StatusCode == HttpStatusCode.Unauthorized) throw new ApiUnauthorizedException();
         if (!resp.IsSuccessStatusCode) return null;

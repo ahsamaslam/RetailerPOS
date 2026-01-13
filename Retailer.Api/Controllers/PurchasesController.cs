@@ -71,19 +71,15 @@ namespace Retailer.Api.Controllers
         public async Task<IActionResult> GetAll(int vendorID,DateTime sdate, DateTime edate)
         {
             // Use repository Query() if available; otherwise GetAllAsync and include details via DB context.
-            var list = await _svc.GetVendorWiseAsync(vendorID, sdate, edate, CompanyId);
-			 
+            var list = await _svc.GetVendorWiseAsync(vendorID, sdate, edate, CompanyId); 
             return Ok(list);
         }
         [HttpGet("ItemWise/{itemID}/{sdate}/{edate}")]
         public async Task<IActionResult> ItemWiseGetAll(int itemID, DateTime sdate, DateTime edate)
         {
-            // Use repository Query() if available; otherwise GetAllAsync and include details via DB context.
-            var list = await _svc.GetItemWiseAsync(itemID, sdate, edate, CompanyId);
-
-
-
-
+            // Use repository Query()
+			// if available; otherwise GetAllAsync and include details via DB context.
+            var list = await _svc.GetItemWiseAsync(itemID, sdate, edate, CompanyId); 
 				return Ok(list);
         }
         [HttpGet("{id}")]

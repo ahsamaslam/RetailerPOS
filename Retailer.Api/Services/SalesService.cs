@@ -28,38 +28,59 @@ public class SalesService : ISalesService
     }
     public async Task<List<SalesMasterDto?>> GetDateWiseAsync(DateTime sdate, DateTime edate, Guid CompanyId)
     {
-        var pm = await _uow.SalesMasters.Query().Include(p => p.Details)
-            .Where(p => p.CompanyId == CompanyId && p.Date.Date >= sdate.Date && p.Date.Date <= edate.Date && p.Active).ToListAsync();
+        try
+        {
+            var pm = await _uow.SalesMasters.Query()
+                .Include(p=>p.Customer)
+                .Include(p => p.Details)
+                .ThenInclude(p=>p.Item)
+                .Where(p => p.CompanyId == CompanyId && p.Date.Date >= sdate.Date && p.Date.Date <= edate.Date && p.Active).ToListAsync();
 
-        return _mapper.Map<List<SalesMasterDto>>(pm);
+            return _mapper.Map<List<SalesMasterDto>>(pm);
+        }
+        catch (Exception exx)
+        {
+        return new List<SalesMasterDto?>();
+
+        }
     }
 
     public async Task<List<SalesMasterDto?>> GetCustomerWiseAsync(int CustomerId, DateTime sdate, DateTime edate, Guid CompanyId)
     {
         var pm = await _uow.SalesMasters.Query().Include(p => p.Details).Where(p =>
-        p.CompanyId == CompanyId && p.CustomerCode == CustomerId
+        p.CompanyId == CompanyId && p.CustomerID == CustomerId
         && p.Date.Date >= sdate.Date && p.Date.Date <= edate.Date && p.Active).ToListAsync();
         return _mapper.Map<List<SalesMasterDto>>(pm);
     }
 
     public async Task<List<ItemSalesReportDtoR?>> GetItemWiseAsync(int itemID, DateTime sdate, DateTime edate, Guid CompanyId)
     {
-        var pm = await _uow.SalesDetails.Query()
-            .Include(p => new { p.ItemCode, p.ItemName })
-            .Include(p => p.SalesMaster)
-            .ThenInclude(p => new { p.CustomerCode, p.CustomerName })
-            .Where(p => p.SalesMaster!.CompanyId == CompanyId && p.ItemCode == itemID
-                    && p.SalesMaster.Date.Date >= sdate.Date && 
-                    p.SalesMaster.Date.Date <= edate.Date && p.SalesMaster.Active)
-            .ToListAsync();
-        return _mapper.Map<List<ItemSalesReportDtoR>>(pm);
+        try
+        {
+            var pm = await _uow.SalesDetails.Query()
+                .Include(p => p.Item )
+                .Include(p => p.SalesMaster)
+                .ThenInclude(p =>   p.Customer )
+                .Where(p => p.SalesMaster!.CompanyId == CompanyId && p.ItemId == itemID
+                        && p.SalesMaster.Date.Date >= sdate.Date &&
+                        p.SalesMaster.Date.Date <= edate.Date && p.SalesMaster.Active)
+                .ToListAsync();
+            return _mapper.Map<List<ItemSalesReportDtoR>>(pm);
+        }
+        catch (Exception exx)
+        { 
+        return new List<ItemSalesReportDtoR?>();
+
+        }
     }
 
 
     public async Task<SalesMasterDto?> GetAsync(int id, Guid companyId, LoginDto user)
     {
         return await _uow.SalesMasters.Query()
+             .Include(x => x.Customer)
             .Include(x => x.Details)
+            .ThenInclude(x=>x.Item) 
             .Where(x => x.Id == id && x.CompanyId == companyId && x.Active)
             .Select(s => new SalesMasterDto
             {
@@ -68,18 +89,18 @@ public class SalesService : ISalesService
                 UserId = user.Id,
                 UserName = user.UserName,
                 BranchId = s.BranchId,
-                CustomerName = s.CustomerName,
+                CustomerName = s.Customer.Name,
                 SaleType = s.SaleType,
                 SubTotal = s.SubTotal,
                 TotalDiscount = s.TotalDiscount,
                 TaxAmount = s.TaxAmount,
                 BalanceAmount = s.BalanceAmount,
-                CustomerCode = s.CustomerCode,
+                CustomerCode = s.Customer.Id,
                 Details = s.Details.Select(d => new SalesDetailDto
                 {
                     Id = d.Id,
-                    ItemCode = d.ItemCode,
-                    ItemName = d.ItemName,
+                    ItemCode = d.Item.Id,
+                    ItemName = d.Item.Name,
                     Rate = d.Rate,
                     Qty = d.Qty,
                     Discount = d.Discount,
@@ -90,8 +111,9 @@ public class SalesService : ISalesService
             }).FirstOrDefaultAsync();
     }
 
-    public async Task<SalesMaster> CreateAsync(SalesMaster model, Guid companyId, LoginDto user)
+    public async Task<SalesMaster> CreateAsync(SalesMasterDto sakeDto, Guid companyId, LoginDto user)
     {
+        SalesMaster model = _mapper.Map<SalesMaster>(sakeDto);  
         model.CompanyId = companyId;
         model.Active = true;
         model.UserId = user.Id;
@@ -105,9 +127,8 @@ public class SalesService : ISalesService
             d.SalesMaster = model;
         }
 
-        var customer = await _context.Customers.FirstOrDefaultAsync(c => c.Id == model.CustomerCode);
-        if (customer != null)
-            model.CustomerName = customer.Name;
+        var customer = await _context.Customers.FirstOrDefaultAsync(c => c.Id == model.CustomerID);
+    
 
         await _uow.SalesMasters.AddAsync(model);
         await _uow.SaveChangesAsync();
@@ -159,8 +180,7 @@ public class SalesService : ISalesService
             if (d.Id > 0)
             {
                 var ed = existing.Details.First(x => x.Id == d.Id);
-                ed.ItemCode = d.ItemCode;
-                ed.ItemName = d.ItemName;
+                ed.ItemId = d.ItemId; 
                 ed.Rate = d.Rate;
                 ed.Qty = d.Qty;
                 ed.Discount = d.Discount;
@@ -173,8 +193,7 @@ public class SalesService : ISalesService
                 await _uow.SalesDetails.AddAsync(new SalesDetail
                 {
                     SalesMasterId = existing.Id,
-                    ItemCode = d.ItemCode,
-                    ItemName = d.ItemName,
+                    ItemId = d.ItemId, 
                     Rate = d.Rate,
                     Qty = d.Qty,
                     Discount = d.Discount,

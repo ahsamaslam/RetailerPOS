@@ -40,6 +40,7 @@ builder.Services.AddScoped<IItemService, ItemService>();
 builder.Services.AddScoped<IPurchaseService, PurchaseService>(); 
 builder.Services.AddScoped<IPurchaseReturnService, PurchaseReturnService>(); 
 builder.Services.AddScoped<IPurchaseReportExportService, PurchaseReportExportService>();
+builder.Services.AddScoped<ISalesReportExportService, SalesReportExportService>();
 builder.Services.AddScoped<IPurchaseReturnReportExportService, PurchaseReturnReportExportService>();
 builder.Services.AddScoped<IReportGeneratorService, ReportGeneratorService>();
 builder.Services.AddScoped<Retailer.Api.Data.IDbInitializer, Retailer.Api.Data.DbInitializer>();

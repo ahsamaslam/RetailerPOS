@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Retailer.Api.DataSet;
 using Retailer.Api.DTOs;
 using Retailer.Api.Infrastructure;
 using Retailer.POS.Api.Entities;
@@ -30,8 +31,27 @@ namespace Retailer.POS.Api.Controllers
         public async Task<IActionResult> Get(int id)
             => Ok(await _salesService.GetAsync(id, CompanyId, CurrentUser));
 
-        [HttpPost]
-        public async Task<IActionResult> Create([FromBody] SalesMaster model)
+        [HttpGet("CustomerWise/{customerID}/{sdate}/{edate}")]
+        public async Task<IActionResult> GetAll(int customerID, DateTime sdate, DateTime edate)
+        {
+            // Use repository Query() if available; otherwise GetAllAsync and include details via DB context.
+            var list = await _salesService.GetCustomerWiseAsync(customerID, sdate, edate, CompanyId);
+
+            return Ok(list);
+        }
+        [HttpGet("ItemWise/{itemID}/{sdate}/{edate}")]
+        public async Task<IActionResult> ItemWiseGetAll(int itemID, DateTime sdate, DateTime edate)
+        {
+            // Use repository Query() if available; otherwise GetAllAsync and include details via DB context.
+            var list = await _salesService.GetItemWiseAsync(itemID, sdate, edate, CompanyId);
+
+            return Ok(list);
+
+        }
+
+
+            [HttpPost]
+        public async Task<IActionResult> Create([FromBody] SalesMasterDto model)
             => Ok(await _salesService.CreateAsync(model, CompanyId, CurrentUser));
 
         [HttpPut("{id:int}")]

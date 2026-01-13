@@ -74,10 +74,10 @@ namespace Retailer.Api.Services
                 //    remarks = "Opening Balance";
                 //    break;
                 case SalesDetail sale:
-                    entityId = sale.ItemCode;
+                    entityId = sale.ItemId;
                     date = sale.SalesMaster.Date;
                     debit =0 ;   // Sale increases Item balance
-                    credit = sale.SalesMaster.Details.Where(r => r.ItemCode == entityId).Sum(x => x.Qty);
+                    credit = sale.SalesMaster.Details.Where(r => r.ItemId == entityId).Sum(x => x.Qty);
                     referenceId = sale.Id;
                     companyId = sale.CompanyId;
                     Type = "Sale Invoice";
@@ -179,10 +179,10 @@ namespace Retailer.Api.Services
                 //    break;
 
                 case SalesDetail sale:
-                    itemId = sale.ItemCode;
+                    itemId = sale.ItemId;
                     date = sale.SalesMaster.Date;
                     debit =  0;
-                    credit = sale.SalesMaster.Details.Where(r=>r.ItemCode== itemId).Sum(x=>x.Qty);
+                    credit = sale.SalesMaster.Details.Where(r=>r.ItemId == itemId).Sum(x=>x.Qty);
                     referenceId = sale.SalesMaster.Id;
                     companyId = sale.CompanyId;
                     referenceType = nameof(SalesMaster);
@@ -313,7 +313,7 @@ namespace Retailer.Api.Services
                         break;
                     case SalesDetail sale:
                         referenceId = sale.SalesMasterId;
-						entityid = sale.ItemCode;
+						entityid = sale.ItemId;
 						break;
                     case SalesReturnDetail sale:
                         referenceId = sale.SalesReturnMasterId;
@@ -383,7 +383,7 @@ await ReverseItemLedgerEntryAsync(ReferenceType,referenceId, "Reversal Requested
                 {
                     case SalesDetail sale:
                         referenceId = sale.SalesMaster.Id;
-						entityId = sale.ItemCode; 
+						entityId = sale.ItemId; 
                         updatedDebit = 0;   // Sale increases Item balance
                         updatedCredit = sale.Qty;   //
                         break;

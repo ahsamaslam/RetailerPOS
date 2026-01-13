@@ -37,7 +37,7 @@ public class FbrClient : IFbrClient
                 items = sale.Details.Select(d => new
                 {
                     hsCode = "2716.0000",
-                    productDescription = d.ItemName,
+                    productDescription = d.Item.Name,
                     rate = d.TaxPercentage.ToString() + "%",
                     uoM = d.uoM,
                     quantity = d.Qty,

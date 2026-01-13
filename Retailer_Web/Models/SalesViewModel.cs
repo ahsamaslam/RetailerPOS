@@ -7,6 +7,7 @@
         public decimal SubTotal { get; set; }
         public string customerName { get; set; }
         public decimal Total { get; set; }
+        public decimal TotalAmount { get; set; }
         public decimal TaxAmount { get; set; }
         public decimal BalanceAmount { get; set; }
         public List<SalesDetailViewModel> Details { get; set; } = new();

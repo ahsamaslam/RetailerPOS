@@ -1,24 +1,26 @@
+using System.ComponentModel.DataAnnotations.Schema;
+
 namespace Retailer.POS.Api.Entities;
 public class SalesMaster : BaseEntity
 {
     public DateTime Date { get; set; }
     public DateTime CreateDate { get; set; } = DateTime.UtcNow;
+    public Customer Customer { get; set; }
+    public int CustomerID { get; set; }
     public Guid UserId { get; set; }
-    public int BranchId { get; set; }
-    public string? CustomerName { get; set; }
+    public int BranchId { get; set; } 
     public string? SaleType { get; set; }
     public string? hsCode { get; set; }
     public decimal SubTotal { get; set; }
     public decimal TotalDiscount { get; set; }
     public decimal TaxAmount { get; set; }
     public decimal BalanceAmount { get; set; }
-    public decimal totalAmount { get; set; }
-    public int? CustomerCode { get; set; }
+    public decimal totalAmount { get; set; } 
     public bool Active { get; set; } = true;
     public int Year { get; set; } = 1;
     public int saleCode { get; set; } = 1;
     public string? remarks { get; set; }
-    public ICollection<SalesDetail> Details { get; set; } = new List<SalesDetail>();
+    public ICollection<SalesDetail> Details { get; set; } = new List<SalesDetail>(); 
 }
 
 public class SalesDetail : BaseEntity
@@ -28,8 +30,8 @@ public class SalesDetail : BaseEntity
     public string? sroScheduleNo { get; set; }
     public string? uoM { get; set; }
     public string? hsCode { get; set; }
-    public int ItemCode { get; set; } 
-    public string ItemName { get; set; } = string.Empty;
+    public Item Item { get; set; } 
+    public int ItemId { get; set; }  
     public decimal Rate { get; set; }
     public decimal Qty { get; set; }
     public decimal Discount { get; set; }
@@ -43,5 +45,5 @@ public class SalesDetail : BaseEntity
     public decimal fedPayable { get; set; }
     public decimal Amount { get; set; }
     public string saleType { get; set; } = "";
-    public string sroItemSerialNo { get; set; } = "";
-}
+    public string sroItemSerialNo { get; set; } = ""; 
+    }

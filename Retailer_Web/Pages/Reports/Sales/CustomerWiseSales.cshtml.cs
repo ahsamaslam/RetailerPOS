@@ -43,14 +43,14 @@ namespace Retailer.Web.Pages.Report.Sales
             Customers = vendor.Select(c => new SelectListItem { Value = c.Id.ToString(), Text = c.Name }).ToList();
         }
 
-        public async Task<IActionResult> OnGetLoadPurchaseReturn(int? vendorCode, DateTime? sdate, DateTime? edate)
+        public async Task<IActionResult> OnGetLoadPurchaseReturn(int? CustomerCode, DateTime? sdate, DateTime? edate)
         {
-            if (!vendorCode.HasValue || !sdate.HasValue || !edate.HasValue)
+            if (!CustomerCode.HasValue || !sdate.HasValue || !edate.HasValue)
             {
                 return new JsonResult(new List<SalesViewModel>());
             }
 
-            var data = await _api.GetSalesCustomerWiseAsync(vendorCode.Value, sdate.Value, edate.Value);
+            var data = await _api.GetSalesCustomerWiseAsync(CustomerCode.Value, sdate.Value, edate.Value);
             return new JsonResult(data);
         }
 

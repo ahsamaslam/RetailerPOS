@@ -1,4 +1,4 @@
-using AutoMapper;
+﻿using AutoMapper;
 using Retailer.Api.DtoReport;
 using Retailer.Api.DTOs;
 using Retailer.Api.Entities;
@@ -25,11 +25,37 @@ public class AutoMapperProfile : Profile
         
         CreateMap<PurchaseMaster, PurchaseMasterDto>();
         CreateMap<PurchaseDetail, PurchaseDetailDto>();
+        // DTO → Entity
+        CreateMap<SalesMasterDto, SalesMaster>()
+            .ForMember(d => d.totalAmount, o => o.MapFrom(s => s.TotalAmount))
+            .ForMember(d => d.Customer, o => o.Ignore())
+            .ForMember(d => d.remarks, o => o.Ignore())
+            .ForMember(d => d.saleCode, o => o.Ignore())
+            .ForMember(d => d.Year, o => o.Ignore())
+            .ForMember(d => d.Active, o => o.Ignore())
+            .ForMember(d => d.hsCode, o => o.Ignore())
+            .ForMember(d => d.Details, o => o.MapFrom(s => s.Details));
 
+        CreateMap<SalesDetailDto, SalesDetail>()
+            .ForMember(d => d.Item, o => o.Ignore())
+            .ForMember(d => d.SalesMaster, o => o.Ignore())
+            .ForMember(d => d.sroScheduleNo, o => o.Ignore())
+            .ForMember(d => d.sroItemSerialNo, o => o.Ignore())
+            .ForMember(d => d.uoM, o => o.Ignore())
+            .ForMember(d => d.hsCode, o => o.Ignore())
+            .ForMember(d => d.saleType, o => o.Ignore())
+            .ForMember(d => d.fedPayable, o => o.Ignore())
+            .ForMember(d => d.otherTax, o => o.Ignore());
 
-        CreateMap<SalesMaster, SalesMasterDto>();
-        CreateMap<SalesDetail, SalesDetailDto>();
+        // Entity → DTO  ✅ ADD THESE
+        CreateMap<SalesMaster, SalesMasterDto>()
+            .ForMember(d => d.TotalAmount, o => o.MapFrom(s => s.totalAmount))
+            .ForMember(d => d.UserName, o => o.Ignore())
+            .ForMember(d => d.CustomerName, o => o.Ignore());
 
+        CreateMap<SalesDetail, SalesDetailDto>()
+            .ForMember(d => d.ItemName, o => o.Ignore())
+            .ForMember(d => d.ItemCode, o => o.Ignore());
         // ---------- Purchase Return (CREATE) ----------
         CreateMap<CreatePurchaseReturnDto, PurchaseReturnMaster>()
             .ForMember(d => d.Id, o => o.Ignore())
@@ -114,11 +140,11 @@ public class AutoMapperProfile : Profile
 
         CreateMap<SalesDetail, ItemSalesReportDtoR>()
            .ForMember(dest => dest.srno, opt => opt.Ignore())
-           .ForMember(dest => dest.productCode, opt => opt.MapFrom(src => src.ItemCode))
-           .ForMember(dest => dest.productName, opt => opt.MapFrom(src => src.ItemName))
+           .ForMember(dest => dest.productCode, opt => opt.MapFrom(src => src.ItemId))
+           .ForMember(dest => dest.productName, opt => opt.MapFrom(src => src.Item.Name))
            .ForMember(dest => dest.salesID, opt => opt.MapFrom(src => src.SalesMasterId))
            .ForMember(dest => dest.salesDate, opt => opt.MapFrom(src => src.SalesMaster != null ? src.SalesMaster.Date : DateTime.MinValue))
-           .ForMember(dest => dest.customerName, opt => opt.MapFrom(src => src.SalesMaster != null ? src.SalesMaster.CustomerName : string.Empty))
+           .ForMember(dest => dest.customerName, opt => opt.MapFrom(src => src.SalesMaster != null ? src.SalesMaster.Customer.Name : string.Empty))
            .ForMember(dest => dest.quantity, opt => opt.MapFrom(src => src.Qty))
            .ForMember(dest => dest.unitPrice, opt => opt.MapFrom(src => src.Rate))
            .ForMember(dest => dest.discount, opt => opt.MapFrom(src => src.Discount))

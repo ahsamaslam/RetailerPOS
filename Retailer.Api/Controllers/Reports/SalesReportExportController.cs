@@ -23,7 +23,7 @@ namespace Retailer.Api.Controllers.Reports
         public async Task<IActionResult> DateWiseAsync([FromQuery] string export, [FromQuery] DateTime sdate, [FromQuery] DateTime edate)
         {
             var bytes = await _service.GenerateSaleseReportAsync(sdate, edate, CompanyId, export);
-            return File(bytes, ResolveContentType(export), BuildFileName("PurchaseReturnReport", export));
+            return File(bytes, ResolveContentType(export), BuildFileName("SaleReport", export));
         }
 
         [HttpGet("customer-wise")]
@@ -37,7 +37,7 @@ namespace Retailer.Api.Controllers.Reports
         public async Task<IActionResult> ItemWiseAsync([FromQuery] int itemId, [FromQuery] string export, [FromQuery] DateTime sdate, [FromQuery] DateTime edate)
         {
             var bytes = await _service.GenerateItemSalesReportAsync(itemId, sdate, edate, CompanyId, export);
-            return File(bytes, ResolveContentType(export), BuildFileName("PurchaseReturnItemReport", export));
+            return File(bytes, ResolveContentType(export), BuildFileName("DateWiseSaleI", export));
         }
 
         private static string ResolveContentType(string export) => export.ToLowerInvariant() switch

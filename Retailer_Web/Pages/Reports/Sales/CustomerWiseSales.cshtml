@@ -13,7 +13,7 @@
             <select asp-for="CustomerCode" required asp-items="Model.Customers"
                     id="vendorSelect"
                     class="form-control">
-                <option value="">-- Select Vendor --</option>
+                <option value="">-- Select Customer --</option>
             </select>
             <input asp-for="sdate" type="date" id="startDate" class="form-control text-start" />
             <input asp-for="edate" type="date" id="endDate" class="form-control text-start" />
@@ -92,7 +92,7 @@
             return;
         }
 
-        fetch(`?handler=LoadPurchaseReturn&vendorCode=${vendor}&sdate=${sdate}&edate=${edate}`)
+        fetch(`?handler=LoadPurchaseReturn&CustomerCode=${vendor}&sdate=${sdate}&edate=${edate}`)
             .then(res => res.json())
             .then(data => {
 
@@ -154,6 +154,6 @@
         }
 
         window.location.href =
-            `?handler=Export&export=${action}&vendorCode=${vendor}&sdate=${sdate}&edate=${edate}`;
+            `?handler=Export&export=${action}&CustomerCode=${vendor}&sdate=${sdate}&edate=${edate}`;
     }
 </script>

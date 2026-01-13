@@ -8,6 +8,12 @@
     <None Remove="Reports\DateWisePurchase.rdlc" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Reports\DateWiseSaleI.rdlc">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Reports\DateWiseSale.rdlc">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="Reports\DateWisePurchaseI.rdlc">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
@@ -30,6 +36,10 @@
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.0" />
   </ItemGroup>
   <ItemGroup>
+    <None Update="DataSet\SaleDS.xsd">
+      <LastGenOutput>SaleDS.Designer.cs</LastGenOutput>
+      <Generator>MSDataSetGenerator</Generator>
+    </None>
     <None Update="DataSet\PurchaseDS.xsd">
       <Generator>MSDataSetGenerator</Generator>
       <LastGenOutput>PurchaseDS.Designer.cs</LastGenOutput>

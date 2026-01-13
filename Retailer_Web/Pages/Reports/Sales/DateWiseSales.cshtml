@@ -36,7 +36,7 @@
 
     <div class="bookings-table">
         <div class="table-header">
-            <span class="text-left">Return ID</span>
+            <span class="text-left"> ID</span>
             <span class="text-left">Date</span>
             <span class="text-left">Vendor name</span>
             <span class="text-right">Subtotal</span>
@@ -55,7 +55,7 @@
                 <span class="text-right">@item.SubTotal.ToString("N2")</span>
                 <span class="text-right">0.00</span>
                 <span class="text-right">@item.TaxAmount.ToString("N2")</span>
-                <span class="text-right">@item.Total.ToString("N2")</span>
+                <span class="text-right">@item.TotalAmount.ToString("N2")</span>
             </div>
 
         }
@@ -66,7 +66,7 @@
             <span class="text-right"><strong>@Model.Sales.Sum(x => x.SubTotal).ToString("N2")</strong></span>
             <span class="text-right"><strong>0.00</strong></span>
             <span class="text-right"><strong>@Model.Sales.Sum(x => x.TaxAmount).ToString("N2")</strong></span>
-            <span class="text-right"><strong>@Model.Sales.Sum(x => x.Total).ToString("N2")</strong></span>
+            <span class="text-right"><strong>@Model.Sales.Sum(x => x.TotalAmount).ToString("N2")</strong></span>
         </div>
 
 

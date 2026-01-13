@@ -1,5 +1,6 @@
 ﻿@page
-@model Retailer.Web.Pages.Report.StockReportModel
+@model Retailer.Web.Pages.Reports.Stock.ReportModel
+
 @{
     Layout = "_EmptyLayout";
 }
@@ -21,7 +22,7 @@
                     
                     <div class="col-md-6">
                         <label>Group</label>
-                        <select id="groupSelect" asp-for="Input.GroupId" asp-items="Model.Groups" class="form-control"></select>
+                        <select id="groupSelect" asp-for="Input.GroupId" asp-items="Model.Groups"  class="form-control"></select>
                     </div>
                     </div>
 
