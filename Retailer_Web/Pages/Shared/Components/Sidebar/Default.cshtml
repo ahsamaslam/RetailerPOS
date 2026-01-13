@@ -8,6 +8,7 @@
     bool isUsers = path.StartsWithSegments("/admin/user");
     bool isRoles = path.StartsWithSegments("/admin/roles");
     bool isPermissions = path.StartsWithSegments("/admin/permissions");
+    bool isUploadData = path.StartsWithSegments("/admin/upload-data");
 
     string currentPath = path.Value?.TrimEnd('/') ?? "";
 
@@ -159,6 +160,9 @@
                         </li>
                         <li>
                             <a class="link-dark rounded @(isPermissions ? "active" : string.Empty)" href="/admin/permissions">Permissions</a>
+                        </li>
+                        <li>
+                            <a class="link-dark rounded @(isUploadData ? "active" : string.Empty)" href="/admin/upload-data">Upload Data</a>
                         </li>
                     </ul>
                 </div>

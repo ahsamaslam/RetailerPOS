@@ -36,6 +36,7 @@ builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 // Services
 builder.Services.AddScoped<IItemService, ItemService>();
 builder.Services.AddScoped<IPurchaseService, PurchaseService>(); 
+builder.Services.AddScoped<IUploadDataService, UploadDataService>();
 builder.Services.AddScoped<Retailer.Api.Data.IDbInitializer, Retailer.Api.Data.DbInitializer>();
 
 // JWT Authentication
