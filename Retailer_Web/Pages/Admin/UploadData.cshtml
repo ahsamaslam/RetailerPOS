@@ -1,0 +1,66 @@
+@page "/admin/upload-data"
+@model Retailer.Web.Pages.Admin.UploadDataModel
+@{
+    ViewData["Title"] = "Upload Data";
+    Layout = "_EmptyLayout";
+
+    var uploadMessage = TempData["UploadResult"] as string;
+    var uploadAlertType = TempData["UploadResultType"] as string ?? "success";
+    var uploadErrorsRaw = TempData["UploadErrors"] as string;
+    var uploadErrors = string.IsNullOrWhiteSpace(uploadErrorsRaw)
+        ? Array.Empty<string>()
+        : uploadErrorsRaw.Split("||", StringSplitOptions.RemoveEmptyEntries);
+    var maxErrorsToShow = Math.Min(uploadErrors.Length, 20);
+}
+
+<div class="d-flex align-items-center justify-content-between mb-4">
+    <div>
+        <h1 class="h3 mb-1">Upload Data</h1>
+        <p class="text-muted mb-0">Import bulk records using the provided template.</p>
+    </div>
+    <a class="btn btn-outline-secondary" data-loader="ignore" href="@Model.SampleTemplateUrl" download>
+        <i class="fa fa-download me-2"></i>
+        Download sample file
+    </a>
+</div>
+
+@if (!string.IsNullOrEmpty(uploadMessage))
+{
+    <div class="alert alert-@uploadAlertType">@uploadMessage</div>
+}
+
+@if (maxErrorsToShow > 0)
+{
+    <div class="alert alert-warning">
+        <p class="fw-semibold mb-1">Rows skipped (@uploadErrors.Length)</p>
+        <ul class="mb-2">
+            @for (var i = 0; i < maxErrorsToShow; i++)
+            {
+                <li>@uploadErrors[i]</li>
+            }
+        </ul>
+        @if (uploadErrors.Length > maxErrorsToShow)
+        {
+            <p class="mb-0 small text-muted">+@(uploadErrors.Length - maxErrorsToShow) more...</p>
+        }
+    </div>
+}
+
+<form method="post" enctype="multipart/form-data" class="card">
+    <div class="card-body">
+        <div class="mb-3">
+            <label asp-for="UploadFile" class="form-label">Select a file</label>
+            <input asp-for="UploadFile" type="file" class="form-control" accept=".csv" />
+            <span class="form-text">Supported format: CSV. Maximum size 10 MB.</span>
+            <span class="text-danger" asp-validation-for="UploadFile"></span>
+        </div>
+        <button type="submit" class="btn btn-primary">
+            <i class="fa fa-upload me-1"></i>
+            Upload
+        </button>
+    </div>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

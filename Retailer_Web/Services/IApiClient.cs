@@ -171,5 +171,7 @@ namespace Retailer.POS.Web.Services
         Task<SubMenuDto?> CreateSubMenuAsync(int menuId, SubMenuDto dto);
         Task<bool> DeleteMenuAsync(int menuId);
         Task<bool> DeleteSubMenuAsync(int menuId, int subMenuId);
+        // Upload data
+        Task<(bool Success, UploadDataResultDto? Result, string Message)> UploadDataAsync(IFormFile file, CancellationToken cancellationToken = default);
     }
 }
