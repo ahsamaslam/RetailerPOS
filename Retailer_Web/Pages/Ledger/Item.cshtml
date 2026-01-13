@@ -1,0 +1,162 @@
+﻿@page
+@model Retailer.Web.Pages.Ledger.ItemModel
+@{
+    ViewData["Title"] = "Item Ledger";
+    Layout = "_EmptyLayout";
+}
+
+<!--begin::Row-->
+<div class="row mt-2">
+    <div class="col-sm-12">
+        <h3 class="mb-0">Item Ledger</h3>
+    </div>
+</div>
+
+<!--end::Row-->
+
+
+<main class="app-main">
+    <div class="app-content container-fluid">
+
+
+
+        <div class="row mt-2">
+
+            <div class="col-md-3">
+                <label>Start Date</label>
+                <select asp-for="ItemCode" id="customer" required asp-items="Model.ItemList" class="form-control">
+                    <option value="">-- Select Item --</option>
+                </select>
+            </div>
+
+            <div class="col-md-3">
+                <label>Start Date</label>
+                <input asp-for="sdate" type="date" class="form-control" id="startDate" />
+            </div>
+            <div class="col-md-3">
+                <label>End Date</label>
+                <input asp-for="edate" type="date" class="form-control" id="endDate" />
+            </div>
+
+        </div>
+
+        <div class="row mt-2">
+            <div class="col-12">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Inv #</th>
+                            <th>Ref</th>
+                            <th>Remarks</th>
+                            <th>Debit</th>
+                            <th>Credit</th>
+                            <th>Balance</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var s in Model.ledgers)
+                        {
+                            <tr>
+                                <td>@s.Date.ToShortDateString()</td>
+                                <td>@s.ReferenceType</td>
+                                <td>@s.remarks</td>
+                                <td>@s.Debit</td>
+                                <td>@s.Credit</td>
+                                <td>@s.Balance</td>
+
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+
+
+            </div>
+        </div>
+    </div>
+</main>
+@section Scripts {
+    <script>
+        const ledgerDetailResolvers = Object.freeze({
+            SalesMaster: id => `/Sales/Details/${id}`,
+            SaleMaster: id => `/Sales/Details/${id}`,
+            SalesReturnMaster: id => `/SaleReturn/Details/${id}`,
+            SaleReturnMaster: id => `/SaleReturn/Details/${id}`,
+            PurchaseMaster: id => `/Purchases/Details/${id}`,
+            PurchaseReturnMaster: id => `/PurchaseReturn/Details/${id}`,
+            PurchaseReturn: id => `/PurchaseReturn/Details/${id}`,
+            CustomerPayment: id => `/Customer-Receipt/Details/${id}`,
+            VendorPayment: id => `/Vendor-Receipt/Details/${id}`,
+            Customer: id => `/Customers/Details/${id}`,
+            OpeningBalance: id => `/Customers/Details/${id}`
+        });
+
+        ['customer', 'startDate', 'endDate'].forEach(id => {
+            document.getElementById(id)?.addEventListener('change', loadLedger);
+        });
+
+        async function loadLedger() {
+            const customer = document.getElementById('customer')?.value;
+            const sdate = document.getElementById('startDate')?.value;
+            const edate = document.getElementById('endDate')?.value;
+
+            if (!customer || !sdate || !edate) {
+                return;
+            }
+
+            const url = `?handler=LoadData&customerCode=${customer}&sdate=${sdate}&edate=${edate}`;
+
+            try {
+                const response = await fetch(url, { headers: { Accept: 'application/json' } });
+                if (!response.ok) {
+                    throw new Error('Unable to load ledger details.');
+                }
+
+                const data = await response.json();
+                renderTable(data);
+            }
+            catch (error) {
+                console.error(error);
+            }
+        }
+
+        function getLedgerDetailUrl(referenceType, referenceId) {
+            if (!referenceType || !referenceId) {
+                return null;
+            }
+
+            const resolver = ledgerDetailResolvers[referenceType.trim()];
+            return resolver ? resolver(referenceId) : null;
+        }
+
+        function formatAmount(value) {
+            return Number(value ?? 0).toLocaleString(undefined, {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            });
+        }
+
+        function renderTable(rows) {
+            const tbody = document.querySelector('table tbody');
+            tbody.innerHTML = '';
+
+            rows.forEach(r => {
+                const detailUrl = getLedgerDetailUrl(r.referenceType, r.referenceId);
+                const referenceCell = detailUrl
+                    ? `<a href="${detailUrl}" class="ledger-link" data-type="${r.referenceType}" data-ref="${r.referenceId}">${r.referenceId}</a>`
+                    : `<span class="text-muted" title="No detail view available">${r.referenceId ?? '-'}</span>`;
+
+                tbody.innerHTML += `
+                <tr>
+                    <td>${new Date(r.date).toLocaleDateString()}</td>
+                    <td>${referenceCell}</td>
+                    <td>${r.referenceType ?? ''}</td>
+                    <td>${r.remarks ?? ''}</td>
+                    <td class="text-end">${formatAmount(r.debit)}</td>
+                    <td class="text-end">${formatAmount(r.credit)}</td>
+                    <td class="text-end">${formatAmount(r.balance)}</td>
+                </tr>`;
+            });
+        }
+    </script>
+}

@@ -4,6 +4,20 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
+  <ItemGroup>
+    <None Remove="Reports\DateWisePurchase.rdlc" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Reports\DateWisePurchaseI.rdlc">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Reports\DateWisePurchaseV.rdlc">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Reports\DateWisePurchase.rdlc">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
  
   <ItemGroup>
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.0" />
@@ -11,10 +25,15 @@
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
     <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="12.0.0" />
+    <PackageReference Include="ReportViewerCore.NETCore" Version="15.1.27" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.0" />
   </ItemGroup>
   <ItemGroup>
+    <None Update="DataSet\PurchaseDS.xsd">
+      <Generator>MSDataSetGenerator</Generator>
+      <LastGenOutput>PurchaseDS.Designer.cs</LastGenOutput>
+    </None>
     <None Update="Retailappsettings.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
@@ -25,5 +44,13 @@
 
   <ItemGroup>
     <ProjectReference Include="..\AuthModule.API\AuthModule.API.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="DataSet\PurchaseDS.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>PurchaseDS.xsd</DependentUpon>
+    </Compile>
   </ItemGroup>
 </Project>

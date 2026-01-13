@@ -1,0 +1,165 @@
+﻿@page "/purchase/report-item-wise-purchase"
+@model Retailer.Web.Pages.Report.Purchase.ItemWisePurchaseModel
+@{
+}
+
+<link href="~/css/reports.css" rel="stylesheet" />
+
+<div class="bookings-page">
+    <div class="page-header">
+        <h2>Item Wise Purchase Report</h2>
+        <form method="get" asp-page-handler="Filter" class="filters">
+
+            <select asp-for="ItemCode" required asp-items="Model.Items"
+                    id="ItemSelect"
+                    class="form-control">
+                <option value="">-- Select Item --</option>
+            </select>
+            <input asp-for="sdate" type="date" id="startDate" class="form-control text-start" />
+
+            <input asp-for="edate" type="date" id="endDate" class="form-control text-start" />
+
+            <div class="dropdown">
+                <button class="btn btn-sm btn-primary dropdown-toggle" type="button"
+                        data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    Actions
+                </button>
+
+                <div class="dropdown-menu dropdown-menu-right shadow">
+                    @foreach (var action in Model.Actions)
+                    {
+
+                        <a class="dropdown-item"
+                           href="javascript:void(0)"
+                           onclick="exportReport('@action')">
+                            @action
+                        </a>
+                    }
+                </div>
+            </div>
+
+        </form>
+
+    </div>
+    <div class="bookings-table">
+
+        <div class="table-header">
+            <span class="text-left">ID</span>
+            <span class="text-left">Date</span>
+            <span class="text-left">Vendor Name</span>
+            <span class="text-right">Rate</span>
+            <span class="text-right">Qty</span>
+            <span class="text-right">Discount</span>
+            <span class="text-right">Tax</span>
+        </div>
+
+        <!-- rows go here -->
+        <div id="tableBody"></div>
+
+        <!-- footer -->
+        <div class="table-footer">
+            <span></span>
+            <span></span>
+            <span class="text-left"><strong>Total</strong></span>
+            <span class="text-right"><strong id="rateTotal"></strong></span>
+            <span class="text-right"><strong id="qtyTotal"></strong></span> 
+            <span class="text-right"><strong id="discountTotal">0.00</strong></span>
+            <span class="text-right"><strong id="taxTotal">0.00</strong></span>
+        </div> 
+    </div> 
+</div>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+
+        loadPurchase();
+
+        ItemSelect.addEventListener("change", loadPurchase);
+        startDate.addEventListener("change", loadPurchase);
+        endDate.addEventListener("change", loadPurchase);
+    });
+
+    function loadPurchase() {
+
+        const Item = ItemSelect.value;
+        const sdate = startDate.value;
+        const edate = endDate.value;
+
+        // 🔒 prevent invalid calls
+        if (!Item || !sdate || !edate) {
+            tableBody.innerHTML = "";
+            rateTotal.innerText = "0.00";
+            qtyTotal.innerText = "0.00";
+            discountTotal.innerText = "0.00";
+            taxTotal.innerText = "0.00";
+            return;
+        }
+
+        fetch(`?handler=LoadPurchase&ItemCode=${Item}&sdate=${sdate}&edate=${edate}`)
+            .then(res => res.json())
+            .then(data => {
+
+                let body = document.getElementById("tableBody");
+                body.innerHTML = "";
+
+                let rateTotalVal = 0;
+                let qtyTotalVal = 0;
+                let discountTotalVal = 0;
+                let taxTotalVal = 0;
+
+                if (data.length === 0) {
+                    body.innerHTML = `<div class="table-row">
+                        <span>No records found</span>
+                    </div>`;
+                    return;
+                }
+
+                data.forEach(item => {
+
+                    rateTotalVal += item.unitPrice;
+                    qtyTotalVal += item.quantity;
+                    discountTotalVal += item.discount;
+                    taxTotalVal += item.taxAmount;
+
+                    body.innerHTML += `
+                    <div class="table-row">
+                        <span class="text-left">${item.purchaseID}</span>
+                        <span class="text-left">${formatDate(item.purchaseDate)}</span>
+                        <span class="text-left">${item.vendorName}</span>
+                        <span class="text-right">${item.unitPrice.toFixed(2)}</span>
+                        <span class="text-right">${item.quantity.toFixed(2)}</span>
+                        
+                        <span class="text-right">${item.discount.toFixed(2)}</span>
+                        <span class="text-right">${item.taxAmount.toFixed(2)}</span>
+                    </div>`;
+                }); 
+                rateTotal.innerText = (rateTotalVal/qtyTotalVal) .toFixed(2);
+                qtyTotal.innerText = qtyTotalVal.toFixed(2);
+                discountTotal.innerText = discountTotalVal.toFixed(2);
+                taxTotal.innerText = taxTotalVal.toFixed(2);
+            })
+            .catch(err => console.error(err));
+    }
+
+    function formatDate(date) {
+        return new Date(date).toLocaleDateString("en-GB", {
+            day: "2-digit",
+            month: "short",
+            year: "numeric"
+        });
+    }
+        function exportReport(action) {
+
+        const Item = document.getElementById("ItemSelect").value;
+        const sdate = document.getElementById("startDate").value;
+        const edate = document.getElementById("endDate").value;
+
+        if (!Item || !sdate || !edate) {
+            alert("Please select Item and Date range");
+            return;
+        }
+
+        // Browser download via GET navigation
+        window.location.href =
+            `?handler=Export&export=${action}&ItemCode=${Item}&sdate=${sdate}&edate=${edate}`;
+    }
+</script>

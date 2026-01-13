@@ -14,6 +14,8 @@ public interface IUnitOfWork : IDisposable
     IRepository<VendorPayment> VendorPayment { get; }
     IRepository<PurchaseMaster> PurchaseMasters { get; }
     IRepository<PurchaseDetail> PurchaseDetails { get; }
+    IRepository<PurchaseReturnMaster> PurchaseReturnMasters { get; }
+    IRepository<PurchaseReturnDetail> PurchaseReturnDetails { get; }
     IRepository<Customer> Customers { get; }
     IRepository<Vendor> Vendors { get; }
     IRepository<vwStockLedger> VwStockLedger { get; }

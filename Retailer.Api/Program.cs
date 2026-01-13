@@ -8,6 +8,8 @@ using Microsoft.OpenApi.Models;
 using Retailer.Api.Data;
 using Retailer.Api.Middleware;
 using Retailer.Api.Services;
+using Retailer.Api.Services.Reports;
+using Retailer.Api.Services.Reports.Interface;
 using Retailer.POS.Api.Data;
 using Retailer.POS.Api.Mappings;
 using Retailer.POS.Api.Repositories;
@@ -37,7 +39,14 @@ builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<IItemService, ItemService>();
 builder.Services.AddScoped<IPurchaseService, PurchaseService>(); 
 builder.Services.AddScoped<IUploadDataService, UploadDataService>();
+builder.Services.AddScoped<IPurchaseReturnService, PurchaseReturnService>(); 
+builder.Services.AddScoped<IPurchaseReportExportService, PurchaseReportExportService>();
+builder.Services.AddScoped<IPurchaseReturnReportExportService, PurchaseReturnReportExportService>();
+builder.Services.AddScoped<IReportGeneratorService, ReportGeneratorService>();
 builder.Services.AddScoped<Retailer.Api.Data.IDbInitializer, Retailer.Api.Data.DbInitializer>();
+builder.Services.AddScoped<ISalesService, SalesService>();
+builder.Services.AddScoped<ISalesReturnService, SalesReturnService>();
+
 
 // JWT Authentication
 var jwtSection = builder.Configuration.GetSection("Jwt");

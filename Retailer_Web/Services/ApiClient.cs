@@ -7,6 +7,7 @@ using Retailer.Web.ApiDTOs;
 using Retailer.Web.Helpers;
 using Retailer.Web.Models;
 using Retailer.Web.Models.Ledger;
+using Retailer.Web.ReportDto;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -49,6 +50,8 @@ public class ApiClient : IApiClient
         return await resp.Content.ReadFromJsonAsync<T>(_jsonOptions)
                ?? throw new InvalidOperationException("Response content was empty.");
     }
+
+    
 
     // Generic POST that returns typed response
     public async Task<TResponse?> PostAsync<TRequest, TResponse>(string url, TRequest body)
@@ -415,9 +418,58 @@ public class ApiClient : IApiClient
         return await resp.Content.ReadFromJsonAsync<PurchaseMasterDto>(_jsonOptions)
                ?? throw new Exception("No purchase returned");
     }
+    public async Task<PurchaseReturnMasterDto> CreatePurchaseReturnAsync(CreatePurchaseReturnDto dto)
+    {
+        try
+        {
+            using var resp = await _http.PostAsJsonAsync("api/purchasereturn", dto, _jsonOptions);
+            if (resp.StatusCode == HttpStatusCode.Unauthorized) throw new ApiUnauthorizedException();
+            resp.EnsureSuccessStatusCode();
+            return await resp.Content.ReadFromJsonAsync<PurchaseReturnMasterDto>(_jsonOptions)
+                   ?? throw new Exception("No purchase returned");
+        }
+        catch (Exception exx)
+        {
+              throw new Exception("No purchase returned");
+        }
+    }
+
+    public async Task<List<PurchaseReturnViewModel>> GetPurchaseReturnDateWiseAsync(DateTime sdate, DateTime edate) =>
+        await GetAsync<List<PurchaseReturnViewModel>>($"api/PurchaseReturn/{sdate:yyyy-MM-dd}/{edate:yyyy-MM-dd}") ?? new List<PurchaseReturnViewModel>();
+
+    public async Task<List<PurchaseReturnViewModel>> GetPurchaseReturnVendorWiseAsync(int vendorID, DateTime sdate, DateTime edate) =>
+        await GetAsync<List<PurchaseReturnViewModel>>($"api/PurchaseReturn/VendorWise/{vendorID}/{sdate:yyyy-MM-dd}/{edate:yyyy-MM-dd}") ?? new List<PurchaseReturnViewModel>();
+
+    public async Task<List<ItemPurchaseReport>> GetPurchaseReturnItemWiseAsync(int itemID, DateTime sdate, DateTime edate) =>
+        await GetAsync<List<ItemPurchaseReport>>($"api/PurchaseReturn/ItemWise/{itemID}/{sdate:yyyy-MM-dd}/{edate:yyyy-MM-dd}") ?? new List<ItemPurchaseReport>();
 
     public async Task<List<PurchaseViewModel>> GetPurchaseDateWiseAsync(DateTime sdate, DateTime edate) =>
         await GetAsync<List<PurchaseViewModel>>($"api/Purchases/{sdate:yyyy-MM-dd}/{edate:yyyy-MM-dd}") ?? new List<PurchaseViewModel>();
+
+    public async Task<List<PurchaseViewModel>> GetPurchaseVendorWiseAsync(int vendorID, DateTime sdate, DateTime edate) =>
+        await GetAsync<List<PurchaseViewModel>>($"api/Purchases/VendorWise/{vendorID}/{sdate:yyyy-MM-dd}/{edate:yyyy-MM-dd}") ?? new List<PurchaseViewModel>();
+
+    public async Task<List<ItemPurchaseReport>> GetPurchaseItemWiseAsync(int itemID, DateTime sdate, DateTime edate) =>
+        await GetAsync<List<ItemPurchaseReport>>($"api/Purchases/ItemWise/{itemID}/{sdate:yyyy-MM-dd}/{edate:yyyy-MM-dd}") ?? new List<ItemPurchaseReport>();
+
+
+    public async Task<List<SalesReturnViewModel>> GetSalesReturnDateWiseAsync(DateTime sdate, DateTime edate) =>
+        await GetAsync<List<SalesReturnViewModel>>($"api/SalesReturn/{sdate:yyyy-MM-dd}/{edate:yyyy-MM-dd}") ?? new List<SalesReturnViewModel>();
+
+    public async Task<List<SalesReturnViewModel>> GetSalesReturnCustomerWiseAsync(int customerID, DateTime sdate, DateTime edate) =>
+        await GetAsync<List<SalesReturnViewModel>>($"api/SalesReturn/CustomerWise/{customerID}/{sdate:yyyy-MM-dd}/{edate:yyyy-MM-dd}") ?? new List<SalesReturnViewModel>();
+
+    public async Task<List<ItemSalesReturnReport>> GetSalesReturnItemWiseAsync(int itemID, DateTime sdate, DateTime edate) =>
+        await GetAsync<List<ItemSalesReturnReport>>($"api/SalesReturn/ItemWise/{itemID}/{sdate:yyyy-MM-dd}/{edate:yyyy-MM-dd}") ?? new List<ItemSalesReturnReport>();
+
+    public async Task<List<SalesViewModel>> GetSalesDateWiseAsync(DateTime sdate, DateTime edate) =>
+        await GetAsync<List<SalesViewModel>>($"api/Sales/{sdate:yyyy-MM-dd}/{edate:yyyy-MM-dd}") ?? new List<SalesViewModel>();
+
+    public async Task<List<SalesViewModel>> GetSalesCustomerWiseAsync(int customerID, DateTime sdate, DateTime edate) =>
+        await GetAsync<List<SalesViewModel>>($"api/Sales/CustomerWise/{customerID}/{sdate:yyyy-MM-dd}/{edate:yyyy-MM-dd}") ?? new List<SalesViewModel>();
+
+    public async Task<List<ItemSalesReport>> GetSalesItemWiseAsync(int itemID, DateTime sdate, DateTime edate) =>
+        await GetAsync<List<ItemSalesReport>>($"api/Sales/ItemWise/{itemID}/{sdate:yyyy-MM-dd}/{edate:yyyy-MM-dd}") ?? new List<ItemSalesReport>();
 
     public async Task<List<PurchaseViewModel>> GetPurchasesAsync() =>
         await GetAsync<List<PurchaseViewModel>>("api/Purchases") ?? new List<PurchaseViewModel>();
@@ -441,6 +493,36 @@ public class ApiClient : IApiClient
 			return null;
 		}   
     
+    }
+    public async Task<PurchaseReturnMasterDto?> GetPurchaseReturnByIdAsync(int id) {
+		try
+		{
+
+			var response = await _http.GetAsync($"api/Purchasereturn/{id}");
+			string va = await response.Content.ReadAsStringAsync();
+			if (!response.IsSuccessStatusCode)
+				return null;
+        
+			return JsonSerializer.Deserialize<PurchaseReturnMasterDto>(
+		  va,
+		  new JsonSerializerOptions { PropertyNameCaseInsensitive = true }
+	  );
+		}
+		catch(Exception ex)
+        {
+			return null;
+		}   
+    
+    }
+
+    public async Task<bool> UpdatePurchaseReturnAsync(PurchaseReturnMasterDto dto)
+    {
+        if (dto == null) return false;
+
+        string json =  JsonSerializer.Serialize(dto);   
+        using var resp = await _http.PutAsJsonAsync($"api/Purchasereturn/{dto.Id}", dto, _jsonOptions);
+        if (resp.StatusCode == HttpStatusCode.Unauthorized) throw new ApiUnauthorizedException();
+        return resp.IsSuccessStatusCode;
     }
 
     public async Task<bool> UpdatePurchaseAsync(PurchaseMasterDto dto)
@@ -519,6 +601,13 @@ public class ApiClient : IApiClient
         if (resp.StatusCode == HttpStatusCode.Unauthorized) throw new ApiUnauthorizedException();
         resp.EnsureSuccessStatusCode();
         return await resp.Content.ReadFromJsonAsync<IEnumerable<CustomerLedgerDto>>(_jsonOptions) ?? Array.Empty<CustomerLedgerDto>();
+    }
+    public async Task<IEnumerable<ItemLedgerDto>> GetItemLedgerAsync(DateTime sdate, DateTime edate, int customerCode)
+    {
+        using var resp = await _http.GetAsync($"api/itemledger/Ledger/{sdate:yyyy-MM-dd}/{edate:yyyy-MM-dd}/{ customerCode}");
+        if (resp.StatusCode == HttpStatusCode.Unauthorized) throw new ApiUnauthorizedException();
+        resp.EnsureSuccessStatusCode();
+        return await resp.Content.ReadFromJsonAsync<IEnumerable<ItemLedgerDto>>(_jsonOptions) ?? Array.Empty<ItemLedgerDto>();
     }
 	public async Task<IEnumerable<VendorLedgerDto>> GetVendorLedgerAsync(DateTime sdate, DateTime edate, int vendorCode)
 	{
@@ -863,6 +952,38 @@ public class ApiClient : IApiClient
         }
 
     }
+    
+    public async Task<bool> DeletePurchaseReturnAsync(int id)
+    {
+        try
+        {
+            using var resp = await _http.DeleteAsync($"api/purchasereturn/{id}");
+            if (resp.StatusCode == HttpStatusCode.Unauthorized) throw new ApiUnauthorizedException();
+
+            if (resp.IsSuccessStatusCode) return (true);
+            if (resp.StatusCode == HttpStatusCode.NotFound) return (false);
+            var err = await resp.Content.ReadAsStringAsync();
+            return    (false);
+        }
+        catch (ApiUnauthorizedException) { throw; }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error deleting opening balance {Id}", id);
+            return (false);
+        }
+
+    }
+
+    // add alongside the other item helpers
+    public async Task<List<ItemDto>> SearchItemsAsync(string? term, int take = 20)
+    {
+        var size = Math.Clamp(take, 1, 50);
+        var encodedTerm = string.IsNullOrWhiteSpace(term)
+            ? string.Empty
+            : $"&term={Uri.EscapeDataString(term)}";
+
+        return await GetAsync<List<ItemDto>>($"api/items/search?take={size}{encodedTerm}");
+    }
 
 
     //public async Task<PurchaseMasterDto?> GetPurchaseByIdAsync(int id) => await GetAsync<PurchaseMasterDto>($"api/Purchases/{id}");
@@ -899,4 +1020,72 @@ public class ApiClient : IApiClient
 
         return (true, result, "Upload completed successfully.");
     }
+
+
+    #region Purchase Report
+    public async Task<byte[]> ExportPurchaseDateWiseAsync(string export, DateTime sdate, DateTime edate)
+    {
+        var url = $"api/PurchaseReportExport/date-wise?export={export}&sdate={sdate:yyyy-MM-dd}&edate={edate:yyyy-MM-dd}";
+        return await _http.GetByteArrayAsync(url);
+    }
+    public async Task<byte[]> ExportPurchaseVendorWiseAsync(int vendorID, string export, DateTime sdate, DateTime edate)
+    {
+        var url = $"api/PurchaseReportExport/vendor-wise?vendorid={vendorID}&export={export}&sdate={sdate:yyyy-MM-dd}&edate={edate:yyyy-MM-dd}";
+        return await _http.GetByteArrayAsync(url);
+    }
+    public async Task<byte[]> ExportPurchaseItemWiseAsync(int ItemID, string export, DateTime sdate, DateTime edate)
+    {
+        var url = $"api/PurchaseReportExport/item-wise?itemid={ItemID}&export={export}&sdate={sdate:yyyy-MM-dd}&edate={edate:yyyy-MM-dd}";
+        return await _http.GetByteArrayAsync(url);
+    }
+    public async Task<byte[]> ExportPurchaseReturnDateWiseAsync(string export, DateTime sdate, DateTime edate)
+    {
+        var url = $"api/PurchaseReturnReportExport/date-wise?export={export}&sdate={sdate:yyyy-MM-dd}&edate={edate:yyyy-MM-dd}";
+        return await _http.GetByteArrayAsync(url);
+    }
+    public async Task<byte[]> ExportPurchaseReturnVendorWiseAsync(int vendorId, string export, DateTime sdate, DateTime edate)
+    {
+        var url = $"api/PurchaseReturnReportExport/vendor-wise?vendorId={vendorId}&export={export}&sdate={sdate:yyyy-MM-dd}&edate={edate:yyyy-MM-dd}";
+        return await _http.GetByteArrayAsync(url);
+    }
+    public async Task<byte[]> ExportPurchaseReturnItemWiseAsync(int itemId, string export, DateTime sdate, DateTime edate)
+    {
+        var url = $"api/PurchaseReturnReportExport/item-wise?itemId={itemId}&export={export}&sdate={sdate:yyyy-MM-dd}&edate={edate:yyyy-MM-dd}";
+        return await _http.GetByteArrayAsync(url);
+    }
+    #endregion
+
+
+    #region Sales Report
+    public async Task<byte[]> ExportSalesDateWiseAsync(string export, DateTime sdate, DateTime edate)
+    {
+        var url = $"api/SalesReportExport/date-wise?export={export}&sdate={sdate:yyyy-MM-dd}&edate={edate:yyyy-MM-dd}";
+        return await _http.GetByteArrayAsync(url);
+    }
+    public async Task<byte[]> ExportSalesCustomerWiseAsync(int customerId, string export, DateTime sdate, DateTime edate)
+    {
+        var url = $"api/SalesReportExport/customer-wise?customerid={customerId}&export={export}&sdate={sdate:yyyy-MM-dd}&edate={edate:yyyy-MM-dd}";
+        return await _http.GetByteArrayAsync(url);
+    }
+    public async Task<byte[]> ExportSalesItemWiseAsync(int ItemID, string export, DateTime sdate, DateTime edate)
+    {
+        var url = $"api/SalesReportExport/item-wise?itemid={ItemID}&export={export}&sdate={sdate:yyyy-MM-dd}&edate={edate:yyyy-MM-dd}";
+        return await _http.GetByteArrayAsync(url);
+    }
+    public async Task<byte[]> ExportSalesReturnDateWiseAsync(string export, DateTime sdate, DateTime edate)
+    {
+        var url = $"api/SalesReturnReportExport/date-wise?export={export}&sdate={sdate:yyyy-MM-dd}&edate={edate:yyyy-MM-dd}";
+        return await _http.GetByteArrayAsync(url);
+    }
+    public async Task<byte[]> ExportSalesReturnCustomerWiseAsync(int customerId, string export, DateTime sdate, DateTime edate)
+    {
+        var url = $"api/SalesReturnReportExport/customer-wise?customerId={customerId}&export={export}&sdate={sdate:yyyy-MM-dd}&edate={edate:yyyy-MM-dd}";
+        return await _http.GetByteArrayAsync(url);
+    }
+    public async Task<byte[]> ExportSalesReturnItemWiseAsync(int itemId, string export, DateTime sdate, DateTime edate)
+    {
+        var url = $"api/SalesReturnReportExport/item-wise?itemId={itemId}&export={export}&sdate={sdate:yyyy-MM-dd}&edate={edate:yyyy-MM-dd}";
+        return await _http.GetByteArrayAsync(url);
+    }
+    #endregion
 }

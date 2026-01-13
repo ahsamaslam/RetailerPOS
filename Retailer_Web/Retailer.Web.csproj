@@ -25,6 +25,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Pages\NewFolder\" />
     <Folder Include="wwwroot\lib\" />
     <Folder Include="wwwroot\uploads\CompanyLogo\" />
     <Folder Include="wwwroot\uploads\UserLogo\" />

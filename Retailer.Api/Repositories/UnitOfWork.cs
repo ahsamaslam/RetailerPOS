@@ -19,6 +19,8 @@ namespace Retailer.POS.API.UnitOfWork
         private IRepository<Item> _items;
         private IRepository<PurchaseMaster> _purchaseMasters;
         private IRepository<PurchaseDetail> _purchaseDetails;
+        private IRepository<PurchaseReturnMaster> _purchaseReturnMasters;
+        private IRepository<PurchaseReturnDetail> _purchaseReturnDetails;
         private IRepository<Customer> _customers;
         private IRepository<Vendor> _vendors;
         private IRepository<Branch> _branches;
@@ -49,11 +51,13 @@ namespace Retailer.POS.API.UnitOfWork
         public IRepository<CustomerPayment> CustomerPayment => _customerpayment ??= new Repository<CustomerPayment>(_context);
         public IRepository<Item> Items => _items ??= new Repository<Item>(_context);
         public IRepository<vwStockLedger> VwStockLedger => _vwStockLedger ??= new Repository<vwStockLedger>(_context);
+        public IRepository<PurchaseReturnMaster> PurchaseReturnMasters => _purchaseReturnMasters ??= new Repository<PurchaseReturnMaster>(_context);
         public IRepository<PurchaseMaster> PurchaseMasters => _purchaseMasters ??= new Repository<PurchaseMaster>(_context);
         public IRepository<Cities> Cities => _cities ??= new Repository<Cities>(_context);
         public IRepository<Banks> Banks => _banks ??= new Repository<Banks>(_context);
         public IRepository<Provience> Proviences => _provience ??= new Repository<Provience>(_context);
         public IRepository<PurchaseDetail> PurchaseDetails => _purchaseDetails ??= new Repository<PurchaseDetail>(_context);
+        public IRepository<PurchaseReturnDetail> PurchaseReturnDetails => _purchaseReturnDetails ??= new Repository<PurchaseReturnDetail>(_context);
         public IRepository<Customer> Customers => _customers ??= new Repository<Customer>(_context);
         public IRepository<Vendor> Vendors => _vendors ??= new Repository<Vendor>(_context);
         public IRepository<Branch> Branches => _branches ??= new Repository<Branch>(_context);

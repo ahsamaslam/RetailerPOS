@@ -953,6 +953,110 @@ namespace Retailer.Api.Migrations
                     b.ToTable("PurchaseMasters");
                 });
 
+            modelBuilder.Entity("Retailer.POS.Api.Entities.PurchaseReturnDetail", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<Guid>("CompanyId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<decimal>("Discount")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("ItemId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("PurchaseId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("PurchaseReturnId")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("Qty")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("Rate")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("TaxAmount")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("TaxPercentage")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ItemId");
+
+                    b.HasIndex("PurchaseId");
+
+                    b.ToTable("PurchaseReturnDetails");
+                });
+
+            modelBuilder.Entity("Retailer.POS.Api.Entities.PurchaseReturnMaster", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("Active")
+                        .HasColumnType("int");
+
+                    b.Property<int>("BranchId")
+                        .HasColumnType("int");
+
+                    b.Property<Guid>("CompanyId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreateDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("Date")
+                        .HasColumnType("datetime2");
+
+                    b.Property<decimal>("Discount")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("SubTotal")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("TaxAmount")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("Total")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("UserName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("VendorID")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Year")
+                        .HasColumnType("int");
+
+                    b.Property<string>("remarks")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BranchId");
+
+                    b.HasIndex("VendorID");
+
+                    b.ToTable("PurchaseReturnMasters");
+                });
+
             modelBuilder.Entity("Retailer.POS.Api.Entities.SalesDetail", b =>
                 {
                     b.Property<int>("Id")
@@ -1614,6 +1718,42 @@ namespace Retailer.Api.Migrations
                     b.Navigation("Vendor");
                 });
 
+            modelBuilder.Entity("Retailer.POS.Api.Entities.PurchaseReturnDetail", b =>
+                {
+                    b.HasOne("Retailer.POS.Api.Entities.Item", "Item")
+                        .WithMany()
+                        .HasForeignKey("ItemId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Retailer.POS.Api.Entities.PurchaseReturnMaster", "Purchase")
+                        .WithMany("Details")
+                        .HasForeignKey("PurchaseId");
+
+                    b.Navigation("Item");
+
+                    b.Navigation("Purchase");
+                });
+
+            modelBuilder.Entity("Retailer.POS.Api.Entities.PurchaseReturnMaster", b =>
+                {
+                    b.HasOne("Retailer.POS.Api.Entities.Branch", "Branch")
+                        .WithMany()
+                        .HasForeignKey("BranchId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Retailer.POS.Api.Entities.Vendor", "Vendor")
+                        .WithMany()
+                        .HasForeignKey("VendorID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Branch");
+
+                    b.Navigation("Vendor");
+                });
+
             modelBuilder.Entity("Retailer.POS.Api.Entities.SalesDetail", b =>
                 {
                     b.HasOne("Retailer.POS.Api.Entities.SalesMaster", "SalesMaster")
@@ -1684,6 +1824,11 @@ namespace Retailer.Api.Migrations
                 });
 
             modelBuilder.Entity("Retailer.POS.Api.Entities.PurchaseMaster", b =>
+                {
+                    b.Navigation("Details");
+                });
+
+            modelBuilder.Entity("Retailer.POS.Api.Entities.PurchaseReturnMaster", b =>
                 {
                     b.Navigation("Details");
                 });

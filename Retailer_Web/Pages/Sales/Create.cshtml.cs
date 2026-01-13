@@ -2,12 +2,10 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.Extensions.Hosting;
 using Retailer.POS.Web.ApiDTOs;
 using Retailer.POS.Web.Services;
 using Retailer.Web;
 using Retailer.Web.ApiDTOs;
-using Retailer.Web.Dtos;
 using Retailer.Web.Models;
 using Retailer.Web.Pages;
 
@@ -24,18 +22,14 @@ namespace Retailer.POS.Web.Pages.Sales
         {
             Details = new List<SalesDetailDto> { new SalesDetailDto() }
         };
-		public CompanyDto company { get; set; } = new();
-		public List<ItemSelectListItem> ItemsList { get; set; } = new();
+        public CompanyDto company { get; set; } = new();
         public List<SelectListItem> SaleType { get; set; } = new List<SelectListItem>() { new SelectListItem {  Value="1", Text="Cash"}
         , new SelectListItem { Value = "1", Text = "Credit" } };
         public List<SelectListItem> CustomersList { get; set; } = new();
 
         public async Task<IActionResult> OnGetAsync(int? id)
         {
-			  company = await _api.GetUserCompanyAsync();
-			// Load dropdown data
-			var items = await _api.GetItemsAsync();
-            ItemsList = items.Select(i => new ItemSelectListItem { Value = i.Id.ToString(), Text = i.Name , rate = i.Rate, cost=i.Cost, qty =  i.QtyInHand }).ToList();
+            company = await _api.GetUserCompanyAsync();
 
             var customers = await _api.GetCustomersAsync();
             CustomersList = customers.Select(c => new SelectListItem { Value = c.Id.ToString(), Text = c.Name }).ToList();
@@ -49,6 +43,9 @@ namespace Retailer.POS.Web.Pages.Sales
             return Page();
         }
 
+        public async Task<IActionResult> OnGetItemLookupAsync(string term = "", int take = 20)
+            => new JsonResult(await _api.SearchItemsAsync(term, take));
+
         public async Task<IActionResult> OnPostAsync()
         {
             if (!ModelState.IsValid) return Page();
@@ -59,28 +56,24 @@ namespace Retailer.POS.Web.Pages.Sales
             Sale.TotalDiscount = Sale.Details.Sum(d => d.Discount);
             Sale.BalanceAmount = Sale.SubTotal - Sale.TotalDiscount + Sale.TaxAmount;
 
-            bool success=false;
-            SalesMasterDto data = new SalesMasterDto() ;
+            bool success = false;
+            SalesMasterDto data = new SalesMasterDto();
             if (Sale.Id > 0)
             {
                 success = await _api.UpdateSaleAsync(Sale);
-
 
                 if (!success)
                 {
                     ModelState.AddModelError("", "Unable to save sale.");
                     return Page();
                 }
-
-
             }
             else
             {
                 data = await _api.CreateSaleAsync(Sale);
             }
-          
+
             return Redirect($"~/Sales/Print/{data.Id}");
-         //   return RedirectToPage("Index");
         }
     }
 }

@@ -96,13 +96,13 @@ namespace AuthModule.API.Controllers
             return Ok(companies);
         }
 
-        [Authorize(Roles = "superadmin")]
+        [Authorize]
         // GET: api/companies/{id}
         [HttpGet("{id:guid}")]
         public async Task<ActionResult<CompanyResponseDto>> Get(Guid id)
         {
             var company = await _db.Companies.AsNoTracking().FirstOrDefaultAsync(c => c.Id == id);
-            company.logoPath = string.IsNullOrEmpty(company.logoPath) ? "" : serverPath + company.logoPath;
+            company.logoPath = string.IsNullOrEmpty(company.logoPath) ? "" : serverPath+"/" + company.logoPath;
             if (company == null) return NotFound();
             return Ok(ToResponseDto(company));
         }

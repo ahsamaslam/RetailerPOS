@@ -1,3 +1,4 @@
+using Retailer.Api.DtoReport;
 using Retailer.POS.Api.DTOs;
 namespace Retailer.POS.Api.Services;
 public interface IPurchaseService
@@ -5,5 +6,7 @@ public interface IPurchaseService
     Task<PurchaseMasterDto> CreatePurchaseAsync(CreatePurchaseDto dto, Guid CompanyId,Guid UserId); 
     Task<PurchaseMasterDto?> GetByIdAsync(int id, Guid companyID);
     Task<IEnumerable<PurchaseMasterDto?>> GetDateWiseAsync(DateTime sdate , DateTime edate, Guid CompanyId);
+    Task<IEnumerable<PurchaseMasterDto?>> GetVendorWiseAsync(int vendorID,DateTime sdate , DateTime edate, Guid CompanyId);
+    Task<IEnumerable<ItemPurchaseReportDtoR?>> GetItemWiseAsync(int itemID,DateTime sdate , DateTime edate, Guid CompanyId);
     Task<IEnumerable<PurchaseMasterDto?>> GetAll(Guid CompanyId);
 }

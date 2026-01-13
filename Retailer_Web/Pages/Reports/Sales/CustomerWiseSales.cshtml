@@ -1,0 +1,159 @@
+@page "/sales/report-customer-wise-sales"
+@model Retailer.Web.Pages.Report.Sales.CustomerWisePurchaseReturnModel
+@{
+    Layout = "_EmptyLayout";
+}
+
+<link href="~/css/reports.css" rel="stylesheet" />
+
+<div class="bookings-page">
+    <div class="page-header">
+        <h2>Vendor Wise Sales Report</h2>
+        <form method="get" asp-page-handler="Filter" class="filters">
+            <select asp-for="CustomerCode" required asp-items="Model.Customers"
+                    id="vendorSelect"
+                    class="form-control">
+                <option value="">-- Select Vendor --</option>
+            </select>
+            <input asp-for="sdate" type="date" id="startDate" class="form-control text-start" />
+            <input asp-for="edate" type="date" id="endDate" class="form-control text-start" />
+
+            <div class="dropdown">
+                <button class="btn btn-sm btn-primary dropdown-toggle" type="button"
+                        data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    Actions
+                </button>
+
+                <div class="dropdown-menu dropdown-menu-right shadow">
+                    @foreach (var action in Model.Actions)
+                    {
+                        <a class="dropdown-item"
+                           href="javascript:void(0)"
+                           onclick="exportReport('@action')">
+                            @action
+                        </a>
+                    }
+                </div>
+            </div>
+
+        </form>
+
+    </div>
+    <div class="bookings-table">
+
+        <div class="table-header">
+            <span class="text-left">Sales ID</span>
+            <span class="text-left">Date</span>
+            <span class="text-left">Customer name</span>
+            <span class="text-right">Subtotal</span>
+            <span class="text-right">Discount</span>
+            <span class="text-right">Tax</span>
+            <span class="text-right">Net Total</span>
+        </div>
+
+        <!-- rows go here -->
+        <div id="tableBody"></div>
+
+        <!-- footer -->
+        <div class="table-footer">
+            <span></span>
+            <span></span>
+            <span class="text-left"><strong>Total</strong></span>
+            <span class="text-right"><strong id="subTotal">0.00</strong></span>
+            <span class="text-right"><strong>0.00</strong></span>
+            <span class="text-right"><strong id="taxTotal">0.00</strong></span>
+            <span class="text-right"><strong id="netTotal">0.00</strong></span>
+        </div>
+
+    </div>
+
+</div>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+
+        loadReturns();
+
+        vendorSelect.addEventListener("change", loadReturns);
+        startDate.addEventListener("change", loadReturns);
+        endDate.addEventListener("change", loadReturns);
+    });
+
+    function loadReturns() {
+
+        const vendor = vendorSelect.value;
+        const sdate = startDate.value;
+        const edate = endDate.value;
+
+        if (!vendor || !sdate || !edate) {
+            tableBody.innerHTML = "";
+            subTotal.innerText = "0.00";
+            taxTotal.innerText = "0.00";
+            netTotal.innerText = "0.00";
+            return;
+        }
+
+        fetch(`?handler=LoadPurchaseReturn&vendorCode=${vendor}&sdate=${sdate}&edate=${edate}`)
+            .then(res => res.json())
+            .then(data => {
+
+                let body = document.getElementById("tableBody");
+                body.innerHTML = "";
+
+                let subTotalVal = 0;
+                let taxTotalVal = 0;
+                let netTotalVal = 0;
+
+                if (data.length === 0) {
+                    body.innerHTML = `<div class="table-row">
+                        <span>No records found</span>
+                    </div>`;
+                    return;
+                }
+
+                data.forEach(item => {
+
+                    subTotalVal += item.subTotal;
+                    taxTotalVal += item.taxAmount;
+                    netTotalVal += item.total;
+
+                    body.innerHTML += `
+                    <div class="table-row">
+                        <span class="text-left">${item.id}</span>
+                        <span class="text-left">${formatDate(item.date)}</span>
+                        <span class="text-left">${item.customerName}</span>
+                        <span class="text-right">${item.subTotal.toFixed(2)}</span>
+                        <span class="text-right">0.00</span>
+                        <span class="text-right">${item.taxAmount.toFixed(2)}</span>
+                        <span class="text-right">${item.total.toFixed(2)}</span>
+                    </div>`;
+                });
+
+                subTotal.innerText = subTotalVal.toFixed(2);
+                taxTotal.innerText = taxTotalVal.toFixed(2);
+                netTotal.innerText = netTotalVal.toFixed(2);
+            })
+            .catch(err => console.error(err));
+    }
+
+    function formatDate(date) {
+        return new Date(date).toLocaleDateString("en-GB", {
+            day: "2-digit",
+            month: "short",
+            year: "numeric"
+        });
+    }
+    function exportReport(action) {
+
+        const vendor = document.getElementById("vendorSelect").value;
+        const sdate = document.getElementById("startDate").value;
+        const edate = document.getElementById("endDate").value;
+
+        if (!vendor || !sdate || !edate) {
+            alert("Please select Vendor and Date range");
+            return;
+        }
+
+        window.location.href =
+            `?handler=Export&export=${action}&vendorCode=${vendor}&sdate=${sdate}&edate=${edate}`;
+    }
+</script>

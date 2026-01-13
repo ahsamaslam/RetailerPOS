@@ -78,7 +78,9 @@
             </li>            
         }
         @foreach (var menu in Model.Menus
-                            .Where(m => m.IsActive)
+                            .Where(m => m.IsActive 
+                            && !(m.SubMenus?.FirstOrDefault()?.UrlTitle?.Contains("report") 
+                            ?? false))
                             .OrderBy(m => m.SortOrder))
         {
             var icon = string.IsNullOrWhiteSpace(menu.Icon)

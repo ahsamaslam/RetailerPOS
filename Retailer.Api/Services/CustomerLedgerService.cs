@@ -295,7 +295,9 @@ await ReverseCustomerLedgerEntryAsync(ReferenceType,referenceId, "Reversal Reque
 	DateTime sdate,
 	DateTime edate)
 		{
-			return await _context.CustomerLedger
+
+            List<CustomerLedger> lst = 
+			 await _context.CustomerLedger
 				.Where(x =>
 					x.CustomerId == customerId &&
 					x.Date.Date >= sdate.Date &&
@@ -303,7 +305,27 @@ await ReverseCustomerLedgerEntryAsync(ReferenceType,referenceId, "Reversal Reque
 				.OrderBy(x => x.Date)
 				.ThenBy(x => x.Id)
 				.ToListAsync();
-		}
+            if (lst.Count == 0)
+            {
+
+              
+                CustomerLedger ledger =   await _context.CustomerLedger
+               .Where(x =>
+                   x.CustomerId == customerId 
+                 )  
+               .OrderBy(x=>x.Id)
+               .LastAsync();
+    
+                if(ledger!=null)
+                    return new List<CustomerLedger> { ledger }; 
+
+
+            }
+          
+
+                return lst;
+
+        }
 		public async Task UpdateLedgerAsync(object entity)
         {   using var transaction = await _context.Database.BeginTransactionAsync();
             try

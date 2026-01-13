@@ -1,6 +1,7 @@
 using AutoMapper;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
+using Retailer.Api.DtoReport;
 using Retailer.Api.Services;
 using Retailer.POS.Api.Data;
 using Retailer.POS.Api.DTOs;
@@ -80,8 +81,24 @@ public class PurchaseService : IPurchaseService
 
     public async Task<IEnumerable<PurchaseMasterDto?>> GetDateWiseAsync(DateTime sdate, DateTime edate, Guid CompanyId)
     {
-        var pm = await _uow.PurchaseMasters.Query().Include(p => p.Details).Where(p => p.CompanyId == CompanyId && p.Date.Date>=sdate.Date  &&  p.Date.Date<=edate.Date  && p.Active==1).ToListAsync();
+        var pm = await _uow.PurchaseMasters.Query().Include(p => p.Details).Include(x=>x.Vendor).Where(p => p.CompanyId == CompanyId && p.Date.Date>=sdate.Date  &&  p.Date.Date<=edate.Date  && p.Active==1).ToListAsync();
+       
         return _mapper.Map<IEnumerable<PurchaseMasterDto>>(pm);
     }
-     
+
+    public async  Task<IEnumerable<PurchaseMasterDto?>> GetVendorWiseAsync(int vendorID, DateTime sdate, DateTime edate, Guid CompanyId)
+    {
+        var pm = await _uow.PurchaseMasters.Query().Include(p => p.Details).Where(p => 
+        p.CompanyId == CompanyId  && p.VendorID == vendorID 
+        && p.Date.Date >= sdate.Date && p.Date.Date <= edate.Date && p.Active == 1).ToListAsync();
+        return _mapper.Map<IEnumerable<PurchaseMasterDto>>(pm);
+    }
+
+    public async  Task<IEnumerable<ItemPurchaseReportDtoR?>> GetItemWiseAsync(int itemID, DateTime sdate, DateTime edate, Guid CompanyId)
+    {
+        var pm = await _uow.PurchaseDetails.Query().Include(p => p.Item ).Include(p => p.Purchase).ThenInclude(p=>p.Vendor).Where(p => 
+        p.Purchase.CompanyId == CompanyId  && p.ItemId == itemID
+        && p.Purchase.Date.Date >= sdate.Date && p.Purchase.Date.Date <= edate.Date && p.Purchase.Active == 1).ToListAsync();
+        return _mapper.Map<IEnumerable<ItemPurchaseReportDtoR>>(pm);
+    }
 }

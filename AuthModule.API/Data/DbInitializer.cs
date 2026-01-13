@@ -53,6 +53,7 @@ public class DbInitializer : IDbInitializer
     // Actions for each page
     private static readonly string[] PageActions = new[] { "View", "Create", "Edit", "Delete" };
 
+
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly IConfiguration _config;
 

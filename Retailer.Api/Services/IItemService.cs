@@ -8,4 +8,6 @@ public interface IItemService
     Task<ItemDto> CreateAsync(CreateItemDto dto,Guid CompanyId);
     Task UpdateAsync(int id, CreateItemDto dto);
     Task DeleteAsync(int id);
+    Task<IEnumerable<ItemDto>> SearchAsync(Guid companyId, string? term, int take = 20);
+
 }

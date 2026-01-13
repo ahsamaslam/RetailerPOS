@@ -114,7 +114,7 @@ namespace Retailer.POS.Web.Pages.Sales
       
         public async Task OnGetAsync()
         {
-            Company=await getActiveCompany();
+            //Company=await getActiveCompany();
 
             #region sales
              Sales = (await _api.GetAllSaleDateWise(sdate, edate)).ToList();
