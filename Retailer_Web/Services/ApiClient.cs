@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Http;
 using Microsoft.Reporting.Map.WebForms.BingMaps;
 using Retailer.POS.Web.ApiDTOs;
 using Retailer.POS.Web.Models;
@@ -9,6 +10,7 @@ using Retailer.Web.Models.Ledger;
 using Retailer.Web.ReportDto;
 using System.Net;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Text.Json;
 using static QRCoder.PayloadGenerator;
 
@@ -989,6 +991,37 @@ public class ApiClient : IApiClient
     //public async Task<PurchaseMasterDto?> GetPurchaseByIdAsync(int id) => await GetAsync<PurchaseMasterDto>($"api/Purchases/{id}");
 
     // Password & user-related
+
+    public async Task<(bool Success, UploadDataResultDto? Result, string Message)> UploadDataAsync(IFormFile file, CancellationToken cancellationToken = default)
+    {
+        if (file == null)
+        {
+            return (false, null, "No file provided.");
+        }
+
+        using var content = new MultipartFormDataContent();
+        var streamContent = new StreamContent(file.OpenReadStream());
+        streamContent.Headers.ContentType = new MediaTypeHeaderValue(file.ContentType ?? "text/csv");
+        content.Add(streamContent, "file", file.FileName);
+
+        using var resp = await _http.PostAsync("api/upload-data", content, cancellationToken);
+        if (resp.StatusCode == HttpStatusCode.Unauthorized)
+            throw new ApiUnauthorizedException();
+
+        if (!resp.IsSuccessStatusCode)
+        {
+            var message = await ReadErrorMessageAsync(resp);
+            return (false, null, message);
+        }
+
+        var result = await resp.Content.ReadFromJsonAsync<UploadDataResultDto>(_jsonOptions);
+        if (result == null)
+        {
+            return (false, null, "Upload completed but no summary was returned.");
+        }
+
+        return (true, result, "Upload completed successfully.");
+    }
 
 
     #region Purchase Report

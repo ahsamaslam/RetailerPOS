@@ -38,6 +38,7 @@ builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 // Services
 builder.Services.AddScoped<IItemService, ItemService>();
 builder.Services.AddScoped<IPurchaseService, PurchaseService>(); 
+builder.Services.AddScoped<IUploadDataService, UploadDataService>();
 builder.Services.AddScoped<IPurchaseReturnService, PurchaseReturnService>(); 
 builder.Services.AddScoped<IPurchaseReportExportService, PurchaseReportExportService>();
 builder.Services.AddScoped<ISalesReportExportService, SalesReportExportService>();
