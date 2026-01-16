@@ -32,7 +32,6 @@ public class DbInitializer : IDbInitializer
     // Pages for which we'll create View/Add/Edit/Delete permissions
     private static readonly string[] Pages = new[]
     {
-        "branches",
         "categories",
         "customers",
         "groups",

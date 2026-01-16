@@ -33,6 +33,7 @@ public interface IUnitOfWork : IDisposable
     IRepository<OpeningBalance> OpeningBalances { get; }
     IRepository<Cities> Cities { get; }
     IRepository<Provience> Proviences { get; }
+    IRepository<SaleInvoiceSettings> SaleInvoiceSettings { get; }
     IRepository<Banks> Banks { get; }
     Task<int> SaveChangesAsync();
     Task<bool> UpdateQtys(List<int> productIDs, int year);

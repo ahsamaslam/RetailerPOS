@@ -65,7 +65,7 @@
 				<div class="col-md-4 mb-2">
 					 
 						<div class="mb-2"> 
-							<input asp-for="Sale.Date" type="date" class="form-control text-start" autofocus />
+							<input asp-for="Sale.Date" id="saleDate" type="date" class="form-control text-start" autofocus />
 						</div>
 						<div class="mb-2"> 
 							<select asp-for="Sale.SaleType" required asp-items="Model.SaleType" class="form-control">
@@ -73,7 +73,7 @@
 							</select>
 						</div>
 						<div class="mb-2"> 
-							<select asp-for="Sale.CustomerCode" required asp-items="Model.CustomersList" class="form-control">
+						<select asp-for="Sale.CustomerCode" id="Sale_CustomerCode" required asp-items="Model.CustomersList" class="form-control">
 								<option value="">-- Select Customer --</option>
 							</select>
 						</div>
@@ -509,7 +509,6 @@
 				const tr = document.createElement('tr');
 				tr.setAttribute('data-index', index);
 				tr.innerHTML = templateInnerHtml.replace(/__index__/g, index);
-				console.log(tr);
 				detailsTbody.appendChild(tr);
 				toggleAll();
 				const taxInput = tr.querySelector('input[name$=".TaxPercentage"]');
@@ -530,6 +529,34 @@
 				}
 
 			});
+			const addRowButton = document.getElementById('addRow');
+            function addNewRow() {
+
+                const index = detailsTbody.children.length;
+                const tr = document.createElement('tr');
+                tr.setAttribute('data-index', index);
+                tr.innerHTML = templateInnerHtml.replace(/__index__/g, index);
+                detailsTbody.appendChild(tr);
+                toggleAll();
+                const taxInput = tr.querySelector('input[name$=".TaxPercentage"]');
+                if (taxInput) {
+                    taxInput.value = defaultGST;
+                }
+                const etaxInput = tr.querySelector('input[name$=".extraTaxP"]');
+                if (etaxInput) {
+                    etaxInput.value = defaultED;
+                }
+                const ftaxInput = tr.querySelector('input[name$=".furtherTaxP"]');
+                if (ftaxInput) {
+                    ftaxInput.value = defaultFed;
+                }
+                const itemSelect = tr.querySelector('select');
+                if (itemSelect) {
+                    itemSelect.focus();
+                }
+
+            }
+            addRowButton.addEventListener('click', addNewRow);
 			document.querySelector('#detailsTable').addEventListener('change', function (e) {
 				if (e.target && e.target.classList.contains('item-select')) {
 					var selectedOption = e.target.selectedOptions[0];
@@ -548,16 +575,18 @@
 					// calculateRowAmount(row);
 				}
 			});
-			document.addEventListener('click', function (e) {
-				if (e.target && e.target.classList.contains('remove-row')) {
-					const row = e.target.closest('tr');
-					const elements = row.querySelectorAll('[data-index]');
-					console.log(elements);
-					if (row) row.remove();
-					reindexRows();
-					updateTotal();
-				}
-			});
+			function removeRow(row) {
+                if (!row || row.id === 'templateRow') return;
+                row.remove();
+                reindexRows();
+                updateTotal();
+            }
+            document.addEventListener('click', function (e) {
+                if (e.target && e.target.classList.contains('remove-row')) {
+                    const row = e.target.closest('tr');
+                    removeRow(row);
+                }
+            });
 			// detailsTbody.addEventListener('input', function (e) {
 			// 	const row = e.target.closest('tr');
 			// 	 if (row) {
@@ -650,20 +679,100 @@
 				};
 			}
 			const form = document.getElementById('saleForm');
-			form?.addEventListener('submit', function () {
-				reindexRows();
-			});
+             form?.addEventListener('submit', function () {
+                 reindexRows();
+             });
+ 
+             reindexRows();
+             document.querySelectorAll('input[name$=".TaxPercentage"]').forEach(i => {
+                 i.value = defaultGST;
+             });
+             document.querySelectorAll('input[name$=".extraTaxP"]').forEach(i => {
+                 i.value = defaultED;
+             });
+             document.querySelectorAll('input[name$=".furtherTaxP"]').forEach(i => {
+                 i.value = defaultFed;
+             });
 
-			reindexRows();
-			document.querySelectorAll('input[name$=".TaxPercentage"]').forEach(i => {
-				i.value = defaultGST;
-			});
-			document.querySelectorAll('input[name$=".extraTaxP"]').forEach(i => {
-				i.value = defaultED;
-			});
-			document.querySelectorAll('input[name$=".furtherTaxP"]').forEach(i => {
-				i.value = defaultFed;
-			});
-		})();
-	</script>
+            function focusCustomerSelect() {
+		                 document.getElementById('Sale_CustomerCode')?.focus();
+                
+            }
+
+            function focusDateInput() {
+								 document.getElementById('saleDate')?.focus();
+//                 const dateInput = document.querySelector('input[name="Sale.Date"]');
+//                 dateInput?.focus();
+            }
+
+            function getActiveRow() {
+                 const active = document.activeElement;
+                 if (!active) return null;
+                 return active.closest('tr[data-index]');
+            }
+
+            function focusItemInput(row) {
+                if (!row) return false;
+                const input = row.querySelector('.item-search-input');
+                if (input) {
+                    input.focus();
+                    input.select?.();
+                    return true;
+                }
+                return false;
+            }
+				document.addEventListener('keydown', function (e) {
+
+			// Require CTRL  ALT
+			if (!e.ctrlKey || !e.altKey) return;
+
+			const key = e.key.toLowerCase();
+
+			e.preventDefault();
+			e.stopPropagation();
+			e.stopImmediatePropagation();
+			console.log(key);
+			switch (key) {
+
+				case 'r':
+					window.location.reload();
+					break;
+
+				case 'c':
+					focusCustomerSelect();
+					break;
+
+				case 'd':
+					focusDateInput();
+					break;
+
+				case 'i': {
+					const row = getActiveRow() ?? dataRows()[0];
+					focusItemInput(row);
+					break;
+				}
+
+				case 'a': {
+					addNewRow();
+					const rows = dataRows();
+					focusItemInput(rows[rows.length - 1]);
+					break;
+				}
+
+				case 's':
+					form?.requestSubmit();
+					break;
+
+				case 'm': {
+					const rows = dataRows();
+					removeRow(getActiveRow() ?? rows[rows.length - 1]);
+					break;
+				}
+			}
+				}	);
+
+		// window.addEventListener('keydown', handleShortcut, true);
+		 
+         })();
+     </script>
 }

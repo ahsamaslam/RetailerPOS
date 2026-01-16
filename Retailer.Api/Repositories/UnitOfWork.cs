@@ -44,6 +44,8 @@ namespace Retailer.POS.API.UnitOfWork
         private IRepository<CustomerLedger>? _customerledger; 
         private IRepository<VendorLedger>? _vendorledger; 
         private IRepository<BankLedger>? _bankledger; 
+        private IRepository<SaleInvoiceSettings>? _saleInvoiceSettings; 
+        public IRepository<SaleInvoiceSettings> SaleInvoiceSettings => _saleInvoiceSettings ??= new Repository<SaleInvoiceSettings>(_context);
         public IRepository<CustomerLedger> CustomerLedger => _customerledger ??= new Repository<CustomerLedger>(_context);
         public IRepository<VendorLedger> VendorLedger => _vendorledger ??= new Repository<VendorLedger>(_context);
         public IRepository<BankLedger> BankLedger => _bankledger ??= new Repository<BankLedger>(_context);

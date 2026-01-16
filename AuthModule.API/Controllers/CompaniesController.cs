@@ -17,6 +17,7 @@ namespace AuthModule.API.Controllers
         private readonly ApplicationDbContext _db;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private string serverPath = "";
+        private string? _currentUserId;
         public CompaniesController(ApplicationDbContext db, IHttpContextAccessor httpContextAccessor)
         {
             _db = db;
@@ -26,6 +27,8 @@ namespace AuthModule.API.Controllers
             $"{request?.Scheme}://{request?.Host}{request?.PathBase}";
         }
         private Guid CompanyId => HttpContext.GetCompanyId();
+        private bool IsSuperAdmin => User?.IsInRole("superadmin") == true;
+        private string CurrentUserId => _currentUserId ??= HttpContext.GetUserId().Id;
 
         [Authorize(Roles = "superadmin")]
         [HttpGet("search")]
@@ -34,13 +37,16 @@ namespace AuthModule.API.Controllers
             if (string.IsNullOrWhiteSpace(q))
                 return Ok(Array.Empty<object>());
 
-            var companies = await _db.Companies
-                .Where(c => c.Name.Contains(q))
-                .OrderBy(c => c.Name)
-                .Select(c => new
+            var currentUserId = CurrentUserId;
+
+            var companies = await _db.UserCompanies
+                .AsNoTracking()
+                .Where(uc => uc.UserId == currentUserId && uc.Company.Name.Contains(q))
+                .OrderBy(uc => uc.Company.Name)
+                .Select(uc => new
                 {
-                    c.Id,
-                    c.Name
+                    uc.Company.Id,
+                    uc.Company.Name
                 })
                 .Take(10)
                 .ToListAsync();
@@ -78,6 +84,11 @@ namespace AuthModule.API.Controllers
 
             };
             await _db.Companies.AddAsync(company);
+            _db.UserCompanies.Add(new UserCompany
+            {
+                UserId = CurrentUserId,
+                CompanyId = company.Id
+            });
             await _db.SaveChangesAsync();
             var resp = ToResponseDto(company);
             return CreatedAtAction(nameof(Get), new { id = company.Id }, resp);
@@ -88,8 +99,12 @@ namespace AuthModule.API.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<CompanyResponseDto>>> GetAll()
         {
-            var companies = await _db.Companies
+            var currentUserId = CurrentUserId;
+
+            var companies = await _db.UserCompanies
                 .AsNoTracking()
+                .Where(uc => uc.UserId == currentUserId)
+                .Select(uc => uc.Company)
                 .OrderBy(c => c.Name)
                 .Select(c => ToResponseDto(c))
                 .ToListAsync();
@@ -101,9 +116,12 @@ namespace AuthModule.API.Controllers
         [HttpGet("{id:guid}")]
         public async Task<ActionResult<CompanyResponseDto>> Get(Guid id)
         {
+            if (!await HasCompanyAccessAsync(id))
+                return Forbid();
+
             var company = await _db.Companies.AsNoTracking().FirstOrDefaultAsync(c => c.Id == id);
-            company.logoPath = string.IsNullOrEmpty(company.logoPath) ? "" : serverPath+"/" + company.logoPath;
             if (company == null) return NotFound();
+            company.logoPath = string.IsNullOrWhiteSpace(company.logoPath) ? string.Empty : serverPath + "/" + company.logoPath;
             return Ok(ToResponseDto(company));
         }
 
@@ -113,6 +131,9 @@ namespace AuthModule.API.Controllers
         public async Task<ActionResult<CompanyResponseDto>> Update(Guid id, [FromBody] CompanyUpdateDto dto)
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
+
+            if (!await HasCompanyAccessAsync(id))
+                return Forbid();
 
             var company = await _db.Companies.FirstOrDefaultAsync(c => c.Id == id);
             if (company == null) return NotFound();
@@ -142,10 +163,14 @@ namespace AuthModule.API.Controllers
             return Ok(ToResponseDto(company));
         }
 
+        [Authorize(Roles = "superadmin")]
         // OPTIONAL: delete a company (soft delete recommended in prod)
         [HttpDelete("{id:guid}")]
         public async Task<IActionResult> Delete(Guid id)
         {
+            if (!await HasCompanyAccessAsync(id))
+                return Forbid();
+
             var company = await _db.Companies.FirstOrDefaultAsync(c => c.Id == id);
             if (company == null) return NotFound();
 
@@ -189,14 +214,26 @@ namespace AuthModule.API.Controllers
 
         {
             // Extract CompanyId from token
-            var company = await _db.Companies.FirstOrDefaultAsync(c => c.Id == CompanyId);
-
-            // Fetch company from database
-       
+            var company = await _db.Companies.AsNoTracking().FirstOrDefaultAsync(c => c.Id == CompanyId);
             if (company == null)
                 return NotFound("Company not found.");
+            company.logoPath = string.IsNullOrEmpty(company.logoPath) ? "" : serverPath + "/" + company.logoPath;
+            // Fetch company from database
 
             return Ok(ToResponseDto(company));
+        }
+
+        private Task<bool> HasCompanyAccessAsync(Guid companyId)
+        {
+            if (IsSuperAdmin)
+            {
+                var currentUserId = CurrentUserId;
+                return _db.UserCompanies
+                    .AsNoTracking()
+                    .AnyAsync(uc => uc.UserId == currentUserId && uc.CompanyId == companyId);
+            }
+
+            return Task.FromResult(companyId == CompanyId);
         }
     }
 }

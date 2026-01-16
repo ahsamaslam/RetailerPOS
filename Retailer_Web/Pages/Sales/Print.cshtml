@@ -1,44 +1,213 @@
 ﻿@page "{id:int}"
 @model Retailer.POS.Web.Pages.Sales.PrintModel
 @{
-    Layout = null; // Exclude the layout
-    ViewData["Title"] = "Sale Details";
+    Layout = null;
+    int sr = 1;
+
+    
+    decimal subTotal = 0;
+    decimal totalDiscount = 0;
+    decimal totalGST = 0;
+
+    foreach (var d in Model.Sale.Details)
+    {
+        subTotal += (d.Rate * d.Qty);
+        totalDiscount += d.Discount;
+        totalGST += d.TaxAmount;
+    }
+
+    var grandTotal = subTotal - totalDiscount + totalGST;
 }
+
+@functions {
+    string CssAlign(string? align) => align?.ToLower() switch
+    {
+        "left" => "left",
+        "right" => "right",
+        "center" => "center",
+        _ => "left"
+    };
+    string RoundWithCommas(decimal value, int? places)
+    => Math.Round(value, places ?? 0).ToString("N" + (places ?? 0));
+
+    decimal Round(decimal value, int? places)
+       => Math.Round(value, places ?? 0);
+    string CssSpacing(string? value) => string.IsNullOrWhiteSpace(value) ? "0" : value;
+      string CssRaw(string? css)
+        => string.IsNullOrWhiteSpace(css) ? "" : css.Trim().TrimEnd(';') + ";";
+}
+
+<style>
+ .ticket {
+    width: @(Model.Settings.PageWidthMM)mm;
+    font-family: monospace;
+}
+
+.ticket table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+#items th,
+#items td {
+    border: 1px solid black;
+    padding: 1px;
+}
+</style>
+
 <div class="ticket">
-    <img src="~/assets/img/adminltefulllogo.png" alt="Logo">
-    <link href="~/css/printstyle.css" rel="stylesheet" />
-    <p class="centered">
-        RECEIPT EXAMPLE
-        <br>Address line 1
-        <br>Address line 2
+    @if (!string.IsNullOrWhiteSpace(Model.company.logoPath)  && Model.Settings.ShowLogo==1)
+    {
+        <div style="text-align:center;">
+            <img src="@Model.company.logoPath"
+                 style="@CssRaw(Model.Settings.LogoCss.ToString())" />
+        </div>
+    }
+    <p style="font-size:@Model.Settings.Header1FontSize;
+              text-align:@CssAlign(Model.Settings.Header1Align);
+              @CssRaw(Model.Settings.Header1Margin.ToString());
+              @CssRaw(Model.Settings.Header1Padding.ToString());">
+       @Model.Settings.Header1Value
     </p>
-    <table>
+
+    <p style="font-size:@Model.Settings.Header2FontSize;
+              text-align:@CssAlign(Model.Settings.Header2Align);
+              @CssRaw(Model.Settings.Header2Margin.ToString());
+              @CssRaw(Model.Settings.Header2Padding.ToString());">
+        @Model.Settings.Header2Text
+    </p>
+
+    <p style="font-size:@Model.Settings.Header3FontSize;
+              text-align:@CssAlign(Model.Settings.Header3Align);
+              @CssRaw(Model.Settings.Header3Margin.ToString());
+              @CssRaw(Model.Settings.Header3Padding.ToString());">
+        @Model.Settings.Header3Text
+    </p>
+
+    <table id="items" >
         <thead>
             <tr>
-                <th class="quantity">Q.</th>
-                <th class="description">Description</th>
-                <th class="price">$$</th>
+                @if (Model.Settings.SrLabel == "1")
+                {
+                    <th style="text-align:@CssAlign(Model.Settings.SrAlign); font-size:@Model.Settings.SrFontSize">Sr</th>
+                }
+                @if (Model.Settings.NameLabel == "1")
+                {
+                    <th style="text-align:@CssAlign(Model.Settings.NameAlign); font-size:@Model.Settings.NameFontSize">Name</th>
+                }
+                @if (Model.Settings.RateLabel == "1")
+                {
+                    <th style="text-align:@CssAlign(Model.Settings.RateAlign); font-size:@Model.Settings.RateFontSize">Rate</th>
+                }
+                @if (Model.Settings.QtyLabel == "1")
+                {
+                    <th style="text-align:@CssAlign(Model.Settings.QtyAlign); font-size:@Model.Settings.QtyFontSize">Qty</th>
+                }
+                @if (Model.Settings.DiscountLabel == "1")
+                {
+                    <th style="text-align:@CssAlign(Model.Settings.DiscountAlign); font-size:@Model.Settings.DiscountFontSize">Disc</th>
+                }
+                @if (Model.Settings.GSTPercentLabel == "1")
+                {
+                    <th style="text-align:@CssAlign(Model.Settings.GSTPercentAlign); font-size:@Model.Settings.GSTPercentFontSize">GST %</th>
+                }
+                @if (Model.Settings.ShowGST)
+                {
+                    <th style="text-align:@CssAlign(Model.Settings.GSTAlign); font-size:@Model.Settings.GSTFontSize">GST</th>
+                }
+                @if (Model.Settings.TotalLabel == "1")
+                {
+                    <th style="text-align:@CssAlign(Model.Settings.TotalAlign); font-size:@Model.Settings.TotalFontSize">Total</th>
+                }
             </tr>
         </thead>
+
         <tbody>
-            @for (int i = 0; i < Model.Sale.Details.Count; i++)
-							{
-            <tr>
-                    <td class="quantity">@Model.Sale.Details[i].Qty</td>
-                    <td class="description">@Model.Sale.Details[i].ItemName</td>
-                    <td class="price">@Model.Sale.Details[i].Rate</td>
-            </tr>
-                            }
-           
+            @foreach (var item in Model.Sale.Details)
+            {
+                <tr>
+                    @if (Model.Settings.SrLabel == "1")
+                    {
+                        <td style="text-align:@CssAlign(Model.Settings.TotalAlign); font-size:@Model.Settings.SrFontSize">@sr</td>
+                    }
+                    @if (Model.Settings.NameLabel == "1")
+                    {
+                        <td style="text-align:@CssAlign(Model.Settings.NameAlign); font-size:@Model.Settings.SrFontSize">@item.ItemName</td>
+                    }
+                    @if (Model.Settings.RateLabel == "1")
+                    {
+                        <td style="text-align:@CssAlign(Model.Settings.RateAlign); font-size:@Model.Settings.RateFontSize">@RoundWithCommas(@item.Rate, Model.Settings.RateRound)</td>
+                    }
+                    @if (Model.Settings.QtyLabel == "1")
+                    {
+                        <td style="text-align:@CssAlign(Model.Settings.QtyAlign); font-size:@Model.Settings.QtyFontSize">@RoundWithCommas(@item.Qty, Model.Settings.QtyRound)</td>
+                    }
+                    @if (Model.Settings.DiscountLabel == "1")
+                    {
+                        <td style="text-align:@CssAlign(Model.Settings.DiscountAlign); font-size:@Model.Settings.DiscountFontSize">@RoundWithCommas(@item.Discount, Model.Settings.DiscountRound) </td>
+                    }
+                    @if (Model.Settings.GSTPercentLabel == "1")
+                    {
+                        <td style="text-align:@CssAlign(Model.Settings.GSTPercentAlign); font-size:@Model.Settings.GSTPercentAlign">@RoundWithCommas(@item.TaxPercentage, Model.Settings.GSTPercentRound) </td>
+                    }
+                    @if (Model.Settings.ShowGST)
+                    {
+                        <td style="text-align:@CssAlign(Model.Settings.GSTAlign); font-size:@Model.Settings.SrFontSize">@RoundWithCommas(@item.TaxAmount, Model.Settings.GSTRound) </td>
+                    }
+                    @if (Model.Settings.TotalLabel == "1")
+                    {
+                        <td style="text-align:@CssAlign(Model.Settings.TotalAlign); font-size:@Model.Settings.SrFontSize">@RoundWithCommas(@item.Amount, Model.Settings.TotalRound) </td>
+                    }
+                </tr>
+            }
         </tbody>
     </table>
-    <p class="centered">
-        Thanks for your purchase!
-        <br>parzibyte.me/blog
+    <div style="display:flex; justify-content:flex-end; margin-top:10px;">
+        <table style="width:50%;">
+            <tr>
+                <td>Sub Total</td>
+                <td style="text-align:right;">@RoundWithCommas(subTotal, Model.Settings.TotalRound)</td>
+            </tr>
+            <tr>
+                <td>Discount</td>
+                <td style="text-align:right;">@RoundWithCommas(totalDiscount, Model.Settings.DiscountRound)</td>
+            </tr>
+            @if (Model.Settings.ShowGST)
+            {
+                <tr>
+                    <td>GST</td>
+                    <td style="text-align:right;">@RoundWithCommas(totalGST, Model.Settings.GSTRound)</td>
+                </tr>
+            }
+            <tr style="font-weight:bold; border-top:1px solid #000;">
+                <td>Total</td>
+                <td style="text-align:right;">@Round(grandTotal, Model.Settings.TotalRound)</td>
+            </tr>
+        </table>
+    </div>
+    <p style="font-size:@Model.Settings.Footer1FontSize;
+              text-align:@CssAlign(Model.Settings.Footer1Align);
+              @CssRaw(Model.Settings.Footer1Margin.ToString());
+              @CssRaw(Model.Settings.Footer1Padding.ToString());">
+        @Model.Settings.Footer1Text
     </p>
+
+    <p style="font-size:@Model.Settings.Footer2FontSize;
+              text-align:@CssAlign(Model.Settings.Footer2Align);
+              @CssRaw(Model.Settings.Footer2Margin.ToString());
+              @CssRaw(Model.Settings.Footer2Padding.ToString());">
+        @Model.Settings.Footer2Text
+    </p>
+
+    <p style="font-size:@Model.Settings.Footer3FontSize;
+              text-align:@CssAlign(Model.Settings.Footer3Align);
+              @CssRaw(Model.Settings.Footer3Margin.ToString());
+              @CssRaw(Model.Settings.Footer3Padding.ToString());">
+        @Model.Settings.Footer3Text
+    </p>
+
 </div>
+
 <script>
-    document.addEventListener("DOMContentLoaded", function () {
-        window.print();
-    });
+    window.print();
 </script>

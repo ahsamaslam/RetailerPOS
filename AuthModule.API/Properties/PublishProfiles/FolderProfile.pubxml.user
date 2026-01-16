@@ -5,7 +5,7 @@ https://go.microsoft.com/fwlink/?LinkID=208121.
 <Project>
   <PropertyGroup>
     <_PublishTargetUrl>E:\RetailerApp\RetailerPOS\AuthModule.API\bin\Release\net8.0\publish\</_PublishTargetUrl>
-    <History>True|2025-12-17T16:35:34.5814522Z;True|2025-12-17T20:32:41.0484464+05:00;True|2025-12-17T18:17:29.8785623+05:00;True|2025-12-17T18:17:09.6534609+05:00;True|2025-12-17T18:14:54.5097405+05:00;</History>
+    <History>True|2026-01-15T15:02:33.8094363Z||;True|2025-12-17T21:35:34.5814522+05:00||;True|2025-12-17T20:32:41.0484464+05:00||;True|2025-12-17T18:17:29.8785623+05:00||;True|2025-12-17T18:17:09.6534609+05:00||;True|2025-12-17T18:14:54.5097405+05:00||;</History>
     <LastFailureDetails />
   </PropertyGroup>
 </Project>

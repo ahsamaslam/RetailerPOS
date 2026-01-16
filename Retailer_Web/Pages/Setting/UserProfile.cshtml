@@ -4,110 +4,114 @@
 }
 
 <main class="app-main">
-    <!--begin::App Content Header-->
-    <div class="app-content-header">
-        <!--begin::Container-->
-        <div class="container-fluid">
-            <!--begin::Row-->
-            <div class="row">
-                <div class="col-sm-6"><h3 class="mb-0">User Profile</h3></div>
-                <div class="col-sm-6">
-                    <ol class="breadcrumb float-sm-end">
-                        <li class="breadcrumb-item"><a href="#">Home</a></li>
-                        <li class="breadcrumb-item active" aria-current="page">Dashboard</li>
-                    </ol>
+    <div class="app-content-header bg-white border-bottom">
+        <div class="container-fluid py-3">
+            <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between">
+                <div>
+                    <h2 class="mb-0">Profile Settings</h2>
+                    <small class="text-muted">Manage your account information and password</small>
                 </div>
+                <ol class="breadcrumb mb-0">
+                    <li class="breadcrumb-item"><a href="/">Home</a></li>
+                    <li class="breadcrumb-item active">Profile</li>
+                </ol>
             </div>
-            <!--end::Row-->
         </div>
-        <!--end::Container-->
     </div>
+
     <div class="app-content">
- 
-
-       
-                <div class="col-md-12">
-                    <div class="row mb-2">
-                        <div class="col-md-6">
-                   <form method="post" enctype="multipart/form-data" asp-page-handler="UpdateProfile">
-                <div class="col-md-12">
-                    <input type="hidden" asp-for="Input.Id" />
-                    <label>Name</label>
-                    <input asp-for="Input.UserName"  readonly   class="form-control" />
-                </div>
-                <div class="col-md-12">
-                    <label>Email</label>
-                    <input asp-for="Input.Email" class="form-control" />
-                </div>
-                        <div class="col-md-12">
-                            <div class="form-group">
-                                <div class="row mb-2">
-                                    <div class="col-md-12">
-                                        <!-- Preview -->
-                                        <div style="padding:10px; margin-top:10px;">
-                                            <img id="logoPreview"
-                                                 src="@(string.IsNullOrEmpty(Model.Input.picture) ? Url.Content("~/images/default-logo.png") : Model.Input.picture)"
-                                                 alt="Feature Image" style="max-width:300px;  " />
-                                        </div>
-                                        <div class="col-md-12">
-                                            <label asp-for="Input.picture" class="control-label">Feature Image</label>
-
-                                            <!-- File upload input -->
-                                            <input asp-for="LogoFile" type="file" class="form-control" accept="image/*" onchange="previewImage(event)" />
-                                        </div>
-
-                                    </div>
+        <div class="container-fluid">
+            <div class="row g-4">
+                <div class="col-lg-7">
+                    <div class="card h-100 shadow-sm">
+                        <div class="card-header bg-white">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h5 class="card-title mb-0">Profile Information</h5>
+                                    <small class="text-muted">Update your email or profile image</small>
                                 </div>
-                                <span asp-validation-for="Input.picture" class="text-danger"></span>
+                                <span class="badge bg-light text-dark">Read-only username</span>
                             </div>
                         </div>
-
-                        @if (Model.IsAdmin)
-                        {
-                            <button type="submit" class="btn btn-success">Update</button>
-                            <a asp-page="Index" class="btn btn-secondary">Cancel</a>
-                        }
-                    </form>
-        
-            </div>
-                    <div class="col-md-6">
-                          <!-- ================= Password Change Form ================= -->
-        <form method="post" asp-page-handler="ChangePassword">
-
-                        <div class="col-md-12">
-                            <input type="hidden" asp-for="Input.Id" />
-                            <label>Old Password</label>
-                            <input asp-for="Input.oldPassword" type="password" class="form-control" />
+                        <div class="card-body">
+                            <form method="post" enctype="multipart/form-data" asp-page-handler="UpdateProfile" class="row g-4">
+                                <div class="col-12">
+                                    <label asp-for="Input.UserName" class="form-label">Username</label>
+                                    <input asp-for="Input.UserName" readonly class="form-control" />
+                                </div>
+                                <div class="col-12">
+                                    <label asp-for="Input.Email" class="form-label">Email</label>
+                                    <input asp-for="Input.Email" class="form-control" />
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label">Profile Picture</label>
+                                    <div class="d-flex align-items-center gap-3 flex-column flex-md-row">
+                                        <div class="text-center">
+                                            <img id="logoPreview"
+                                                 class="img-thumbnail rounded-circle"
+                                                 style="width:120px;height:120px;object-fit:cover;"
+                                                 src="@(string.IsNullOrEmpty(Model.Input.picture) ? Url.Content("~/images/default-logo.png") : Model.Input.picture)"
+                                                 alt="Profile preview" />
+                                            <div class="small text-muted mt-2">Current picture</div>
+                                        </div>
+                                        <div class="flex-grow-1 w-100">
+                                            <input asp-for="LogoFile" type="file" class="form-control" accept="image/*" onchange="previewImage(event)" />
+                                            <small class="text-muted">Accepted formats: JPG, PNG. Max 4MB.</small>
+                                            <span asp-validation-for="Input.picture" class="text-danger"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-12 d-flex gap-2">
+                                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                                    <a asp-page="Index" class="btn btn-outline-secondary">Cancel</a>
+                                </div>
+                            </form>
                         </div>
-                        <div class="col-md-12">
-                            <label>Current Password</label>
-                            <input asp-for="Input.currentPasswordA" type="password" class="form-control" />
-                        </div>
-
-                        <div class="col-md-12">
-                            <label>Retype Current Password</label>
-                            <input asp-for="Input.currentPasswordB" type="password" class="form-control" />
-                        </div>
-                        <button type="submit" class="btn btn-warning">Change Password</button>
-                    </form>
-
-
                     </div>
+                </div>
+
+                <div class="col-lg-5">
+                    <div class="card shadow-sm">
+                        <div class="card-header bg-white">
+                            <h5 class="card-title mb-0">Update Password</h5>
+                            <small class="text-muted">Use a strong password to keep your account secure</small>
+                        </div>
+                        <div class="card-body">
+                            <form method="post" asp-page-handler="ChangePassword" class="row g-3">
+                                <input type="hidden" asp-for="Input.Id" />
+                                <div class="col-12">
+                                    <label asp-for="Input.oldPassword" class="form-label">Current Password</label>
+                                    <input asp-for="Input.oldPassword" type="password" class="form-control" autocomplete="current-password" />
+                                </div>
+                                <div class="col-12">
+                                    <label asp-for="Input.currentPasswordA" class="form-label">New Password</label>
+                                    <input asp-for="Input.currentPasswordA" type="password" class="form-control" autocomplete="new-password" />
+                                </div>
+                                <div class="col-12">
+                                    <label asp-for="Input.currentPasswordB" class="form-label">Confirm New Password</label>
+                                    <input asp-for="Input.currentPasswordB" type="password" class="form-control" autocomplete="new-password" />
+                                </div>
+                                <div class="col-12 d-grid">
+                                    <button type="submit" class="btn btn-warning text-white">Update Password</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
             </div>
-            </div>
-           
+        </div>
     </div>
 </main>
 <script>
     function previewImage(event) {
-        var input = event.target;
-        var reader = new FileReader();
+        const input = event.target;
+        const reader = new FileReader();
         reader.onload = function () {
-            var dataURL = reader.result;
-            var output = document.getElementById('logoPreview');
-            output.src = dataURL;
-            output.style.display = 'block';
+            const output = document.getElementById('logoPreview');
+            output.src = reader.result;
         };
-        reader.readAsDataURL(input.files[0]);
+        if (input.files?.length) {
+            reader.readAsDataURL(input.files[0]);
+        }
     }
 </script>

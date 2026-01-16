@@ -1,4 +1,6 @@
-﻿namespace Retailer.Api.Middleware
+﻿using System.Security.Claims;
+
+namespace Retailer.Api.Middleware
 {
     public class TenantResolutionMiddleware
     {
@@ -20,7 +22,14 @@
                 return;
             }
 
-            var isSuperAdmin = user.IsInRole("superadmin");
+            var userName =
+                user.FindFirst(ClaimTypes.Name)?.Value ??
+                user.FindFirst("username")?.Value ??
+                user.Identity?.Name ??
+                string.Empty;
+
+            var isSystemUser = string.Equals(userName, "System", StringComparison.OrdinalIgnoreCase);
+            var isSuperAdmin = user.IsInRole("superadmin") || isSystemUser;
 
             Guid? companyId = null;
 
@@ -31,6 +40,11 @@
                 if (Guid.TryParse(headerValue, out var parsed))
                 {
                     companyId = parsed;
+                }
+                else if (isSystemUser)
+                {
+                    // allow system user to proceed even without company context
+                    companyId = Guid.Empty;
                 }
             }
             else

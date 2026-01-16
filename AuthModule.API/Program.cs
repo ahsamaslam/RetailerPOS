@@ -27,6 +27,19 @@ var val = builder.Configuration.GetConnectionString("DefaultConnection");
 // Db
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(val));
+
+var retailerConnection = builder.Configuration.GetConnectionString("RetailerConnection");
+if (!string.IsNullOrWhiteSpace(retailerConnection))
+{
+    builder.Services.AddDbContext<RetailerLookupDbContext>(options =>
+        options.UseSqlServer(retailerConnection));
+    builder.Services.AddScoped<IBranchLookupService, BranchLookupService>();
+}
+else
+{
+    builder.Services.AddScoped<IBranchLookupService, NoOpBranchLookupService>();
+}
+
 // Identity
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
 {

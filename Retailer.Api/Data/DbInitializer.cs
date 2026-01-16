@@ -11,7 +11,6 @@ namespace Retailer.Api.Data
     {
         // Pages and actions used to create menus/submenus
         private static readonly List<MenuDto> Pages = new List<MenuDto>() { 
-            new MenuDto() { UrlTitle="branches",Title = "Branches" , Icon="fa fa-code-branch" },
             new MenuDto() { UrlTitle="customers", Icon="fa fa-users",Title="Customers" },
             new MenuDto() { UrlTitle="vendors", Icon="fa fa-truck", Title = "Vendors" },
             new MenuDto() { UrlTitle="Banks", Icon="fa fa-truck", Title = "Bank" },

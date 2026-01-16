@@ -5,7 +5,7 @@ https://go.microsoft.com/fwlink/?LinkID=208121.
 <Project>
   <PropertyGroup>
     <_PublishTargetUrl>E:\RetailerApp\RetailerPOS\Retailer_Web\bin\Release\net8.0\publish\</_PublishTargetUrl>
-    <History>True|2025-12-17T17:39:54.7546820Z;True|2025-12-17T21:38:05.5911959+05:00;True|2025-12-17T20:45:18.1719804+05:00;</History>
+    <History>True|2026-01-15T18:39:03.7486711Z||;True|2026-01-15T21:30:28.8648922+05:00||;True|2026-01-15T21:28:05.3302567+05:00||;True|2025-12-17T22:39:54.7546820+05:00||;True|2025-12-17T21:38:05.5911959+05:00||;True|2025-12-17T20:45:18.1719804+05:00||;</History>
     <LastFailureDetails />
   </PropertyGroup>
 </Project>

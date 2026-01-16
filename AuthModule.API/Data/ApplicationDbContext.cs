@@ -18,6 +18,7 @@ namespace AuthModule.API.Data
         public DbSet<UserPermission> UserPermissions { get; set; } = null!;
         public DbSet<ScenarioMaster> ScenarioMaster { get; set; } = null!;
         public DbSet<CompanyScenario> CompanyScenario { get; set; } = null!;
+        public DbSet<UserCompany> UserCompanies { get; set; } = null!;
 
 
         protected override void OnModelCreating(ModelBuilder builder)
@@ -39,6 +40,21 @@ namespace AuthModule.API.Data
                  .WithMany() // if you want Company.Users collection, add it to Company and replace WithMany(c => c.Users)
                  .HasForeignKey(u => u.CompanyId)
                  .OnDelete(DeleteBehavior.SetNull);
+            });
+
+            builder.Entity<UserCompany>(b =>
+            {
+                b.HasKey(uc => new { uc.UserId, uc.CompanyId });
+
+                b.HasOne(uc => uc.User)
+                 .WithMany(u => u.UserCompanies)
+                 .HasForeignKey(uc => uc.UserId)
+                 .OnDelete(DeleteBehavior.Cascade);
+
+                b.HasOne(uc => uc.Company)
+                 .WithMany(c => c.UserCompanies)
+                 .HasForeignKey(uc => uc.CompanyId)
+                 .OnDelete(DeleteBehavior.Cascade);
             });
 
 

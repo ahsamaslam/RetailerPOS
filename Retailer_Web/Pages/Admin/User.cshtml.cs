@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Retailer.POS.Web.ApiDTOs;
 using Retailer.POS.Web.Services;
+using Retailer.Web.Helpers;
 using System.ComponentModel.DataAnnotations;
 using System.Net;
 
@@ -39,6 +41,7 @@ namespace Retailer.Web.Pages.Admin
         // UI model data
         public List<UserViewModel> Users { get; set; } = new();
         public List<string> AllRoles { get; set; } = new();
+        public List<BranchDto> Branches { get; set; } = new();
 
         // pagination support (optional)
         public int Page { get; set; } = 1;
@@ -62,6 +65,8 @@ namespace Retailer.Web.Pages.Admin
                 Users = await _client.GetFromJsonAsync<List<UserViewModel>>("api/admin/users") ?? new List<UserViewModel>();
                 AllRoles = await _client.GetFromJsonAsync<List<string>>("api/admin/roles/names") ?? new List<string>();
                 AllPermissions = await _client.GetFromJsonAsync<List<PermissionViewModel>>("api/admin/permissions") ?? new List<PermissionViewModel>();
+                var branchList = await _api.GetAllBranchesAsync();
+                Branches = branchList?.OrderBy(b => b.Name).ToList() ?? new List<BranchDto>();
                 // populate roles per user (API call per user) - this keeps backward compatibility
                 foreach (var user in Users)
                 {
@@ -78,6 +83,10 @@ namespace Retailer.Web.Pages.Admin
                 }
                 // optional simple paging if API supports - for now this is client-side values
                 TotalPages = 1;
+            }
+            catch (ApiUnauthorizedException)
+            {
+                return RedirectToPage("/Login", new { returnUrl = Request.Path + Request.QueryString });
             }
             catch (HttpRequestException ex) when (ex.StatusCode == HttpStatusCode.Unauthorized)
             {
@@ -158,7 +167,8 @@ namespace Retailer.Web.Pages.Admin
                     UserName = EditUser.UserName,
                     Email = EditUser.Email,
                     Password = string.IsNullOrWhiteSpace(EditUser.Password) ? null : EditUser.Password,
-                    InitialRole = EditUser.InitialRole // optional
+                    InitialRole = EditUser.InitialRole,
+                    BranchId = EditUser.BranchId
                 };
 
                 var resp = await _client.PutAsJsonAsync($"api/admin/users/{EditUser.Id}", payload);
@@ -442,6 +452,8 @@ namespace Retailer.Web.Pages.Admin
         public string currentPasswordB { get; set; } = "";
         public string picture { get; set; }
         public string? logoPath { get; set; }
+        public int? BranchId { get; set; }
+        public string? BranchName { get; set; }
     }
 
     public class CreateUserDto
@@ -451,6 +463,7 @@ namespace Retailer.Web.Pages.Admin
         public string Password { get; set; } = string.Empty;
         // optional: initial role to assign at creation
         public string? InitialRole { get; set; }
+        public int? BranchId { get; set; }
     }
     public class EditUserDto
     {
@@ -465,6 +478,7 @@ namespace Retailer.Web.Pages.Admin
 
         public string? Password { get; set; }
         public string? InitialRole { get; set; }
+        public int? BranchId { get; set; }
     }
 
     // Generic API result helper used elsewhere (if you have your own, remove this)

@@ -30,6 +30,9 @@ namespace AuthModule.API.Migrations
                     b.Property<int>("AccessFailedCount")
                         .HasColumnType("int");
 
+                    b.Property<int?>("BranchId")
+                        .HasColumnType("int");
+
                     b.Property<Guid?>("CompanyId")
                         .HasColumnType("uniqueidentifier");
 
@@ -343,6 +346,21 @@ namespace AuthModule.API.Migrations
                     b.ToTable("ScenarioMaster");
                 });
 
+            modelBuilder.Entity("AuthModule.API.Models.UserCompany", b =>
+                {
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<Guid>("CompanyId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("UserId", "CompanyId");
+
+                    b.HasIndex("CompanyId");
+
+                    b.ToTable("UserCompanies");
+                });
+
             modelBuilder.Entity("AuthModule.API.Models.UserPermission", b =>
                 {
                     b.Property<string>("UserId")
@@ -551,6 +569,25 @@ namespace AuthModule.API.Migrations
                     b.Navigation("Role");
                 });
 
+            modelBuilder.Entity("AuthModule.API.Models.UserCompany", b =>
+                {
+                    b.HasOne("AuthModule.API.Models.Company", "Company")
+                        .WithMany("UserCompanies")
+                        .HasForeignKey("CompanyId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("AuthModule.API.Models.ApplicationUser", "User")
+                        .WithMany("UserCompanies")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Company");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("AuthModule.API.Models.UserPermission", b =>
                 {
                     b.HasOne("AuthModule.API.Models.Permission", "Permission")
@@ -623,6 +660,16 @@ namespace AuthModule.API.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("AuthModule.API.Models.ApplicationUser", b =>
+                {
+                    b.Navigation("UserCompanies");
+                });
+
+            modelBuilder.Entity("AuthModule.API.Models.Company", b =>
+                {
+                    b.Navigation("UserCompanies");
                 });
 
             modelBuilder.Entity("AuthModule.API.Models.Permission", b =>

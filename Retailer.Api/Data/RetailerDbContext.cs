@@ -10,6 +10,7 @@ public class RetailerDbContext : DbContext
 {
     public RetailerDbContext(DbContextOptions<RetailerDbContext> options) : base(options) { }
 
+    public DbSet<SaleInvoiceSettings> saleInvoiceSettings => Set<SaleInvoiceSettings>();
     public DbSet<vwStockLedger> vwStockLedger => Set<vwStockLedger>();
     public DbSet<ItemCategory> ItemCategories => Set<ItemCategory>();
     public DbSet<ItemGroup> ItemGroups => Set<ItemGroup>();

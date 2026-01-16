@@ -408,6 +408,232 @@ namespace Retailer.Api.Migrations
                     b.ToTable("Provience");
                 });
 
+            modelBuilder.Entity("Retailer.Api.Entities.SaleInvoiceSettings", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("DiscountAlign")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("DiscountFontSize")
+                        .HasColumnType("int");
+
+                    b.Property<string>("DiscountLabel")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("DiscountRound")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Footer1Align")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("Footer1FontSize")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Footer1Margin")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Footer1Padding")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Footer1Text")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Footer2Align")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("Footer2FontSize")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Footer2Margin")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Footer2Padding")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Footer2Text")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Footer3Align")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("Footer3FontSize")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Footer3Margin")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Footer3Padding")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Footer3Text")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("GSTAlign")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("GSTFontSize")
+                        .HasColumnType("int");
+
+                    b.Property<string>("GSTLabel")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("GSTPercentAlign")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("GSTPercentFontSize")
+                        .HasColumnType("int");
+
+                    b.Property<string>("GSTPercentLabel")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("GSTPercentRound")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("GSTRound")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Header1Align")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("Header1FontSize")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Header1Label")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Header1Margin")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Header1Padding")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Header1Value")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Header2Align")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("Header2FontSize")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Header2Margin")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Header2Padding")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Header2Text")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Header3Align")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("Header3FontSize")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Header3Margin")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Header3Padding")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Header3Text")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("LogoCss")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("NameAlign")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("NameFontSize")
+                        .HasColumnType("int");
+
+                    b.Property<string>("NameLabel")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Orientation")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<decimal?>("PageHeightMM")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("PageSize")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<decimal?>("PageWidthMM")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("QtyAlign")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("QtyFontSize")
+                        .HasColumnType("int");
+
+                    b.Property<string>("QtyLabel")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("QtyRound")
+                        .HasColumnType("int");
+
+                    b.Property<string>("RateAlign")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("RateFontSize")
+                        .HasColumnType("int");
+
+                    b.Property<string>("RateLabel")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("RateRound")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("ShowGST")
+                        .HasColumnType("bit");
+
+                    b.Property<int?>("ShowLogo")
+                        .HasColumnType("int");
+
+                    b.Property<string>("SrAlign")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("SrFontSize")
+                        .HasColumnType("int");
+
+                    b.Property<string>("SrLabel")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("TotalAlign")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("TotalFontSize")
+                        .HasColumnType("int");
+
+                    b.Property<string>("TotalLabel")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("TotalRound")
+                        .HasColumnType("int");
+
+                    b.Property<int>("branchID")
+                        .HasColumnType("int");
+
+                    b.Property<Guid>("companyID")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("saleInvoiceSettings");
+                });
+
             modelBuilder.Entity("Retailer.Api.Entities.SubMenu", b =>
                 {
                     b.Property<int>("Id")

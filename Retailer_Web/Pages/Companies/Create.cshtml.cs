@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Retailer.POS.Web.Services;
 using Retailer.Web.ApiDTOs;
-using Retailer.Web.Pages;
 
 namespace Retailer.POS.Web.Pages.Companies
 {

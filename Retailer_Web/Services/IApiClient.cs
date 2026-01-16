@@ -81,6 +81,8 @@ namespace Retailer.POS.Web.Services
         Task<IEnumerable<SalesMasterReturnDto>> GetAllSaleReturnDateWise(DateTime sdate, DateTime edate);
         Task<IEnumerable<SalesMasterDto>> GetSalesAsync();
         Task<SalesMasterDto?> GetSaleByIdAsync(int id);
+        Task<SaleInvoiceSettingDto?> GetSalePrintSetting(int id);
+        Task<List<SaleInvoiceSettingDto>?> GetSalePrintSettingList();
         Task<SalesMasterReturnDto?> GetSaleReturnByIdAsync(int id);
         Task<CustomerPaymentViewModel?> GetCustomerpaymentByIdAsync(int id);
         Task<VendorPaymentViewModel?> GetVendorpaymentByIdAsync(int id);

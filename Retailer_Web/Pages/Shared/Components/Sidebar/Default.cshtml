@@ -77,6 +77,16 @@
                 </a>
             </li>            
         }
+        @if (Model.Menus.Any() && (Model.User?.IsAdmin == true || Model.User?.IsSuperAdmin == true))
+        {
+            <li class="mb-1">
+                <a class="btn btn-nav align-items-center rounded @(Context.Request.Path == "/branches" ? "active" : string.Empty)"
+                   href="@ResolveUrl("/branches")">
+                    <i class="fa fa-code-branch text-yellow me-2"></i>
+                    <span>Branches</span>
+                </a>
+            </li>
+        }
         @foreach (var menu in Model.Menus
                             .Where(m => m.IsActive 
                             && !(m.SubMenus?.FirstOrDefault()?.UrlTitle?.Contains("report") 
@@ -165,6 +175,9 @@
                         </li>
                         <li>
                             <a class="link-dark rounded @(isUploadData ? "active" : string.Empty)" href="/admin/upload-data">Upload Data</a>
+                        </li>
+                        <li>
+                            <a class="link-dark rounded @(isUploadData ? "active" : string.Empty)" href="/SaleInvoiceSettings">Sale Invoice Setting</a>
                         </li>
                     </ul>
                 </div>

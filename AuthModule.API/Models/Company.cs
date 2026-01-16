@@ -1,4 +1,5 @@
 ﻿using AuthModule.API.Dtos;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
 namespace AuthModule.API.Models
@@ -27,7 +28,7 @@ namespace AuthModule.API.Models
         [MaxLength(100)]
         public string? STRN { get; set; }
         [MaxLength(100)]
-        public string? logoPath { get; set; }  
+        public string? logoPath { get; set; }
         [MaxLength(100)]
         public string? ContactEmail { get; set; }
 
@@ -49,6 +50,7 @@ namespace AuthModule.API.Models
         public double edVal { get; set; } = 0;
         public bool isFed { get; set; } = false;
         public double fedVal { get; set; } = 0;
+        public ICollection<UserCompany> UserCompanies { get; set; } = new List<UserCompany>();
        // public CompanyType CompanyType { get; set; }
     }
      

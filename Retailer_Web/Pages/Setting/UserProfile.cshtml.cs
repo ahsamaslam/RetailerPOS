@@ -40,123 +40,109 @@ namespace Retailer.Web.Pages.Setting
         [BindProperty]
         public UserViewModel Input { get; set; } = new();
         public Guid companyID { get; set; } = new();
-        public async Task<string> SaveLogoAsync(IFormFile? logo)
+        public async Task<IActionResult> OnGetAsync()
         {
-            if (logo == null || logo.Length == 0)
-                return null;
-
-            // Generate a unique filename
-            var fileName = $"{Guid.NewGuid()}{Path.GetExtension(logo.FileName)}";
             try
             {
-
-
-                // Save path in wwwroot/uploads
-
-                var folderPath = Path.Combine(env.WebRootPath, "uploads", "UserLogo");
-                Directory.CreateDirectory(folderPath);
-                // Ensure the folder exists
-
-                var savePath = Path.Combine(folderPath, fileName);
-                Directory.CreateDirectory(Path.GetDirectoryName(savePath)!);
-                // Save the file
-                using (var stream = new FileStream(savePath, FileMode.Create))
-                {
-                    await logo.CopyToAsync(stream);
-                }
+                await LoadCurrentUserAsync();
+                return Page();
             }
-            catch (Exception exx)
+            catch (ApiUnauthorizedException)
             {
-
-            }
-            // Return the relative URL to use in img src
-            return $"/uploads/CompanyLogo/{fileName}";
-        }
-        public async Task<IFormFile?> GetIFormFileFromUrlAsync(string url)
-        {
-            using var httpClient = new HttpClient();
-            var response = await httpClient.GetAsync(url);
-
-            if (!response.IsSuccessStatusCode)
-                return null;
-
-            var contentStream = await response.Content.ReadAsStreamAsync();
-            var contentBytes = await response.Content.ReadAsByteArrayAsync();
-
-            // Derive filename from URL (or set your own)
-            var fileName = Path.GetFileName(new Uri(url).AbsolutePath);
-
-            // Create the IFormFile from memory
-            var formFile = new FormFile(
-                baseStream: new MemoryStream(contentBytes),
-                baseStreamOffset: 0,
-                length: contentBytes.Length,
-                name: "file",
-                fileName: fileName
-            )
-            {
-                Headers = new HeaderDictionary(),
-                ContentType = response.Content.Headers.ContentType?.MediaType ?? "application/octet-stream"
-            };
-
-            return formFile;
-        }
-        public async Task OnGetAsync()
-        {
-            var user = await GetCurrentUserAsync();
-
-            if (user != null)
-            {
-                
-               Input = new UserViewModel
-                {
-                    Id = user.Id,
-                    UserName = user.UserName,
-                    Email = user.Email,
-                    picture = user.picture
-              };
-                if (user.picture != null)
-                {
-                    LogoFile = await GetIFormFileFromUrlAsync(user.picture); 
-                }
+                return RedirectToLogin();
             }
         }
 
         [IgnoreAntiforgeryToken]
         public async Task<IActionResult> OnPostUpdateProfileAsync()
         {
-            var content = new MultipartFormDataContent
-            {
-                { new StringContent(Input.Id), "UserId" },
-                { new StringContent(Input.UserName), "UserName" },
-                { new StringContent(Input.Email ?? ""), "Email" }
-            };
+            ModelState.Remove("Input.picture");
+            ModelState.Remove("Input.logoPath");
 
-            if (LogoFile != null)
+            if (!ModelState.IsValid)
             {
-                var fileContent = new StreamContent(LogoFile.OpenReadStream());
-                fileContent.Headers.ContentType =
-                    new MediaTypeHeaderValue(LogoFile.ContentType);
-
-                content.Add(fileContent, "Picture", LogoFile.FileName);
+                await LoadCurrentUserAsync();
+                return Page();
             }
 
-            var response = await _http.PutAsync("api/authuser/profile", content);
-
-            if (!response.IsSuccessStatusCode)
+            try
             {
-                var error = await response.Content.ReadAsStringAsync();
-                throw new Exception(error);
-            }
+                using var content = new MultipartFormDataContent
+                {
+                    { new StringContent(Input.Id ?? string.Empty), "UserId" },
+                    { new StringContent(Input.UserName ?? string.Empty), "UserName" },
+                    { new StringContent(Input.Email ?? string.Empty), "Email" }
+                };
 
-            return Page();
+                if (LogoFile != null)
+                {
+                    var fileContent = new StreamContent(LogoFile.OpenReadStream());
+                    fileContent.Headers.ContentType =
+                        new MediaTypeHeaderValue(LogoFile.ContentType ?? "application/octet-stream");
+
+                    content.Add(fileContent, "Picture", LogoFile.FileName);
+                }
+
+                var response = await _http.PutAsync("api/authuser/profile", content);
+
+                if (response.StatusCode == HttpStatusCode.Unauthorized)
+                {
+                    throw new ApiUnauthorizedException();
+                }
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    var error = await response.Content.ReadAsStringAsync();
+                    ModelState.AddModelError(string.Empty, string.IsNullOrWhiteSpace(error) ? "Unable to update profile" : error);
+                    await LoadCurrentUserAsync();
+                    return Page();
+                }
+
+                TempData["Success"] = "Profile updated.";
+                await LoadCurrentUserAsync();
+                return Page();
+            }
+            catch (ApiUnauthorizedException)
+            {
+                return RedirectToLogin();
+            }
         }
+
         // ================= Password Change Handler =================
         public async Task<IActionResult> OnPostChangePasswordAsync()
         {
-            var user = await CheckPasswordAsync( new UserPasswordDto { CurrentPassword  =  Input.oldPassword , NewPassword =  Input.currentPasswordA, userID  = Input.Id });
-            return Page();
+            try
+            {
+                await CheckPasswordAsync(new UserPasswordDto { CurrentPassword = Input.oldPassword, NewPassword = Input.currentPasswordA, userID = Input.Id });
+                await LoadCurrentUserAsync();
+                return Page();
+            }
+            catch (ApiUnauthorizedException)
+            {
+                return RedirectToLogin();
+            }
         }
+
+        private async Task LoadCurrentUserAsync()
+        {
+            var user = await GetCurrentUserAsync();
+            if (user == null)
+            {
+                Input = new UserViewModel();
+                return;
+            }
+
+            Input = new UserViewModel
+            {
+                Id = user.Id,
+                UserName = user.UserName,
+                Email = user.Email,
+                picture = user.picture
+            };
+
+            LogoFile = null;
+        }
+
         private async Task<UserDto?> GetCurrentUserAsync()
         {
             using var r = await _http.GetAsync("api/authuser/currentUser");
@@ -164,6 +150,8 @@ namespace Retailer.Web.Pages.Setting
             r.EnsureSuccessStatusCode();
             return await r.Content.ReadFromJsonAsync<UserDto>(_jsonOptions) ?? new UserDto();
         }
+
+        private RedirectToPageResult RedirectToLogin() => RedirectToPage("/Login", new { returnUrl = Request.Path + Request.QueryString });
 
         private async Task<(bool value, string Message)> ChangePasswordAsync(UserPasswordDto dto)
         {

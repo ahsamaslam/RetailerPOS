@@ -1,3 +1,4 @@
+using System.Net;
 using System.Net.Http.Json;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -21,10 +22,16 @@ namespace Retailer.Web.Pages.SuperAdmin
         public string? CurrentCompanyName { get; private set; }
         public bool HasCompanyContext => !string.IsNullOrEmpty(HttpContext.Session.GetString("ImpersonatedCompanyId"));
 
-        public async Task OnGetAsync()
+        public async Task<IActionResult> OnGetAsync()
         {
             CurrentCompanyName = HttpContext.Session.GetString("ImpersonatedCompanyName");
-            await LoadCompaniesAsync();
+            var authorized = await LoadCompaniesAsync();
+            if (!authorized)
+            {
+                return RedirectToPage("/Login", new { returnUrl = Request.Path + Request.QueryString });
+            }
+
+            return Page();
         }
 
         public async Task<IActionResult> OnPostAsync(Guid companyId, string? companyName)
@@ -34,7 +41,11 @@ namespace Retailer.Web.Pages.SuperAdmin
             if (companyId == Guid.Empty)
             {
                 ModelState.AddModelError(string.Empty, "Select a company before continuing.");
-                await LoadCompaniesAsync();
+                var authorized = await LoadCompaniesAsync();
+                if (!authorized)
+                {
+                    return RedirectToPage("/Login", new { returnUrl = Request.Path + Request.QueryString });
+                }
                 return Page();
             }
 
@@ -42,7 +53,11 @@ namespace Retailer.Web.Pages.SuperAdmin
             if (resolvedCompany == null)
             {
                 ModelState.AddModelError(string.Empty, "Selected company could not be found. Please try again.");
-                await LoadCompaniesAsync();
+                var authorized = await LoadCompaniesAsync();
+                if (!authorized)
+                {
+                    return RedirectToPage("/Login", new { returnUrl = Request.Path + Request.QueryString });
+                }
                 return Page();
             }
 
@@ -70,18 +85,24 @@ namespace Retailer.Web.Pages.SuperAdmin
             return RedirectToPage("/Index");
         }
 
-        private async Task LoadCompaniesAsync()
+        private async Task<bool> LoadCompaniesAsync()
         {
             try
             {
                 var client = _httpFactory.CreateClient("AuthApi");
                 var response = await client.GetAsync("api/companies");
 
+                if (response.StatusCode == HttpStatusCode.Unauthorized)
+                {
+                    _logger.LogWarning("Auth API returned 401 while loading companies for picker.");
+                    return false;
+                }
+
                 if (!response.IsSuccessStatusCode)
                 {
                     _logger.LogWarning("Failed to load companies for picker. Status {StatusCode}", response.StatusCode);
                     Companies = new List<CompanyListItem>();
-                    return;
+                    return true;
                 }
 
                 Companies = await response.Content.ReadFromJsonAsync<List<CompanyListItem>>() ?? new List<CompanyListItem>();
@@ -91,6 +112,8 @@ namespace Retailer.Web.Pages.SuperAdmin
                 _logger.LogError(ex, "Unable to load companies for super admin switcher.");
                 Companies = new List<CompanyListItem>();
             }
+
+            return true;
         }
 
         private async Task<CompanyListItem?> GetCompanyAsync(Guid companyId)
@@ -99,6 +122,11 @@ namespace Retailer.Web.Pages.SuperAdmin
             {
                 var client = _httpFactory.CreateClient("AuthApi");
                 var response = await client.GetAsync($"api/companies/{companyId}");
+
+                if (response.StatusCode == HttpStatusCode.Unauthorized)
+                {
+                    return null;
+                }
 
                 if (!response.IsSuccessStatusCode)
                 {

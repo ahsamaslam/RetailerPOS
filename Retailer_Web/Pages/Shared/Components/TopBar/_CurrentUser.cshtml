@@ -1,12 +1,22 @@
 @using Retailer.Web.Models
 @model LayoutUserInfo
 <!-- Current user (right part of the website) -->
+@{
+    var avatarPath = !string.IsNullOrWhiteSpace(Model?.picture)
+        ? Model!.picture
+        : (string.IsNullOrWhiteSpace(Model?.AvatarUrl) ? "~/img/theme/team-4.jpg" : Model!.AvatarUrl);
+
+    var avatarSrc = avatarPath.StartsWith("http", StringComparison.OrdinalIgnoreCase)
+        ? avatarPath
+        : Url.Content(avatarPath);
+}
+
 <ul class="navbar-nav flex-row align-items-center gap-2 mb-0 ms-auto topbar-user-nav">
     <li class="nav-item dropdown">
         <a class="nav-link pe-0" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
             <div class="media align-items-center">
                 <span class="avatar avatar-sm rounded-circle">
-                    <img alt="Image placeholder" src="~/img/theme/team-4.jpg">
+                    <img alt="Current user" src="@avatarSrc">
                 </span>
                 <div class="media-body ms-2 d-none d-lg-block">
                     <span class="mb-0 text-sm font-weight-bold">

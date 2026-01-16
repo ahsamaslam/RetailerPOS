@@ -8,10 +8,9 @@ namespace Retailer.POS.Web.ApiDTOs
         public int Id { get; set; }
         public DateTime Date { get; set; } = DateTime.Now;
         public DateTime CreateDate { get; set; } = DateTime.UtcNow; 
-        public int LoginId { get; set; }
+        public Guid UserId { get; set; }
         public int BranchId { get; set; }
-        public string? SaleType { get; set; }
-        public string? CustomerName { get; set; }
+        public string? SaleType { get; set; } 
         public decimal SubTotal { get; set; }
         public decimal TotalDiscount { get; set; }
         public decimal TaxAmount { get; set; }
@@ -19,6 +18,8 @@ namespace Retailer.POS.Web.ApiDTOs
         public int? CustomerCode { get; set; }
         public int CustomerID { get; set; }  
         public List<SalesDetailDto> Details { get; set; } = new();
+        [NotMapped]
+        public string? CustomerName { get; set; }
     }
 
     public class SalesDetailDto
@@ -26,7 +27,7 @@ namespace Retailer.POS.Web.ApiDTOs
         public int Id { get; set; }
         public int SalesMasterId { get; set; } 
         public int ItemCode { get; set; }    // <- must be string
-        public int ItemID { get; set; }    // <- must be string
+        public int ItemId { get; set; }    // <- must be string
         public string ItemName { get; set; } = string.Empty;   // <- must be string
         public string HsCode { get; set; } = string.Empty;   // <- must be string
         public string UOM { get; set; } = string.Empty;   // <- must be string
@@ -34,6 +35,7 @@ namespace Retailer.POS.Web.ApiDTOs
         public decimal Rate { get; set; }
         public decimal Qty { get; set; }
         public decimal subTotal { get; set; }
+        public decimal totalAmount { get; set; }
         public decimal Discount { get; set; }
         public decimal TaxPercentage { get; set; }
 		public decimal extraTax { get; set; }

@@ -56,7 +56,7 @@ namespace Retailer.POS.Web.Pages.Sales
             Sale.TotalDiscount = Sale.Details.Sum(d => d.Discount);
             foreach (var item in Sale.Details)
             {
-                item.ItemID = item.ItemCode;
+                item.ItemId = item.ItemCode;
             }
             Sale.BalanceAmount = Sale.SubTotal - Sale.TotalDiscount + Sale.TaxAmount;
 

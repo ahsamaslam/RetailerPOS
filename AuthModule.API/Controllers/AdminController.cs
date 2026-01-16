@@ -21,9 +21,11 @@ namespace AuthModule.API.Controllers
         private readonly IConfiguration _config;
         private readonly ILogger<AdminController> _logger;
         private readonly ApplicationDbContext _db;
+        private readonly IBranchLookupService _branchLookup;
 
         public AdminController(
              IPermissionService perm,
+             IBranchLookupService branchLookup,
              UserManager<ApplicationUser> userManager,
              RoleManager<IdentityRole> roleManager,
              IConfiguration config,
@@ -32,6 +34,7 @@ namespace AuthModule.API.Controllers
         {
             _db = db;
             _perm = perm;
+            _branchLookup = branchLookup;
             _userManager = userManager;
             _roleManager = roleManager;
             _config = config;
@@ -133,13 +136,93 @@ namespace AuthModule.API.Controllers
 
             return NoContent();
         }
+
+        [HttpDelete("users/{userId}")]
+        public async Task<IActionResult> DeleteUser(string userId)
+        {
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null || user.CompanyId != CompanyId)
+            {
+                return NotFound("User not found");
+            }
+
+            var result = await _userManager.DeleteAsync(user);
+            if (!result.Succeeded)
+            {
+                return BadRequest(new { message = "Failed to delete user", errors = result.Errors });
+            }
+
+            return NoContent();
+        }
+
+        [HttpPost("users/{userId}/block")]
+        public async Task<IActionResult> BlockUser(string userId)
+        {
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null || user.CompanyId != CompanyId)
+            {
+                return NotFound("User not found");
+            }
+
+            user.LockoutEnabled = true;
+            user.LockoutEnd = DateTimeOffset.MaxValue;
+
+            var result = await _userManager.UpdateAsync(user);
+            if (!result.Succeeded)
+            {
+                return BadRequest(new { message = "Failed to block user", errors = result.Errors });
+            }
+
+            return NoContent();
+        }
+
+        [HttpPost("users/{userId}/unblock")]
+        public async Task<IActionResult> UnblockUser(string userId)
+        {
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null || user.CompanyId != CompanyId)
+            {
+                return NotFound("User not found");
+            }
+
+            user.LockoutEnd = null;
+            user.AccessFailedCount = 0;
+
+            var result = await _userManager.UpdateAsync(user);
+            if (!result.Succeeded)
+            {
+                return BadRequest(new { message = "Failed to unblock user", errors = result.Errors });
+            }
+
+            return NoContent();
+        }
         // ---------------- USERS ----------------
 
         [HttpGet("users")]
-        public IActionResult GetAllUsers()
+        public async Task<IActionResult> GetAllUsers()
         {
-            var users = _userManager.Users.Where(x => x.CompanyId == CompanyId).ToList();
-            return Ok(users.Select(u => new { u.Id, u.UserName, u.Email }));
+            var users = _userManager.Users
+                .Where(x => x.CompanyId == CompanyId)
+                .ToList();
+
+            var branchIds = users
+                .Where(u => u.BranchId.HasValue)
+                .Select(u => u.BranchId!.Value)
+                .ToArray();
+
+            var branchNames = await _branchLookup.GetNamesAsync(branchIds, CompanyId);
+
+            return Ok(users.Select(u => new
+            {
+                u.Id,
+                u.UserName,
+                u.Email,
+                u.BranchId,
+                IsBlocked = u.LockoutEnd.HasValue && u.LockoutEnd.Value > DateTimeOffset.UtcNow,
+                BranchName = u.BranchId.HasValue && branchNames.TryGetValue(u.BranchId.Value, out var name)
+                    ? name
+                    : null
+            }));
         }
 
         [HttpGet("users/{userId}/roles")]
@@ -182,16 +265,31 @@ namespace AuthModule.API.Controllers
 
             // Determine default and allowed roles from config (fallbacks)
             var defaultRole = _config["Auth:DefaultRole"] ?? "User";
-            var allowedRoles = _config.GetSection("Auth:AssignableRoles")?.Get<string[]>() ?? new[] { "user", "manager", "admin" };
+            var allowedRoles = _config.GetSection("Auth:AssignableRoles")?.Get<string[]>() ?? Array.Empty<string>();
+            var requestedRole = dto.InitialRole?.Trim();
+            var roleToAssign = defaultRole;
 
+            if (!string.IsNullOrWhiteSpace(requestedRole))
+            {
+                var matchedRole = allowedRoles.FirstOrDefault(r => string.Equals(r, requestedRole, StringComparison.OrdinalIgnoreCase));
+                if (!string.IsNullOrEmpty(matchedRole))
+                {
+                    roleToAssign = matchedRole;
+                }
+                else if (await _roleManager.RoleExistsAsync(requestedRole))
+                {
+                    roleToAssign = requestedRole;
+                }
+            }
 
             ApplicationUser user = new ApplicationUser
             {
                 UserName = dto.UserName,
                 Email = dto.Email,
                 EmailConfirmed = true, // adjust if you want email confirmation flow
-                CompanyId = resolvedCompanyId      // ⭐ Assign company from token
-
+                CompanyId = resolvedCompanyId,      // ⭐ Assign company from token
+                BranchId = dto.BranchId.HasValue && dto.BranchId.Value > 0 ? dto.BranchId : null,
+                LockoutEnabled = false
             };
 
             // Create user via UserManager (hashes password, etc.)
@@ -219,15 +317,25 @@ namespace AuthModule.API.Controllers
                     }
                 }
 
-                // Assign default role
-                var addDefaultRoleRes = await _userManager.AddToRoleAsync(user, defaultRole);
+                if (!await _roleManager.RoleExistsAsync(roleToAssign))
+                {
+                    var r = await _roleManager.CreateAsync(new IdentityRole(roleToAssign));
+                    if (!r.Succeeded)
+                    {
+                        await _userManager.DeleteAsync(user);
+                        return StatusCode(StatusCodes.Status500InternalServerError, $"Unable to create role '{roleToAssign}'.");
+                    }
+                }
+
+                // Assign requested or default role
+                var addDefaultRoleRes = await _userManager.AddToRoleAsync(user, roleToAssign);
                 if (!addDefaultRoleRes.Succeeded)
                 {
                     await _userManager.DeleteAsync(user);
-                    return StatusCode(StatusCodes.Status500InternalServerError, "Unable to assign default role to user.");
+                    return StatusCode(StatusCodes.Status500InternalServerError, "Unable to assign role to user.");
                 }
 
-                // Get assigned roles (should at least include defaultRole)
+                // Get assigned roles (should include requested/default role)
                 var assignedRoles = await _userManager.GetRolesAsync(user); // list of role names
 
                 // Map role names -> role ids using AspNetRoles table (Role entities)
@@ -306,13 +414,14 @@ namespace AuthModule.API.Controllers
 
         [HttpGet("roles/names")]
         public IActionResult GetAllRoleNames() =>
-        Ok(_roleManager.Roles.Select(r => r.Name).ToList());
+        Ok(_roleManager.Roles.Select(r => r.Name).Where(x => x != "superadmin").ToList());
 
         [HttpGet("roles")]
         public IActionResult GetAllRoles()
         {
             var roles = _roleManager.Roles
                 .Select(r => new { r.Id, r.Name })
+                .Where(x => x.Name != "superadmin")
                 .ToList();
             return Ok(roles);
         }
@@ -432,7 +541,7 @@ namespace AuthModule.API.Controllers
 
 
     // DTO for creating a user
-    public record CreateUserDto(string UserName, string Email, string Password);
+    public record CreateUserDto(string UserName, string Email, string Password, int? BranchId = null, string? InitialRole = null);
     public record CreatePermissionDto(string Name, string? Description);
     public record CreateRoleDto(string Name);
 

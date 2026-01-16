@@ -1,0 +1,70 @@
+﻿@page "{id:int}"
+@model Retailer.Web.Pages.SaleInvoiceSettings.EditModel
+@{
+}
+ 
+<h2>Edit Invoice Settings</h2>
+
+<form method="post" class="container">
+
+<h4>Page Setup</h4>
+<input asp-for="Setting.PageSize" class="form-control" placeholder="Page Size" />
+<input asp-for="Setting.Orientation" class="form-control mt-1" placeholder="Orientation" />
+<input asp-for="Setting.PageWidthMM" class="form-control mt-1" placeholder="Width (mm)" />
+<input asp-for="Setting.PageHeightMM" class="form-control mt-1" placeholder="Height (mm)" />
+
+<hr />
+
+<h4>Headers</h4>
+<input asp-for="Setting.Header1Value" class="form-control" placeholder="Header 1 Text" />
+<input asp-for="Setting.Header1Align" class="form-control mt-1" placeholder="Header1 Align" />
+<input asp-for="Setting.Header1FontSize" class="form-control mt-1" placeholder="Font Size" />
+
+<input asp-for="Setting.Header2Text" class="form-control mt-2" placeholder="Header 2 Text" />
+<input asp-for="Setting.Header2Align" class="form-control mt-1" placeholder="Header2 Align" />
+<input asp-for="Setting.Header2FontSize" class="form-control mt-1" placeholder="Font Size" />
+
+<input asp-for="Setting.Header3Text" class="form-control mt-2" placeholder="Header 3 Text" />
+<input asp-for="Setting.Header3Align" class="form-control mt-1" placeholder="Header3 Align" />
+<input asp-for="Setting.Header3FontSize" class="form-control mt-1" placeholder="Font Size" />
+
+<hr />
+
+<h4>Columns</h4>
+<input asp-for="Setting.SrLabel" class="form-control" placeholder="Show Sr (1/0)" />
+<input asp-for="Setting.SrAlign" class="form-control mt-1" placeholder="Sr Align" />
+
+<input asp-for="Setting.NameLabel" class="form-control mt-2" placeholder="Show Name (1/0)" />
+<input asp-for="Setting.NameAlign" class="form-control mt-1" placeholder="Name Align" />
+
+<input asp-for="Setting.RateLabel" class="form-control mt-2" placeholder="Show Rate (1/0)" />
+<input asp-for="Setting.RateAlign" class="form-control mt-1" placeholder="Rate Align" />
+<input asp-for="Setting.RateRound" class="form-control mt-1" placeholder="Rate Round" />
+
+<input asp-for="Setting.QtyLabel" class="form-control mt-2" placeholder="Show Qty (1/0)" />
+<input asp-for="Setting.QtyAlign" class="form-control mt-1" placeholder="Qty Align" />
+<input asp-for="Setting.QtyRound" class="form-control mt-1" placeholder="Qty Round" />
+
+<hr />
+
+<h4>Footer</h4>
+<input asp-for="Setting.Footer1Text" class="form-control" placeholder="Footer 1" />
+<input asp-for="Setting.Footer1Align" class="form-control mt-1" placeholder="Footer1 Align" />
+
+<input asp-for="Setting.Footer2Text" class="form-control mt-2" placeholder="Footer 2" />
+<input asp-for="Setting.Footer2Align" class="form-control mt-1" placeholder="Footer2 Align" />
+
+<input asp-for="Setting.Footer3Text" class="form-control mt-2" placeholder="Footer 3" />
+<input asp-for="Setting.Footer3Align" class="form-control mt-1" placeholder="Footer3 Align" />
+
+<hr />
+
+<h4>Logo</h4>
+<input asp-for="Setting.ShowLogo" class="form-control" placeholder="Show Logo (1/0)" />
+<input asp-for="Setting.LogoCss" class="form-control mt-1" placeholder="Logo CSS" />
+
+<hr />
+
+<button class="btn btn-primary">Save Changes</button>
+
+</form>

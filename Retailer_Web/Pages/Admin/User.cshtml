@@ -42,6 +42,8 @@
                 <th style="width:40px;"></th>
                 <th>Username</th>
                 <th>Email</th>
+                <th>Branch</th>
+                <th>Status</th>
                 <th style="min-width:220px">Roles</th>
                 <th style="width:200px">Actions</th>
             </tr>
@@ -52,10 +54,37 @@
                 <tr data-username="@user.UserName" data-email="@user.Email">
                     <td>
                         <!-- avatar placeholder -->
-                        <img src="@user.AvatarUrl ?? Url.Content(" ~ /assets/img/user2-160x160.jpg")" class="rounded-circle" style="width:36px;height:36px;object-fit:cover" />
+                        @{
+                            var avatarSrc = string.IsNullOrWhiteSpace(user.AvatarUrl)
+                                ? Url.Content("~/assets/img/user2-160x160.jpg")
+                                : user.AvatarUrl;
+                        }
+                        <img src="@avatarSrc"
+                             alt="@user.UserName avatar"
+                             class="rounded-circle"
+                             style="width:36px;height:36px;object-fit:cover" />
                     </td>
                     <td class="align-middle">@user.UserName</td>
                     <td class="align-middle">@user.Email</td>
+                    <td class="align-middle">
+                        @if (!string.IsNullOrWhiteSpace(user.BranchName))
+                        {
+                            @user.BranchName
+                        }
+                        else if (user.BranchId.HasValue)
+                        {
+                            <span class="text-muted">Branch ID: @user.BranchId</span>
+                        }
+                        else
+                        {
+                            <span class="text-muted">Not assigned</span>
+                        }
+                    </td>
+                    <td class="align-middle">
+                        <span class="badge @(user.IsBlocked ? "bg-danger" : "bg-success")">
+                            @(user.IsBlocked ? "Blocked" : "Active")
+                        </span>
+                    </td>
                     <td class="align-middle">
                         @if (user.Roles != null && user.Roles.Any())
                         {
@@ -80,6 +109,7 @@
                                     data-username="@user.UserName"
                                     data-email="@user.Email"
                                     data-currentroles="@string.Join(",", user.Roles)"
+                                    data-branchid="@user.BranchId"
                                     title="Edit">
                                 <i class="fa fa-edit"></i>
                             </button>
@@ -110,11 +140,11 @@
 
                             @if (user.IsBlocked)
                             {
-                                <form method="post" asp-page-handler="Unblock" class="d-inline">
+                                <form method="post" asp-page-handler="Unblock" class="d-inline" onsubmit="return confirm('Unlock user @user.UserName?');">
                                     <input type="hidden" name="UserId" value="@user.Id" />
                                     <button class="btn btn-sm btn-outline-warning d-inline-flex align-items-center justify-content-center"
                                             style="width:2.2rem;height:2.2rem;"
-                                            title="Unblock user">
+                                            title="Currently blocked – click to unblock">
                                         <i class="fa fa-solid fa-unlock"></i>
                                     </button>
                                 </form>
@@ -128,7 +158,7 @@
                                     <input type="hidden" name="UserId" value="@user.Id" />
                                     <button class="btn btn-sm btn-outline-warning d-inline-flex align-items-center justify-content-center"
                                             style="width:2.2rem;height:2.2rem;"
-                                            title="Block user">
+                                            title="Currently active – click to block">
                                         <i class="fa fa-solid fa-lock"></i>
                                     </button>
                                 </form>
@@ -175,7 +205,7 @@
      aria-hidden="true">
 
     <div class="modal-dialog modal-lg modal-dialog-centered">
-        <div class="modal-content">
+        <div class="modal-content"
 
             <form method="post"
                   asp-page-handler="AssignUserPermissions">
@@ -267,8 +297,19 @@
                         <div class="form-text" id="EditUser_CurrentRole"> <span class="badge bg-secondary me-1"></span></div>
                     </div>
                     <div class="mb-3">
+                        <label class="form-label">Assign Branch</label>
+                        <select asp-for="EditUser.BranchId" class="form-control" id="EditUser_BranchId">
+                            <option value="">-- none --</option>
+                            @foreach (var branch in Model.Branches)
+                            {
+                                <option value="@branch.Id">@branch.Name</option>
+                            }
+                        </select>
+                        <small class="text-muted">Select which branch this user should be associated with.</small>
+                    </div>
+                    <div class="mb-3">
                         <label class="form-label">Assign role</label>
-                        <select asp-for="EditUser.InitialRole" class="form-select">
+                        <select asp-for="EditUser.InitialRole" class="form-control">
                             <option value="">-- none --</option>
                             @foreach (var r in Model.AllRoles)
                             {
@@ -342,6 +383,8 @@
                     const title = document.getElementById('userModalTitle');
                     const passwordRow = document.getElementById('passwordRow');
                     const currentRolesRow = document.getElementById('currentRoleRow');
+                    const branchSelect = document.getElementById('EditUser_BranchId');
+                    const roleSelect = document.getElementById('EditUser_InitialRole');
 
                     if (mode === 'create') {
                         title.textContent = 'Create User';
@@ -349,6 +392,8 @@
                         document.getElementById('EditUser_UserName').value = '';
                         document.getElementById('EditUser_Email').value = '';
                         document.getElementById('EditUser_Password').value = '';
+                        if (branchSelect) branchSelect.value = '';
+                        if (roleSelect) roleSelect.value = '';
                         currentRolesRow.style.display = 'none';
                         document.getElementById('userForm').setAttribute('action', '?handler=Create');
                     } else {
@@ -356,6 +401,7 @@
                         const id = trigger.getAttribute('data-userid');
                         const username = trigger.getAttribute('data-username');
                         const email = trigger.getAttribute('data-email');
+                        const branchId = trigger.getAttribute('data-branchid') || '';
                         const currentRolesRaw = trigger?.getAttribute('data-currentroles') || '';
                         const currentRoles = currentRolesRaw ? currentRolesRaw.split(',') : [];
 
@@ -363,6 +409,7 @@
                         document.getElementById('EditUser_UserName').value = username ?? '';
                         document.getElementById('EditUser_Email').value = email ?? '';
                         document.getElementById('EditUser_Password').value = '';
+                        if (branchSelect) branchSelect.value = branchId ?? '';
                         currentRolesRow.style.display = 'block';
 
                         const container = document.getElementById('EditUser_CurrentRole');
@@ -374,8 +421,14 @@
                                 s.textContent = r;
                                 container.appendChild(s);
                             });
+                            if (roleSelect) {
+                                roleSelect.value = currentRoles[0] ?? '';
+                            }
                         } else {
                             container.innerHTML = '<small class="text-muted">No roles assigned</small>';
+                            if (roleSelect) {
+                                roleSelect.value = '';
+                            }
                         }
 
                         document.getElementById('userForm').setAttribute('action', '?handler=Edit');

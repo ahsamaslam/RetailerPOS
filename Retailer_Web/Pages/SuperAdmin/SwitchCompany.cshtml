@@ -77,11 +77,42 @@
             font-size: 1.5rem;
             color: #2563eb;
         }
+        /* New: make search input and button sit on one row with 80/20 split */
+        .company-search-row {
+            display: flex !important;
+            gap: 0.75rem;
+            align-items: flex-end; /* align input and button to bottom */
+            flex-wrap: nowrap !important; /* keep them on one row on larger screens */
+            flex-direction: row;
+        }
+        /* New helper classes for exact 80/20 columns */
+        .company-col-search {
+            flex: 0 0 80%;
+            max-width: 80%;
+            min-width: 0;
+        }
+        .company-col-btn {
+            flex: 0 0 20%;
+            max-width: 20%;
+            align-self: flex-end;
+        }
+        @@media (max-width: 576px) {
+            .company-search-row {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+            .company-col-search,
+            .company-col-btn {
+                flex: 0 0 100%;
+                max-width: 100%;
+                align-self: stretch;
+            }
+        }
     </style>
 }
 
 <div class="container-fluid py-4">
-    <div class="sa-hero p-4 p-lg-5 mb-4 shadow-sm">
+   @*  <div class="sa-hero p-4 p-lg-5 mb-4 shadow-sm">
         <div class="row g-4 align-items-center">
             <div class="col-lg-7">
                 <div class="hero-chip mb-3">
@@ -104,10 +135,10 @@
                 </a>
             </div>
         </div>
-    </div>
+    </div> *@
 
     <div class="row g-4">
-        <div class="col-xxl-5">
+        <div class="col-12">
             <div class="card company-picker-card shadow-sm">
                 <div class="card-header bg-white border-0 pb-0">
                     <p class="text-muted mb-1">Smart search</p>
@@ -117,51 +148,46 @@
                     <form method="post"
                           class="row g-4 align-items-end"
                           data-company-picker="true">
-                        <div class="col-12 position-relative">
-                            <label for="pageCompanySearch" class="form-label">Company name</label>
-                            <input id="pageCompanySearch"
-                                   type="text"
-                                   class="form-control form-control-lg"
-                                   placeholder="Start typing to search by name"
-                                   autocomplete="off"
-                                   data-company-search />
-                            <div class="list-group shadow-sm d-none company-search-results"
-                                 data-company-results></div>
+
+                        <div class="company-search-row w-100 d-flex flex-nowrap align-items-end" style="gap:0.75rem;">
+                            <div class="company-col-search position-relative" style="flex:0 0 80%;max-width:80%;min-width:0;">
+                                <label for="pageCompanySearch" class="form-label mb-2">Company name</label>
+                                <input id="pageCompanySearch"
+                                       type="text"
+                                       class="form-control form-control-lg"
+                                       placeholder="Start typing to search by name"
+                                       autocomplete="off"
+                                       data-company-search />
+                                <div class="list-group shadow-sm d-none company-search-results"
+                                     data-company-results></div>
+                            </div>
+
+                            <div class="company-col-btn d-flex align-items-center" style="flex:0 0 20%;max-width:20%;">
+                                <button type="submit"
+                                        class="btn btn-primary btn-lg w-100"
+                                        data-company-submit
+                                        disabled>
+                                    Use selection
+                                </button>
+                            </div>
                         </div>
 
                         <input type="hidden" name="companyId" data-company-id />
                         <input type="hidden" name="companyName" data-company-name />
 
-                        <div class="col-md-6 d-flex flex-column gap-2">
-                            <label class="form-label">Current selection</label>
-                            <div class="form-control bg-gray-100 flex-grow-1 d-flex align-items-center">
-                                @(Model.CurrentCompanyName ?? "None")
-                            </div>
-                        </div>
-                        <div class="col-md-6 d-flex justify-content-md-end">
-                            <button type="submit"
-                                    class="btn btn-primary btn-lg w-100 w-md-auto"
-                                    data-company-submit
-                                    disabled>
-                                Use selection
-                            </button>
-                        </div>
                         <div class="col-12">
                             <div asp-validation-summary="ModelOnly" class="text-danger small"></div>
                             <span class="text-danger small" data-company-error></span>
                         </div>
                     </form>
                 </div>
-                <div class="card-footer bg-transparent border-0 pt-0">
-                    <small class="text-muted">
-                        Tip: You can also switch directly from the top bar using the quick picker.
-                    </small>
-                </div>
             </div>
         </div>
+    </div>
 
-        <div class="col-xxl-7">
-            <div class="card directory-panel shadow-sm h-100">
+    <div class="row g-4 mt-0">
+        <div class="col-12">
+            <div class="card directory-panel shadow-sm">
                 <div class="card-header bg-white border-0 pb-0 d-flex flex-wrap align-items-center justify-content-between gap-3">
                     <div>
                         <p class="text-muted mb-1">Browse directory</p>
@@ -232,4 +258,5 @@
             </div>
         </div>
     </div>
+
 </div>

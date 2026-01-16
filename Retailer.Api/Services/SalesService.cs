@@ -111,7 +111,7 @@ public class SalesService : ISalesService
             }).FirstOrDefaultAsync();
     }
 
-    public async Task<SalesMaster> CreateAsync(SalesMasterDto sakeDto, Guid companyId, LoginDto user)
+    public async Task<SalesMasterDto> CreateAsync(SalesMasterDto sakeDto, Guid companyId, LoginDto user)
     {
         SalesMaster model = _mapper.Map<SalesMaster>(sakeDto);  
         model.CompanyId = companyId;
@@ -149,8 +149,8 @@ public class SalesService : ISalesService
         var itemLedger = new ItemLedgerService(_context);
         foreach (var item in model.Details)
             await itemLedger.PostLedgerAsync(item);
-
-        return model;
+        return _mapper.Map<SalesMasterDto>(model);
+     
     }
 
     public async Task UpdateAsync(int id, SalesMaster model, Guid companyId, LoginDto user)
