@@ -8,14 +8,13 @@
         "DebugTarget": "Retailer.Api"
       },
       {
-        "Path": "Retailer_Web\\Retailer.Web.csproj",
-        "Action": "Start",
-        "DebugTarget": "Retailer.Web"
-      },
-      {
         "Path": "AuthModule.API\\AuthModule.API.csproj",
         "Action": "Start",
         "DebugTarget": "https"
+      },
+      {
+        "Path": "Retailer_Web\\Retailer.Web.csproj",
+        "Action": "Start"
       }
     ]
   }

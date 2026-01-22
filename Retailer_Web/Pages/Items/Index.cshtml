@@ -1,4 +1,4 @@
-@page
+﻿@page
 @model Retailer.POS.Web.Pages.Items.IndexModel
 @{
     ViewData["Title"] = "Items";
@@ -9,8 +9,15 @@
     <div class="col-md-6">
         <input id="searchBox" class="form-control" placeholder="Search by name..." />
     </div>
-    <div class="col-md-6">
+    <div class="col-md-3">
         <a asp-page="Create" class="btn btn-primary mb-2">Create New Item</a>
+    </div>
+    <div class="col-md-3">
+        <button type="button"
+                class="btn btn-success"
+                onclick="exportItemsCsv()">
+            ⬇ Download Items CSV
+        </button>
     </div>
 </div>
 
@@ -59,6 +66,16 @@
                 "ordering": true,
                 "info": true
             });
+
         });
+
+                function exportItemsCsv() {
+
+            // If you later add filters, plug them here
+            // const search = document.getElementById("searchBox").value;
+
+            // Trigger Razor Page handler via GET
+            window.location.href = "?handler=DownloadCsv";
+        }
     </script>
 }

@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:RetailerMobileApp.Features.Profile.ViewModels"
+             x:Class="RetailerMobileApp.Features.Profile.Views.ProfileSettingsPage"
+             x:DataType="vm:ProfileSettingsViewModel"
+             Title="{Binding Title}">
+    <ScrollView>
+        <VerticalStackLayout Padding="24" Spacing="24">
+            <VerticalStackLayout Spacing="8" HorizontalOptions="Center">
+                <Border WidthRequest="160"
+                        HeightRequest="160"
+                        BackgroundColor="#F3F4F6"
+                        StrokeThickness="0">
+                    <Border.StrokeShape>
+                        <RoundRectangle CornerRadius="80" />
+                    </Border.StrokeShape>
+                    <Image Source="{Binding ProfileImage}" Aspect="AspectFill" />
+                </Border>
+                <Button Text="Change photo"
+                        Command="{Binding ChangePhotoCommand}"
+                        BackgroundColor="#111827"
+                        TextColor="White"
+                        CornerRadius="12"
+                        WidthRequest="160" />
+            </VerticalStackLayout>
+
+            <VerticalStackLayout Spacing="12">
+                <Label Text="Full name" FontSize="14" TextColor="#6B7280" />
+                <Entry Text="{Binding FullName}" Placeholder="Name" />
+            </VerticalStackLayout>
+
+            <VerticalStackLayout Spacing="12">
+                <Label Text="Email" FontSize="14" TextColor="#6B7280" />
+                <Entry Text="{Binding Email}" Placeholder="Email" Keyboard="Email" />
+            </VerticalStackLayout>
+
+            <Button Text="Save changes"
+                    Command="{Binding SaveProfileCommand}"
+                    HeightRequest="48"
+                    BackgroundColor="#2563EB"
+                    TextColor="White"
+                    CornerRadius="14" />
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

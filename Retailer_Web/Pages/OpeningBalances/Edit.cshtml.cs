@@ -15,7 +15,7 @@ public class EditModel : BasePageModel
     private readonly ILogger<EditModel> _logger;
     private readonly IToastNotification _toastNotification;
     private readonly IApiClient _api;
-
+  
     public EditModel(IApiClient api, ILogger<EditModel> logger, IToastNotification toastNotification)
     {
         _api = api;
@@ -23,8 +23,9 @@ public class EditModel : BasePageModel
         _toastNotification = toastNotification;
     }
 
+    public int branchId;
     [BindProperty]
-    public UpdateOpeningBalanceDto Editing { get; set; } = new(0, DateTime.UtcNow.Year, 0, 0m);
+    public UpdateOpeningBalanceDto Editing { get; set; } = new(0, DateTime.UtcNow.Year, 0, 1, 0m);
 
     public List<ItemDto> Products { get; set; } = new();
     public SelectList ProductSelectList => new(Products, nameof(ItemDto.Id), nameof(ItemDto.Name));
@@ -35,7 +36,7 @@ public class EditModel : BasePageModel
         if (vm == null) return NotFound();
 
         // map to editing DTO (assumes OpeningBalanceViewModel has ProductId)
-        Editing = new UpdateOpeningBalanceDto(vm.Id, vm.Year, vm.ProductId, vm.OpeningQuantity);
+        Editing = new UpdateOpeningBalanceDto(vm.Id, vm.Year, vm.ProductId, vm.BranchId,vm.OpeningQuantity);
 
         Products = await _api.GetItemsAsync();
         return Page();

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<Shell
+    x:Class="RetailerMobileApp.AppShell"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:authViews="clr-namespace:RetailerMobileApp.Features.Authentication.Views"
+    xmlns:constants="clr-namespace:RetailerMobileApp.Core.Constants"
+    xmlns:dashboardViews="clr-namespace:RetailerMobileApp.Features.Dashboard.Views"
+    Title="Retailer POS"
+    FlyoutBehavior="Disabled">
+
+    <ShellContent
+        Title="Sign in"
+        Route="{x:Static constants:RouteNames.Login}"
+        ContentTemplate="{DataTemplate authViews:LoginPage}" />
+
+    <ShellContent
+        Title="Home"
+        Route="{x:Static constants:RouteNames.Dashboard}"
+        ContentTemplate="{DataTemplate dashboardViews:DashboardPage}" />
+
+</Shell>

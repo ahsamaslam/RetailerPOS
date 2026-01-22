@@ -7,6 +7,7 @@ namespace Retailer.Web.Models
         public int Id { get; set; }
         public int Year { get; set; }
         public int ProductId { get; set; }
+        public int BranchId { get; set; }
         public string ProductName { get; set; } = "";
         public decimal OpeningQuantity { get; set; }
         public DateTime CreatedAt { get; set; }
@@ -15,6 +16,7 @@ namespace Retailer.Web.Models
     public record CreateOpeningBalanceDto(
         [Required] int Year,
         [Required] int ProductId,
+        [Required] int BranchId,
         [Required][Range(0, double.MaxValue)] decimal OpeningQuantity
     );
 
@@ -22,6 +24,7 @@ namespace Retailer.Web.Models
         int Id,
         [Required] int Year,
         [Required] int ProductId,
+        [Required] int BranchId,
         [Required][Range(0, double.MaxValue)] decimal OpeningQuantity
     );
 }

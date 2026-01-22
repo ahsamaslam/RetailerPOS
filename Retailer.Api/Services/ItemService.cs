@@ -98,6 +98,13 @@ public class ItemService : IItemService
 
         return item is null ? new ItemDto() : _mapper.Map<ItemDto>(item);
     }
+    public string Escape(string? value)
+    {       
+        if (string.IsNullOrWhiteSpace(value))
+            return string.Empty;
+
+        return $"\"{value.Replace("\"", "\"\"")}\"";
+    }
 
     public async Task UpdateAsync(int id, CreateItemDto dto)
     {

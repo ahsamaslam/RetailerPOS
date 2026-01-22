@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Retailer.Api.Entities;
 using Retailer.Api.Entities.Ledger;
 using Retailer.Api.Migrations;
 using Retailer.POS.Api.Data;
@@ -62,17 +63,17 @@ namespace Retailer.Api.Services
             // Detect object type and extract values
             switch (entity)
             {
-                //case Item Item:
-                //    entityId = Item.Id  ;
-                //    decimal openbal = (decimal)Item.openingBalance;
-                //    date = Item.openDate??DateTime.Now;
-                //    debit = openbal > 0? openbal:0;   // Sale increases Item balance
-                //    credit = openbal < 0 ? openbal*-1 : 0;   //
-                //    referenceId = Item.Id;
-                //    companyId = Item.CompanyId;
-                //    Type = "Opening Balance";
-                //    remarks = "Opening Balance";
-                //    break;
+                case OpeningBalance obal:
+                    entityId = obal.Id;
+                    decimal openbal = (decimal)obal.OpeningQuantity;
+                    date = obal.CreatedAt;
+                    debit = openbal > 0 ? openbal : 0;   // Sale increases Item balance
+                    credit = openbal < 0 ? openbal * -1 : 0;   //
+                    referenceId = obal.Id;
+                    companyId = obal.CompanyId;
+                    Type = "Opening Balance";
+                    remarks = "Opening Balance";
+                    break;
                 case SalesDetail sale:
                     entityId = sale.ItemId;
                     date = sale.SalesMaster.Date;
@@ -381,6 +382,12 @@ await ReverseItemLedgerEntryAsync(ReferenceType,referenceId, "Reversal Requested
             
                 switch (entity)
                 {
+                    case OpeningBalance sale:
+                        referenceId = sale.Id;
+						entityId = sale.ProductID;
+                        //updatedCredit = sale.odlQuantity>sale.OpeningQuantity ? sale.odlQuantity-sale.OpeningQuantity : 0;   // Sale increases Item balance
+                        updatedDebit  = sale.OpeningQuantity ;   //
+                        break;
                     case SalesDetail sale:
                         referenceId = sale.SalesMaster.Id;
 						entityId = sale.ItemId; 

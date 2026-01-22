@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Retailer.POS.Web.ApiDTOs;
 using Retailer.POS.Web.Services;
@@ -17,5 +18,9 @@ public class IndexModel : BasePageModel
     public async Task OnGetAsync()
     {
         Items = (await _api.GetItemsAsync()).ToList();
+    }
+    public async Task<IActionResult> OnGetDownloadCsv()
+    {
+        return File(await _api.ItemCsvExport(), "text/csv", "items.csv");
     }
 }

@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:RetailerMobileApp.Features.Sales.ViewModels"
+             x:Class="RetailerMobileApp.Features.Sales.Views.SalesCreatePage"
+             x:DataType="vm:SalesCreateViewModel"
+             x:Name="SalesCreatePageView"
+             Title="{Binding Title}">
+    <ScrollView>
+        <VerticalStackLayout Padding="24" Spacing="20">
+            <VerticalStackLayout Spacing="4">
+                <Label Text="{Binding Title}" FontSize="28" FontAttributes="Bold" TextColor="#111827" />
+                <Label Text="Capture customer info, line items, and taxes." FontSize="14" TextColor="#6B7280" />
+            </VerticalStackLayout>
+
+            <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,Auto" ColumnSpacing="16" RowSpacing="12">
+                <VerticalStackLayout Grid.Row="0" Grid.Column="0" Spacing="4">
+                    <Label Text="Sale date" FontAttributes="Bold" TextColor="#374151" />
+                    <DatePicker Date="{Binding SaleDate}" />
+                </VerticalStackLayout>
+                <VerticalStackLayout Grid.Row="0" Grid.Column="1" Spacing="4">
+                    <Label Text="Sale type" FontAttributes="Bold" TextColor="#374151" />
+                    <Picker ItemsSource="{Binding SaleTypes}"
+                            SelectedItem="{Binding SelectedSaleType}"
+                            ItemDisplayBinding="{Binding Name}" />
+                </VerticalStackLayout>
+                <VerticalStackLayout Grid.Row="1" Grid.Column="0" Spacing="4">
+                    <Label Text="Customer" FontAttributes="Bold" TextColor="#374151" />
+                    <Picker ItemsSource="{Binding Customers}"
+                            SelectedItem="{Binding SelectedCustomer}"
+                            ItemDisplayBinding="{Binding Name}" />
+                </VerticalStackLayout>
+                <VerticalStackLayout Grid.Row="1" Grid.Column="1" Spacing="4">
+                    <Label Text="Closing balance" FontAttributes="Bold" TextColor="#374151" />
+                    <Border StrokeThickness="1" Stroke="#E5E7EB" BackgroundColor="#F9FAFB" Padding="12">
+                        <Border.StrokeShape>
+                            <RoundRectangle CornerRadius="12" />
+                        </Border.StrokeShape>
+                        <Label Text="{Binding ClosingBalance, StringFormat='Rs {0:N2}'}" FontSize="18" TextColor="#111827" />
+                    </Border>
+                </VerticalStackLayout>
+            </Grid>
+
+            <Button Text="Add line item"
+                    Command="{Binding AddItemCommand}"
+                    HeightRequest="44"
+                    BackgroundColor="#2563EB"
+                    TextColor="White"
+                    CornerRadius="12" />
+
+            <Border StrokeThickness="1" Stroke="#E5E7EB" Padding="0">
+                <Border.StrokeShape>
+                    <RoundRectangle CornerRadius="16" />
+                </Border.StrokeShape>
+                <VerticalStackLayout Spacing="12">
+                    <Grid Padding="16" Margin="16,0,16,8" ColumnDefinitions="Auto,*,Auto,Auto,Auto,Auto,Auto,Auto" ColumnSpacing="12">
+                        <Label Text="Sr" FontAttributes="Bold" HorizontalOptions="End" />
+                        <Label Grid.Column="1" Text="Item" FontAttributes="Bold" />
+                        <Label Grid.Column="2" Text="Rate" FontAttributes="Bold" HorizontalOptions="End" />
+                        <Label Grid.Column="3" Text="Qty" FontAttributes="Bold" HorizontalOptions="End" />
+                        <Label Grid.Column="4" Text="Sub Total" FontAttributes="Bold" HorizontalOptions="End" />
+                        <Label Grid.Column="5" Text="Discount" FontAttributes="Bold" HorizontalOptions="End" />
+                        <Label Grid.Column="6" Text="Total" FontAttributes="Bold" HorizontalOptions="End" />
+                        <Label Grid.Column="7" Text="Action" FontAttributes="Bold" HorizontalOptions="End" />
+                    </Grid>
+
+                    <CollectionView ItemsSource="{Binding Items}" SelectionMode="None">
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate x:DataType="vm:SaleItemEntry">
+                                <Border StrokeThickness="1" Stroke="#F3F4F6" Padding="16" Margin="16,0" BackgroundColor="#FFFFFF">
+                                    <Border.StrokeShape>
+                                        <RoundRectangle CornerRadius="12" />
+                                    </Border.StrokeShape>
+                                    <Grid RowDefinitions="Auto,Auto"
+                                          ColumnDefinitions="Auto,*,Auto,Auto,Auto,Auto,Auto,Auto"
+                                          ColumnSpacing="12"
+                                          RowSpacing="12">
+                                        <Label Grid.Column="0"
+                                               Text="{Binding SerialNumber}"
+                                               HorizontalOptions="End"
+                                               VerticalOptions="End"
+                                               TextColor="#111827" />
+
+                                        <Entry Grid.Column="1"
+                                               Placeholder="Item name"
+                                               Text="{Binding ItemName}"
+                                               BackgroundColor="Transparent"
+                                               HorizontalOptions="Fill" />
+
+                                        <Entry Grid.Column="2"
+                                               HorizontalTextAlignment="End"
+                                               Keyboard="Numeric"
+                                               Text="{Binding Rate}" />
+
+                                        <Entry Grid.Column="3"
+                                               HorizontalTextAlignment="End"
+                                               Keyboard="Numeric"
+                                               Text="{Binding Qty}" />
+
+                                        <Label Grid.Column="4"
+                                               Text="{Binding SubTotal, StringFormat='Rs {0:N2}'}"
+                                               HorizontalOptions="End"
+                                               TextColor="#111827" />
+
+                                        <Label Grid.Column="5"
+                                               Text="{Binding DiscountAmount, StringFormat='Rs {0:N2}'}"
+                                               HorizontalOptions="End"
+                                               TextColor="#DC2626" />
+
+                                        <Label Grid.Column="6"
+                                               Text="{Binding LineTotal, StringFormat='Rs {0:N2}'}"
+                                               FontAttributes="Bold"
+                                               HorizontalOptions="End"
+                                               TextColor="#111827" /> 
+                                        <Button Grid.Column="7"
+                                                Text="Remove"
+                                                TextColor="#DC2626"
+                                                BorderColor="#FECACA"
+                                                BorderWidth="1"
+                                                CornerRadius="10"
+                                                Command="{Binding BindingContext.RemoveItemCommand, Source={x:Reference SalesCreatePageView}}"
+                                                CommandParameter="{Binding .}" /> 
+                                        <Grid Grid.Row="1"
+                                              Grid.ColumnSpan="8"
+                                              ColumnDefinitions="*,*,*,*"
+                                              ColumnSpacing="8">
+                                            <Entry Grid.Column="0" Placeholder="Discount %" Keyboard="Numeric" Text="{Binding DiscountPercent}" />
+                                            <Entry Grid.Column="1" Placeholder="GST %" Keyboard="Numeric" Text="{Binding GstPercent}" />
+                                            <Entry Grid.Column="2" Placeholder="Extra %" Keyboard="Numeric" Text="{Binding ExtraTaxPercent}" />
+                                            <Entry Grid.Column="3" Placeholder="Further tax %" Keyboard="Numeric" Text="{Binding FurtherTaxPercent}" />
+                                        </Grid>
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                </VerticalStackLayout>
+            </Border> 
+            <Border StrokeThickness="1" Stroke="#E5E7EB" Padding="16" BackgroundColor="#F9FAFB">
+                <Border.StrokeShape>
+                    <RoundRectangle CornerRadius="16" />
+                </Border.StrokeShape>
+                <Grid ColumnDefinitions="*,Auto" RowSpacing="16">
+                    <Label Text="Items" TextColor="#6B7280" />
+                    <Label Grid.Column="1" Text="{Binding TotalItems}" FontAttributes="Bold" />
+
+                    <Label Grid.Row="1" Text="Subtotal" TextColor="#6B7280" />
+                    <Label Grid.Row="1" Grid.Column="1" Text="{Binding SubTotal, StringFormat='Rs {0:N2}'}" FontAttributes="Bold" />
+
+                    <Label Grid.Row="2" Text="Discount" TextColor="#6B7280" />
+                    <Label Grid.Row="2" Grid.Column="1" Text="{Binding TotalDiscount, StringFormat='- Rs {0:N2}'}" />
+
+                    <Label Grid.Row="3" Text="GST" TextColor="#6B7280" />
+                    <Label Grid.Row="3" Grid.Column="1" Text="{Binding TotalGst, StringFormat='Rs {0:N2}'}" />
+
+                    <Label Grid.Row="4" Text="Extra duty" TextColor="#6B7280" />
+                    <Label Grid.Row="4" Grid.Column="1" Text="{Binding TotalEdTax, StringFormat='Rs {0:N2}'}" />
+
+                    <Label Grid.Row="5" Text="Further duty" TextColor="#6B7280" />
+                    <Label Grid.Row="5" Grid.Column="1" Text="{Binding TotalFedTax, StringFormat='Rs {0:N2}'}" />
+
+                    <BoxView Grid.Row="6" Grid.ColumnSpan="2" HeightRequest="1" BackgroundColor="#E5E7EB" Margin="0,12" />
+
+                    <Label Grid.Row="7" Text="Grand total" FontAttributes="Bold" FontSize="18" Margin="0,12,0,0" />
+                    <Label Grid.Row="7"
+                           Grid.Column="1"
+                           Text="{Binding GrandTotal, StringFormat='Rs {0:N2}'}"
+                           FontAttributes="Bold"
+                           FontSize="18"
+                           Margin="0,12,0,0" />
+                </Grid>
+            </Border>
+
+            <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
+                <Button Text="Cancel"
+                        HeightRequest="48"
+                        BackgroundColor="#E5E7EB"
+                        TextColor="#111827"
+                        CornerRadius="12"
+                        Command="{Binding CancelCommand}" />
+                <Button Grid.Column="1"
+                        Text="Save sale"
+                        HeightRequest="48"
+                        BackgroundColor="#2563EB"
+                        TextColor="White"
+                        CornerRadius="12"
+                        Command="{Binding SaveSaleCommand}" />
+            </Grid>
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

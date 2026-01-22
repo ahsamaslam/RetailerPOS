@@ -15,6 +15,7 @@ namespace Retailer.POS.Web.Services
 
     public interface IApiClient
     {
+        Task<byte[]> ItemCsvExport();
         Task<byte[]> ExportPurchaseDateWiseAsync(string export, DateTime sdate, DateTime edate);
         Task<byte[]> ExportPurchaseItemWiseAsync(int ItemID, string export, DateTime sdate, DateTime edate);
         Task<byte[]> ExportPurchaseVendorWiseAsync(int VendorID,  string export, DateTime sdate, DateTime edate);
@@ -175,5 +176,6 @@ namespace Retailer.POS.Web.Services
         Task<bool> DeleteSubMenuAsync(int menuId, int subMenuId);
         // Upload data
         Task<(bool Success, UploadDataResultDto? Result, string Message)> UploadDataAsync(IFormFile file, CancellationToken cancellationToken = default);
+        Task<(bool Success, UploadDataResultDto? Result, string Message)> UploadStockAsync(IFormFile file, CancellationToken cancellationToken = default);
     }
 }

@@ -346,6 +346,9 @@ namespace Retailer.Api.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("OpeningBalanceId"));
 
+                    b.Property<int>("BranchId")
+                        .HasColumnType("int");
+
                     b.Property<Guid>("CompanyId")
                         .HasColumnType("uniqueidentifier");
 
@@ -366,6 +369,8 @@ namespace Retailer.Api.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("OpeningBalanceId");
+
+                    b.HasIndex("BranchId");
 
                     b.HasIndex("Year", "ProductID")
                         .IsUnique()
@@ -1795,6 +1800,17 @@ namespace Retailer.Api.Migrations
                         .IsRequired();
 
                     b.Navigation("Vendor");
+                });
+
+            modelBuilder.Entity("Retailer.Api.Entities.OpeningBalance", b =>
+                {
+                    b.HasOne("Retailer.POS.Api.Entities.Branch", "Branch")
+                        .WithMany()
+                        .HasForeignKey("BranchId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Branch");
                 });
 
             modelBuilder.Entity("Retailer.Api.Entities.SubMenu", b =>

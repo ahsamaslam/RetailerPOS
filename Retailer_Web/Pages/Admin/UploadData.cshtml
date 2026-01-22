@@ -18,10 +18,11 @@
         <h1 class="h3 mb-1">Upload Data</h1>
         <p class="text-muted mb-0">Import bulk records using the provided template.</p>
     </div>
-    <a class="btn btn-outline-secondary" data-loader="ignore" href="@Model.SampleTemplateUrl" download>
+    <a class="btn btn-outline-secondary" onclick="downloadFile()" data-loader="ignore" download>
         <i class="fa fa-download me-2"></i>
         Download sample file
     </a>
+
 </div>
 
 @if (!string.IsNullOrEmpty(uploadMessage))
@@ -48,6 +49,16 @@
 
 <form method="post" enctype="multipart/form-data" class="card">
     <div class="card-body">
+        <!-- Dropdown: Choose Loader Type -->
+        <div class="mb-3">
+            <label for="loaderType" class="form-label">Select Loader Type</label>
+            <select asp-for="LoaderType" class="form-control" id="loaderType" required>
+                <option value="">-- Select Loader --</option>
+                <option value="Item">Item Loader</option>
+                <option value="Stock">Stock Loader</option>
+            </select>
+            <span class="text-danger" asp-validation-for="LoaderType"></span>
+        </div>
         <div class="mb-3">
             <label asp-for="UploadFile" class="form-label">Select a file</label>
             <input asp-for="UploadFile" type="file" class="form-control" accept=".csv" />
@@ -60,7 +71,68 @@
         </button>
     </div>
 </form>
+<script>
+    async function downloadFile() {
+        const loaderDropdown = document.getElementById("loaderType");
+        const loader = loaderDropdown ? loaderDropdown.value : "";
+        if (!loader) {
+            alert("Please select a Loader Type first.");
+            return;
+        }
 
-@section Scripts {
-    <partial name="_ValidationScriptsPartial" />
-}
+        const encodedLoader = encodeURIComponent(loader);
+        const url = `?handler=DownloadFile&LoaderType=${encodedLoader}`;
+        const loaderController = window.__globalLoader || null;
+
+        try {
+            loaderController?.begin();
+            const response = await fetch(url, {
+                method: "GET",
+                headers: {
+                    "X-Requested-With": "XMLHttpRequest"
+                }
+            });
+
+            if (!response.ok) {
+                const errorText = await response.text();
+                throw new Error(errorText || `Failed to download file (${response.status}).`);
+            }
+
+            const blob = await response.blob();
+            const fileNameFromHeader = extractFileName(response.headers.get("content-disposition"));
+            const fallbackName = loader.toLowerCase() === "stock"
+                ? "stock-upload-template.csv"
+                : "upload-data-template.csv";
+            const fileName = fileNameFromHeader || fallbackName;
+
+            const objectUrl = window.URL.createObjectURL(blob);
+            const anchor = document.createElement("a");
+            anchor.href = objectUrl;
+            anchor.download = fileName;
+            anchor.dataset.loader = "ignore";
+            anchor.style.display = "none";
+            document.body.appendChild(anchor);
+            anchor.click();
+            anchor.remove();
+            window.URL.revokeObjectURL(objectUrl);
+        } catch (error) {
+            console.error("Failed to download file", error);
+            alert("Unable to download the file. Please try again.");
+        } finally {
+            loaderController?.end();
+        }
+    }
+
+    function extractFileName(disposition) {
+        if (!disposition) {
+            return null;
+        }
+
+        const fileNameMatch = disposition.match(/filename\*?=(?:UTF-8''|\")?([^;\"]+)/i);
+        if (!fileNameMatch || fileNameMatch.length < 2) {
+            return null;
+        }
+
+        return decodeURIComponent(fileNameMatch[1].trim());
+    }
+</script>

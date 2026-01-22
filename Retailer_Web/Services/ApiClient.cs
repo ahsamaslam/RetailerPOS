@@ -1024,8 +1024,42 @@ public class ApiClient : IApiClient
 
         return (true, result, "Upload completed successfully.");
     }
+    public async Task<(bool Success, UploadDataResultDto? Result, string Message)> UploadStockAsync(IFormFile file, CancellationToken cancellationToken = default)
+    {
+        if (file == null)
+        {
+            return (false, null, "No file provided.");
+        }
 
+        using var content = new MultipartFormDataContent();
+        var streamContent = new StreamContent(file.OpenReadStream());
+        streamContent.Headers.ContentType = new MediaTypeHeaderValue(file.ContentType ?? "text/csv");
+        content.Add(streamContent, "file", file.FileName);
 
+        using var resp = await _http.PostAsync("api/upload-stock", content, cancellationToken);
+        if (resp.StatusCode == HttpStatusCode.Unauthorized)
+            throw new ApiUnauthorizedException();
+
+        if (!resp.IsSuccessStatusCode)
+        {
+            var message = await ReadErrorMessageAsync(resp);
+            return (false, null, message);
+        }
+
+        var result = await resp.Content.ReadFromJsonAsync<UploadDataResultDto>(_jsonOptions);
+        if (result == null)
+        {
+            return (false, null, "Upload completed but no summary was returned.");
+        }
+
+        return (true, result, "Upload completed successfully.");
+    }
+
+    public async Task<byte[]> ItemCsvExport()
+    {
+        var url = $"api/items/export-csv";
+        return await _http.GetByteArrayAsync(url);
+    }
     #region Purchase Report
     public async Task<byte[]> ExportPurchaseDateWiseAsync(string export, DateTime sdate, DateTime edate)
     {

@@ -1,5 +1,6 @@
 using System;
 using System.Globalization;
+using System.IO;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -19,6 +20,11 @@ namespace Retailer.Web.Pages.Admin
 
         [BindProperty]
         public IFormFile? UploadFile { get; set; }
+         
+
+        [BindProperty(SupportsGet = true)]
+
+        public string? LoaderType { get; set; }
 
         public UploadDataModel(IApiClient apiClient, ILogger<UploadDataModel> logger)
         {
@@ -29,9 +35,42 @@ namespace Retailer.Web.Pages.Admin
         public void OnGet()
         {
         }
+        public async Task<IActionResult> OnGetDownloadFile()
+        {
+            if (string.IsNullOrWhiteSpace(LoaderType))
+                return BadRequest("Loader type is required.");
+
+            var loader = LoaderType.Trim();
+            if (string.Equals(loader, "Item", StringComparison.OrdinalIgnoreCase))
+            {
+                var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "templates", "upload-data-template.csv");
+                if (!System.IO.File.Exists(filePath))
+                {
+                    return NotFound("Template not found.");
+                }
+
+                var bytes = System.IO.File.ReadAllBytes(filePath);
+                return File(bytes, "text/csv", "upload-data-template.csv");
+            }
+
+            if (string.Equals(loader, "Stock", StringComparison.OrdinalIgnoreCase))
+            {
+                var bytes = await _apiClient.ItemCsvExport();
+                return File(bytes, "text/csv", "stock-upload-template.csv");
+            }
+
+            return BadRequest("Invalid loader type.");
+        }
+
 
         public async Task<IActionResult> OnPostAsync(CancellationToken cancellationToken)
         {
+            if (string.IsNullOrWhiteSpace(LoaderType))
+            {
+                ModelState.AddModelError(nameof(LoaderType), "Select a loader type.");
+                return Page();
+            }
+
             if (UploadFile == null || UploadFile.Length == 0)
             {
                 ModelState.AddModelError(nameof(UploadFile), "Select a file to upload.");
@@ -46,29 +85,65 @@ namespace Retailer.Web.Pages.Admin
 
             try
             {
-                var (success, result, message) = await _apiClient.UploadDataAsync(UploadFile, cancellationToken);
 
-                if (!success || result == null)
+                var loader = LoaderType.Trim();
+
+                if (string.Equals(loader, "Item", StringComparison.OrdinalIgnoreCase))
                 {
-                    TempData["UploadResult"] = string.IsNullOrWhiteSpace(message) ? "Upload failed." : message;
-                    TempData["UploadResultType"] = "danger";
-                    TempData.Remove("UploadErrors");
-                    return RedirectToPage();
+                    var (success, result, message) = await _apiClient.UploadDataAsync(UploadFile, cancellationToken);
+                    if (!success || result == null)
+                    {
+                        TempData["UploadResult"] = string.IsNullOrWhiteSpace(message) ? "Upload failed." : message;
+                        TempData["UploadResultType"] = "danger";
+                        TempData.Remove("UploadErrors");
+                        return RedirectToPage();
+                    }
+
+                    var summary = $"Processed {result.TotalRows} row(s). Created {result.ItemsCreated} item(s), updated {result.ItemsUpdated}, skipped {result.RowsSkipped}.";
+                    var hasRowErrors = (result.Errors?.Count ?? 0) > 0;
+                    TempData["UploadResult"] = summary;
+                    TempData["UploadResultType"] = hasRowErrors ? "warning" : "success";
+
+                    if (hasRowErrors)
+                    {
+                        TempData["UploadErrors"] = string.Join("||", result.Errors!);
+                    }
+                    else
+                    {
+                        TempData.Remove("UploadErrors");
+                    }
                 }
-
-                var summary = $"Processed {result.TotalRows} row(s). Created {result.ItemsCreated} item(s), updated {result.ItemsUpdated}, skipped {result.RowsSkipped}.";
-                var hasRowErrors = (result.Errors?.Count ?? 0) > 0;
-                TempData["UploadResult"] = summary;
-                TempData["UploadResultType"] = hasRowErrors ? "warning" : "success";
-
-                if (hasRowErrors)
+                else if (string.Equals(loader, "Stock", StringComparison.OrdinalIgnoreCase))
                 {
-                    TempData["UploadErrors"] = string.Join("||", result.Errors!);
+                   var  (success, result, message) = await _apiClient.UploadStockAsync(UploadFile, cancellationToken);
+                    if (!success || result == null)
+                    {
+                        TempData["UploadResult"] = string.IsNullOrWhiteSpace(message) ? "Upload failed." : message;
+                        TempData["UploadResultType"] = "danger";
+                        TempData.Remove("UploadErrors");
+                        return RedirectToPage();
+                    }
+
+                    var summary = $"Processed {result.TotalRows} row(s). Updated stock entries. Skipped {result.RowsSkipped}.";
+                    var hasRowErrors = (result.Errors?.Count ?? 0) > 0;
+                    TempData["UploadResult"] = summary;
+                    TempData["UploadResultType"] = hasRowErrors ? "warning" : "success";
+
+                    if (hasRowErrors)
+                    {
+                        TempData["UploadErrors"] = string.Join("||", result.Errors!);
+                    }
+                    else
+                    {
+                        TempData.Remove("UploadErrors");
+                    }
                 }
                 else
                 {
-                    TempData.Remove("UploadErrors");
+                    ModelState.AddModelError(nameof(LoaderType), "Invalid loader selected.");
+                    return Page();
                 }
+                    
             }
             catch (ApiUnauthorizedException)
             {

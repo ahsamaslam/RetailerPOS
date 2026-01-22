@@ -16,16 +16,18 @@ public class CreateModel : BasePageModel
     private readonly ILogger<CreateModel> _logger;
     private readonly IToastNotification _toastNotification;
     private readonly IApiClient _api;
-
+    [BindProperty]
+    public int BranchId { get; set; } 
     public CreateModel(IApiClient api, ILogger<CreateModel> logger, IToastNotification toastNotification)
     {
         _api = api;
         _logger = logger;
         _toastNotification = toastNotification;
+        BranchId = 1;
     }
 
     [BindProperty]
-    public CreateOpeningBalanceDto NewOpening { get; set; } = new(DateTime.UtcNow.Year, 0, 0m);
+    public CreateOpeningBalanceDto NewOpening { get; set; } = new(DateTime.UtcNow.Year, 0, 1, 0m);
     public List<ItemDto> Products { get; set; } = new();
     public async Task OnGetAsync()
     {
