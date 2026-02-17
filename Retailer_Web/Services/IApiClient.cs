@@ -42,7 +42,7 @@ namespace Retailer.POS.Web.Services
         Task<IEnumerable<CompanyDto>> GetCompanyAsync();
         Task<CompanyDto?> GetUserCompanyAsync();
         Task<CompanyDto?> GetCompanyByIdAsync(Guid id);
-        Task<(bool Success, string Message)> CreateCompanyAsync(CompanyDto dto);
+        Task<(bool Success, string Message, CompanyDto? Company)> CreateCompanyAsync(CompanyDto dto);
         Task<(bool Success, string Message)> UpdateCompanyAsync(Guid id, CompanyDto dto);
         Task<List<ItemDto>> GetStockItemsAsync(int categoryId = 0, int groupId = 0);
         Task<ItemDto?> GetItemAsync(int id);
@@ -144,7 +144,7 @@ namespace Retailer.POS.Web.Services
 
         Task<IEnumerable<BranchDto>> GetAllBranchesAsync();
         Task<BranchDto?> GetBranchByIdAsync(int id);
-        Task<bool> CreateBranchAsync(BranchDto dto);
+        Task<(bool Success, string Message)> CreateBranchAsync(BranchDto dto, Guid? companyId = null);
         Task<bool> UpdateBranchAsync(BranchDto dto);
         Task<bool> DeleteBranchAsync(int id);
 

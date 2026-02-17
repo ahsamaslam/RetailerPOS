@@ -154,17 +154,36 @@ public class ApiClient : IApiClient
         return await resp.Content.ReadFromJsonAsync<CompanyDto>(_jsonOptions);
     }
 
-    public async Task<(bool Success, string Message)> CreateCompanyAsync(CompanyDto dto)
+    public async Task<(bool Success, string Message, CompanyDto? Company)> CreateCompanyAsync(CompanyDto dto)
     {
-        if (dto == null) return (false, "Company information is required.");
+        if (dto == null) return (false, "Company information is required.", null);
 
         using var resp = await AuthClient.PostAsJsonAsync("api/Companies", dto, _jsonOptions);
         if (resp.StatusCode == HttpStatusCode.Unauthorized) throw new ApiUnauthorizedException();
 
-        if (resp.IsSuccessStatusCode) return (true, "Company created successfully");
+        if (resp.IsSuccessStatusCode)
+        {
+            var created = await resp.Content.ReadFromJsonAsync<CompanyDto>(_jsonOptions);
+            // after creating company in Auth module, create default branch in Retailer API
+            try
+            {
+                if (created != null)
+                {
+                    var branch = new BranchDto { Name = "default" };
+                    // best-effort: create default branch in Retailer API using tenant header
+                    _ = await CreateBranchAsync(branch, created.Id);
+                }
+            }
+            catch
+            {
+                // ignore errors - non-fatal
+            }
+
+            return (true, "Company created successfully", created);
+        }
 
         var message = await ReadErrorMessageAsync(resp);
-        return (false, message);
+        return (false, message, null);
     }
 
     public async Task<(bool Success, string Message)> UpdateCompanyAsync(Guid id, CompanyDto dto)
@@ -541,12 +560,16 @@ public class ApiClient : IApiClient
 
     public async Task<BranchDto?> GetBranchByIdAsync(int id) => await GetAsync<BranchDto>($"api/branch/{id}");
 
-    public async Task<bool> CreateBranchAsync(BranchDto dto)
+    public async Task<(bool Success, string Message)> CreateBranchAsync(BranchDto dto, Guid? companyId = null)
     {
-        if (dto == null) return false;
-        using var resp = await _http.PostAsJsonAsync("api/branch", dto, _jsonOptions);
+        if (dto == null) return (false, "Branch payload required");
+        HttpRequestMessage req = new HttpRequestMessage(HttpMethod.Post, "api/branch") { Content = JsonContent.Create(dto, options: _jsonOptions) };
+        if (companyId.HasValue)
+            req.Headers.Add("X-Company-Id", companyId.Value.ToString());
+
+        using var resp = await _http.SendAsync(req);
         if (resp.StatusCode == HttpStatusCode.Unauthorized) throw new ApiUnauthorizedException();
-        return resp.IsSuccessStatusCode;
+        return (resp.IsSuccessStatusCode, resp.IsSuccessStatusCode ? string.Empty : await ReadErrorMessageAsync(resp));
     }
 
     public async Task<bool> UpdateBranchAsync(BranchDto dto)
@@ -613,14 +636,14 @@ public class ApiClient : IApiClient
         resp.EnsureSuccessStatusCode();
         return await resp.Content.ReadFromJsonAsync<IEnumerable<ItemLedgerDto>>(_jsonOptions) ?? Array.Empty<ItemLedgerDto>();
     }
-	public async Task<IEnumerable<VendorLedgerDto>> GetVendorLedgerAsync(DateTime sdate, DateTime edate, int vendorCode)
-	{
-		using var resp = await _http.GetAsync($"api/vendorledger/Ledger/{sdate:yyyy-MM-dd}/{edate:yyyy-MM-dd}/{vendorCode}");
-		if (resp.StatusCode == HttpStatusCode.Unauthorized) throw new ApiUnauthorizedException();
-		resp.EnsureSuccessStatusCode();
-		return await resp.Content.ReadFromJsonAsync<IEnumerable<VendorLedgerDto>>(_jsonOptions) ?? Array.Empty<VendorLedgerDto>();
-	}
-	public async Task<IEnumerable<VendorPaymentDto>> GetAllVendorPaymentDateWise(DateTime sdate, DateTime edate)
+    public async Task<IEnumerable<VendorLedgerDto>> GetVendorLedgerAsync(DateTime sdate, DateTime edate, int vendorCode)
+    {
+        using var resp = await _http.GetAsync($"api/vendorledger/Ledger/{sdate:yyyy-MM-dd}/{edate:yyyy-MM-dd}/{vendorCode}");
+        if (resp.StatusCode == HttpStatusCode.Unauthorized) throw new ApiUnauthorizedException();
+        resp.EnsureSuccessStatusCode();
+        return await resp.Content.ReadFromJsonAsync<IEnumerable<VendorLedgerDto>>(_jsonOptions) ?? Array.Empty<VendorLedgerDto>();
+    }
+    public async Task<IEnumerable<VendorPaymentDto>> GetAllVendorPaymentDateWise(DateTime sdate, DateTime edate)
     {
         try
         

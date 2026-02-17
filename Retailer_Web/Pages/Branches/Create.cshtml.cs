@@ -25,10 +25,10 @@ namespace Retailer.POS.Web.Pages.Branches
         {
             if (!ModelState.IsValid) return Page();
 
-            var success = await _api.CreateBranchAsync(Branch);
-            if (!success)
+            var result = await _api.CreateBranchAsync(Branch);
+            if (!result.Success)
             {
-                ModelState.AddModelError(string.Empty, "Unable to create branch.");
+                ModelState.AddModelError(string.Empty, string.IsNullOrEmpty(result.Message) ? "Unable to create branch." : result.Message);
                 return Page();
             }
 
