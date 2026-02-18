@@ -51,6 +51,9 @@
                 <td>
                     <a asp-page="Edit" asp-route-id="@it.Id" class="btn btn-sm btn-warning">Edit</a>
                     <a asp-page="Details" asp-route-id="@it.Id" class="btn btn-sm btn-info">Details</a>
+                    <form method="post" asp-page-handler="Delete" asp-route-id="@it.Id" class="d-inline">
+                        <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+                    </form>
                 </td>
             </tr>
         }

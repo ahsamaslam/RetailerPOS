@@ -26,8 +26,6 @@ namespace Retailer.Api.Services
         public async Task<List<SalesReturnMasterDto?>> GetDateWiseAsync(DateTime sdate, DateTime edate, Guid CompanyId)
         {
             var pm = await _uow.SalesReturnMaster.Query().Include(p => p.Details)
-                .Include(x => x.CustomerCode)
-                .Include(x => x.CustomerName)
                 .Where(p => p.CompanyId == CompanyId && p.Date.Date >= sdate.Date && p.Date.Date <= edate.Date && p.Active).ToListAsync();
 
             return _mapper.Map<List<SalesReturnMasterDto>>(pm);
@@ -44,9 +42,7 @@ namespace Retailer.Api.Services
         public async Task<List<ItemSalesReturnReportDtoR?>> GetItemWiseAsync(int itemID, DateTime sdate, DateTime edate, Guid CompanyId)
         {
             var pm = await _uow.SalesReturnDetails.Query()
-                .Include(p => new { p.ItemCode, p.ItemName })
                 .Include(p => p.SalesReturnMaster)
-                .ThenInclude(p => new { p.CustomerCode, p.CustomerName })
                 .Where(p => p.SalesReturnMaster!.CompanyId == CompanyId && p.ItemCode == itemID
                         && p.SalesReturnMaster.Date.Date >= sdate.Date &&
                         p.SalesReturnMaster.Date.Date <= edate.Date && p.SalesReturnMaster.Active)

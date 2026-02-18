@@ -48,6 +48,7 @@ namespace Retailer.POS.Web.Services
         Task<ItemDto?> GetItemAsync(int id);
         Task<(bool Success, string Message)> CreateItemAsync(CreateItemDto dto);
         Task<bool> UpdateItemAsync(ItemDto dto);
+        Task<bool> DeleteItemAsync(int id);
         Task<PurchaseMasterDto> CreatePurchaseAsync(CreatePurchaseDto dto);
         Task<PurchaseReturnMasterDto> CreatePurchaseReturnAsync(CreatePurchaseReturnDto dto);
         Task<string?> LoginAsync(string username, string password);

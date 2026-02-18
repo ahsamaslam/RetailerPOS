@@ -63,6 +63,10 @@ public class ItemService : IItemService
              Barcode = i.Barcode,
              Rate = i.Rate,
              Cost = i.Cost,
+             CategoryId = i.CategoryId,
+             GroupId = i.GroupId,
+             SubGroupId = i.SubGroupId,
+             ItemTypeId = i.ItemTypeId,
              CategoryName = i.Category != null ? i.Category.Name : null,
              GroupName = i.Group != null ? i.Group.Name : null,
              SubGroupName = i.SubGroup != null ? i.SubGroup.Name : null,
@@ -88,6 +92,10 @@ public class ItemService : IItemService
             Barcode = i.Barcode,
             Rate = i.Rate,
             Cost = i.Cost,
+            CategoryId = i.CategoryId,
+            GroupId = i.GroupId,
+            SubGroupId = i.SubGroupId,
+            ItemTypeId = i.ItemTypeId,
             CategoryName = i.Category != null ? i.Category.Name : null,
             GroupName = i.Group != null ? i.Group.Name : null,
             SubGroupName = i.SubGroup != null ? i.SubGroup.Name : null,
@@ -141,7 +149,9 @@ public class ItemService : IItemService
                 Barcode = i.Barcode,
                 Rate = i.Rate,
                 Cost = i.Cost,
-                QtyInHand = i.QtyInHand
+                QtyInHand = i.QtyInHand,
+                CategoryName = i.Category != null ? i.Category.Name : null,
+                ItemTypeName = i.ItemType != null ? i.ItemType.Name : null
             })
             .ToListAsync();
     }

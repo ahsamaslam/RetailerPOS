@@ -5,17 +5,73 @@
 	Layout = "_EmptyLayout";
 }
 
+<style>
+	.table-scroll-x {
+		white-space: nowrap;
+		width: 100%;
+		border: 1px solid #ddd;
+	}
 
-<main class="app-main">
+	.right-table th,
+	.right-table td {
+		padding: 4px 6px !important;
+		vertical-align: middle;
+	}
+
+	.right-table tr {
+		margin: 0 !important;
+		height: auto;
+	}
+
+	.item-search .dropdown-menu {
+		max-height: 260px;
+		overflow-y: auto;
+		min-width: 100%;
+		width: max-content;
+		max-width: calc(100vw - 2rem);
+	}
+
+	.item-search .dropdown-menu .item-result {
+		white-space: normal;
+	}
+
+	.item-search .empty-state {
+		cursor: default;
+	}
+
+	.fullscreen-active {
+		position: fixed;
+		inset: 0;
+		z-index: 2000;
+		background: #fff;
+		overflow: auto;
+		padding: 1rem;
+		width: 100vw;
+		height: 100vh;
+		margin-left: 0 !important;
+	}
+
+	.collapse-hidden {
+		display: none;
+	}
+</style>
+
+<main class="app-main" id="fullscreenContainer">
 	<!--begin::App Content Header-->
 	<div class="app-content-header">
 		<!--begin::Container-->
 		<div class="container-fluid">
-		 
+			<div class="row align-items-center">
+				<div class="col-sm-6"><h3 class="mb-0">Create Purchase Return</h3></div>
+				<div class="col-sm-6 text-end">
+					<button type="button" id="toggleCollapse" class="btn btn-outline-secondary btn-sm me-2">Collapse</button>
+					<button type="button" id="toggleFullscreen" class="btn btn-outline-primary btn-sm">Full Screen</button>
+				</div>
+			</div>
 		</div>
 		<!--end::Container-->
 	</div>
-	<div class="app-content">
+	<div class="app-content" id="pageContent">
 
 		<form method="post" id="PurchaseForm">
 
@@ -42,164 +98,147 @@
 						</div>
 					</div>
 					<table class="table table-sm right-table">
-
 						<tbody>
-
-
-							@* 	<tr class="d-flex align-items-center justify-content-between">
-						<th class="border-0 ">
-							<div class="d-flex align-items-center font-size-h5 mb-0 font-size-bold text-dark">
-								DISCOUNT(65%)
-
-
-							</div>
-						</th>
-						<td class="border-0 justify-content-end d-flex text-dark font-size-base">10%</td>
-
-					</tr>
-					<tr class="d-flex align-items-center justify-content-between">
-						<th class="border-0 font-size-h5 mb-0 font-size-bold text-dark">
-							Tax
-						</th>
-						<td class="border-0 justify-content-end d-flex text-dark font-size-base">$9</td>
-
-					</tr>
-					  *@
-
-
-
 						</tbody>
 					</table>
 				</div>
 				<div class="col-md-4 mb-2">
 					<table class="table table-sm right-table">
-
 						<tbody>
-
-
 							<tr class="d-flex align-items-center justify-content-between">
 								<th class="border-0 ">
 									<div class="d-flex align-items-center font-size-h5 mb-0 font-size-bold text-dark">
 										Closing Balance
-
-
 									</div>
 								</th>
 								<td class="border-0 justify-content-end d-flex text-dark font-size-base">10%</td>
-
 							</tr>
 						</tbody>
 					</table>
 				</div>
 				<div class="col-md-4 mb-2">
-					<table class="table table-sm right-table">
-
+					<table class="table table-sm right-table summary-table">
 						<tbody>
-							<tr class="d-flex align-items-center justify-content-between sub-total">
-								<th class="border-0 font-size-h5 mb-0 font-size-bold text-dark">
-									<h4>Sub total</h4>
-								</th>
-								<td class="border-0 justify-content-end d-flex text-dark font-size-base"><h4>0</h4></td>
-
+							<tr class="summary-row sub-total">
+								<th>Sub total</th>
+								<td>0</td>
 							</tr>
-							<tr class="d-flex align-items-center justify-content-between total-tax">
-								<th class="border-0 font-size-h5 mb-0 font-size-bold text-dark">
-									<h4>Total Tax</h4>
-								</th>
-								<td class="border-0 justify-content-end d-flex text-dark font-size-base"><h4>0</h4></td>
-
+							<tr class="summary-row total-tax">
+								<th>Total Tax</th>
+								<td>0</td>
 							</tr>
-							<tr class="d-flex align-items-center justify-content-between total-amount">
-								<th class="border-0 font-size-h5 mb-0 font-size-bold text-primary">
-
-									<h2>TOTAL</h2>
-								</th>
-								<td class="border-0 justify-content-end d-flex text-primary font-size-base"><h2>0</h2></td>
-
+							<tr class="summary-divider">
+								<td colspan="2"></td>
 							</tr>
-
-
+							<tr class="summary-row total-amount">
+								<th class="total-label">TOTAL</th>
+								<td class="total-value">0</td>
+							</tr>
 						</tbody>
 						<tfoot>
-							<tr class="d-flex align-items-center justify-content-between total-amount">
-								<button type="submit" class="btn btn-primary" accesskey="s">Save </button>
-								<a asp-page="Index" class="btn btn-secondary">Cancel</a>
+							<tr class="summary-actions">
+								<td colspan="2">
+									<button type="submit" class="btn btn-primary btn-sm" accesskey="s">Save Purchase Return</button>
+									<a asp-page="Index" class="btn btn-secondary btn-sm">Cancel</a>
+								</td>
 							</tr>
 						</tfoot>
 					</table>
 				</div>
 
 				<div class="col-md-12 mb-2">
-					<table class="table table-sm" id="detailsTable">
-						<thead class="table-light">
-							<tr>
-								<th width="5%">Sr</th>
-								<th width="30%">Item</th>
-								<th width="10%">Rate</th>
-								<th width="7%">Qty</th>
-								<th width="10%">Sub Total</th>
-								<th width="7%">Discount</th>
-								<th width="7%">Tax %</th>
-								<th width="10%">Tax </th>
-								<th width="20%">Total</th>
-								<th></th>
-							</tr>
-						</thead>
-						<tbody>
-							@for (int i = 0; i < Model.Purchase.Details.Count; i++)
-							{
-								<tr data-index="@i">
+					<div class="table-scroll-x">
+						<table class="table table-sm" id="detailsTable">
+							<thead class="table-light">
+								<tr>
+									<th width="5%">Sr</th>
+									<th width="30%">Item</th>
+									<th width="10%">Rate</th>
+									<th width="7%">Qty</th>
+									<th width="10%">Sub Total</th>
+									<th width="7%">Discount</th>
+									<th width="7%">Tax %</th>
+									<th width="10%">Tax </th>
+									<th width="20%">Total</th>
+									<th></th>
+								</tr>
+							</thead>
+							<tbody>
+								@for (int i = 0; i < Model.Purchase.Details.Count; i++)
+								{
+									<tr data-index="@i">
+										<td>
+											<label class="sr-no-label">1</label>
+										</td>
+										<td>
+											<div class="item-search" data-index="@i">
+												<input asp-for="Purchase.Details[i].ItemId" type="hidden" class="item-code-input" />
+												<input asp-for="Purchase.Details[i].ItemName" type="hidden" class="item-name-input" />
+												<div class="dropdown w-100">
+													<input type="text"
+													   class="form-control item-search-input"
+													   placeholder="Search item..."
+													   autocomplete="off"
+													   value="@Model.Purchase.Details[i].ItemName"
+													   aria-expanded="false" />
+													<div class="dropdown-menu p-0">
+														<div class="list-group list-group-flush search-results"></div>
+														<div class="dropdown-item text-muted small py-2 empty-state">Start typing to search</div>
+													</div>
+												</div>
+											</div>
+										</td>
+										<td><input asp-for="Purchase.Details[i].Rate" min="0" type="number" step="0.01" class="form-control text-end" /></td>
+										<td><input asp-for="Purchase.Details[i].Qty" min="0" type="number" step="0.01" class="form-control text-end" /></td>
+										<td><input asp-for="Purchase.Details[i].subTotal" type="number" step="0.01" class="form-control text-end fw-bold" /></td>
+										<td><input asp-for="Purchase.Details[i].Discount" min="0" max="100" type="number" step="0.01" class="form-control text-end" /></td>
+										<td><input asp-for="Purchase.Details[i].TaxPercentage" min="0" max="100" type="number" step="0.01" class="form-control text-end" /></td>
+										<td><input asp-for="Purchase.Details[i].TaxAmount" readonly type="number" step="0.01" class="form-control text-end" /></td>
+										<td><input asp-for="Purchase.Details[i].Amount" readonly type="number" step="0.01" class="form-control text-end fw-bold" /></td>
+										<td><button type="button" class="btn btn-danger btn-sm remove-row">Remove</button></td>
+									</tr>
+								}
+								
+								<tr id="templateRow" style="display:none">
 									<td>
-										<label class="sr-no-label">1</label>
+										<label class="sr-no-label">__index__</label>
 									</td>
 									<td>
-										<select asp-for="Purchase.Details[i].ItemId" asp-items="Model.ItemsList" class="form-control">
-											<option value="Purchase.Details[i].ItemId" data-rate="Purchase.Details[i].Rate">-- Select Item --</option>
-										</select>
+										<div class="item-search" data-index="__index__">
+											<input type="hidden" name="Purchase.Details[__index__].ItemId" class="item-code-input" value="0" />
+											<input type="hidden" name="Purchase.Details[__index__].ItemName" class="item-name-input" value="" />
+											<div class="dropdown w-100">
+												<input type="text" class="form-control item-search-input" placeholder="Search item..." autocomplete="off" aria-expanded="false" />
+												<div class="dropdown-menu p-0">
+													<div class="list-group list-group-flush search-results"></div>
+													<div class="dropdown-item text-muted small py-2 empty-state">Start typing to search</div>
+												</div>
+											</div>
+										</div>
 									</td>
-									<td><input asp-for="Purchase.Details[i].Rate" min="0" type="number" step="0.01" class="form-control text-end" /></td>
-									<td><input asp-for="Purchase.Details[i].Qty" min="0" type="number" step="0.01" class="form-control text-end" /></td>
-									<td><input asp-for="Purchase.Details[i].subTotal" type="number" step="0.01" class="form-control text-end fw-bold" /></td>
-									<td><input asp-for="Purchase.Details[i].Discount" min="0" max="100" type="number" step="0.01" class="form-control text-end" /></td>
-									<td><input asp-for="Purchase.Details[i].TaxPercentage" min="0" max="100" type="number" step="0.01" class="form-control text-end" /></td>
-									<td><input asp-for="Purchase.Details[i].TaxAmount" readonly type="number" step="0.01" class="form-control text-end" /></td>
-									<td><input asp-for="Purchase.Details[i].Amount" readonly type="number" step="0.01" class="form-control text-end fw-bold" /></td>
+									<td><input name="Purchase.Details[__index__].Rate" min="0" value="0" type="number" step="0.01" class="form-control text-end" /></td>
+									<td><input name="Purchase.Details[__index__].Qty" min="0" type="number" value="0" step="0.01" class="form-control text-end" /></td>
+									<td><input name="Purchase.Details[__index__].subTotal" type="number" value="0" step="0.01" class="form-control text-end fw-bold" /></td>
+									<td><input name="Purchase.Details[__index__].Discount" min="0" max="100" type="number" value="0" step="0.01" class="form-control text-end" /></td>
+									<td><input name="Purchase.Details[__index__].TaxPercentage" min="0" max="0" type="number" value="0" step="0.01" class="form-control text-end" /></td>
+									<td><input name="Purchase.Details[__index__].TaxAmount" readonly type="number" value="0" step="0.01" class="form-control text-end" /></td>
+									<td><input name="Purchase.Details[__index__].Amount" type="number" value="0" step="0.01" class="form-control text-end fw-bold" /></td>
 									<td><button type="button" class="btn btn-danger btn-sm remove-row">Remove</button></td>
 								</tr>
-							}
-							
-							<tr id="templateRow" style="display:none">
-								<td>
-									<label class="sr-no-label">__index__</label>
-								</td>
-								<td>
 
-									<select name="Purchase.Details[__index__].ItemId" asp-items="Model.ItemsList" class="form-control">
-										<option value="">-- Select Item --</option>
-									</select>
-								</td>
-								<td><input name="Purchase.Details[__index__].Rate" min="0" value="0" type="number" step="0.01" class="form-control text-end" /></td>
-								<td><input name="Purchase.Details[__index__].Qty" min="0" type="number" value="0" step="0.01" class="form-control text-end" /></td>
-								<td><input name="Purchase.Details[__index__].subTotal" type="number" value="0" step="0.01" class="form-control text-end fw-bold" /></td>
-								<td><input name="Purchase.Details[__index__].Discount" min="0" max="100" type="number" value="0" step="0.01" class="form-control text-end" /></td>
-								<td><input name="Purchase.Details[__index__].TaxPercentage" min="0" max="0" type="number" value="0" step="0.01" class="form-control text-end" /></td>
-								<td><input name="Purchase.Details[__index__].TaxAmount" readonly type="number" value="0" step="0.01" class="form-control text-end" /></td>
-								<td><input name="Purchase.Details[__index__].Amount" type="number" value="0" step="0.01" class="form-control text-end fw-bold" /></td>
-								<td><button type="button" class="btn btn-danger btn-sm remove-row">Remove</button></td>
-							</tr>
+							</tbody>
+							<tfoot>
+								<tr class="d-flex align-items-center justify-content-between total-qty">
 
-						</tbody>
-						<tfoot>
-							<tr class="d-flex align-items-center justify-content-between total-qty">
+									<th class="border-0 font-size-h5 mb-0 font-size-bold text-dark">
+										Total Items
+									</th>
+									<td class="border-0 justify-content-end d-flex text-dark font-size-base">0</td>
 
-								<th class="border-0 font-size-h5 mb-0 font-size-bold text-dark">
-									Total Items
-								</th>
-								<td class="border-0 justify-content-end d-flex text-dark font-size-base">0</td>
-
-							</tr>
-						</tfoot>
-					</table>
+								</tr>
+							</tfoot>
+						</table>
+					</div>
 					<button type="button" id="addRow" class="btn btn-sm btn-secondary mb-2" accesskey="a">Add Item</button>
 				</div>
 
@@ -210,136 +249,259 @@
 </main>
 @section Scripts {
 	<script>
-
 		(function () {
+			const fullscreenContainer = document.getElementById('fullscreenContainer');
+			const pageContent = document.getElementById('pageContent');
+			document.getElementById('toggleFullscreen')?.addEventListener('click', () => {
+				fullscreenContainer?.classList.toggle('fullscreen-active');
+			});
+			document.getElementById('toggleCollapse')?.addEventListener('click', () => {
+				pageContent?.classList.toggle('collapse-hidden');
+			});
+			document.addEventListener('keydown', (e) => {
+				if (e.key === 'Escape') {
+					fullscreenContainer?.classList.remove('fullscreen-active');
+
+				}
+			});
+
+			const searchEndpoint = '@Url.Page("/PurchaseReturn/Create", "ItemLookup")';
+			const MAX_RESULTS = 20;
+			const searchDebounce = new WeakMap();
+			const searchControllers = new WeakMap();
+
 			const detailsTbody = document.querySelector('#detailsTable tbody');
 			const templateRow = document.getElementById('templateRow');
 			const templateInnerHtml = templateRow.innerHTML;
-function reindexRows() {
-    const rows = detailsTbody.querySelectorAll('tr[data-index]');
-    rows.forEach((row, idx) => {
-        row.setAttribute('data-index', idx);
 
-        // Update Sr No
-        const srLabel = row.querySelector('.sr-no-label');
-        if (srLabel) srLabel.textContent = idx + 1;
+			function ensureParts(input) {
+				const dropdown = input.closest('.dropdown');
+				return {
+					menu: dropdown.querySelector('.dropdown-menu'),
+					list: dropdown.querySelector('.search-results'),
+					state: dropdown.querySelector('.empty-state')
+				};
+			}
 
-        row.querySelectorAll('input, select, textarea').forEach(inp => {
-            const nameAttr = inp.getAttribute('name');
-            if (nameAttr) {
-                inp.setAttribute(
-                    'name',
-                    nameAttr.replace(/Purchase\.Details\[\d+\]/, `Purchase.Details[${idx}]`)
-                );
-            }
+			function formatItemDisplayName(name, type, category) {
+				const parts = [name, type, category].filter(p => p && p.trim());
+				return parts.join(' - ');
+			}
 
-            if (inp.id) {
-                inp.id = inp.id.replace(/_Details_\d+_/, `_Details_${idx}_`);
-            }
-        });
-    });
-}
-document.getElementById('addRow').addEventListener('click', function () {
+			function handleSearchInput(input) {
+				const term = input.value.trim();
+				const parts = ensureParts(input);
+				if (!parts.list || !parts.state) return;
 
-    const index = detailsTbody.querySelectorAll('tr[data-index]').length;
+				parts.list.innerHTML = '';
+				parts.menu.classList.add('show');
+				input.setAttribute('aria-expanded', 'true');
 
-    const tr = document.createElement('tr');
-    tr.setAttribute('data-index', index);
-    tr.innerHTML = templateInnerHtml.replace(/__index__/g, index);
+				if (term.length < 2) {
+					parts.state.textContent = 'Type at least 2 characters';
+					parts.state.classList.remove('d-none');
+					searchControllers.get(input)?.abort();
+					return;
+				}
 
-    detailsTbody.appendChild(tr);
+				parts.state.textContent = 'Searching...';
+				parts.state.classList.remove('d-none');
 
-    reindexRows();
-    updateTotal();
+				clearTimeout(searchDebounce.get(input));
+				searchDebounce.set(input, setTimeout(() => performLookup(input, term), 250));
+			}
 
-    const itemSelect = tr.querySelector('select');
-    itemSelect?.focus();
-});
-		   document.querySelector('#detailsTable').addEventListener('change', function (e) {
-			   if (e.target && e.target.classList.contains('item-select')) {
-				   var selectedOption = e.target.selectedOptions[0];
-				   var rate = selectedOption.getAttribute('data-rate') || 0;
-				   console.log(rate);
-				   // Find the row and corresponding Rate input
-				   var row = e.target.closest('tr');
-				   var rateInput = row.querySelector('input[name*=".Rate"]');
-				   if (rateInput) {
-					   rateInput.value = parseFloat(rate).toFixed(2);
-				   }
+			async function performLookup(input, term) {
+				searchControllers.get(input)?.abort();
+				const controller = new AbortController();
+				searchControllers.set(input, controller);
 
-				   // Optionally, trigger recalculation for subTotal/Amount
-				   // calculateRowAmount(row);
-			   }
-		   });
+				try {
+					const url = new URL(searchEndpoint, window.location.origin);
+					url.searchParams.set('take', MAX_RESULTS);
+					url.searchParams.set('term', term);
+					const response = await fetch(url, { signal: controller.signal });
+					if (!response.ok) throw new Error();
+					const items = await response.json();
+					renderResults(input, items);
+				} catch (err) {
+					if (err.name !== 'AbortError') renderError(input);
+				}
+			}
+
+			function renderResults(input, items) {
+				const { list, state } = ensureParts(input);
+				list.innerHTML = '';
+				if (!items.length) {
+					state.textContent = 'No items found';
+					state.classList.remove('d-none');
+					return;
+				}
+				state.classList.add('d-none');
+
+				items.forEach(item => {
+					const button = document.createElement('button');
+					button.type = 'button';
+					button.className = 'list-group-item list-group-item-action item-result';
+					button.dataset.id = item.id;
+					button.dataset.name = item.name;
+					button.dataset.rate = item.rate;
+					button.dataset.type = item.itemTypeName ?? '';
+					button.dataset.category = item.categoryName ?? '';
+					const displayName = formatItemDisplayName(item.name, item.itemTypeName, item.categoryName);
+					button.innerHTML = `<div class="fw-semibold">${displayName}</div>
+						<div class="small text-muted">Rate: ${Number(item.rate).toLocaleString()}</div>`;
+					list.appendChild(button);
+				});
+			}
+
+			function renderError(input) {
+				const { state } = ensureParts(input);
+				state.textContent = 'Unable to load items';
+				state.classList.remove('d-none');
+			}
+
+			function selectItem(button) {
+				const row = button.closest('tr');
+				row.querySelector('.item-code-input').value = button.dataset.id;
+				row.querySelector('.item-name-input').value = button.dataset.name;
+				const searchInput = row.querySelector('.item-search-input');
+				const displayName = formatItemDisplayName(button.dataset.name, button.dataset.type, button.dataset.category);
+				searchInput.value = displayName;
+				row.querySelector('input[name$=".Rate"]').value = Number(button.dataset.rate).toFixed(2);
+				ensureParts(searchInput).menu.classList.remove('show');
+				calculateRowAmount(row);
+				updateTotal();
+			}
+
+			document.querySelector('#detailsTable').addEventListener('input', e => {
+				if (e.target.classList.contains('item-search-input')) {
+					handleSearchInput(e.target);
+				}
+			});
+
+			document.querySelector('#detailsTable').addEventListener('click', e => {
+				if (e.target.closest('.item-result')) {
+					selectItem(e.target.closest('.item-result'));
+				}
+			});
+
+			document.addEventListener('click', e => {
+				if (!e.target.closest('.item-search')) {
+					document.querySelectorAll('.item-search-input').forEach(inp => {
+						ensureParts(inp).menu.classList.remove('show');
+						inp.setAttribute('aria-expanded', 'false');
+					});
+				}
+			});
+
+			function reindexRows() {
+				const rows = detailsTbody.querySelectorAll('tr[data-index]');
+				rows.forEach((row, idx) => {
+					row.setAttribute('data-index', idx);
+
+					const srLabel = row.querySelector('.sr-no-label');
+					if (srLabel) srLabel.textContent = idx + 1;
+
+					row.querySelectorAll('input, select, textarea').forEach(inp => {
+						const nameAttr = inp.getAttribute('name');
+						if (nameAttr) {
+							inp.setAttribute(
+								'name',
+								nameAttr.replace(/Purchase\.Details\[(?:\d+|__index__)\]/g, `Purchase.Details[${idx}]`)
+							);
+						}
+
+						if (inp.id) {
+							inp.id = inp.id.replace(/_Details_\d+_/, `_Details_${idx}_`);
+						}
+					});
+				});
+			}
+
+			document.getElementById('addRow').addEventListener('click', function () {
+				const index = detailsTbody.querySelectorAll('tr[data-index]').length;
+
+				const tr = document.createElement('tr');
+				tr.setAttribute('data-index', index);
+				tr.innerHTML = templateInnerHtml.replace(/__index__/g, index);
+
+				detailsTbody.appendChild(tr);
+
+				reindexRows();
+				updateTotal();
+
+				const itemInput = tr.querySelector('.item-search-input');
+				itemInput?.focus();
+			});
+
 			document.addEventListener('click', function (e) {
 				if (e.target && e.target.classList.contains('remove-row')) {
 					const row = e.target.closest('tr');
-				   const elements = row.querySelectorAll('[data-index]');
-				   console.log(elements);
 					if (row) row.remove();
 					reindexRows();
 					updateTotal();
 				}
 			});
-		   detailsTbody.addEventListener('input', function (e) {
-			   const row = e.target.closest('tr');
-			   if (row) {
-				   calculateRowAmount(row);
-				   updateTotal();
-			   }
-		   });
-		   function updateTotal() {
-			   const rows = detailsTbody.querySelectorAll('tr[data-index]');
-			   let total = 0;
-			   let subtotal = 0;
-			   let totalTax = 0;
-			   let totalQty = 0;
-			   rows.forEach(row => {
-				   //console.log(row);
-				   const rowAmounts = calculateRowAmount(row);
-				   total += rowAmounts.total;
-				   subtotal += rowAmounts.amount;
-				   totalTax += rowAmounts.taxAmount;
-				   totalQty += rowAmounts.qty;
-			   });
 
-			   const totalQtyCell = document.querySelector('.total-qty td');
-			   if (totalQtyCell) totalQtyCell.textContent = `${Number(totalQty).toLocaleString()}`;
-			   const totaltaxCell = document.querySelector('.total-tax td h4');
-			   if (totaltaxCell) totaltaxCell.textContent = `${Number(totalTax).toLocaleString()}`;
-			   const subtotalCell = document.querySelector('.sub-total td h4');
-			   if (subtotalCell) subtotalCell.textContent = `${Number(subtotal).toLocaleString()}`;
-			   // Update total in the summary table
-			   const totalCell = document.querySelector('.total-amount td h2');
-			   if (totalCell) totalCell.textContent = `${Number(total).toLocaleString()}`;
-		   }
-		   function calculateRowAmount(row) {
-			   const rate = parseFloat(row.querySelector('input[name$=".Rate"]').value) || 0;
-			   const qty = parseFloat(row.querySelector('input[name$=".Qty"]').value) || 0;
-			   const discount = parseFloat(row.querySelector('input[name$=".Discount"]').value) || 0;
-			   const tax = parseFloat(row.querySelector('input[name$=".TaxPercentage"]').value) || 0;
+			detailsTbody.addEventListener('input', function (e) {
+				const row = e.target.closest('tr');
+				if (row) {
+					calculateRowAmount(row);
+					updateTotal();
+				}
+			});
 
-			   // Amount calculation: (Rate * Qty) - Discount + Tax%
-			   let amount = (rate * qty);
-			   const taxAmount = (amount * tax / 100);
-			   let total = amount - discount;
+			function updateTotal() {
+				const rows = detailsTbody.querySelectorAll('tr[data-index]');
+				let total = 0;
+				let subtotal = 0;
+				let totalTax = 0;
+				let totalQty = 0;
+				rows.forEach(row => {
+					const rowAmounts = calculateRowAmount(row);
+					total += rowAmounts.total;
+					subtotal += rowAmounts.amount;
+					totalTax += rowAmounts.taxAmount;
+					totalQty += rowAmounts.qty;
+				});
 
-			   total += taxAmount;
-			   console.log(amount);
+				const totalQtyCell = document.querySelector('.total-qty td');
+				if (totalQtyCell) totalQtyCell.textContent = `${Number(totalQty).toLocaleString()}`;
+				const totaltaxCell = document.querySelector('.total-tax td');
+				if (totaltaxCell) totaltaxCell.textContent = `${Number(totalTax).toLocaleString()}`;
+				const subtotalCell = document.querySelector('.sub-total td');
+				if (subtotalCell) subtotalCell.textContent = `${Number(subtotal).toLocaleString()}`;
+				const totalCell = document.querySelector('.total-amount td');
+				if (totalCell) totalCell.textContent = `${Number(total).toLocaleString()}`;
+			}
 
-			   const subTotal = row.querySelector('input[name$=".subTotal"]');
-			   subTotal.value = amount.toFixed(2);
-			   const taxAmountInput = row.querySelector('input[name$=".TaxAmount"]');
-			   taxAmountInput.value = taxAmount.toFixed(2);
-			   const amountInput = row.querySelector('input[name$=".Amount"]');
-			   amountInput.value = total.toFixed(2);
-			   return {
-				   amount,
-				   taxAmount,
-				   total,
-				   qty
-			   };
-		   }
+			function calculateRowAmount(row) {
+				const rate = parseFloat(row.querySelector('input[name$=".Rate"]').value) || 0;
+				const qty = parseFloat(row.querySelector('input[name$=".Qty"]').value) || 0;
+				const discount = parseFloat(row.querySelector('input[name$=".Discount"]').value) || 0;
+				const tax = parseFloat(row.querySelector('input[name$=".TaxPercentage"]').value) || 0;
+
+				let amount = (rate * qty);
+				const taxAmount = (amount * tax / 100);
+				let total = amount - discount;
+
+				total += taxAmount;
+
+				const subTotal = row.querySelector('input[name$=".subTotal"]');
+				subTotal.value = amount.toFixed(2);
+				const taxAmountInput = row.querySelector('input[name$=".TaxAmount"]');
+				taxAmountInput.value = taxAmount.toFixed(2);
+				const amountInput = row.querySelector('input[name$=".Amount"]');
+				amountInput.value = total.toFixed(2);
+				return {
+					amount,
+					taxAmount,
+					total,
+					qty
+				};
+			}
+
 			const form = document.getElementById('PurchaseForm');
 			form?.addEventListener('submit', function () {
 				reindexRows();

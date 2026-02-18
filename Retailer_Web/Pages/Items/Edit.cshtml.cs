@@ -25,25 +25,34 @@ public class EditModel : BasePageModel
     public async Task<IActionResult> OnGetAsync(int id)
     {
         Input = await _api.GetItemAsync(id) ?? new ItemDto();
-
-        Categories = (await _api.GetCategoriesAsync())
-            .Select(c => new SelectListItem(c.Name, c.Id.ToString()));
-
-        Groups = (await _api.GetGroupsAsync())
-            .Select(g => new SelectListItem(g.Name, g.Id.ToString()));
-
-        SubGroups = (await _api.GetSubGroupsAsync())
-            .Select(sg => new SelectListItem(sg.Name, sg.Id.ToString()));
-        ItemType = (await _api.GetItemTypeAsync())
-            .Select(sg => new SelectListItem(sg.Name, sg.Id.ToString()));
+        await LoadListsAsync();
         return Page(); 
     }
 
     public async Task<IActionResult> OnPostAsync()
     {
-        if (!ModelState.IsValid) return Page();
+        if (!ModelState.IsValid)
+        {
+            await LoadListsAsync();
+            return Page();
+        }
 
         await _api.UpdateItemAsync(Input);
         return RedirectToPage("Index");
+    }
+
+    private async Task LoadListsAsync()
+    {
+        Categories = (await _api.GetCategoriesAsync())
+            .Select(c => new SelectListItem(c.Name, c.Id.ToString(), c.Id == Input.CategoryId));
+
+        Groups = (await _api.GetGroupsAsync())
+            .Select(g => new SelectListItem(g.Name, g.Id.ToString(), g.Id == Input.GroupId));
+
+        SubGroups = (await _api.GetSubGroupsAsync())
+            .Select(sg => new SelectListItem(sg.Name, sg.Id.ToString(), Input.SubGroupId.HasValue && sg.Id == Input.SubGroupId.Value));
+
+        ItemType = (await _api.GetItemTypeAsync())
+            .Select(it => new SelectListItem(it.Name, it.Id.ToString(), it.Id == Input.ItemTypeId));
     }
 }

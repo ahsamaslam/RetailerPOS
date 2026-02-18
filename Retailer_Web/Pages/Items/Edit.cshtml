@@ -11,37 +11,40 @@
 <form method="post">
     <input type="hidden" asp-for="Input.Id" />
 
-    <div>
+    <div class="mb-3">
         <label>Name</label>
         <input asp-for="Input.Name" class="form-control" />
     </div>
-    <div>
+    <div class="mb-3">
         <label>Barcode</label>
         <input asp-for="Input.Barcode" class="form-control" />
     </div>
-    <div>
+    <div class="mb-3">
         <label>Rate</label>
         <input asp-for="Input.Rate" class="form-control" />
     </div>
-    <div>
+    <div class="mb-3">
         <label>Cost</label>
         <input asp-for="Input.Cost" class="form-control" />
     </div>
-    <div>
+    <div class="mb-3">
         <label>Category</label>
         <select asp-for="Input.CategoryId" asp-items="Model.Categories" class="form-control"></select>
     </div>
-    <div>
+    <div class="mb-3">
         <label>Group</label>
         <select asp-for="Input.GroupId" asp-items="Model.Groups" class="form-control"></select>
     </div>
-    <div>
+    <div class="mb-3">
         <label>SubGroup</label>
         <select asp-for="Input.SubGroupId" asp-items="Model.SubGroups" class="form-control"></select>
     </div>
-    <div>
+    <div class="mb-3">
         <label>ItemType</label>
         <select asp-for="Input.ItemTypeId" asp-items="Model.ItemType" class="form-control"></select>
     </div>
-    <button type="submit" class="btn btn-primary">Save</button>
+    <div class="mt-3">
+        <button type="submit" class="btn btn-primary">Save</button>
+        <a asp-page="Index" class="btn btn-secondary ms-2">Cancel</a>
+    </div>
 </form>

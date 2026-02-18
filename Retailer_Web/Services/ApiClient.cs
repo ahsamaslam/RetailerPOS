@@ -140,6 +140,13 @@ public class ApiClient : IApiClient
         return resp.IsSuccessStatusCode;
     }
 
+    public async Task<bool> DeleteItemAsync(int id)
+    {
+        using var resp = await _http.DeleteAsync($"api/items/{id}");
+        if (resp.StatusCode == HttpStatusCode.Unauthorized) throw new ApiUnauthorizedException();
+        return resp.IsSuccessStatusCode;
+    }
+
     // Companies
      public async Task<IEnumerable<CompanyDto>> GetCompanyAsync() => await GetAuthAsync<IEnumerable<CompanyDto>>("api/Companies");
  

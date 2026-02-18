@@ -29,6 +29,10 @@ public class CreateModel : BasePageModel
         vendorList = (await _api.GetVendorsAsync())
             .Select(c => new SelectListItem(c.Name, c.Id.ToString()));
     }
+
+    public async Task<IActionResult> OnGetItemLookupAsync(string term = "", int take = 20)
+        => new JsonResult(await _api.SearchItemsAsync(term, take));
+
     public async Task<IActionResult> OnPostAsync()
     {   
         Purchase.SubTotal = Purchase.Details.Sum(d => d.Qty * d.Rate);

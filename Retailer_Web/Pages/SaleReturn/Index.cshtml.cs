@@ -101,8 +101,15 @@ namespace Retailer.Web.Pages.SaleReturn
                 if (company.logoPath != null)
                 {
                     //Company.img = System.IO.File.ReadAllBytes(_rdlcHelper.getFullpathCompanyLogo(_env, company.logoPath.ToString()));
-                    LogoFile = await GetIFormFileFromUrlAsync(company.logoPath);
-                    logoPath = company.logoPath;
+                    if (Uri.TryCreate(company.logoPath, UriKind.Absolute, out var logoUri))
+                    {
+                        LogoFile = await GetIFormFileFromUrlAsync(logoUri.ToString());
+                        logoPath = logoUri.ToString();
+                    }
+                    else
+                    {
+                        logoPath = null;
+                    }
                 }
 
             }

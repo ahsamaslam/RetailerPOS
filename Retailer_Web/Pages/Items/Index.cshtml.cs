@@ -19,6 +19,18 @@ public class IndexModel : BasePageModel
     {
         Items = (await _api.GetItemsAsync()).ToList();
     }
+
+    public async Task<IActionResult> OnPostDeleteAsync(int id)
+    {
+        if (id <= 0)
+        {
+            return RedirectToPage();
+        }
+
+        await _api.DeleteItemAsync(id);
+        return RedirectToPage();
+    }
+
     public async Task<IActionResult> OnGetDownloadCsv()
     {
         return File(await _api.ItemCsvExport(), "text/csv", "items.csv");
