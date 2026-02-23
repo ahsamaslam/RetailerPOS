@@ -13,18 +13,18 @@ namespace AuthModule.API.Controllers
     [Route("api/[controller]")]
     // Optional: restrict to Admins. Remove or change as needed.
     //[Authorize(Roles = "SuperAdmin")]
-    public class ScenarioMasterController : ControllerBase
+    public class ScenarioController : ControllerBase
     {
         private readonly ApplicationDbContext _db;
 
-        public ScenarioMasterController(ApplicationDbContext db)
+        public ScenarioController(ApplicationDbContext db)
         {
             _db = db;
         }
 
         // POST: api/ScenarioMaster
         [HttpPost]
-        public async Task<ActionResult<ScenarioMasterDto>> Create([FromBody] ScenarioMasterDto dto)
+        public async Task<ActionResult<ScenarioDto>> Create([FromBody] ScenarioDto dto)
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
             bool nameExists = await _db.ScenarioMaster
@@ -53,7 +53,7 @@ namespace AuthModule.API.Controllers
         // GET: api/ScenarioMaster
         [HttpGet]
         [AllowAnonymous] // allow public listing — change if needed
-        public async Task<ActionResult<IEnumerable<ScenarioMasterDto>>> GetAll()
+        public async Task<ActionResult<IEnumerable<ScenarioDto>>> GetAll()
         {
             var ScenarioMaster = await _db.ScenarioMaster
                 .AsNoTracking()
@@ -67,7 +67,7 @@ namespace AuthModule.API.Controllers
         // GET: api/ScenarioMaster/{id}
         [HttpGet("{id}")]
         [AllowAnonymous]
-        public async Task<ActionResult<ScenarioMasterDto>> GetById(string id)
+        public async Task<ActionResult<ScenarioDto>> GetById(string id)
         {
             var ScenarioMaster = await _db.ScenarioMaster.AsNoTracking().FirstOrDefaultAsync(c => c.ScenarioId == id);
             if (ScenarioMaster == null) return NotFound();
@@ -78,7 +78,7 @@ namespace AuthModule.API.Controllers
 
         // PUT: api/ScenarioMaster/{id}
         [HttpPut("{id}")]
-        public async Task<ActionResult<ScenarioMasterDto>> Update(string id, [FromBody] ScenarioMasterDto dto)
+        public async Task<ActionResult<ScenarioDto>> Update(string id, [FromBody] ScenarioDto dto)
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
 
@@ -107,8 +107,8 @@ namespace AuthModule.API.Controllers
         }
 
         // simple mapper
-        private static ScenarioMasterDto ToResponseDto(ScenarioMaster c) =>
-            new ScenarioMasterDto
+        private static ScenarioDto ToResponseDto(ScenarioMaster c) =>
+            new ScenarioDto
             {
                 ScenarioId = c.ScenarioId,
                 ScenarioName = c.ScenarioName,

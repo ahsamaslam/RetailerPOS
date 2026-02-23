@@ -1,6 +1,6 @@
 ﻿namespace AuthModule.API.Dtos
 {
-    public class ScenarioMasterDto
+    public class ScenarioDto
     {
         public string ScenarioId { get; set; }
         public string ScenarioName { get; set; }

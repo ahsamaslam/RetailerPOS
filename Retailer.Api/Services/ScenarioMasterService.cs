@@ -27,7 +27,7 @@ namespace Retailer.Api.Services
         // Admin: full list
         public async Task<IEnumerable<ScenarioMasterDto>> GetAllScenarioAsync()
         {
-            var response = await _httpClient.GetAsync($"api/ScenarioMaster");
+            var response = await _httpClient.GetAsync($"api/Scenario");
             if (!response.IsSuccessStatusCode)
                 throw new InvalidOperationException("Failed to fetch ScenarioMaster from AuthModule");
 
@@ -42,7 +42,7 @@ namespace Retailer.Api.Services
                 if (string.IsNullOrWhiteSpace(id))
                     throw new ArgumentNullException(nameof(id));
 
-                var response = await _httpClient.GetAsync($"api/ScenarioMaster/" + id);
+                var response = await _httpClient.GetAsync($"api/Scenario/" + id);
                 if (!response.IsSuccessStatusCode)
                     throw new InvalidOperationException("Failed to fetch Company from AuthModule");
 
@@ -63,7 +63,7 @@ namespace Retailer.Api.Services
             if (scenario is null)
                 throw new ArgumentNullException(nameof(scenario));
 
-            var response = await _httpClient.PostAsJsonAsync("api/ScenarioMaster", scenario);
+            var response = await _httpClient.PostAsJsonAsync("api/Scenario", scenario);
 
             if (!response.IsSuccessStatusCode)
                 throw new InvalidOperationException("Failed to create Scenario in AuthModule");
@@ -79,7 +79,7 @@ namespace Retailer.Api.Services
             if (dto is null)
                 throw new ArgumentNullException(nameof(dto));
 
-            var response = await _httpClient.PutAsJsonAsync($"api/ScenarioMaster/{id}", dto);
+            var response = await _httpClient.PutAsJsonAsync($"api/Scenario/{id}", dto);
 
             if (!response.IsSuccessStatusCode)
                 throw new InvalidOperationException("Failed to update Scenario in AuthModule");
@@ -89,7 +89,7 @@ namespace Retailer.Api.Services
         public async Task<bool> DeleteScenarioAsync(string id)
         {
            
-            var response = await _httpClient.DeleteAsync($"api/ScenarioMaster/{id}");
+            var response = await _httpClient.DeleteAsync($"api/Scenario/{id}");
 
             if (!response.IsSuccessStatusCode)
                 throw new InvalidOperationException("Failed to delete Company in AuthModule");
