@@ -20,8 +20,8 @@ namespace Retailer.POS.Api.Controllers
         private Guid CompanyId => HttpContext.GetCompanyId();
 
         [HttpGet("search")]
-        public async Task<IActionResult> Search([FromQuery] string? term, [FromQuery] int take = 20)
-            => Ok(await _svc.SearchAsync(CompanyId, term, take));
+        public async Task<IActionResult> Search([FromQuery] int catd,  [FromQuery] string? term,  [FromQuery] int take = 20)
+            => Ok(await _svc.SearchAsync(CompanyId, catd ,term, take));
 
         [HttpGet]
         public async Task<IActionResult> GetAll() => Ok(await _svc.GetAllAsync(CompanyId));

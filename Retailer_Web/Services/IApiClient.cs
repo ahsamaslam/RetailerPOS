@@ -34,7 +34,7 @@ namespace Retailer.POS.Web.Services
         Task<TResponse?> PutAsync<TRequest, TResponse>(string url, TRequest body);
         Task DeleteAsync(string url);
         Task<List<ItemDto>> GetItemsAsync();
-        Task<List<ItemDto>> SearchItemsAsync(string? term, int take = 20);
+        Task<List<ItemDto>> SearchItemsAsync(int catID, string? term, int take = 20);
         Task<List<CitiesDto>> GetCitiesAsync();
         Task<IEnumerable<CustomerLedgerDto>> GetCustomerLedgerAsync(DateTime sdate, DateTime edate, int customerCode);
         Task<IEnumerable<ItemLedgerDto>> GetItemLedgerAsync(DateTime sdate, DateTime edate, int customerCode);

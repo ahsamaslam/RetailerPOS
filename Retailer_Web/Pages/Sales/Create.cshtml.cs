@@ -26,6 +26,7 @@ namespace Retailer.POS.Web.Pages.Sales
         public List<SelectListItem> SaleType { get; set; } = new List<SelectListItem>() { new SelectListItem {  Value="1", Text="Cash"}
         , new SelectListItem { Value = "1", Text = "Credit" } };
         public List<SelectListItem> CustomersList { get; set; } = new();
+        public List<SelectListItem> CategoryList { get; set; } = new();
 
         public async Task<IActionResult> OnGetAsync(int? id)
         {
@@ -33,6 +34,8 @@ namespace Retailer.POS.Web.Pages.Sales
 
             var customers = await _api.GetCustomersAsync();
             CustomersList = customers.Select(c => new SelectListItem { Value = c.Id.ToString(), Text = c.Name }).ToList();
+            var catlst = await _api.GetCategoriesAsync();
+            CategoryList = catlst.Select(c => new SelectListItem { Value = c.Id.ToString(), Text = c.Name }).ToList();
 
             if (id.HasValue)
             {
@@ -43,8 +46,8 @@ namespace Retailer.POS.Web.Pages.Sales
             return Page();
         }
 
-        public async Task<IActionResult> OnGetItemLookupAsync(string term = "", int take = 20)
-            => new JsonResult(await _api.SearchItemsAsync(term, take));
+        public async Task<IActionResult> OnGetItemLookupAsync( int catId ,string term = "", int take = 20)
+            => new JsonResult(await _api.SearchItemsAsync(catId,term, take));
 
         public async Task<IActionResult> OnPostAsync()
         {

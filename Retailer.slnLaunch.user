@@ -14,7 +14,8 @@
       },
       {
         "Path": "Retailer_Web\\Retailer.Web.csproj",
-        "Action": "Start"
+        "Action": "Start",
+        "DebugTarget": "IIS Express"
       }
     ]
   }

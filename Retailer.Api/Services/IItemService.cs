@@ -11,5 +11,6 @@ public interface IItemService
 
     Task DeleteAsync(int id);
     Task<IEnumerable<ItemDto>> SearchAsync(Guid companyId, string? term, int take = 20);
+    Task<IEnumerable<ItemDto>> SearchAsync(Guid companyId, int catd, string? term, int take = 20);
 
 }

@@ -17,6 +17,7 @@ namespace Retailer.POS.Web.ApiDTOs
         public decimal BalanceAmount { get; set; }
         public int? CustomerCode { get; set; }
         public int CustomerID { get; set; }  
+        public int CategoryId { get; set; }  
         public List<SalesDetailDto> Details { get; set; } = new();
         [NotMapped]
         public string? CustomerName { get; set; }
@@ -27,6 +28,7 @@ namespace Retailer.POS.Web.ApiDTOs
         public int Id { get; set; }
         public int SalesMasterId { get; set; } 
         public int ItemCode { get; set; }    // <- must be string
+        public int CategoryId { get; set; }    // <- must be string
         public int ItemId { get; set; }    // <- must be string
         public string ItemName { get; set; } = string.Empty;   // <- must be string
         public string HsCode { get; set; } = string.Empty;   // <- must be string

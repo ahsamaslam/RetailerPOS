@@ -155,4 +155,40 @@ public class ItemService : IItemService
             })
             .ToListAsync();
     }
+    public async Task<IEnumerable<ItemDto>> SearchAsync(Guid companyId, int catID, string? term, int take = 20)
+    {
+        var sanitized = term?.Trim() ?? string.Empty;
+        var query = _uow.Items.Query()
+            .Where(i => i.CompanyId == companyId);
+
+        if (!string.IsNullOrWhiteSpace(sanitized))
+        {
+            var likeValue = $"%{sanitized}%";
+            query = query.Where(i =>
+                EF.Functions.Like(i.Name, likeValue) ||
+                (i.Barcode != null && EF.Functions.Like(i.Barcode, likeValue)));
+             if(catID!=0)
+            {
+                query = query.Where(i => i.CategoryId == catID);
+            }
+        }
+
+        var size = Math.Clamp(take, 1, 50);
+
+        return await query
+            .OrderBy(i => i.Name)
+            .Take(size)
+            .Select(i => new ItemDto
+            {
+                Id = i.Id,
+                Name = i.Name,
+                Barcode = i.Barcode,
+                Rate = i.Rate,
+                Cost = i.Cost,
+                QtyInHand = i.QtyInHand,
+                CategoryName = i.Category != null ? i.Category.Name : null,
+                ItemTypeName = i.ItemType != null ? i.ItemType.Name : null
+            })
+            .ToListAsync();
+    }
 }

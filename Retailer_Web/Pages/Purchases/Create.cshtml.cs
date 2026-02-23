@@ -30,8 +30,8 @@ public class CreateModel : BasePageModel
             .Select(c => new SelectListItem(c.Name, c.Id.ToString()));
     }
 
-    public async Task<IActionResult> OnGetItemLookupAsync(string term = "", int take = 20)
-        => new JsonResult(await _api.SearchItemsAsync(term, take));
+    public async Task<IActionResult> OnGetItemLookupAsync(int catID, string term = "", int take = 20)
+        => new JsonResult(await _api.SearchItemsAsync(catID , term, take));
 
     public async Task<IActionResult> OnPostAsync()
     {   

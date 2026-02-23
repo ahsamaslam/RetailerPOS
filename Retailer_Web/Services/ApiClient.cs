@@ -1009,14 +1009,17 @@ public class ApiClient : IApiClient
     }
 
     // add alongside the other item helpers
-    public async Task<List<ItemDto>> SearchItemsAsync(string? term, int take = 20)
+    public async Task<List<ItemDto>> SearchItemsAsync(int catID  ,string? term, int take = 20)
     {
         var size = Math.Clamp(take, 1, 50);
+
         var encodedTerm = string.IsNullOrWhiteSpace(term)
             ? string.Empty
             : $"&term={Uri.EscapeDataString(term)}";
 
-        return await GetAsync<List<ItemDto>>($"api/items/search?take={size}{encodedTerm}");
+        return await GetAsync<List<ItemDto>>(
+            $"api/items/search?catd={catID}&take={size}{encodedTerm}"
+        );
     }
 
 
