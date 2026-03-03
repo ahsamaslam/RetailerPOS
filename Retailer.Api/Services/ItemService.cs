@@ -159,18 +159,20 @@ public class ItemService : IItemService
     {
         var sanitized = term?.Trim() ?? string.Empty;
         var query = _uow.Items.Query()
+            .Include(i => i.ItemType)
             .Where(i => i.CompanyId == companyId);
+
+        if (catID != 0)
+        {
+            query = query.Where(i => i.CategoryId == catID);
+        }
 
         if (!string.IsNullOrWhiteSpace(sanitized))
         {
             var likeValue = $"%{sanitized}%";
             query = query.Where(i =>
-                EF.Functions.Like(i.Name, likeValue) ||
+                EF.Functions.Like(i.Name, likeValue) || EF.Functions.Like(i.ItemType.Name, likeValue) ||
                 (i.Barcode != null && EF.Functions.Like(i.Barcode, likeValue)));
-             if(catID!=0)
-            {
-                query = query.Where(i => i.CategoryId == catID);
-            }
         }
 
         var size = Math.Clamp(take, 1, 50);

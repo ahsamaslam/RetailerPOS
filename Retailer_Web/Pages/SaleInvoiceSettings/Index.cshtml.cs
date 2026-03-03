@@ -8,19 +8,33 @@ namespace Retailer.Web.Pages.SaleInvoiceSettings
 {
     public class IndexModel : PageModel
     {
-        private readonly HttpClient _http;
-
-       
         private readonly IApiClient _api;
+
         public IndexModel(IApiClient api) => _api = api;
+
         [BindProperty] 
         public List<SaleInvoiceSettingDto> Settings { get; set; } = new();
 
         public async Task OnGetAsync()
         {
-            //GetSalePrintSettingList
-            Settings  = await _api.GetSalePrintSettingList(); // fetch DTO from API
+            Settings = await _api.GetSalePrintSettingList() ?? new List<SaleInvoiceSettingDto>();
+        }
+
+        public async Task<IActionResult> OnPostDeleteAsync(int id)
+        {
+            var success = await _api.DeleteSalePrintSettingAsync(id);
+
+            if (success)
+            {
+                TempData["SuccessMessage"] = "Invoice setting deleted successfully!";
+            }
+            else
+            {
+                TempData["ErrorMessage"] = "Failed to delete invoice setting.";
+            }
+
+            return RedirectToPage();
         }
     }
-
 }
+

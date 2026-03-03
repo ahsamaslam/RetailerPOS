@@ -599,8 +599,33 @@ public class ApiClient : IApiClient
         await GetAsync<IEnumerable<SalesMasterDto>>("api/sales") ?? Array.Empty<SalesMasterDto>();
 
     public async Task<SalesMasterDto?> GetSaleByIdAsync(int id) => await GetAsync<SalesMasterDto>($"api/sales/{id}");
-    public async Task<SaleInvoiceSettingDto?> GetSalePrintSetting(int id) => await GetAsync<SaleInvoiceSettingDto>($"api/SalesSetting/{id}"); 
+    public async Task<SaleInvoiceSettingDto?> GetSalePrintSetting(int id) => await GetAsync<SaleInvoiceSettingDto>($"api/SalesSetting/{id}");
+    public async Task<SaleInvoiceSettingDto?> GetSalePrintSettingById(int id) => await GetAsync<SaleInvoiceSettingDto>($"api/SalesSetting/byID/{id}");
     public async Task<List<SaleInvoiceSettingDto>?> GetSalePrintSettingList() => await GetAsync<List<SaleInvoiceSettingDto>>($"api/SalesSetting");
+
+    public async Task<bool> CreateSalePrintSettingAsync(SaleInvoiceSettingDto dto)
+    {
+        if (dto == null) return false;
+        using var resp = await _http.PostAsJsonAsync("api/SalesSetting", dto, _jsonOptions);
+        if (resp.StatusCode == HttpStatusCode.Unauthorized) throw new ApiUnauthorizedException();
+        return resp.IsSuccessStatusCode;
+    }
+
+    public async Task<bool> UpdateSalePrintSettingAsync(int id, SaleInvoiceSettingDto dto)
+    {
+        if (dto == null) return false;
+        using var resp = await _http.PutAsJsonAsync($"api/SalesSetting/{id}", dto, _jsonOptions);
+        if (resp.StatusCode == HttpStatusCode.Unauthorized) throw new ApiUnauthorizedException();
+        return resp.IsSuccessStatusCode;
+    }
+
+    public async Task<bool> DeleteSalePrintSettingAsync(int id)
+    {
+        using var resp = await _http.DeleteAsync($"api/SalesSetting/{id}");
+        if (resp.StatusCode == HttpStatusCode.Unauthorized) throw new ApiUnauthorizedException();
+        return resp.IsSuccessStatusCode;
+    }
+
     public async Task<SalesMasterReturnDto?> GetSaleReturnByIdAsync(int id) => await GetAsync<SalesMasterReturnDto>($"api/salesreturn/{id}");
     public async Task<CustomerPaymentDto?> GetcustomerpaymentByIdAsync(int id) => await GetAsync<CustomerPaymentDto>($"api/customerpayment/{id}");
 

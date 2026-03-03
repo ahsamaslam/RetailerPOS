@@ -248,6 +248,15 @@
                                         <label class="sr-no-label">__index__</label>
                                     </td>
                                     <td>
+                                        <select name="Sale.Details[__index__].CategoryId" class="form-control category-select">
+                                            <option value="">-- Select Category --</option>
+                                            @foreach (var category in Model.CategoryList)
+                                            {
+                                                <option value="@category.Value">@category.Text</option>
+                                            }
+                                        </select>
+                                    </td>
+                                    <td>
                                         <div class="item-search" data-index="__index__">
                                             <input type="hidden" name="Sale.Details[__index__].ItemCode" class="item-code-input" value="0" />
                                             <input type="hidden" name="Sale.Details[__index__].ItemName" class="item-name-input" value="" />
@@ -559,35 +568,10 @@
                         toggleFed();
                     }
                     toggleAll();
-                    document.getElementById('addRow')?.addEventListener('click', function () {
 
-                        const index = detailsTbody.children.length;
-                        const tr = document.createElement('tr');
-                        tr.setAttribute('data-index', index);
-                        tr.innerHTML = templateInnerHtml.replace(/__index__/g, index);
-                        detailsTbody.appendChild(tr);
-                        toggleAll();
-                        const taxInput = tr.querySelector('input[name$=".TaxPercentage"]');
-                        if (taxInput) {
-                            taxInput.value = defaultGST;
-                        }
-                        const etaxInput = tr.querySelector('input[name$=".extraTaxP"]');
-                        if (etaxInput) {
-                            etaxInput.value = defaultED;
-                        }
-                        const ftaxInput = tr.querySelector('input[name$=".furtherTaxP"]');
-                        if (ftaxInput) {
-                            ftaxInput.value = defaultFed;
-                        }
-                        const itemSelect = tr.querySelector('select');
-                        if (itemSelect) {
-                            itemSelect.focus();
-                        }
-
-                    });
+                    // Add Row button handler
                     const addRowButton = document.getElementById('addRow');
                     function addNewRow() {
-
                         const index = detailsTbody.children.length;
                         const tr = document.createElement('tr');
                         tr.setAttribute('data-index', index);
@@ -610,7 +594,6 @@
                         if (itemSelect) {
                             itemSelect.focus();
                         }
-
                     }
                     addRowButton.addEventListener('click', addNewRow);
                     document.querySelector('#detailsTable').addEventListener('change', function (e) {
@@ -628,7 +611,8 @@
                             }
 
                             // Optionally, trigger recalculation for subTotal/Amount
-                            // calculateRowAmount(row);
+                            calculateRowAmount(row);
+                            updateTotal();
                         }
                     });
                     function removeRow(row) {
@@ -643,26 +627,39 @@
                             removeRow(row);
                         }
                     });
-                    // detailsTbody.addEventListener('input', function (e) {
-                    // 	const row = e.target.closest('tr');
-                    // 	 if (row) {
-           //      // Check if qty input changed
-           //      if (e.target.classList.contains('qty-input')) {
-           //          const selectedOption = row.querySelector('select.item-select')?.selectedOptions[0];
-           //          if (selectedOption) {
-           //              const maxQty = parseFloat(selectedOption.getAttribute('data-qty')) || 0;
-           //              let enteredQty = parseFloat(e.target.value) || 0;
-           //              if (enteredQty > maxQty) {
-           //                  alert(`Quantity cannot exceed available stock (${maxQty}).`);
-           //                  e.target.value = maxQty;
-           //              }
-           //          }
-           //      }
 
-                     // calculateRowAmount(row);
-                     // updateTotal();
-           //  }
-                    // });
+                    // Event listener for Rate, Qty, Discount, and Tax changes
+                    detailsTbody.addEventListener('input', function (e) {
+                        const row = e.target.closest('tr');
+                        if (row && row.getAttribute('data-index') !== null) {
+                            // Check if it's one of the calculation inputs
+                            const name = e.target.name || '';
+                            if (name.includes('.Rate') || 
+                                name.includes('.Qty') || 
+                                name.includes('.Discount') || 
+                                name.includes('.TaxPercentage') ||
+                                name.includes('.extraTaxP') ||
+                                name.includes('.furtherTaxP')) {
+
+                                // Check if qty input changed - validate against max stock
+                                if (e.target.classList.contains('qty-input')) {
+                                    const selectedOption = row.querySelector('select.item-select')?.selectedOptions[0];
+                                    if (selectedOption) {
+                                        const maxQty = parseFloat(selectedOption.getAttribute('data-qty')) || 0;
+                                        let enteredQty = parseFloat(e.target.value) || 0;
+                                        if (enteredQty > maxQty) {
+                                            alert(`Quantity cannot exceed available stock (${maxQty}).`);
+                                            e.target.value = maxQty;
+                                        }
+                                    }
+                                }
+
+                                // Recalculate row amount and update total
+                                calculateRowAmount(row);
+                                updateTotal();
+                            }
+                        }
+                    });
                     function updateTotal() {
                         const rows = detailsTbody.querySelectorAll('tr[data-index]');
                         let total = 0;

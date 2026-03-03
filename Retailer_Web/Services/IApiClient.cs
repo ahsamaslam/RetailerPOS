@@ -84,7 +84,11 @@ namespace Retailer.POS.Web.Services
         Task<IEnumerable<SalesMasterDto>> GetSalesAsync();
         Task<SalesMasterDto?> GetSaleByIdAsync(int id);
         Task<SaleInvoiceSettingDto?> GetSalePrintSetting(int id);
+        Task<SaleInvoiceSettingDto?> GetSalePrintSettingById(int id);
         Task<List<SaleInvoiceSettingDto>?> GetSalePrintSettingList();
+        Task<bool> CreateSalePrintSettingAsync(SaleInvoiceSettingDto dto);
+        Task<bool> UpdateSalePrintSettingAsync(int id, SaleInvoiceSettingDto dto);
+        Task<bool> DeleteSalePrintSettingAsync(int id);
         Task<SalesMasterReturnDto?> GetSaleReturnByIdAsync(int id);
         Task<CustomerPaymentViewModel?> GetCustomerpaymentByIdAsync(int id);
         Task<VendorPaymentViewModel?> GetVendorpaymentByIdAsync(int id);

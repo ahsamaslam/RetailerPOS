@@ -15,6 +15,7 @@ public class EditModel : PageModel
 
     public List<SelectListItem> SaleType { get; private set; } = BuildSaleTypeOptions();
     public List<SelectListItem> CustomersList { get; private set; } = new();
+    public List<SelectListItem> CategoryList { get; private set; } = new();
 
     public async Task<IActionResult> OnGetAsync(int id)
     {
@@ -23,6 +24,7 @@ public class EditModel : PageModel
 
         Sale.Details ??= new List<SalesDetailDto>();
         await PopulateCustomersAsync();
+        await PopulateCategoriesAsync();
         return Page();
     }
 
@@ -33,6 +35,7 @@ public class EditModel : PageModel
     {
         SaleType = BuildSaleTypeOptions();
         await PopulateCustomersAsync();
+        await PopulateCategoriesAsync();
 
         if (!ModelState.IsValid) return Page();
 
@@ -56,6 +59,14 @@ public class EditModel : PageModel
     {
         var customers = await _api.GetCustomersAsync();
         CustomersList = customers
+            .Select(c => new SelectListItem { Value = c.Id.ToString(), Text = c.Name })
+            .ToList();
+    }
+
+    private async Task PopulateCategoriesAsync()
+    {
+        var categories = await _api.GetCategoriesAsync();
+        CategoryList = categories
             .Select(c => new SelectListItem { Value = c.Id.ToString(), Text = c.Name })
             .ToList();
     }

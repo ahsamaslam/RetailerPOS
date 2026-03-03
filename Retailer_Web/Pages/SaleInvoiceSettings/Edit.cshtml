@@ -1,70 +1,184 @@
 ﻿@page "{id:int}"
 @model Retailer.Web.Pages.SaleInvoiceSettings.EditModel
 @{
+    ViewData["Title"] = "Edit Invoice Setting";
 }
- 
+
 <h2>Edit Invoice Settings</h2>
 
 <form method="post" class="container">
 
 <h4>Page Setup</h4>
-<input asp-for="Setting.PageSize" class="form-control" placeholder="Page Size" />
-<input asp-for="Setting.Orientation" class="form-control mt-1" placeholder="Orientation" />
-<input asp-for="Setting.PageWidthMM" class="form-control mt-1" placeholder="Width (mm)" />
-<input asp-for="Setting.PageHeightMM" class="form-control mt-1" placeholder="Height (mm)" />
+<div class="mb-2">
+    <label asp-for="Setting.PageSize" class="form-label">Page Size</label>
+    <select asp-for="Setting.PageSize" class="form-control">
+        <option value="">Select Page Size</option>
+        <option value="A4">A4</option>
+        <option value="A5">A5</option>
+        <option value="Letter">Letter</option>
+        <option value="Custom">Custom</option>
+    </select>
+</div>
+
+<div class="mb-2">
+    <label asp-for="Setting.Orientation" class="form-label">Orientation</label>
+    <select asp-for="Setting.Orientation" class="form-control">
+        <option value="">Select Orientation</option>
+        <option value="Portrait">Portrait</option>
+        <option value="Landscape">Landscape</option>
+    </select>
+</div>
+
+<div class="mb-2">
+    <label asp-for="Setting.PageWidthMM" class="form-label">Page Width (mm)</label>
+    <input asp-for="Setting.PageWidthMM" class="form-control" type="number" step="0.01" placeholder="Width (mm)" />
+</div>
+
+<div class="mb-2">
+    <label asp-for="Setting.PageHeightMM" class="form-label">Page Height (mm)</label>
+    <input asp-for="Setting.PageHeightMM" class="form-control" type="number" step="0.01" placeholder="Height (mm)" />
+</div>
 
 <hr />
 
 <h4>Headers</h4>
-<input asp-for="Setting.Header1Value" class="form-control" placeholder="Header 1 Text" />
-<input asp-for="Setting.Header1Align" class="form-control mt-1" placeholder="Header1 Align" />
-<input asp-for="Setting.Header1FontSize" class="form-control mt-1" placeholder="Font Size" />
+<div class="mb-2">
+    <label asp-for="Setting.Header1Value" class="form-label">Header 1 Text</label>
+    <input asp-for="Setting.Header1Value" class="form-control" placeholder="Header 1 Text" />
+</div>
+<div class="mb-2">
+    <label asp-for="Setting.Header1Align" class="form-label">Header 1 Align</label>
+    <input asp-for="Setting.Header1Align" class="form-control" placeholder="left/center/right" />
+</div>
+<div class="mb-2">
+    <label asp-for="Setting.Header1FontSize" class="form-label">Header 1 Font Size</label>
+    <input asp-for="Setting.Header1FontSize" class="form-control" type="number" placeholder="Font Size" />
+</div>
 
-<input asp-for="Setting.Header2Text" class="form-control mt-2" placeholder="Header 2 Text" />
-<input asp-for="Setting.Header2Align" class="form-control mt-1" placeholder="Header2 Align" />
-<input asp-for="Setting.Header2FontSize" class="form-control mt-1" placeholder="Font Size" />
+<div class="mb-2">
+    <label asp-for="Setting.Header2Text" class="form-label">Header 2 Text</label>
+    <input asp-for="Setting.Header2Text" class="form-control" placeholder="Header 2 Text" />
+</div>
+<div class="mb-2">
+    <label asp-for="Setting.Header2Align" class="form-label">Header 2 Align</label>
+    <input asp-for="Setting.Header2Align" class="form-control" placeholder="left/center/right" />
+</div>
+<div class="mb-2">
+    <label asp-for="Setting.Header2FontSize" class="form-label">Header 2 Font Size</label>
+    <input asp-for="Setting.Header2FontSize" class="form-control" type="number" placeholder="Font Size" />
+</div>
 
-<input asp-for="Setting.Header3Text" class="form-control mt-2" placeholder="Header 3 Text" />
-<input asp-for="Setting.Header3Align" class="form-control mt-1" placeholder="Header3 Align" />
-<input asp-for="Setting.Header3FontSize" class="form-control mt-1" placeholder="Font Size" />
+<div class="mb-2">
+    <label asp-for="Setting.Header3Text" class="form-label">Header 3 Text</label>
+    <input asp-for="Setting.Header3Text" class="form-control" placeholder="Header 3 Text" />
+</div>
+<div class="mb-2">
+    <label asp-for="Setting.Header3Align" class="form-label">Header 3 Align</label>
+    <input asp-for="Setting.Header3Align" class="form-control" placeholder="left/center/right" />
+</div>
+<div class="mb-2">
+    <label asp-for="Setting.Header3FontSize" class="form-label">Header 3 Font Size</label>
+    <input asp-for="Setting.Header3FontSize" class="form-control" type="number" placeholder="Font Size" />
+</div>
 
 <hr />
 
 <h4>Columns</h4>
-<input asp-for="Setting.SrLabel" class="form-control" placeholder="Show Sr (1/0)" />
-<input asp-for="Setting.SrAlign" class="form-control mt-1" placeholder="Sr Align" />
+<div class="mb-2">
+    <label asp-for="Setting.SrLabel" class="form-label">Sr Label</label>
+    <input asp-for="Setting.SrLabel" class="form-control" placeholder="Sr#" />
+</div>
+<div class="mb-2">
+    <label asp-for="Setting.SrAlign" class="form-label">Sr Align</label>
+    <input asp-for="Setting.SrAlign" class="form-control" placeholder="left/center/right" />
+</div>
 
-<input asp-for="Setting.NameLabel" class="form-control mt-2" placeholder="Show Name (1/0)" />
-<input asp-for="Setting.NameAlign" class="form-control mt-1" placeholder="Name Align" />
+<div class="mb-2">
+    <label asp-for="Setting.NameLabel" class="form-label">Name Label</label>
+    <input asp-for="Setting.NameLabel" class="form-control" placeholder="Item Name" />
+</div>
+<div class="mb-2">
+    <label asp-for="Setting.NameAlign" class="form-label">Name Align</label>
+    <input asp-for="Setting.NameAlign" class="form-control" placeholder="left/center/right" />
+</div>
 
-<input asp-for="Setting.RateLabel" class="form-control mt-2" placeholder="Show Rate (1/0)" />
-<input asp-for="Setting.RateAlign" class="form-control mt-1" placeholder="Rate Align" />
-<input asp-for="Setting.RateRound" class="form-control mt-1" placeholder="Rate Round" />
+<div class="mb-2">
+    <label asp-for="Setting.RateLabel" class="form-label">Rate Label</label>
+    <input asp-for="Setting.RateLabel" class="form-control" placeholder="Rate" />
+</div>
+<div class="mb-2">
+    <label asp-for="Setting.RateAlign" class="form-label">Rate Align</label>
+    <input asp-for="Setting.RateAlign" class="form-control" placeholder="left/center/right" />
+</div>
+<div class="mb-2">
+    <label asp-for="Setting.RateRound" class="form-label">Rate Round</label>
+    <input asp-for="Setting.RateRound" class="form-control" type="number" placeholder="2" />
+</div>
 
-<input asp-for="Setting.QtyLabel" class="form-control mt-2" placeholder="Show Qty (1/0)" />
-<input asp-for="Setting.QtyAlign" class="form-control mt-1" placeholder="Qty Align" />
-<input asp-for="Setting.QtyRound" class="form-control mt-1" placeholder="Qty Round" />
+<div class="mb-2">
+    <label asp-for="Setting.QtyLabel" class="form-label">Qty Label</label>
+    <input asp-for="Setting.QtyLabel" class="form-control" placeholder="Quantity" />
+</div>
+<div class="mb-2">
+    <label asp-for="Setting.QtyAlign" class="form-label">Qty Align</label>
+    <input asp-for="Setting.QtyAlign" class="form-control" placeholder="left/center/right" />
+</div>
+<div class="mb-2">
+    <label asp-for="Setting.QtyRound" class="form-label">Qty Round</label>
+    <input asp-for="Setting.QtyRound" class="form-control" type="number" placeholder="2" />
+</div>
 
 <hr />
 
 <h4>Footer</h4>
-<input asp-for="Setting.Footer1Text" class="form-control" placeholder="Footer 1" />
-<input asp-for="Setting.Footer1Align" class="form-control mt-1" placeholder="Footer1 Align" />
+<div class="mb-2">
+    <label asp-for="Setting.Footer1Text" class="form-label">Footer 1 Text</label>
+    <input asp-for="Setting.Footer1Text" class="form-control" placeholder="Footer 1" />
+</div>
+<div class="mb-2">
+    <label asp-for="Setting.Footer1Align" class="form-label">Footer 1 Align</label>
+    <input asp-for="Setting.Footer1Align" class="form-control" placeholder="left/center/right" />
+</div>
 
-<input asp-for="Setting.Footer2Text" class="form-control mt-2" placeholder="Footer 2" />
-<input asp-for="Setting.Footer2Align" class="form-control mt-1" placeholder="Footer2 Align" />
+<div class="mb-2">
+    <label asp-for="Setting.Footer2Text" class="form-label">Footer 2 Text</label>
+    <input asp-for="Setting.Footer2Text" class="form-control" placeholder="Footer 2" />
+</div>
+<div class="mb-2">
+    <label asp-for="Setting.Footer2Align" class="form-label">Footer 2 Align</label>
+    <input asp-for="Setting.Footer2Align" class="form-control" placeholder="left/center/right" />
+</div>
 
-<input asp-for="Setting.Footer3Text" class="form-control mt-2" placeholder="Footer 3" />
-<input asp-for="Setting.Footer3Align" class="form-control mt-1" placeholder="Footer3 Align" />
+<div class="mb-2">
+    <label asp-for="Setting.Footer3Text" class="form-label">Footer 3 Text</label>
+    <input asp-for="Setting.Footer3Text" class="form-control" placeholder="Footer 3" />
+</div>
+<div class="mb-2">
+    <label asp-for="Setting.Footer3Align" class="form-label">Footer 3 Align</label>
+    <input asp-for="Setting.Footer3Align" class="form-control" placeholder="left/center/right" />
+</div>
 
 <hr />
 
 <h4>Logo</h4>
-<input asp-for="Setting.ShowLogo" class="form-control" placeholder="Show Logo (1/0)" />
-<input asp-for="Setting.LogoCss" class="form-control mt-1" placeholder="Logo CSS" />
+<div class="mb-2">
+    <label asp-for="Setting.ShowLogo" class="form-label">Show Logo</label>
+    <select asp-for="Setting.ShowLogo" class="form-control">
+        <option value="0">No</option>
+        <option value="1">Yes</option>
+    </select>
+</div>
+<div class="mb-2">
+    <label asp-for="Setting.LogoCss" class="form-label">Logo CSS</label>
+    <input asp-for="Setting.LogoCss" class="form-control" placeholder="CSS classes or styles" />
+</div>
 
 <hr />
 
-<button class="btn btn-primary">Save Changes</button>
+<div class="mt-3">
+    <button type="submit" class="btn btn-primary">Save Changes</button>
+    <a asp-page="Index" class="btn btn-secondary">Cancel</a>
+</div>
 
 </form>
+

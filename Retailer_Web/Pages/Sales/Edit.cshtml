@@ -124,7 +124,8 @@
 							<thead class="table-light">
 								<tr>
 									<th width="5%">Sr</th>
-									<th width="30%">Item</th>
+									<th width="15%">Category</th>
+									<th width="25%">Item</th>
 									<th width="10%">Rate</th>
 									<th width="7%">Qty</th>
 									<th width="10%">Sub Total</th>
@@ -171,17 +172,26 @@
 								<tr id="templateRow" style="display:none">
 									<td><label class="sr-no-label">__index__</label></td>
 									<td>
+										<select name="Sale.Details[__index__].CategoryId" class="form-control category-select">
+											<option value="">-- Select Category --</option>
+											@foreach (var category in Model.CategoryList)
+											{
+												<option value="@category.Value">@category.Text</option>
+											}
+										</select>
+									</td>
+									<td>
 										<div class="item-search" data-index="__index__">
-										    <input type="hidden" name="Sale.Details[__index__].ItemCode" class="item-code-input" value="0" />
-										    <input type="hidden" name="Sale.Details[__index__].ItemName" class="item-name-input" value="" />
-										    <div class="dropdown w-100">
-										        <input type="text" class="form-control item-search-input" placeholder="Search item..." autocomplete="off" aria-expanded="false" />
-										        <div class="dropdown-menu w-100 p-0">
-											        <div class="list-group list-group-flush search-results"></div>
-											        <div class="dropdown-item text-muted small py-2 empty-state">Start typing to search</div>
-										        </div>
-										    </div>
-									    </div>
+											<input type="hidden" name="Sale.Details[__index__].ItemCode" class="item-code-input" value="0" />
+											<input type="hidden" name="Sale.Details[__index__].ItemName" class="item-name-input" value="" />
+											<div class="dropdown w-100">
+												<input type="text" class="form-control item-search-input" placeholder="Search item..." autocomplete="off" aria-expanded="false" />
+												<div class="dropdown-menu w-100 p-0">
+													<div class="list-group list-group-flush search-results"></div>
+													<div class="dropdown-item text-muted small py-2 empty-state">Start typing to search</div>
+												</div>
+											</div>
+										</div>
 									</td>
 									<td><input name="Sale.Details[__index__].Rate" min="0" value="0" type="number" step="0.01" class="form-control text-end" /></td>
 									<td><input name="Sale.Details[__index__].Qty" min="0" value="0" type="number" step="0.01" class="form-control text-end qty-input" data-max-qty="0" /></td>
@@ -394,22 +404,30 @@
 				if (input) input.focus();
 			});
 
-			// detailsTbody.addEventListener('input', function (e) {
-			// 	if (e.target.classList.contains('item-search-input')) {
-			// 		handleItemSearchInput(e.target);
-			// 		return;
-			// 	}
+			// Event listener for Rate, Qty, Discount, and Tax changes
+			detailsTbody.addEventListener('input', function (e) {
+				if (e.target.classList.contains('item-search-input')) {
+					handleItemSearchInput(e.target);
+					return;
+				}
 
-			// 	if (e.target.classList.contains('qty-input')) {
-			// 		enforceQtyLimit(e.target);
-			// 	}
+				if (e.target.classList.contains('qty-input')) {
+					enforceQtyLimit(e.target);
+				}
 
-			// 	const row = e.target.closest('tr[data-index]');
-			// 	if (row) {
-			// 		calculateRowAmount(row);
-			// 		updateTotal();
-			// 	}
-			// });
+				const row = e.target.closest('tr[data-index]');
+				if (row) {
+					// Check if it's one of the calculation inputs
+					const name = e.target.name || '';
+					if (name.includes('.Rate') || 
+						name.includes('.Qty') || 
+						name.includes('.Discount') || 
+						name.includes('.TaxPercentage')) {
+						calculateRowAmount(row);
+						updateTotal();
+					}
+				}
+			});
 
 			detailsTbody.addEventListener('click', function (e) {
 				const result = e.target.closest('.item-result');

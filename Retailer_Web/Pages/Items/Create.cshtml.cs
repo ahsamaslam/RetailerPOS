@@ -6,6 +6,7 @@ using Retailer.POS.Web.ApiDTOs;
 using System.Text.RegularExpressions;
 using Retailer.Web.Pages;
 using Microsoft.AspNetCore.Authorization;
+using Retailer.POS.Web.Models;
 
 namespace Retailer.POS.Web.Pages.Items;
 [Authorize]
@@ -48,7 +49,40 @@ public class CreateModel : BasePageModel
             return Page();
         }
 
-
         return RedirectToPage("Index");
+    }
+
+    // AJAX handler for creating Item Type
+    public async Task<IActionResult> OnPostCreateItemTypeAsync([FromBody] ItemTypeCreateRequest request)
+    {
+        if (string.IsNullOrWhiteSpace(request?.Name))
+        {
+            return new JsonResult(new { success = false, message = "Type name is required" });
+        }
+
+        var itemType = new ItemTypeViewModel { Name = request.Name.Trim() };
+        var (Success, Message) = await _api.CreateItemTypeAsync(itemType);
+
+        if (Success)
+        {
+            // Get the newly created item type ID by fetching all and finding the one with matching name
+            var allTypes = await _api.GetItemTypeAsync();
+            var newType = allTypes.FirstOrDefault(t => t.Name.Equals(request.Name.Trim(), StringComparison.OrdinalIgnoreCase));
+
+            return new JsonResult(new 
+            { 
+                success = true, 
+                id = newType?.Id ?? 0, 
+                name = newType?.Name ?? request.Name 
+            });
+        }
+
+        return new JsonResult(new { success = false, message = Message });
+    }
+
+    // Helper class for AJAX request
+    public class ItemTypeCreateRequest
+    {
+        public string Name { get; set; } = string.Empty;
     }
 }

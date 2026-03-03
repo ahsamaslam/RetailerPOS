@@ -8,18 +8,41 @@ namespace Retailer.Web.Pages.SaleInvoiceSettings
 {
     public class EditModel : PageModel
     {
-
         private readonly IApiClient _api;
+
         public EditModel(IApiClient api) => _api = api;
+
         [BindProperty] 
-        public SaleInvoiceSettingDto Setting { get; set; } 
+        public SaleInvoiceSettingDto Setting { get; set; } = new();
+
         public async Task<IActionResult> OnGetAsync(int id)
         {
-            Setting = await _api.GetSalePrintSetting(1); // fetch DTO from API 
-             
-           
-            if (Setting == null) return NotFound();
+            Setting = await _api.GetSalePrintSettingById(id);
+
+            if (Setting == null) 
+                return NotFound();
+
+            return Page();
+        }
+
+        public async Task<IActionResult> OnPostAsync(int id)
+        {
+            if (!ModelState.IsValid)
+            {
+                return Page();
+            }
+
+            var success = await _api.UpdateSalePrintSettingAsync(id, Setting);
+
+            if (success)
+            {
+                TempData["SuccessMessage"] = "Invoice setting updated successfully!";
+                return RedirectToPage("Index");
+            }
+
+            ModelState.AddModelError(string.Empty, "Failed to update invoice setting.");
             return Page();
         }
     }
 }
+
